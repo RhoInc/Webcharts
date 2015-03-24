@@ -16,6 +16,9 @@ div.wc-layout.wc-small-multiples::after {
 	font-weight: bold;
 	text-align: center;
 }
+.wc-small-multiples .wc-chart > .legend {
+  display: none;
+}
 
 /*.wc-basicTable, */
 div[class*="wc-"] .record-note{
@@ -128,9 +131,13 @@ div[class*="wc-"] .record-note{
 	cursor: all-scroll;
 }
 
-.wc-chart.wc-barchart .ordinal.axis .tick line,
-.wc-chart.wc-barchart .ordinal.axis path{
+.wc-chart .ordinal.axis .tick line,
+.wc-chart .ordinal.axis path{
 	display: none;
+}
+
+.wc-chart.gridlines .ordinal.axis .tick line{
+	display: block;
 }
 
 .wc-chart.wc-barchart .bar{
@@ -234,6 +241,9 @@ div[class*="wc-"] .record-note{
 }
 
 .wc-controls .control-group .control-label .label-required{
+	color: #de2d26;
+	padding: 0 .25em;
+	border: 1px solid;
 	margin-left: .5em;
 }
 
@@ -259,6 +269,10 @@ div[class*="wc-"] .record-note{
 	font-size: .9em;
 	padding: 0;
 	margin: 5px 10px 0 0;
+}
+
+.wc-controls .inline{
+	display: inline;
 }
 
 .wc-controls .control-group input[type='text'],
