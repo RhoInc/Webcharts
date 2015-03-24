@@ -369,7 +369,7 @@ webCharts.controlUI = function(element, data, config, defaults, callback){
    	var changer = control_wrap.append("select").attr("class", "changer").attr("multiple", control.multiple ? true : null).datum(control);
     var option_data = control.values ? control.values : 
     	d3.set(context.data.map(function(m){return m[control.value_col]}).filter(function(f){return f}) ).values();
-
+    option_data.sort(d3.ascending);
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
     if(!control.multiple && !control.start)
     	option_data.unshift("All");
@@ -379,26 +379,52 @@ webCharts.controlUI = function(element, data, config, defaults, callback){
     	.property("selected", function(d){return d === control.start});
 
     context.targets.forEach(function(e){
-      e.filters.push({col: control.value_col, val: control.start ? control.start : "All", choices: option_data, loose: control.loose});
+      var match = e.filters.slice().map(function(m){return m.col === control.value_col}).indexOf(true);
+      if(match > -1)
+        e.filters[match] = {col: control.value_col, val: control.start ? control.start : "All", choices: option_data, loose: control.loose}
+      else
+        e.filters.push({col: control.value_col, val: control.start ? control.start : "All", choices: option_data, loose: control.loose});
     });
-    changer.on("change", function(d){
-    	if(control.multiple){
-       	var values = options.filter(function(f){return d3.select(this).property("selected")})[0].map(function(m){return d3.select(m).property("value")});
-       	var new_filter = {col: control.value_col, val: values, choices: option_data, loose: control.loose};
-       	context.targets.forEach(function(e){
-          setSubsetter(e, new_filter)
-          e.draw();
-        });
-    	}
-      else{
-       	var value = d3.select(this).property("value");
-        var new_filter = {col: control.value_col, val: value, choices: option_data, loose: control.loose};
+
+    if(control.chosen){//chosen plugin
+      $(changer.node()).chosen(control.chosen).change(function(){
+        var d = d3.select(this).datum();
+        doTheSubset(d, 0, 0, this);
+        $(this).trigger("chosen:updated");
+      });
+    }
+    else
+      changer.on("change", doTheSubset);
+
+    function doTheSubset(d,i,c, current_context){
+      var this_subsetter = current_context || this;
+      if(control.multiple){
+        var values = options.filter(function(f){return d3.select(this).property("selected")})[0].map(function(m){return d3.select(m).property("value")});
+
+        var new_filter = {col: control.value_col, val: values, choices: option_data, loose: control.loose};
         context.targets.forEach(function(e){
           setSubsetter(e, new_filter)
           e.draw();
         });
       }
-    });
+      else{
+        var value = d3.select(this_subsetter).property("value");
+        var new_filter = {col: control.value_col, val: value, choices: option_data, loose: control.loose};
+        context.targets.forEach(function(e){
+          setSubsetter(e, new_filter)
+          e.draw();
+        });
+      };
+      if(control.callback){
+        context.targets.forEach(function(e){
+          control.callback(e)
+        });
+      }
+    };
+
+    if(control.chosen)//chosen plugin
+      $(this).trigger("chosen:updated");
+  
   };//make subsetter
 
    function setSubsetter(target, obj){
@@ -599,6 +625,22 @@ webCharts.dataOps = {
       return false;
     else
       return true;
+  },
+
+  lengthenRaw: function(data, columns){
+    var my_data = [];
+    data.forEach(function(e){
+      columns.forEach(function(g){
+        var obj = {};
+        obj.wc_category = g;
+        obj.wc_value = e[g];
+        for(x in e){
+          obj[x] = e[x]
+        }
+        my_data.push(obj)
+      })
+    });
+    return my_data;
   }
 };//dataOps
 
@@ -650,7 +692,7 @@ chart.prototype.init = function(data){
         .range(meta_map.map(function(m){return m.label}));
 
       context.raw_data = data;
-      var visible = $ ? $(context.div).is(':visible') : true;
+      var visible = window.$ ? $(context.div).is(':visible') : true;
       if(!visible){
           var onVisible = setInterval(function(){
               var visible_now = $(context.div).is(':visible')
@@ -725,9 +767,18 @@ chart.prototype.layout = function(){
   })
   .append("rect").attr({"x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black"});
 
+  // defs.append("style").attr("type", "text/css").html(
+  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
+  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: inherit;}"+
+  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
+  // );
+
   var eid = typeof element === "string" ? element.replace(/\./g, "") : d3.select(element).attr("class").replace(/\s/g, "") ;
-  config.clippath_id = "plot-clip-"+eid;
-  defs.append("clipPath").attr("id", config.clippath_id).append("rect").attr("class", "plotting-area");
+  var setting_string = btoa ? btoa(JSON.stringify(config)) : Math.random()*100;
+  var rand = Math.floor( Math.random()*setting_string.length );
+  var setting_id = setting_string.slice( rand, rand+5);
+  context.clippath_id = "plot-clip-"+eid+"-"+setting_id;
+  defs.append("clipPath").attr("id", context.clippath_id).append("rect").attr("class", "plotting-area");
 
   svg.append("g").attr("class", "y axis")
     .append("text").attr("class", "axis-title")
@@ -762,7 +813,7 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
     context.metaMap.domain().indexOf(context.config.color_by) < 0 ? "" :
     context.metaMap(context.config.color_by);
 
-  var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f}).map(function(m){
+  var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f !== undefined && f !== null}).map(function(m){
     return {label: m,  mark: context.legend_mark};
   });
   legend.select(".legend-title").text(label).style("display", label ? "inline" : "none");
@@ -803,6 +854,20 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
     return context.metaMap.domain().indexOf(d.label) > -1 ? context.metaMap(d.label) : d.label;
   });
 
+  leg_parts.on("mouseover", function(d){
+    if(!config.highlight_on_legend)
+      return;
+    var fill = d3.select(this).select(".legend-mark").attr("fill");
+    console.log(fill)
+    context.svg.selectAll(".wc-data-mark").attr("opacity", 0.1).filter(function(f){
+      return d3.select(this).attr("fill") === fill || d3.select(this).attr("stroke") === fill;
+    }).attr("opacity", 1)
+  }).on("mouseout", function(d){
+    if(!config.highlight_on_legend)
+      return;
+     context.svg.selectAll(".wc-data-mark").attr("opacity", 1)
+  })
+
   if(scale.domain().length > 1)
     legend.style("display", "block");
   else
@@ -813,8 +878,6 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
 chart.prototype.xScaleAxis = function(type, max_range, domain){
   //domain = type === "percent" ? [0,1] : domain;
   var config = this.config;
-  config.padding = config.padding ? config.padding : config.tight ? .01 : .3;
-  config.outer_pad = config.outer_pad ? config.outer_pad : config.tight ? 0 : .1;
 
   if(type === "log")
     var x = d3.scale.log();
@@ -825,17 +888,17 @@ chart.prototype.xScaleAxis = function(type, max_range, domain){
   else
     var x = d3.scale.linear();
 
-  x.domain(domain);
+  x.domain(domain)
   if(type === "ordinal")
-    x.rangeRoundBands([0, +max_range], config.padding, config.outer_pad);
+    x.rangeBands([0, +max_range], config.padding, config.outer_pad);
   else
-    x.range([0, +max_range]);
+    x.range([+max_range*config.x_offset, +max_range-+max_range*config.x_offset]).clamp(Boolean(config.x_clamp));
 
-  var x_format = config.x_format ? config.x_format : type === "percent" ? "0%" : ".0f";
+  var x_format = config.x_format ? config.x_format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var xAxis = d3.svg.axis()
     .scale(x)
-    .orient("bottom")
+    .orient(config.x_location)
     .ticks(tick_count)
     .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(x_format) : d3.format(x_format))
     .tickValues(config.x_ticks ? config.x_ticks : null)
@@ -849,8 +912,6 @@ chart.prototype.xScaleAxis = function(type, max_range, domain){
 chart.prototype.yScaleAxis = function(type, max_range, domain){
   //domain = type === "percent" ? [0,1] : domain;
   var config = this.config;
-  config.padding = config.padding ? config.padding : config.tight ? .01 : .3;
-  config.outer_pad = config.outer_pad ? config.outer_pad : config.tight ? 0 : .1;
   var y;
   if(type === "log")
     var y = d3.scale.log();
@@ -865,7 +926,7 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
   if(type === "ordinal")
     y.rangeBands([+max_range, 0], config.padding, config.outer_pad); 
   else
-    y.range([+max_range, 0]);
+    y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 
   var y_format = config.y_format ? config.y_format : type === "percent" ? "0%" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
@@ -885,20 +946,28 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
 };//yScaleAxis
 chart.prototype.setColorScale = function(){
   var config = this.config;
-  colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values();
+  colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values()
+    .filter(function(f){return f && f !== "undefined"});
+
+  if(config.chunk_order)
+    colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
+
   this.colorScale = d3.scale.ordinal()
     .domain(colordom)
     .range(config.colors ? config.colors : webCharts.colors.nb);
 };//set color scale
 chart.prototype.textSize = function(width,height){
-  if(this.config.no_text_size)
-    return;
-
   var context = this
   var font_size = "14px";
   var point_size = 4;
   var stroke_width = 2;
-  if(width >= 600){
+
+  if(this.config.no_text_size){
+    font_size = context.config.font_size;
+    point_size = context.config.point_size || 4;
+    stroke_width = context.config.stroke_width || 2;
+  }
+  else if(width >= 600){
     font_size = "14px";
     point_size = 4;
     stroke_width = 2;
@@ -919,6 +988,12 @@ chart.prototype.textSize = function(width,height){
     stroke_width = 1;
   }
 
+  // context.svg.select("defs style").html(
+  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
+  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: "+font_size+";}"+
+  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
+  // );
+
   context.wrap.style("font-size",font_size);
   context.config.flex_point_size = point_size;
   context.config.flex_stroke_width = stroke_width;
@@ -929,7 +1004,7 @@ chart.prototype.setMargins = function(){
   var y_ticks = context.yAxis.tickFormat() ? context.y.domain().map(function(m){return context.yAxis.tickFormat()(m)}) : context.y.domain();
 
   var max_y_text_length = d3.max( y_ticks.map(function(m){return String(m).length}) );
-  if(this.config.y_type === "percent")
+  if(this.config.y_format && this.config.y_format.indexOf("%") > -1 )
     max_y_text_length += 1
   max_y_text_length = Math.max(2, max_y_text_length);
   var x_label_on = this.config.x_label ? 1 : 0;
@@ -1085,6 +1160,7 @@ chart.prototype.drawSimpleLines = function(line_data, container, class_match, bi
     .attr("y2", function(d){var unscale = d.ys ? d.ys[2] : false; var y2 = !d.ys ? 0 : context.y(d.ys[1]); return unscale ? d.ys[1] : config.y_type === "ordinal" ? y2 + context.y.rangeBand()/2 : y2});
   lines.each(function(e){
     e.attributes = e.attributes || {};
+    e.attributes["stroke-opacity"] = e.attributes["stroke-opacity"] || config.stroke_opacity || 1;
     e.attributes["stroke-width"] = e.attributes["stroke-width"] || config.stroke_width || 1;
     e.attributes["stroke"] = e.attributes["stroke"] || "black"; 
     d3.select(this).attr(e.attributes); 
@@ -1186,7 +1262,7 @@ chart.prototype.updateRefLines = function(){
       yy = d3.time.format(config.date_format).parse(m.y);
     return {xs: !m.x && +m.x !== 0 ? [0, context.plot_width,true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0,context.plot_height,true] : [yy, yy], attributes: m.attributes};
   });
-  var ref_lines = context.drawSimpleLines(ref_line_data).style("clip-path", "url(#"+config.clippath_id+")");
+  var ref_lines = context.drawSimpleLines(ref_line_data).style("clip-path", "url(#"+context.clippath_id+")");
 };//updateRefLines
 chart.prototype.updateRefRegions = function(){
   //define/draw reference regions, if any
@@ -1195,13 +1271,19 @@ chart.prototype.updateRefRegions = function(){
   var ref_region_data = !config.reference_regions ? [] : context.config.reference_regions.slice(0).map(function(m){
     var xx = m.x;
     var yy = m.y;
-    if(config.x_type === "time" && m.x)
-      xx = m.x.map(function(w){return d3.time.format(config.date_format).parse(w)});
-    if(config.y_type === "time" && m.y)
-      yy = m.y.map(function(w){return d3.time.format(config.date_format).parse(w)});
-    return {xs: !m.x ? [1, context.plot_width] : xx, ys: !m.y ? [0, context.plot_height-1] : yy, attributes: m.attributes};
+    if(config.x_type === "time")
+      if(m.x)
+        xx = m.x.map(function(w){return d3.time.format(config.date_format).parse(w)});
+      else
+        xx = context.x_dom;
+    if(config.y_type === "time")
+      if(m.y)
+        yy = m.y.map(function(w){return d3.time.format(config.date_format).parse(w)});
+      else
+        yy = context.y_dom;
+    return {xs: !xx ? [1, context.plot_width] : xx, ys: !m.y ? [0, context.plot_height-1] : yy, attributes: m.attributes};
   });
-  context.drawRects(ref_region_data).style("clip-path", "url(#"+config.clippath_id+")");
+  context.drawRects(ref_region_data).style("clip-path", "url(#"+context.clippath_id+")");
 };//updateRefRegions
 chart.prototype.draw = function(processed_data, raw_data){
   var context = this;
@@ -1209,6 +1291,9 @@ chart.prototype.draw = function(processed_data, raw_data){
   var config = context.config;
   var aspect2 = 1/config.aspect;
   var data = processed_data || context.transformData(raw);
+  config.padding = config.padding ? config.padding : config.tight ? .01 : .3;
+  config.outer_pad = config.outer_pad ? config.outer_pad : config.tight ? 0 : .1;
+  config.x_offset = config.x_offset || 0;
   // config.y_behavior = config.y_behavior || "flex";
   // config.x_behavior = config.x_behavior || "flex";
   context.wrap.datum(data)
@@ -1219,8 +1304,14 @@ chart.prototype.draw = function(processed_data, raw_data){
 
   config.resizable = config.resizable === false ? false : true;
   var max_width = config.max_width ? config.max_width : div_width;
-  context.raw_width = config.resizable ? max_width : config.width ? config.width : div_width;
-  context.raw_height = config.resizable ? max_width*aspect2 : config.height ? config.height : div_width*aspect2;
+  context.raw_width = config.resizable ? max_width : 
+    config.width ? config.width : 
+    div_width;
+  context.raw_height = config.y_type === "ordinal" && +config.range_band ? (config.range_band+config.range_band*config.padding)*context.y_dom.length :
+    config.resizable ? max_width*aspect2 : 
+    config.height ? config.height : 
+    div_width*aspect2;
+
   var pseudo_width = context.svg.select(".overlay").attr("width") ? context.svg.select(".overlay").attr("width") : context.raw_width;
   var pseudo_height = context.svg.select(".overlay").attr("height") ? context.svg.select(".overlay").attr("height") : context.raw_height;
 
@@ -1255,9 +1346,14 @@ chart.prototype.resize = function(){
 
   context.margin = context.setMargins();
 
-  var svg_width = !config.resizable ? context.raw_width : !config.max_width || div_width < config.max_width ? div_width :context.raw_width;
+  var svg_width = !config.resizable ? context.raw_width : 
+    !config.max_width || div_width < config.max_width ? div_width :
+    context.raw_width;
   context.plot_width = svg_width - context.margin.left - context.margin.right;
-  var svg_height = !config.resizable && config.height ? config.height : !config.resizable ? svg_width*aspect2 : context.plot_width*aspect2;
+  var svg_height = config.y_type === "ordinal" && +config.range_band ? context.raw_height + context.margin.top + context.margin.bottom :
+    !config.resizable && config.height ? config.height : 
+    !config.resizable ? svg_width*aspect2 : 
+    context.plot_width*aspect2;
   context.plot_height = svg_height - context.margin.top - context.margin.bottom;
 
   d3.select(context.svg.node().parentNode)
@@ -1285,7 +1381,8 @@ chart.prototype.resize = function(){
   var x_axis_label = g_x_axis.select(".axis-title");
   var y_axis_label = g_y_axis.select(".axis-title");
 
-  g_x_axis.attr("transform", "translate(0," + (context.plot_height) + ")")
+  if(config.x_location !== "top")
+    g_x_axis.attr("transform", "translate(0," + (context.plot_height) + ")")
   g_x_axis.transition().call(context.xAxis);
   g_y_axis.transition().call(context.yAxis);
   x_axis_label.attr("transform", "translate("+context.plot_width/2+","+(context.margin.bottom-2)+")")
@@ -1315,7 +1412,7 @@ chart.prototype.resize = function(){
   //call .on("resize") function, if any
   context.events.onResize(this);
 };//resize
-chart.prototype.multiply = function(raw, split_by){
+chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
   var context = this;
   var config = this.config;
   var wrap = context.wrap.classed("wc-layout wc-small-multiples", true).classed("wc-chart", false);
@@ -1336,6 +1433,8 @@ chart.prototype.multiply = function(raw, split_by){
   
   function goAhead(data){
     var split_vals = d3.set(data.map(function(m){return m[split_by]})).values().filter(function(f){return f});
+    if(order)
+      split_vals = split_vals.sort(function(a,b){return d3.ascending(order.indexOf(a), order.indexOf(b))});
 
     var master_chart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
     master_chart.wrap.style("display", "none")
@@ -1345,8 +1444,9 @@ chart.prototype.multiply = function(raw, split_by){
       var mchart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
       mchart.events = context.events;
       mchart.legend = master_legend;
-      //mchart.friends = charts;
-      mchart.on("datatransform", matchDomains);
+      mchart.multiplied = {col: split_by, value: e};
+      if(constrain_domains)
+        mchart.on("datatransform", matchDomains);
       mchart.wrap.insert("span", "svg").attr("class", "wc-chart-title").text(e);
       charts.push({subchart: mchart, subdata: split_data});
     });
@@ -1364,8 +1464,8 @@ chart.prototype.multiply = function(raw, split_by){
       
       chart.config.color_dom = d3.set(data.map(function(m){return m[config.color_by]})).values().filter(function(f){return f && f !== "undefined"});
       // var allx = d3.merge(charts.map(function(m){return m.x_dom}));
-      chart.x_dom = config.x_type !== "ordinal" ? d3.extent(d3.merge(allx)) : d3.set(d3.merge(allx)).values();
-      chart.y_dom = config.y_type !== "ordinal" ? d3.extent(d3.merge(ally)) : d3.set(d3.merge(ally)).values();
+      chart.x_dom = config.x_dom ? config.x_dom : config.x_type !== "ordinal" ? d3.extent(d3.merge(allx)) : d3.set(d3.merge(allx)).values();
+      chart.y_dom = config.y_com ? config.y_dom : config.y_type !== "ordinal" ? d3.extent(d3.merge(ally)) : d3.set(d3.merge(ally)).values();
       // var ally = d3.merge(charts.map(function(m){return m.y_dom}));
       // chart.y_dom = config.y_type !== "ordinal" ? d3.extent(ally) : d3.set(ally).values();
     };
@@ -1376,6 +1476,7 @@ chart.prototype.multiply = function(raw, split_by){
 };//Multiply
 
 webCharts.chart = chart;
+
 
 //scatter plot
 webCharts.scatterPlot = function(element, filepath, config, controls){
@@ -1388,6 +1489,7 @@ webCharts.scatterPlot = function(element, filepath, config, controls){
   this.legend_mark = "circle";
   this.chart_type = "scatterPlot";
 
+  config.tight = true;
   config.x_type = config.x_type || "linear";
   config.y_type = config.y_type || "linear";
   config.x_vals.stat = config.x_vals.stat || "mean";
@@ -1526,13 +1628,16 @@ webCharts.scatterPlot.prototype.updateDataMarks = function(){
     config.zoomable = config.zoomable && config.x_type !== "ordinal" && config.y_type !== "ordinal" ? true : false;
 
     var points = context.drawPoints(context.current_data, null, null, function(d,i){return d.key},function(d){return d.values.x},function(d){return d.values.y}, function(d){return d.values.raw[0]});
+    points.selectAll("circle").classed("wc-data-mark", true);
 
     points.selectAll("title").text(function(d){
       var text = "";
       if(config.tooltip){
-        config.tooltip.forEach(function(e){
+        config.tooltip.forEach(function(e,i){
           var label = e.label ? e.label : e.col;
-          text += label +": "+d.values.raw[0][e.col] +"\n"; 
+          text += label +": "+d.values.raw[0][e.col];
+          if(i < config.tooltip.length)
+            text +="\n"; 
         });
       }
       else{
@@ -1580,7 +1685,7 @@ webCharts.scatterPlot.prototype.updateDataMarks = function(){
       var max = x.domain()[1]
       var reg_line_data = [{xs: [0, max], ys: [lr.intercept, (max * lr.slope) + lr.intercept ] }];
       var reg_line = context.drawSimpleLines(reg_line_data, null, "regression-line")
-        .style("clip-path", "url(#"+config.clippath_id+")").attr("shape-rendering", "auto");
+        .style("clip-path", "url(#"+context.clippath_id+")").style("shape-rendering", "auto");
       reg_line.select("title").text("slope: "+d3.format(".2f")(lr.slope)+"\n"+"intercept: "+d3.format(".2f")(lr.intercept)+"\n"+"r2: "+d3.format(".2f")(lr.r2));
     }
     else{
@@ -1597,7 +1702,7 @@ webCharts.scatterPlot.prototype.updateDataMarks = function(){
     var base_line = context.drawLines(xyLine, base_line_data, function(d){return d.values},"xy-line", function(d){return d.key});
     //context.addTooltip(base_line, "X=Y");
     base_line.select("path").attr("stroke", "black")
-      .style("clip-path", "url(#"+config.clippath_id+")")
+      .style("clip-path", "url(#"+context.clippath_id+")")
       .attr({"stroke-dasharray": [5,5], "stroke-width": 1});
     //x/y lines
 
@@ -1610,7 +1715,7 @@ webCharts.scatterPlot.prototype.updateDataMarks = function(){
         svg.select(".y.axis").transition().call(context.yAxis)
         var points = context.drawPoints(context.current_data, null, null, function(d,i){return d.key},function(d){return d.values.x},function(d){return d.values.y}, function(d){return d.values.raw[0]});
         points.selectAll("circle")
-          .style("clip-path", "url(#"+config.clippath_id+")")
+          .style("clip-path", "url(#"+context.clippath_id+")")
           .transition().ease("linear")
           .attr("cx", function(d){return x(d.values["x"])})
           .attr("cy", function(d){return y(d.values["y"])});
@@ -1715,32 +1820,66 @@ webCharts.scatterPlot.prototype.updateDataMarks = function(){
 webCharts.lineChart = function(element, filepath, config, controls){
   this.required_vars = config.group.length ? config.group.map(function(m){return "group"}) : [];
   this.required_cols = config.group.length ? config.group.slice(0) : [];
-  this.required_vars.push("x_vals.col", "y_vals.col");
-  this.required_cols.push(config.x_vals.col, config.y_vals.col);
+  this.required_vars.push("x_vals.col");
+  this.required_cols.push(config.x_vals.col);
 	this.legend_mark = "line";
 	this.chart_type = "lineChart";
 
+  config.tight = true;
   config.aspect = config.aspect || 1.33;
   config.y_vals.stat = config.y_vals.stat || "mean";
   config.y_type = "linear";
+  config.y_format = config.y_format || ".0f";
+  config.x_type = config.x_type || "linear";
+  config.date_format = config.date_format || "%x";
 
 	chart.call(this, element, filepath, config, controls);
 
   return this;
 };//END lineChart
 webCharts.lineChart.prototype = Object.create(chart.prototype);
+webCharts.lineChart.prototype.extraLayout = function(){
+  var svg = this.svg;
+
+  var x_mark = svg.select("g.x").append("g")
+    .attr("class", "hover-item hover-tick hover-tick-x").style("display", "none");
+  x_mark.append("line").attr("x1", 0).attr("x2", 0).attr("y1", 0 ).attr("y2", 0).attr("stroke", "#ddd");
+  x_mark.append("text").attr({"x": 0, "y": 0, "dx": ".5em", "dy": "-.5em"})
+
+  var y_mark = svg.select("g.y.axis").append("g")
+    .attr("class", "hover-item hover-tick hover-tick-y").style("display", "none");
+  y_mark.append("text").attr({"x": 0, "y": 0, "dx": ".5em", "dy": ".35em"})
+  y_mark.append("path").attr("d", d3.svg.symbol().type("triangle-down").size(15)).attr("transform", "rotate(90)")
+};
 //manipulate data
 webCharts.lineChart.prototype.transformData = function(raw){
   var context = this;
   var config = this.config;
-  var stats = ["mean", "median", "min", "max", "sum", "count"];
-  var y_behavior = config["y_behavior"] || "raw";
+  if(typeof config.group === "string")
+    config.group = [config.group];
+  //var stats = ["mean", "median", "min", "max", "sum", "count"];
+  var y_behavior = config["y_behavior"] || "flex";
+  var dateConvert = d3.time.format(config.date_format);
   context.raw_data = raw;
+
+  raw = config.group.length ? raw.filter(function(f){return f[config.group[0]]}) : raw;
+
+  raw = raw.filter(function(f){return f[config.x_vals.col] && f[config.y_vals.col] !== ""})
 
   if(config.initial_filter){
     raw = raw.filter(function(f){
       return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1
     }) 
+  };
+  if(config.x_type === "time"){
+    raw = raw.filter(function(f){
+      // console.log(f[config.x_vals.col]); 
+      return f[config.x_vals.col] instanceof Date ? f[config.x_vals.col] : dateConvert.parse(f[config.x_vals.col]) 
+    })
+    raw.forEach(function(e){
+      e[config.x_vals.col] = e[config.x_vals.col] instanceof Date ? e[config.x_vals.col] :
+        dateConvert.parse(e[config.x_vals.col]);
+    });
   };
 
   var raw_ys = [];
@@ -1748,21 +1887,26 @@ webCharts.lineChart.prototype.transformData = function(raw){
     .key(function(d){var test = config.group.map(function(m){return d[m]}); return  test.join(" ")})
     .key(function(d){return d[config.x_vals.col]})
     .rollup(function(r){
-      var line_vals = r.map(function(m){return m[config.y_vals.col]}).sort(d3.ascending);
-      raw_ys.push(webCharts.dataOps.summarize(line_vals, "min"))
-      raw_ys.push(webCharts.dataOps.summarize(line_vals, "max"))
+      if(config.y_vals.stat === "cumulative")
+        raw_ys.push(0, raw.length);
+      else{
+        var line_vals = r.map(function(m){return m[config.y_vals.col]}).sort(d3.ascending);
+        var min = webCharts.dataOps.summarize(line_vals, "min") || 0;
+        var max = webCharts.dataOps.summarize(line_vals, "max") || webCharts.dataOps.summarize(line_vals, "count")
+        raw_ys.push(min, max);
+      }
     })
     .entries(raw);
-  var raw_dom = d3.extent( raw_ys );
+  var raw_dom = d3.extent( raw.map(function(m){return +m[config.y_vals.col]}) );//d3.extent( raw_ys );
 
   var filtered = raw;
   var filt1 = [];
   if(context.filters.length){
     context.filters.forEach(function(e){
       filtered = filtered.filter(function(d){
-        return e.val !== "All" ? d[e.col] === e.val : d;
+        return e.val === "All" ? d : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
       })
-    });
+    }); 
     //get domain for all non-All values of first filter
     if(y_behavior === "firstfilter"){
       context.filters[0].choices.filter(function(f){return f !== "All"}).forEach(function(e){
@@ -1772,7 +1916,16 @@ webCharts.lineChart.prototype.transformData = function(raw){
           .key(function(d){return d[config.x_vals.col]})
           .rollup(function(r){
             var line_vals = r.map(function(m){return m[config.y_vals.col]});
-            filt1.push(webCharts.dataOps.summarize(line_vals, config.y_vals.stat))
+            filt1.push(webCharts.dataOps.summarize(line_vals, config.y_vals.stat));
+            if(config.y_vals.stat === "cumulative"){
+              var interm = perfilter.filter(function(f){
+                  return config.x_type === "time" ? new Date(f[config.x_vals.col]) <= new Date(r[0][config.x_vals.col]) : 
+                    +f[config.x_vals.col] <= +r[0][config.x_vals.col]
+                });
+              if(config.group.length)
+                interm = interm.filter(function(f){return f[config.group[0]] === r[0][config.group[0]] })
+              filt1.push(interm.length);
+            }
           })
           .entries(perfilter);
       }); 
@@ -1785,11 +1938,27 @@ webCharts.lineChart.prototype.transformData = function(raw){
   var nested = d3.nest()
     .key(function(d){var test = config.group.map(function(m){return d[m]}); return  test.join(" ")})
     .key(function(d){return d[config.x_vals.col]})
+    .sortKeys(function(a,b){
+      return config.x_type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
+        config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
+        d3.ascending(+a, +b);
+    })
     .rollup(function(r){
       var obj = {raw: r};
       var line_vals = r.map(function(m){return +m[config.y_vals.col]});
-      obj.y = webCharts.dataOps.summarize(line_vals, config.y_vals.stat);
-      stats.forEach(function(e){obj[e] = webCharts.dataOps.summarize(line_vals, e)});
+      if(config.y_vals.stat === "cumulative"){
+        var interm = filtered.filter(function(f){
+            return config.x_type === "time" ? new Date(f[config.x_vals.col]) <= new Date(r[0][config.x_vals.col]) : 
+              +f[config.x_vals.col] <= +r[0][config.x_vals.col]
+          });
+        if(config.group.length)
+          interm = interm.filter(function(f){return f[config.group[0]] === r[0][config.group[0]] })
+        obj.y = interm.length;
+      }
+      else
+        obj.y = webCharts.dataOps.summarize(line_vals, config.y_vals.stat);
+      //obj[config.y_vals.stat] = webCharts.dataOps.summarize(line_vals, config.y_vals.stat);
+      //stats.forEach(function(e){obj[e] = webCharts.dataOps.summarize(line_vals, e)});
       return obj;
     })
     .entries(filtered);
@@ -1803,16 +1972,15 @@ webCharts.lineChart.prototype.transformData = function(raw){
   //several criteria must be met in order to use the 'firstfilter' domain
   var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" && 
     context.filters.slice(1).filter(function(f){return f.val === "All"}).length === context.filters.length-1 );
-  var y_dom = !context.filters.length ? flex_dom : y_behavior === "raw" ? raw_dom : nonall && y_behavior === "firstfilter" ? filt1_dom : flex_dom;
+  var y_dom = y_behavior === "raw" ? raw_dom : !context.filters.length ? flex_dom : nonall && y_behavior === "firstfilter" ? filt1_dom : flex_dom;
 
   context.y_dom =  config.y_dom ? config.y_dom : config.y_from0 ? [0, d3.max(y_dom)] : y_dom;
 
-  var x_is_cont = webCharts.dataOps.isCont(context.raw_data, config.x_vals.col);
+  //var x_is_cont = webCharts.dataOps.isCont(context.raw_data, config.x_vals.col);
   
-  context.x_dom =  config.x_dom ? config.x_dom : x_is_cont ? d3.extent(raw, function(d){ return +d[config.x_vals.col]}) :
+  context.x_dom =  config.x_dom ? config.x_dom : config.x_type === "linear" ? d3.extent(raw, function(d){ return +d[config.x_vals.col]}) :
+    config.x_type === "time" ? d3.extent(raw, function(d){ return d[config.x_vals.col] }) : 
     d3.set(raw.map(function(m){return m[config.x_vals.col]})).values();
-
-  config.x_type = x_is_cont ? "linear" : "ordinal";  
 
   context.current_data = nested;
   context.events.onDatatransform(context);
@@ -1823,6 +1991,7 @@ webCharts.lineChart.prototype.updateDataMarks = function(){
     var config = this.config;
     var width = context.plot_width;
     var height = context.plot_height;
+    var dateConvert = d3.time.format(config.date_format);
 
     context.svg.select(".plotting-area")
       .attr("width", width)
@@ -1830,13 +1999,16 @@ webCharts.lineChart.prototype.updateDataMarks = function(){
 
     //LINES
     var line = d3.svg.line()
-      .x(function(d){ return config.x_type === "linear" ? context.x(+d.key) : context.x(d.key)+ context.x.rangeBand()/2 }) 
-      .y(function(d) { return context.y(d.values[config.y_vals.stat]);});
-
-    var lines = context.drawLines(line, context.current_data, function(d){return d.values.sort(function(a,b){
-        return context.x(b.key) - context.x(a.key)
+      .interpolate(config.interpolate)
+      .x(function(d){
+        return config.x_type === "linear" ? context.x(+d.key) : 
+          config.x_type === "time" ? context.x(new Date(d.key)) :
+          context.x(d.key) + context.x.rangeBand()/2 
       }) 
-    }, null, function(d){return d.key}, function(d){return d[0].values.raw[0]});
+      .y(function(d) { return context.y(d.values.y);});
+
+    var lines = context.drawLines(line, context.current_data, function(d){return d.values}, null, function(d){return d.key}, function(d){return d[0].values.raw[0]});
+    lines.selectAll("path").classed("wc-data-mark", true);
 
     lines.selectAll("title").text(function(d){
       var text = "";
@@ -1854,17 +2026,114 @@ webCharts.lineChart.prototype.updateDataMarks = function(){
       return text.trim();
     });
 
+    //fill area under line(s)
+    var area = d3.svg.area()
+      .interpolate(config.interpolate)
+      .x(function(d){ 
+        return config.x_type === "linear" ? context.x(+d.key) : 
+          config.x_type === "time" ? context.x(new Date(d.key)) :
+          context.x(d.key)+ context.x.rangeBand()/2 
+      }) 
+      .y0(function(d){return height})
+      .y1(function(d) { return context.y(d.values.y);});
+
+     var area_data = config.fill_area ? context.current_data : [];
+     context.drawArea(area, area_data, function(d){return d.values}, "line-area", function(d){return d.key}, function(d){return d[0].values.raw[0]});
+
     //points stuff 
-    config.fill_opacity = 0;
+    //config.fill_opacity = 0;
 
     var point_data = config.points ? d3.merge(lines.data().map(function(m){return m.values})) : [];
 
-    var points = context.drawPoints(point_data, null, "line-point" , null, function(d){return d.key}, function(d){return d.values[config.y_vals.stat]}, function(d){return d.values.raw[0]});
+    var points = context.drawPoints(point_data, null, "line-point" , null, 
+      function(d){return config.x_type === "time" ? new Date(d.key) : d.key}, 
+      function(d){return d.values.y}, 
+      function(d){return d.values.raw[0]});
 
-    points.selectAll("title").text(function(d){ return d.key+", "+d.values[config.y_vals.stat]});
+    points.selectAll("title").text(function(d){ return d.key+", "+d3.format(config.y_format)(d.values.y) });
+
+    context.svg.selectAll(".hover-item").moveToFront();
+    context.svg.select(".line-group").moveToFront();
+
+    if(config.hover_ticks){
+      var decim = d3.format(config.y_format);
+      context.svg.select(".hover-tick-x").select("line").attr("y1", -height)
+      //context.svg.select(".overlay").on("mousemove", mousemove)
+      context.svg.on("mousemove", mousemove)
+      .on("mouseover", function() { 
+          context.svg.selectAll(".hover-item").style("display", "block"); 
+          context.svg.selectAll(".hover-tick-y").style("display", function(d){
+              return context.colorScale.domain().filter(function(f){return f}).length <= 1 ? "block" : "none"
+          })
+          var leg_items = context.wrap.select(".legend").selectAll(".legend-item");
+          leg_items.select(".legend-color-block").style("display", "none");
+          leg_items.select(".legend-mark-text").style("display", "inline");
+        })
+      .on("mouseout", function() { 
+        context.svg.selectAll(".hover-item").style("display", "none"); 
+        var leg_items = context.wrap.select(".legend").selectAll(".legend-item");
+        leg_items.select(".legend-color-block").style("display", "inline-block");
+        leg_items.select(".legend-mark-text").style("display", "none");
+      });
+    }
+    else{
+      context.svg.select(".overlay").on("mousemove", null)
+        .on("mouseover", null)
+        .on("mouseout", null);
+      context.svg.selectAll(".hover-item").style("display", "none")
+    }
+
+    function mousemove() {
+      var mouse = this;
+      context.current_data.forEach(function(e){
+        var line_data = e.values;
+
+        var bisectDate = d3.bisector(function(d) {return new Date(d.key) }).left;
+
+        var x0 = context.x.invert(d3.mouse(mouse)[0]);
+        var i = bisectDate(line_data, x0, 1, line_data.length-1);
+        var d0 = line_data[i - 1];
+        var d1 = line_data[i];
+        if(!d0 || !d1)
+          return;
+
+        var d = config.x_type === "time" && x0 - new Date(d0.key) > new Date(d1.key) - x0 ? d1 : 
+          x0 - d0.key > d1.key - x0 ? d1 : 
+          d0;
+
+        var hover_tick_x = context.svg.select(".hover-tick-x");
+        var hover_tick_y = context.svg.selectAll(".hover-tick-y");
+        var focus_enr = context.svg.selectAll(".focus").filter(function(f){return f.key === e.key});
+
+        hover_tick_x.select("text")
+          .text(config.x_type === "time" ? dateConvert(x0) :
+            d3.format(config.x_format)(x0) 
+          )
+          .attr("text-anchor", context.x(x0) > width/2 ? "end" : "start")
+          .attr("dx", context.x(x0) > width/2 ? "-.5em" : ".5em");
+        
+        var leg_item = context.wrap.select(".legend").selectAll(".legend-item").filter(function(f){return f.label === e.key});
+        //leg_item.select(".legend-mark").style("display", "none");
+        leg_item.select(".legend-mark-text").text(d.values.y || d.values.y === 0 ? decim(d.values.y) : null);
+          
+        hover_tick_x.attr("transform", "translate("+context.x(x0)+",0)");  //move tick reference on x-axis
+        hover_tick_y.attr("transform", "translate("+context.x(x0)+","+context.y(d.values.y)+")");
+        hover_tick_y.select("path").attr("fill", context.colorScale.range()[0] );  //move tick reference on x-axis
+        hover_tick_y.select("text").text(decim(d.values.y))
+          .attr("text-anchor", "end")//context.x(x0) > width/2 ? "end" : "start")
+          .attr("dx", "-.5em")//context.x(x0) > width/2 ? "-.5em" : ".5em");
+
+        hover_tick_x.select("line").attr("y1", 0)
+          .attr("y2", context.colorScale.domain().filter(function(f){return f}).length <= 1 ? context.y(d.values.y) - height : -height);
+      });//end forEach
+     
+    };//mousemove
+
 };//moveStuff
 
 webCharts.barChart = function (element, filepath, config, controls){
+  if(typeof config.group === "string")
+    config.group = [config.group];
   this.required_vars = config.group.map(function(m){return "group"});
   this.required_cols = config.group.slice(0);
   if(config.split_by){
@@ -1879,12 +2148,13 @@ webCharts.barChart = function (element, filepath, config, controls){
   config.fill_opacity = config.fill_opacity || 0.8;
   config.y_from0 = config.y_from0 === false ? false : true;
   config.x_from0 = config.x_from0 === false ? false : true;
-  config.color_by = config.split_by;
   config.bar_type = config.bar_type || "stacked";
-  config.color_by = config.split_by;
+  config.match_split_to_color = config.match_split_to_color === false ? false : true;
   config.y_type = config.y_type || "linear";
   config.x_type = config.x_type || "ordinal";
   config.y_type = config.y_type === "linear" && config.percent ? "percent" : config.y_type;
+  config.split_by = config.bar_columns ? "wc_category" : config.split_by;
+  config.x_vals = config.bar_columns ? {col: "wc_value", stat: "mean"} : config.x_vals; 
   //call from constructor
   chart.call(this, element, filepath, config, controls);
 
@@ -1892,9 +2162,12 @@ webCharts.barChart = function (element, filepath, config, controls){
 };//bar chart
 webCharts.barChart.prototype = Object.create(chart.prototype);
 webCharts.barChart.prototype.transformData = function(raw){
+  //console.time("barChart2 transformData")
   var context = this;
   var config = this.config;
-  config.color_by = config.split_by;
+  if(typeof config.group === "string")
+    config.group = [config.group];
+  config.color_by = config.match_split_to_color ? config.split_by : config.color_by ? config.color_by : config.split_by;
   config.y_type = config.y_type || "linear";
   config.x_type = config.x_type || "ordinal";
   config.y_type = config.y_type === "linear" && config.percent ? "percent" : config.y_type;
@@ -1908,7 +2181,14 @@ webCharts.barChart.prototype.transformData = function(raw){
   var ord_behavior = config[ordval+"_behavior"] || "raw";
   var cont_behavior = config[contval+"_behavior"] || "raw";
   var cont_override = config[contval+"_vals"].stat === "count" ? "count" : config.bar_type !== "stacked" ? null : "max";
+
+  raw = config.bar_columns ? webCharts.dataOps.lengthenRaw(raw, config.bar_columns) : raw;
+  
   var chunk_order = config.chunk_order || d3.set( raw.map(function(m){return m[config.split_by]}) ).values().filter(function(f){return f});
+
+  raw.sort(function(a,b){
+    return d3.ascending(chunk_order.indexOf(a[config.color_by]), chunk_order.indexOf(b[config.color_by]))
+  });
 
   var rawnested = d3.nest()
     .key(function(d){
@@ -1922,7 +2202,11 @@ webCharts.barChart.prototype.transformData = function(raw){
     .entries(raw);
   rawnested.forEach(calcStartTotal);
 
-  var ord_dom_raw = rawnested.sort(function(a,b){return d3.ascending(a.total, b.total)}).map(function(m){return m.key});
+  var ord_dom_raw = rawnested.sort(function(a,b){
+    return config.bar_order === "alphabetical" ? d3.descending(a.key, b.key) : 
+      config.bar_order ? d3.descending(config.bar_order.indexOf(a.key), config.bar_order.indexOf(b.key)) : 
+      d3.ascending(a.total, b.total);
+  }).map(function(m){return m.key});
 
   var ordvals = rawnested.map(function(m){return m.key});
   //extent of raw data
@@ -1941,10 +2225,10 @@ webCharts.barChart.prototype.transformData = function(raw){
   if(context.filters.length){
     context.filters.forEach(function(e){
       filtered = filtered.filter(function(d){
-        return e.val !== "All" ? d[e.col] === e.val : d;
+        return e.val === "All" ? d : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
       })
-    });
-   
+    }); 
+    
     //get domain for all non-All values of first filter
     if(cont_behavior === "firstfilter"){
       context.filters[0].choices.filter(function(f){return f !== "All"}).forEach(function(e){
@@ -1977,9 +2261,9 @@ webCharts.barChart.prototype.transformData = function(raw){
     })
     .sortKeys(d3.ascending)
     .key(function(d){return d[config.split_by]})
-    .sortKeys(function(a,b){
-      return chunk_order.indexOf(a) - chunk_order.indexOf(b);
-    })
+    // .sortKeys(function(a,b){
+    //   return chunk_order.indexOf(a) - chunk_order.indexOf(b);
+    // })
     .rollup(getXYInfo)
     .entries(filtered);
 
@@ -2010,7 +2294,7 @@ webCharts.barChart.prototype.transformData = function(raw){
   };
 
   function calcStartTotal(e){     
-    e.total = config.bar_type === "grouped" ? d3.max(e.values.map(function(m){return +m.values[contval]})) : d3.sum(e.values.map(function(m){return +m.values[contval]}));
+    e.total = config.bar_type !== "stacked" ? d3.max(e.values.map(function(m){return +m.values[contval]})) : d3.sum(e.values.map(function(m){return +m.values[contval]}));
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config[contval+"_type"] === "percent")
@@ -2029,7 +2313,13 @@ webCharts.barChart.prototype.transformData = function(raw){
 
     e.subcats = chunk_order;
   };
-  var ord_dom_flex = nested.sort(function(a,b){return d3.ascending(a.total, b.total)}).map(function(m){return m.key});
+
+
+  var ord_dom_flex = nested.sort(function(a,b){
+    return config.bar_order === "alphabetical" ? d3.descending(a.key, b.key) : 
+      config.bar_order ? d3.descending(config.bar_order.indexOf(a.key), config.bar_order.indexOf(b.key)) : 
+      d3.ascending(a.total, b.total);
+  }).map(function(m){return m.key});
 
   //extent of current data
   var flex_dom = d3.extent(nested.map(function(m){return m.total}));
@@ -2040,7 +2330,7 @@ webCharts.barChart.prototype.transformData = function(raw){
   //sort ordinal domain from largest to smallest
   var ord_dom = ord_behavior === "flex" ? ord_dom_flex : ord_dom_raw;
 
-  ord_dom = config.bar_order || ord_dom.sort(function(a,b){
+  ord_dom = ord_dom.sort(function(a,b){
     return ordval === "x" ? d3.ascending(ord_dom_flex.indexOf(b), ord_dom_flex.indexOf(a) ) : d3.descending(ord_dom_flex.indexOf(b), ord_dom_flex.indexOf(a) );
   });
 
@@ -2054,6 +2344,7 @@ webCharts.barChart.prototype.transformData = function(raw){
 
   context.events.onDatatransform(context);
 
+  //console.timeEnd("barChart2 transformData")
   return context.current_data;
 }//end transformData
 webCharts.barChart.prototype.updateDataMarks = function(){
@@ -2076,7 +2367,7 @@ webCharts.barChart.prototype.updateDataMarks = function(){
   bar_groups.select("title").text(function(d){
     return d.values.map(function(m){
       var val = config[cont_val+"_type"] !== "percent" ? dfixed(m.values[cont_val]) : m.values[cont_val+"_info"].count;
-      var perc = config[cont_val+"_type"] !== "percent" ? " ("+dperc(m.values[cont_val]/d.total)+")" : " ("+dperc(m.values[cont_val])+")";
+      var perc = !config.split_by || config.bar_type !== "stacked" ? "" : config[cont_val+"_type"] !== "percent" ? " ("+dperc(m.values[cont_val]/d.total)+")" : " ("+dperc(m.values[cont_val])+")";
       var key = m.key === "undefined" ? d.key : m.key;
       return key+": "+val+perc;
     }).join("\n");
@@ -2084,12 +2375,12 @@ webCharts.barChart.prototype.updateDataMarks = function(){
 
   var bars = bar_groups.selectAll(".bar").data(function(d){return d.values}, function(d){return d.key});
   var oldbars = bars.exit();
-  var nubars = bars.enter().append("rect").attr("class", function(d){return "bar "+d.key});
+  var nubars = bars.enter().append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key});
   bars
     .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
     .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
     .attr("fill-opacity", config.fill_opacity || .8)
-    .style("clip-path", "url(#"+config.clippath_id+")");
+    .style("clip-path", "url(#"+context.clippath_id+")");
   if(config.x_type === "ordinal"){
     nubars
       .attr("y", context.y(0))
@@ -2097,7 +2388,7 @@ webCharts.barChart.prototype.updateDataMarks = function(){
     if(config.bar_type === "grouped"){
       bars.transition()
         .attr("x", function(d,i){
-          var sibs = d3.select(this.parentNode).datum().subcats; 
+          var sibs = d3.select(this.parentNode).datum().subcats.map(function(m){return String(m)}); 
           var position = sibs.indexOf(d.key);
           return context.x(d.values.x)+context.x.rangeBand()/sibs.length*position;
         })
@@ -2105,6 +2396,22 @@ webCharts.barChart.prototype.updateDataMarks = function(){
         .attr("width", function(d,i){
           var sibs = d3.select(this.parentNode).datum().subcats; 
           return context.x.rangeBand()/sibs.length;
+        })
+        .attr("height", function(d){return context.y(0) - context.y(d.values.y)  })
+    }
+    else if(config.bar_type === "nested"){
+      bars.transition()
+        .attr("x", function(d){
+          var sibs = d3.select(this.parentNode).datum().subcats.map(function(m){return String(m)}); 
+          var position = sibs.indexOf(d.key);
+          var offset = position ? context.x.rangeBand()/(sibs.length*(position)*.5)/2 : context.x.rangeBand()/2
+          return context.x(d.values.x) + context.x.rangeBand()/2 - offset
+        })
+        .attr("y", function(d){return context.y(d.values.y)})
+        .attr("width", function(d,i){
+          var sibs = d3.select(this.parentNode).datum().subcats.map(function(m){return String(m)});  
+          var position = sibs.indexOf(d.key);
+          return position ? context.x.rangeBand()/(sibs.length*(position)*.5) : context.x.rangeBand();
         })
         .attr("height", function(d){return context.y(0) - context.y(d.values.y)  })
     }
@@ -2138,6 +2445,23 @@ webCharts.barChart.prototype.updateDataMarks = function(){
         })
         .attr("width", function(d){return context.x(d.values.x)  })
     }
+    else if(config.bar_type === "nested"){
+      bars.transition()
+        .attr("x", function(d){return context.x(0)})
+        .attr("y", function(d){
+          var sibs = d3.select(this.parentNode).datum().subcats.map(function(m){return String(m)}); 
+          var position = sibs.indexOf(d.key);
+          var offset = position ? context.y.rangeBand()/(sibs.length*(position)*.75)/2 : context.y.rangeBand()/2
+          return context.y(d.values.y) + context.y.rangeBand()/2 - offset
+        })
+        //.attr("y", function(d){return context.y(d.values.y)})
+        .attr("height", function(d,i){
+          var sibs = d3.select(this.parentNode).datum().subcats.map(function(m){return String(m)});  
+          var position = sibs.indexOf(d.key);
+          return position ? context.y.rangeBand()/(sibs.length*(position)*.75) : context.y.rangeBand();
+        })
+        .attr("width", function(d){return context.x(d.values.x)  })
+    }
     else{
       bars.transition()
         .attr("x", function(d){return context.x(d.values.start)})
@@ -2150,6 +2474,8 @@ webCharts.barChart.prototype.updateDataMarks = function(){
         .attr("width", 0)
         .remove();
   }
+  if(config.chunk_order)
+    bars.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a.key), config.chunk_order.indexOf(b.key)) })
 };//moveStuff
 
 //timeline - prototype
@@ -2164,8 +2490,9 @@ webCharts.timeline = function(element, filepath, config, controls){
     this.required_vars.push("line.start", "line.end");
     this.required_cols.push(config.line.start, config.line.end);
   };
-  this.legend_mark = "circle";
+  this.legend_mark = config.legend_mark || "circle";
   this.chart_type = "timeline";
+  config.tight = true;
   config.x_type = "time";
   config.y_type = "ordinal"
   config.fill_opacity = config.fill_opacity || 1;
@@ -2174,7 +2501,7 @@ webCharts.timeline = function(element, filepath, config, controls){
   config.aspect = config.aspect || 1.33;
   config.date_format = config.date_format || "%x";
   config.color_by = config.color_by || "label";
-  //var timeFormat = d3.time.format(config.date_format);
+  config.lines = config.lines || [];
 
   //call from constructor
   chart.call(this, element, filepath, config, controls);
@@ -2193,8 +2520,8 @@ webCharts.timeline.prototype.extraLayout = function(){
 webCharts.timeline.prototype.transformData = function(raw){
   var context = this;
   var config = this.config;
-  var ord_behavior = config["x_behavior"] || "raw";
-  var cont_behavior = config["y_behavior"] || "raw";
+  var ord_behavior = config["y_behavior"] || "raw";
+  var cont_behavior = config["x_behavior"] || "raw";
   context.timeFormat = d3.time.format(config.date_format);
   context.raw_data = raw;
   
@@ -2222,6 +2549,7 @@ webCharts.timeline.prototype.transformData = function(raw){
   var filtered = raw;
 
   var filt1_dom = [];
+  var filt1 = [];
   if(context.filters.length){
     context.filters.forEach(function(e){
       filtered = filtered.filter(function(d){
@@ -2229,7 +2557,7 @@ webCharts.timeline.prototype.transformData = function(raw){
       })
     }); 
     if(cont_behavior === "firstfilter"){
-      var filt1 = [];
+     
       context.filters[0].choices.filter(function(f){return f !== "All"}).forEach(function(e){
         var perfilter = raw.filter(function(f){return f[context.filters[0].col] === e});
         var filtnested = d3.nest()
@@ -2260,17 +2588,28 @@ webCharts.timeline.prototype.transformData = function(raw){
         });
       }
       var lines = [];
-      if(config.line){
+      // if(config.line){
+      //   d.forEach(function(e){
+      //     if(e[config.line.start] && e[config.line.end]){
+      //       if(context.timeFormat.parse(e[config.line.start]) && context.timeFormat.parse(e[config.line.end]) )
+      //         lines.push({start: context.timeFormat.parse(e[config.line.start]), end: context.timeFormat.parse(e[config.line.end]), attributes: config.line.attributes} );
+      //     }
+      //   });
+      // }
+      if(config.lines && config.lines.length){
         d.forEach(function(e){
-          if(e[config.line.start] && e[config.line.end]){
-            if(context.timeFormat.parse(e[config.line.start]) && context.timeFormat.parse(e[config.line.end]) )
-              lines.push({start: context.timeFormat.parse(e[config.line.start]), end: context.timeFormat.parse(e[config.line.end]), attributes: config.line.attributes} );
-          }
+          var glines = config.lines.slice().map(function(m){
+            return {dates: m.map(function(n){return e[n] ? context.timeFormat.parse(e[n]) : null }), span: m };
+          });
+          lines = lines.concat(glines)
         });
       }
-      var dates = marks.map(function(m){return m.date});
-      if(lines.length)
-        lines.forEach(function(e){dates.push(e.start, e.end)})
+      var mdates = marks.map(function(m){return m.date});
+      var ldates = d3.merge( lines.map(function(m){return m.dates}) );
+ 
+      var dates = d3.merge([mdates, ldates])
+      // if(lines.length)
+      //   lines.forEach(function(e){dates.push(e.start, e.end)})
 
       return {marks: marks, lines: lines, dates: dates, raw: d};
     }
@@ -2290,7 +2629,9 @@ webCharts.timeline.prototype.transformData = function(raw){
 
   context.x_dom = config.x_dom || cont_dom;
   context.y_dom = config.y_dom || ord_dom;
-  config.color_dom = config.color_dom || config.marks;
+  config.color_dom = config.color_dom ? config.color_dom : (config.marks && config.marks.length) || config.lines ? 
+    d3.set( d3.merge([config.marks, d3.merge(config.lines)]).filter(function(f){return f}) ).values() : [];
+
   context.current_data = nested;
 
   context.events.onDatatransform(context);
@@ -2335,16 +2676,21 @@ webCharts.timeline.prototype.updateDataMarks = function(){
     var line_data = [];
     if(e.values.lines.length){
       e.values.lines.forEach(function(v){
-        line_data.push({xs: [v.start, v.end], ys: null, key: e.key, attributes: v.attributes});
+        if(v.dates[0] && v.dates[1])
+          line_data.push({xs: v.dates, ys: null, key: e.key, color_key: v.span[0], span: v.span});
       });
     }
     var lines = context.drawSimpleLines(line_data, cont, "timeline", function(d,i){return i});
-
-    lines.selectAll("title").text(function(d){return d.xs.map(function(m){return context.timeFormat(m)}).join(" - ");})
+    lines.attr("stroke", function(d){return context.colorScale(d.color_key)})
+      .classed("wc-data-mark", true);
+    lines.selectAll("title").text(function(d){
+      return d.span.join(" - ")+"\n"+d.xs.map(function(m){return context.timeFormat(m) }).join(" - ")
+    })
 
     var points = context.drawPoints(e.values.marks.filter(function(f){return f.date}), cont, "time-point", null,function(d){return d.date},function(d){return 0});
-    points.selectAll("circle").attr("fill", function(d){return context.colorScale(d.label)});
-    points.selectAll("circle").attr("stroke", function(d){return context.colorScale(d.label)})
+    points.selectAll("circle").attr("fill", function(d){return context.colorScale(d.label)})
+      .attr("stroke", function(d){return context.colorScale(d.label)})
+      .classed("wc-data-mark", true);
     points.selectAll("title").text(function(d){
       var label = config.meta_map ? context.metaMap(d.label) : d.label;
       return label+": "+ context.timeFormat(d.date); 
@@ -2482,300 +2828,6 @@ webCharts.bulletChart.prototype.updateDataMarks = function(){
 
 
 //work on these below
-webCharts.accrualChart = function(element, filepath, config, controls){
-  this.required_vars = ["count_date"];
-  this.required_cols = [config.count_date];
-  if(config.split_by && config.split_by !== "data_type"){
-    this.required_vars.push("split_by");
-    this.required_cols.push(config.split_by);
-  };
-  this.legend_mark = "line";
-  this.chart_type = "accrualChart";
-
-  //a couple helper functions that are used in multiple places
-  config.x_type = "time";
-  config.y_type = "linear";
-  config.color_by = config.color_by ? config.color_by : config.split_by || "data_type";
-  config.aspect = config.aspect || 1.33;
-  config.date_format = config.date_format || "%x";
-  config.x_format = config.x_format|| "%b";
-
-  chart.call(this, element, filepath, config, controls);
-  return this;
-};//END accrualChart
-webCharts.accrualChart.prototype = Object.create(chart.prototype);
-webCharts.accrualChart.prototype.extraLayout = function(){
-  var svg = this.svg;
-  svg.select(".x.axis").classed("minor", true);
-
-  svg.append("g")
-    .attr("class", "x axis major")
-    .style("display", this.config.x2_interval ? "block" : "none")
-
-  var x_mark = svg.select("g.x.minor").append("g")
-    .attr("class", "hover-item hover-tick hover-tick-x").style("display", "none");
-  x_mark.append("line").attr("x1", 0).attr("x2", 0).attr("y1", 0 ).attr("y2", 0).attr("stroke", "#ddd");
-  x_mark.append("text").attr({"x": 0, "y": 0, "dx": ".5em", "dy": "-.5em"})
-
-  var y_mark = svg.select("g.y.axis").append("g")
-    .attr("class", "hover-item hover-tick hover-tick-y").style("display", "none");
-  y_mark.append("text").attr({"x": 0, "y": 0, "dx": ".5em", "dy": ".35em"})
-  y_mark.append("path").attr("d", d3.svg.symbol().type("triangle-down").size(15)).attr("transform", "rotate(90)")
-};
-webCharts.accrualChart.prototype.transformData = function(data){
-  var context = this;
-  var config = this.config;
-  config.color_by = config.color_by ? config.color_by : config.split_by || "data_type";
-  config.color_by = config.split_by || "data_type";
-  var y_behavior = config["y_behavior"] || "flex";
-  context.raw_data = data.slice(0);
-
-  var timeFormat = d3.time.format(config.date_format);
-
-  if(config.initial_filter && config.initial_filter.col){
-    data = data.filter(function(f){
-      return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1;
-    }) 
-  };
-
-  data.forEach(function(e){e.data_type = "Actual"; e.date = timeFormat.parse(e[config.count_date])});
-
-  config.split_by = config.split_by || "data_type";
-  var splits = d3.set(data.map(function(m){return m[config.split_by]})).values();
-  //automatically extrapolate from/to earliest/latest date found - ??
-  config.extrapolate_from = config.extrapolate_from || timeFormat(d3.min(data, function(d){ return d.date}));
-  config.extrapolate_to = config.extrapolate_to || timeFormat(d3.max(data, function(d){ return d.date}));
-  //add fake data at extrapolate_from date for each line - draws lines from specified date
-  if(config.extrapolate_from){
-    splits.forEach(function(e){
-      var obj = {data_type: "Actual", extrapolation: true};
-      obj[config.split_by] = e;
-      obj[config.count_date] = config.extrapolate_from;
-      obj.date = timeFormat.parse(config.extrapolate_from)
-      data.unshift(obj)
-    })
-  };
-  //add fake data at extrapolate_to date for each line - draws out lines to specified date
-  if(config.extrapolate_to){
-    splits.forEach(function(e){
-      var obj = {data_type: "Actual", extrapolation: true};
-      obj[config.split_by] = e;
-      obj[config.count_date] = config.extrapolate_to;
-      obj.date = timeFormat.parse(config.extrapolate_to)
-      data.push(obj)
-    })
-  };
-
-  if(context.raw_proj){
-    context.raw_proj.forEach(function(e){e.data_type = "Projected"; e.date = timeFormat.parse(e[config.count_date])});
-    data = data.concat(context.raw_proj);
-  };
-
-  data.sort(function(a,b){
-    return a.date - b.date;
-  });
-
-  function rollUp(r, i, fdata){
-    var key = r[0].date;
-    //count cumulative enrollment at that date by filtering out all the dates in the dataset that occur after the current date, 
-    //then counting the length of that array -- don't count fake extrapolation values
-    fdata = fdata || filtered;
-    var interm = fdata.filter(function(d){
-      return d[config.split_by] === r[0][config.split_by] && d.date <= key && !d.extrapolation;
-    });
-    // var count = timeFormat.parse(config.extrapolate_from) < key && key <= timeFormat.parse(config.extrapolate_to) ? interm.length - 1 : interm.length;
-    var count = interm.length
-    var total = r[0].data_type !== "Projected" ? count : context.projCount(r, interm);
-
-    y_maxes.push(total)
-    return {key: key, count: total, raw: r}
-  };
-
-  var filtered = data;
-  var y_maxes = [];
-  if(context.filters.length){
-    context.filters.forEach(function(e){   
-      //actually filter data to match filters
-      filtered = filtered.filter(function(d){
-        return e.val !== "All" ? d[e.col] === e.val : d
-      });
-    }) 
-    //get y-max for each possible value of first filter
-    if(y_behavior === "firstfilter"){
-      var filt_options = context.filters[0].choices.filter(function(f){return f !== "All"});
-      filt_options.forEach(function(o){
-        var perfilter = data.filter(function(f){return f[context.filters[0].col] === o});
-        var filtnested = d3.nest()
-          .key(function(d){return d[config.split_by]})
-          .key(function(d){return d[config.count_date]})
-          .rollup(function(r,i){
-            return rollUp(r,i, perfilter)
-          })
-          .entries(data);
-      });
-    }
-  };
-
-  context.filtered_data = filtered;   
-
-  var subtracts = [config.extrapolate_from, config.extrapolate_to].filter(function(f){return f}).length;
-    
-  //take raw data, nest it by enrollment date
-  var nested = d3.nest()
-    .key(function(d){return d[config.split_by]})
-    .key(function(d){return d[config.count_date]})
-    .rollup(rollUp)
-    .entries(data);
-
-  var rawnested = d3.nest()
-    .key(function(d){return d[config.count_date]})
-    .rollup(function(r,i){ 
-      var key = r[0].date;
-      var interm = data.filter(function(d){
-        return d[config.split_by] === r[0][config.split_by] && d.date <= key && !d.extrapolation;
-      });
-      var count = interm.length
-      var total = r[0].data_type !== "Projected" ? count : context.projCount(r, interm);
-      return {key: key, count: total, raw: r}
-    })
-    .entries(data);
-  var raw_max = rawnested[rawnested.length-1].values.count;
-
-  var filt_max = d3.max(y_maxes);
-  var current_max = d3.max(nested.map(function(m){return m.values[m.values.length-1].values.count}));
-
-  var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" && 
-    context.filters.slice(1).filter(function(f){return f.val === "All"}).length === context.filters.length-1 );
-  var y_max = !context.filters.length ? current_max : y_behavior === "raw" ? raw_max : nonall && y_behavior === "firstfilter" ? filt_max : current_max;
-
-  context.x_dom = config.x_dom || d3.extent(data, function(d){ return d.date});
-  context.y_dom = config.y_dom || [0, y_max];
-
-  //config.color_dom = config.color_dom || nested.map(function(m){return m.key}).sort(function(a,b){return a.key === "Actual" || b.key === "Actual" ? 0 : 1});
-  config.color_dom = nested.map(function(m){return m.key}).sort(d3.ascending);
-
-  context.current_data = nested;
-  context.events.onDatatransform(context);
-
-  return context.current_data;
-};  //end transformRaw
-webCharts.accrualChart.prototype.updateDataMarks = function(){
-  var context = this;
-  var config = this.config;
-  var width = context.plot_width;
-  var height = context.plot_height;
-  var x = context.x;
-  var y = context.y;
-  var timeFormat = d3.time.format(config.date_format);
-  var decim = d3.format(".0f");
-
-  context.x.clamp(true);
-
-  if(config.x2_interval && config.count_date){
-    context.xAxis2 = d3.svg.axis()
-      .orient("bottom")
-      .ticks(d3.time[config.x2_interval], 1 )
-      .tickFormat(config.x2_format ? d3.time.format(config.x2_format) : null);
-
-    var secondary_x = context.svg.select(".x.axis.major");
-    secondary_x.style("display", "block");
-    secondary_x.selectAll("text").style("text-anchor", "start").style("font-size", ".8em");
-  }
-  else{
-    context.svg.select(".x.axis.major").style("display", "none");
-  };
-
-  var enr_line = d3.svg.line()
-    .x(function(d) { return x(d.values.key); })  //what data to use as x value
-    .y(function(d) { return y(d.values.count);});
-
-  var enr_area = d3.svg.area()
-    .x(function(d) { return x(d.values.key); })  //what data to use as x value
-    .y0(function(d){return height})
-    .y1(function(d) { return y(d.values.count);});
-
-  if(config.x2_interval){
-    context.xAxis2.scale(x);
-    var secondary_x = context.svg.select(".x.axis.major");
-    secondary_x.attr("transform", "translate(0," + (height + (parseInt(context.wrap.style("font-size")) ) ) + ")")
-    secondary_x.transition().call(context.xAxis2); 
-  }
-
-  var filter_vals = context.filters.filter(function(f){return f.val && f.val !== "All"});
-    
-  var main_lines = context.drawLines(enr_line, context.current_data, function(d){return d.values;}, "accrual-line", function(d){return d.key}, function(d){return d[0].values.raw[0]});
-
-  var area_data = config.fill_area ? context.current_data : [];
-  context.drawArea(enr_area, area_data, function(d){return d.values}, "accrual-area", function(d){return d.key}, function(d){return d[0].values.raw[0]});
-
-  context.svg.selectAll(".hover-item").moveToFront();
-  context.svg.select(".line-group").moveToFront();
-
-  if(config.hover_ticks){
-    context.svg.select(".hover-tick-x").select("line").attr("y1", -height)
-    //context.svg.select(".overlay").on("mousemove", mousemove)
-    context.svg.on("mousemove", mousemove)
-    .on("mouseover", function() { 
-        context.svg.selectAll(".hover-item").style("display", "block"); 
-        context.svg.selectAll(".hover-tick-y").style("display", function(d){
-            return context.colorScale.domain().length <= 1 ? "block" : "none"
-        })
-        var leg_items = context.wrap.select(".legend").selectAll(".legend-item");
-        leg_items.select(".legend-color-block").style("display", "none");
-        leg_items.select(".legend-mark-text").style("display", "inline");
-      })
-    .on("mouseout", function() { 
-      context.svg.selectAll(".hover-item").style("display", "none"); 
-      var leg_items = context.wrap.select(".legend").selectAll(".legend-item");
-      leg_items.select(".legend-color-block").style("display", "inline-block");
-      leg_items.select(".legend-mark-text").style("display", "none");
-    });
-  }
-  else{
-    context.svg.select(".overlay").on("mousemove", null)
-      .on("mouseover", null)
-      .on("mouseout", null);
-    context.svg.selectAll(".hover-item").style("display", "none")
-  }
-
-  function mousemove() {
-    var mouse = this;
-   
-    context.current_data.forEach(function(e){
-      var line_data = e.values;
-
-      var bisectDate = d3.bisector(function(d) {return d.values.key; }).right;
-
-      var x0 = x.invert(d3.mouse(mouse)[0]);
-      var i = bisectDate(line_data, x0, 1, line_data.length-1);
-      var d0 = line_data[i - 1];
-      var d1 = line_data[i];
-      if(!d0 || !d1)
-        return;
-      var d = x0 - d0.key > d1.key - x0 ? d1 : d0;
-
-      var hover_tick_x = context.svg.select(".hover-tick-x");
-      var hover_tick_y = context.svg.selectAll(".hover-tick-y");
-      var focus_enr = context.svg.selectAll(".focus").filter(function(f){return f.key === e.key});
-
-      hover_tick_x.select("text").text(timeFormat(x0))
-        .attr("text-anchor", x(x0) > width/2 ? "end" : "start")
-        .attr("dx", x(x0) > width/2 ? "-.5em" : ".5em");
-      
-      var leg_item = context.wrap.select(".legend").selectAll(".legend-item").filter(function(f){return f.label === e.key});
-      //leg_item.select(".legend-mark").style("display", "none");
-      leg_item.select(".legend-mark-text").text(d.values.count || d.values.count === 0 ? decim(d.values.count) : null);
-        
-      hover_tick_x.attr("transform", "translate("+x(x0)+",0)");  //move tick reference on x-axis
-      hover_tick_y.attr("transform", "translate(1,"+y(d.values.count)+")");
-      hover_tick_y.select("path").attr("fill", context.colorScale(e.key));  //move tick reference on x-axis
-      hover_tick_y.select("text").text(d.values.count);
-    });//end forEach
-   
-  };
-}; //moveStuff
-
-
 webCharts.webTable = function(element, filepath, config, controls, callback){
   this.chart_type = "webTable";
   this.required_cols = config.cols || [];
@@ -2948,6 +3000,301 @@ webCharts.webTable.prototype.draw = function(processed_data, raw_data){
   };
   context.events.onDraw(this);
 };//draw
+
+//accrualChart - obsolete
+webCharts.accrualChart = function(element, filepath, config, controls){
+  this.required_vars = ["count_date"];
+  this.required_cols = [config.count_date];
+  if(config.split_by && config.split_by !== "data_type"){
+    this.required_vars.push("split_by");
+    this.required_cols.push(config.split_by);
+  };
+  this.legend_mark = "line";
+  this.chart_type = "accrualChart";
+
+  //a couple helper functions that are used in multiple places
+  config.x_type = "time";
+  config.y_type = "linear";
+  config.color_by = config.color_by ? config.color_by : config.split_by || "data_type";
+  config.aspect = config.aspect || 1.33;
+  config.date_format = config.date_format || "%x";
+  config.x_format = config.x_format|| "%b";
+
+  chart.call(this, element, filepath, config, controls);
+  return this;
+};//END accrualChart
+webCharts.accrualChart.prototype = Object.create(chart.prototype);
+webCharts.accrualChart.prototype.extraLayout = function(){
+  var svg = this.svg;
+  svg.select(".x.axis").classed("minor", true);
+
+  svg.append("g")
+    .attr("class", "x axis major")
+    .style("display", this.config.x2_interval ? "block" : "none")
+
+  var x_mark = svg.select("g.x.minor").append("g")
+    .attr("class", "hover-item hover-tick hover-tick-x").style("display", "none");
+  x_mark.append("line").attr("x1", 0).attr("x2", 0).attr("y1", 0 ).attr("y2", 0).attr("stroke", "#ddd");
+  x_mark.append("text").attr({"x": 0, "y": 0, "dx": ".5em", "dy": "-.5em"})
+
+  var y_mark = svg.select("g.y.axis").append("g")
+    .attr("class", "hover-item hover-tick hover-tick-y").style("display", "none");
+  y_mark.append("text").attr({"x": 0, "y": 0, "dx": ".5em", "dy": ".35em"})
+  y_mark.append("path").attr("d", d3.svg.symbol().type("triangle-down").size(15)).attr("transform", "rotate(90)")
+};
+webCharts.accrualChart.prototype.transformData = function(data){
+  var context = this;
+  var config = this.config;
+  config.color_by = config.color_by ? config.color_by : config.split_by || "data_type";
+  config.color_by = config.split_by || "data_type";
+  var y_behavior = config["y_behavior"] || "flex";
+  context.raw_data = data.slice(0);
+
+  var timeFormat = d3.time.format(config.date_format);
+
+  if(config.initial_filter && config.initial_filter.col){
+    data = data.filter(function(f){
+      return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1;
+    }) 
+  };
+
+  data.forEach(function(e){e.data_type = "Actual"; e.date = timeFormat.parse(e[config.count_date])});
+
+  config.split_by = config.split_by || "data_type";
+  var splits = d3.set(data.map(function(m){return m[config.split_by]})).values();
+  //automatically extrapolate from/to earliest/latest date found - ??
+  config.extrapolate_from = config.extrapolate_from || timeFormat(d3.min(data, function(d){ return d.date}));
+  config.extrapolate_to = config.extrapolate_to || timeFormat(d3.max(data, function(d){ return d.date}));
+  //add fake data at extrapolate_from date for each line - draws lines from specified date
+  if(config.extrapolate_from){
+    splits.forEach(function(e){
+      var obj = {data_type: "Actual", extrapolation: true};
+      obj[config.split_by] = e;
+      obj[config.count_date] = config.extrapolate_from;
+      obj.date = timeFormat.parse(config.extrapolate_from)
+      data.unshift(obj)
+    })
+  };
+  //add fake data at extrapolate_to date for each line - draws out lines to specified date
+  if(config.extrapolate_to){
+    splits.forEach(function(e){
+      var obj = {data_type: "Actual", extrapolation: true};
+      obj[config.split_by] = e;
+      obj[config.count_date] = config.extrapolate_to;
+      obj.date = timeFormat.parse(config.extrapolate_to)
+      data.push(obj)
+    })
+  };
+
+  if(context.raw_proj){
+    context.raw_proj.forEach(function(e){e.data_type = "Projected"; e.date = timeFormat.parse(e[config.count_date])});
+    data = data.concat(context.raw_proj);
+  };
+
+  data.sort(function(a,b){
+    return a.date - b.date;
+  });
+
+  function rollUp(r, i, fdata){
+    var key = r[0].date;
+    //count cumulative enrollment at that date by filtering out all the dates in the dataset that occur after the current date, 
+    //then counting the length of that array -- don't count fake extrapolation values
+    fdata = fdata || filtered;
+    var interm = fdata.filter(function(d){
+      return d[config.split_by] === r[0][config.split_by] && d.date <= key && !d.extrapolation;
+    });
+    // var count = timeFormat.parse(config.extrapolate_from) < key && key <= timeFormat.parse(config.extrapolate_to) ? interm.length - 1 : interm.length;
+    var count = interm.length
+    var total = r[0].data_type !== "Projected" ? count : context.projCount(r, interm);
+
+    y_maxes.push(total)
+    return {key: key, count: total, raw: r}
+  };
+
+  var filtered = data;
+  var y_maxes = [];
+  if(context.filters.length){
+    context.filters.forEach(function(e){   
+      //actually filter data to match filters
+      filtered = filtered.filter(function(d){
+        return e.val !== "All" ? d[e.col] === e.val : d
+      });
+    }) 
+    //get y-max for each possible value of first filter
+    if(y_behavior === "firstfilter"){
+      var filt_options = context.filters[0].choices.filter(function(f){return f !== "All"});
+      filt_options.forEach(function(o){
+        var perfilter = data.filter(function(f){return f[context.filters[0].col] === o});
+        var filtnested = d3.nest()
+          .key(function(d){return d[config.split_by]})
+          .key(function(d){return d[config.count_date]})
+          .rollup(function(r,i){
+            return rollUp(r,i, perfilter)
+          })
+          .entries(data);
+      });
+    }
+  };
+
+  context.filtered_data = filtered;   
+
+  var subtracts = [config.extrapolate_from, config.extrapolate_to].filter(function(f){return f}).length;
+    
+  //take raw data, nest it by enrollment date
+  var nested = d3.nest()
+    .key(function(d){return d[config.split_by]})
+    .key(function(d){return d[config.count_date]})
+    .rollup(rollUp)
+    .entries(data);
+
+  var rawnested = d3.nest()
+    .key(function(d){return d[config.count_date]})
+    .rollup(function(r,i){ 
+      var key = r[0].date;
+      var interm = data.filter(function(d){
+        return d[config.split_by] === r[0][config.split_by] && d.date <= key && !d.extrapolation;
+      });
+      var count = interm.length
+      var total = r[0].data_type !== "Projected" ? count : context.projCount(r, interm);
+      return {key: key, count: total, raw: r}
+    })
+    .entries(data);
+  var raw_max = rawnested[rawnested.length-1].values.count;
+
+  var filt_max = d3.max(y_maxes);
+  var current_max = d3.max(nested.map(function(m){return m.values[m.values.length-1].values.count}));
+
+  var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" && 
+    context.filters.slice(1).filter(function(f){return f.val === "All"}).length === context.filters.length-1 );
+  var y_max = !context.filters.length ? current_max : y_behavior === "raw" ? raw_max : nonall && y_behavior === "firstfilter" ? filt_max : current_max;
+
+  context.x_dom = config.x_dom || d3.extent(data, function(d){ return d.date});
+  context.y_dom = config.y_dom || [0, y_max];
+
+  //config.color_dom = config.color_dom || nested.map(function(m){return m.key}).sort(function(a,b){return a.key === "Actual" || b.key === "Actual" ? 0 : 1});
+  config.color_dom = nested.map(function(m){return m.key}).sort(function(a,b){return a.key === "Actual" || b.key === "Actual" ? 0 : 1})
+    .sort(d3.ascending);
+
+  context.current_data = nested;
+  context.events.onDatatransform(context);
+
+  return context.current_data;
+};  //end transformRaw
+webCharts.accrualChart.prototype.updateDataMarks = function(){
+  var context = this;
+  var config = this.config;
+  var width = context.plot_width;
+  var height = context.plot_height;
+  var x = context.x;
+  var y = context.y;
+  var timeFormat = d3.time.format(config.date_format);
+  var decim = d3.format(".0f");
+
+  context.x.clamp(true);
+
+  if(config.x2_interval && config.count_date){
+    context.xAxis2 = d3.svg.axis()
+      .orient("bottom")
+      .ticks(d3.time[config.x2_interval], 1 )
+      .tickFormat(config.x2_format ? d3.time.format(config.x2_format) : null);
+
+    var secondary_x = context.svg.select(".x.axis.major");
+    secondary_x.style("display", "block");
+    secondary_x.selectAll("text").style("text-anchor", "start").style("font-size", ".8em");
+  }
+  else{
+    context.svg.select(".x.axis.major").style("display", "none");
+  };
+
+  var enr_line = d3.svg.line()
+    .x(function(d) { return x(d.values.key); })  //what data to use as x value
+    .y(function(d) { return y(d.values.count);});
+
+  var enr_area = d3.svg.area()
+    .x(function(d) { return x(d.values.key); })  //what data to use as x value
+    .y0(function(d){return height})
+    .y1(function(d) { return y(d.values.count);});
+
+  if(config.x2_interval){
+    context.xAxis2.scale(x);
+    var secondary_x = context.svg.select(".x.axis.major");
+    secondary_x.attr("transform", "translate(0," + (height + (parseInt(context.wrap.style("font-size")) ) ) + ")")
+    secondary_x.transition().call(context.xAxis2); 
+  }
+
+  var filter_vals = context.filters.filter(function(f){return f.val && f.val !== "All"});
+    
+  var main_lines = context.drawLines(enr_line, context.current_data, function(d){return d.values;}, "accrual-line", function(d){return d.key}, function(d){return d[0].values.raw[0]});
+
+  var area_data = config.fill_area ? context.current_data : [];
+  context.drawArea(enr_area, area_data, function(d){return d.values}, "accrual-area", function(d){return d.key}, function(d){return d[0].values.raw[0]});
+
+  context.svg.selectAll(".hover-item").moveToFront();
+  context.svg.select(".line-group").moveToFront();
+
+  if(config.hover_ticks){
+    context.svg.select(".hover-tick-x").select("line").attr("y1", -height)
+    //context.svg.select(".overlay").on("mousemove", mousemove)
+    context.svg.on("mousemove", mousemove)
+    .on("mouseover", function() { 
+        context.svg.selectAll(".hover-item").style("display", "block"); 
+        context.svg.selectAll(".hover-tick-y").style("display", function(d){
+            return context.colorScale.domain().length <= 1 ? "block" : "none"
+        })
+        var leg_items = context.wrap.select(".legend").selectAll(".legend-item");
+        leg_items.select(".legend-color-block").style("display", "none");
+        leg_items.select(".legend-mark-text").style("display", "inline");
+      })
+    .on("mouseout", function() { 
+      context.svg.selectAll(".hover-item").style("display", "none"); 
+      var leg_items = context.wrap.select(".legend").selectAll(".legend-item");
+      leg_items.select(".legend-color-block").style("display", "inline-block");
+      leg_items.select(".legend-mark-text").style("display", "none");
+    });
+  }
+  else{
+    context.svg.select(".overlay").on("mousemove", null)
+      .on("mouseover", null)
+      .on("mouseout", null);
+    context.svg.selectAll(".hover-item").style("display", "none")
+  }
+
+  function mousemove() {
+    var mouse = this;
+   
+    context.current_data.forEach(function(e){
+      var line_data = e.values;
+
+      var bisectDate = d3.bisector(function(d) {return d.values.key; }).right;
+
+      var x0 = x.invert(d3.mouse(mouse)[0]);
+      var i = bisectDate(line_data, x0, 1, line_data.length-1);
+      var d0 = line_data[i - 1];
+      var d1 = line_data[i];
+      if(!d0 || !d1)
+        return;
+      var d = x0 - d0.key > d1.key - x0 ? d1 : d0;
+
+      var hover_tick_x = context.svg.select(".hover-tick-x");
+      var hover_tick_y = context.svg.selectAll(".hover-tick-y");
+      var focus_enr = context.svg.selectAll(".focus").filter(function(f){return f.key === e.key});
+
+      hover_tick_x.select("text").text(timeFormat(x0))
+        .attr("text-anchor", x(x0) > width/2 ? "end" : "start")
+        .attr("dx", x(x0) > width/2 ? "-.5em" : ".5em");
+      
+      var leg_item = context.wrap.select(".legend").selectAll(".legend-item").filter(function(f){return f.label === e.key});
+      //leg_item.select(".legend-mark").style("display", "none");
+      leg_item.select(".legend-mark-text").text(d.values.count || d.values.count === 0 ? decim(d.values.count) : null);
+        
+      hover_tick_x.attr("transform", "translate("+x(x0)+",0)");  //move tick reference on x-axis
+      hover_tick_y.attr("transform", "translate(1,"+y(d.values.count)+")");
+      hover_tick_y.select("path").attr("fill", context.colorScale(e.key));  //move tick reference on x-axis
+      hover_tick_y.select("text").text(d.values.count);
+    });//end forEach
+   
+  };
+}; //moveStuff
 
 
 })(window);//END webCharts
