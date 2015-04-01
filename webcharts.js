@@ -371,7 +371,7 @@ webCharts.controlUI = function(element, data, config, defaults, callback){
     	d3.set(context.data.map(function(m){return m[control.value_col]}).filter(function(f){return f}) ).values();
     option_data.sort(d3.ascending);
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
-    if(!control.multiple && !control.start)
+    if((!control.multiple && !control.start) || control.all)
     	option_data.unshift("All");
     //option_data.sort();
     control.loose = !control.loose && control.start ? true : control.loose;
@@ -1451,6 +1451,7 @@ chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
       charts.push({subchart: mchart, subdata: split_data});
     });
 
+    context.children = charts;
     charts.forEach(function(e){e.subchart.init(e.subdata); });
 
     function matchDomains(chart){
