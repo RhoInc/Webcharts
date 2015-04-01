@@ -1,6 +1,14 @@
-(function(global){
+(function (root, factory) {
+  if(typeof define === "function" && define.amd) {
+    define(["d3"], factory);
+  } else if(typeof module === "object" && module.exports) {
+    module.exports = factory(require("d3"));
+  } else {
+    root.webCharts = factory(root.d3);
+  }
+}(this, function(d3){
 
-webCharts = {version: "0.1.1"};
+var webCharts = {version: "0.1.1"};
 
 webCharts.colors = {
   qualitative: ['rgb(102,194,165)','rgb(252,141,98)','rgb(141,160,203)','rgb(231,138,195)','rgb(166,216,84)','rgb(255,217,47)','rgb(229,196,148)','rgb(179,179,179)'],
@@ -3297,5 +3305,6 @@ webCharts.accrualChart.prototype.updateDataMarks = function(){
   };
 }; //moveStuff
 
+return webCharts;
 
-})(window);//END webCharts
+}));//END webCharts
