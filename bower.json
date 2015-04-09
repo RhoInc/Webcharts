@@ -10,7 +10,8 @@
 "homepage": "https://github.com/RhoInc/Webcharts",
 "main": [
 	"js/webcharts.js",
-	"css/webcharts.css"
+	"css/webcharts.css",
+	"js/datacontrols.js"
 ],
 "dependencies": {
 	"d3": ">= 3.0.0"
