@@ -2,6 +2,7 @@
 {
 "name": "Webcharts",
 "description": "A library for creating flexible, interactive charts",
+"version": "0.1.1",
 "keywords": [
 	"charts",
 	"javascript",
