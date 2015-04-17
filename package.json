@@ -10,11 +10,7 @@
 	"data visualization"
 ],
 "homepage": "https://github.com/RhoInc/Webcharts",
-"main": [
-	"js/webcharts.js",
-	"css/webcharts.css",
-	"js/datacontrols.js"
-],
+"main": "js/webcharts.js",
 "dependencies": {
 	"d3": ">= 3.0.0"
 }
