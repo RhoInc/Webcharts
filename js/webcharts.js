@@ -775,7 +775,8 @@ chart.prototype.draw = function(processed_data, raw_data){
 
   config.resizable = config.resizable === false ? false : true;
   var max_width = config.max_width ? config.max_width : div_width;
-  context.raw_width = config.resizable ? max_width : 
+  context.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.x_dom.length :
+    config.resizable ? max_width : 
     config.width ? config.width : 
     div_width;
   context.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.y_dom.length :
@@ -818,7 +819,8 @@ chart.prototype.resize = function(){
 
   context.margin = context.setMargins();
 
-  var svg_width = !config.resizable ? context.raw_width : 
+  var svg_width = config.x.type === "ordinal" && +config.range_band ? context.raw_width + context.margin.left + context.margin.right :
+    !config.resizable ? context.raw_width : 
     !config.max_width || div_width < config.max_width ? div_width :
     context.raw_width;
   context.plot_width = svg_width - context.margin.left - context.margin.right;
@@ -1032,10 +1034,12 @@ chart.prototype.transformData = function(raw, mark){
 
   var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] : 
     config.x.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.x.column]}) ).values().filter(function(f){return f}) :
+    mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.x.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
     d3.extent( raw.map(function(m){return +m[config.x.column]}).filter(function(f){return +f}) );
 
   var raw_dom_y = config.y.summary === "cumulative" ? [0, raw.length] : 
+    config.y.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.y.column]}) ).values().filter(function(f){return f}) :
     mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.y.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
     d3.extent( raw.map(function(m){return +m[config.y.column]}).filter(function(f){return +f}) );
@@ -1229,6 +1233,7 @@ chart.prototype.updateDataMarks = function(mark){
           .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
       }//no arrangement
       else{
+        var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
         var bars = bar_groups.selectAll("rect").data(function(d){return d.values }, function(d){return d.key});
         bars.exit()
           .transition()
@@ -1263,14 +1268,12 @@ chart.prototype.updateDataMarks = function(mark){
         else if(mark.arrange === "grouped"){
           bars.transition()
             .attr("x", function(d,i){
-              var sibs = d3.select(this.parentNode).datum().values.map(function(m){return String(m.key)}); 
-              var position = sibs.indexOf(d.key);
-              return context.x(d.values.x)+context.x.rangeBand()/sibs.length*position;
+              var position = subcats.indexOf(d.key);
+              return context.x(d.values.x)+context.x.rangeBand()/subcats.length*position;
             })
             .attr("y", function(d){return context.y(d.values.y)})
             .attr("width", function(d,i){
-              var sibs = d3.select(this.parentNode).datum().values; 
-              return context.x.rangeBand()/sibs.length;
+              return context.x.rangeBand()/subcats.length;
             })
             .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
         }//grouped
@@ -1306,6 +1309,7 @@ chart.prototype.updateDataMarks = function(mark){
           .attr("width", function(d){return context.x(d.values.x)  });
       }//no split
       else{
+        var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
         var bars = bar_groups.selectAll("rect").data(function(d){return d.values}, function(d){return d.key});
         bars.exit()
           .transition()
@@ -1340,14 +1344,12 @@ chart.prototype.updateDataMarks = function(mark){
         else if(mark.arrange === "grouped"){
          bars.transition()
             .attr("y", function(d,i){
-              var sibs = d3.select(this.parentNode).datum().values.map(function(m){return String(m.key)}); 
-              var position = sibs.indexOf(d.key);
-              return context.y(d.values.y)+context.y.rangeBand()/sibs.length*position;
+              var position = subcats.indexOf(d.key);
+              return context.y(d.values.y)+context.y.rangeBand()/subcats.length*position;
             })
             .attr("x", function(d){return context.x(0)})
             .attr("height", function(d,i){
-              var sibs = d3.select(this.parentNode).datum().values; 
-              return context.y.rangeBand()/sibs.length;
+              return context.y.rangeBand()/subcats.length;
             })
             .attr("width", function(d){return context.x(d.values.x)  });
         }//grouped
