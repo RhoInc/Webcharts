@@ -1388,7 +1388,7 @@ chart.prototype.updateDataMarks = function(mark){
 
 };
 
-webCharts.chart = chart;
+webCharts.Chart = chart;
 
 
 //scatter plot
