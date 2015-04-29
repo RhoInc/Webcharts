@@ -290,6 +290,10 @@ chart.prototype.layout = function(){
 chart.prototype.makeLegend = function(scale, label, custom_data){
   var context = this;
   var config = this.config;
+  config.legend_mark = config.legend_mark ? config.legend_mark :
+    config.marks && config.marks[0].type === 'bar' ? 'square' :
+    config.marks ? config.marks[0].type :
+    'square';
   var legend = context.legend || context.wrap.select(".legend")//.style("padding-left", context.margin.left+"px");
   scale = scale || context.colorScale;
   label = !label && !config.meta_map ? "" : label || label === "" ? label : 
@@ -297,7 +301,7 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
     context.metaMap(context.config.color_by);
 
   var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f !== undefined && f !== null}).map(function(m){
-    return {label: m,  mark: context.legend_mark};
+    return {label: m,  mark: config.legend_mark};
   });
   legend.select(".legend-title").text(label).style("display", label ? "inline" : "none");
   var leg_parts = legend.selectAll(".legend-item")
@@ -490,8 +494,8 @@ chart.prototype.setMargins = function(){
   if(this.config.y_format && this.config.y_format.indexOf("%") > -1 )
     max_y_text_length += 1
   max_y_text_length = Math.max(2, max_y_text_length);
-  var x_label_on = this.config.x_label ? 1 : 0;
-  var y_label_on = this.config.y_label ? 1 : 0.25;
+  var x_label_on = this.config.x_label ? 1.5 : 0;
+  var y_label_on = this.config.y_label ? 1.5 : 0.25;
   var font_size = parseInt(this.wrap.style("font-size"));
   var x_second = this.config.x2_interval ? 1 : 0;
   var y_margin = max_y_text_length*font_size*.5+ (font_size*y_label_on*1.5) || 8;
@@ -565,39 +569,57 @@ chart.prototype.drawPoints = function(mark, container){
   var colorScale = this.colorScale;
   var x = context.x;
   var y = context.y;
+  var mark_data = mark.type === 'circle' ? mark.data : [];
 
-  //bind_accessor = bind_accessor ? bind_accessor : function(d){return d};
   container = container || svg;
 
-  var points = container.selectAll(mark.per.length ? ".point."+mark.per.join(".") : ".point")
-    .data(mark.data, function(d){return d.key});
-
-  points.exit().select("circle")
+  var points = container.selectAll(".wc-data-mark.point")
+    .data(mark_data, function(d){return d.key});
+  var oldPoints = points.exit();
+  oldPoints.selectAll("circle")
     .transition()
     .attr("r", 0)
-  points.exit().remove();
+  oldPoints.transition().remove();
 
   var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point"});
   nupoints.append("circle")
     .attr("r", 0);
   nupoints.append("title");
-
+  // points.select("circle")
+  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
+  //   .attr("fill", function(d){
+  //     return colorScale(d.values.raw[0][config.color_by])
+  //   })
+  //   .attr("stroke", function(d){
+  //     return colorScale(d.values.raw[0][config.color_by])
+  //   })
+  //   .transition()
+  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
+  //   .attr("cx", function(d){
+  //     var x_pos = x(d.values.x) || 0;
+  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
+  //   })
+  //   .attr("cy", function(d){
+  //     var y_pos = y(d.values.y) || 0;
+  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
+  //   })
+  //   .attr(mark.attributes);
   points.select("circle")
     .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
     .attr("fill", function(d){
-      return colorScale(d.values.raw[0][config.color_by])
+      return colorScale(d.values[0].values.raw[0][config.color_by])
     })
     .attr("stroke", function(d){
-      return colorScale(d.values.raw[0][config.color_by])
+      return colorScale(d.values[0].values.raw[0][config.color_by])
     })
     .transition()
     .attr("r", config.point_size ? config.point_size : config.flex_point_size)
     .attr("cx", function(d){
-      var x_pos = x(d.values.x) || 0;
+      var x_pos = x(d.values[0].values.x) || 0;
       return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
     })
     .attr("cy", function(d){
-      var y_pos = y(d.values.y) || 0;
+      var y_pos = y(d.values[0].values.y) || 0;
       return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
     })
     .attr(mark.attributes);
@@ -670,6 +692,193 @@ chart.prototype.drawLines = function(mark){
 
   return line_grps;
 };//drawLines
+chart.prototype.drawBars = function(mark){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var colorScale = this.colorScale;
+  var x = context.x;
+  var y = context.y;
+  var mark_data = mark.type === 'bar' ? mark.data : [];
+  
+  if(config.x.type === "ordinal"){
+    if(mark.arrange === "stacked")
+      mark.data.forEach(calcStartTotal)
+    var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
+    var old_bar_groups = bar_groups.exit();
+
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("y", context.y(0))
+      .attr("height", 0)
+    old_bar_groups.transition().remove();
+
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    nu_bar_groups.append("title");
+    if(!mark.split){
+      var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("y", context.y(0))
+        .attr("height", 0);
+      bars.transition()
+        .attr("x", function(d){return context.x(d.values.x)})
+        .attr("y", function(d){return context.y(d.values.y)})
+        .attr("width", context.x.rangeBand())
+        .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
+    }//no arrangement
+    else{
+      var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
+      var bars = bar_groups.selectAll("rect").data(function(d){return d.values }, function(d){return d.key});
+      bars.exit()
+        .transition()
+        .attr("y", context.y(0))
+        .attr("height", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("y", context.y(0))
+        .attr("height", 0);
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8);
+
+      if(!mark.arrange){
+        bars.transition()
+          .attr("x", function(d){return context.x(d.values.x)})
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("width", context.x.rangeBand())
+          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
+      }
+      else if(mark.arrange === "stacked"){
+       bars.transition()
+          .attr("x", function(d){return context.x(d.values.x)})
+          .attr("y", function(d){return context.y(d.values.start)})
+          .attr("width", context.x.rangeBand())
+          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  })
+      }//stacked
+      else if(mark.arrange === "grouped"){
+        bars.transition()
+          .attr("x", function(d,i){
+            var position = subcats.indexOf(d.key);
+            return context.x(d.values.x)+context.x.rangeBand()/subcats.length*position;
+          })
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("width", function(d,i){
+            return context.x.rangeBand()/subcats.length;
+          })
+          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
+      }//grouped
+    }//split
+  }
+  else if(config.y.type === "ordinal"){
+    if(mark.arrange === "stacked")
+      mark.data.forEach(calcStartTotal)
+    var bar_groups = context.svg.selectAll(".bar-group").data(mark.data, function(d){return d.key});
+    var old_bar_groups = bar_groups.exit();
+
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("x", context.x(0))
+      .attr("width", 0)
+    old_bar_groups.transition().remove();
+
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    nu_bar_groups.append("title");
+
+    if(!mark.split){
+      var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("x", context.x(0))
+        .attr("width", 0);
+      bars.transition()
+        //.attr("x", function(d){return context.x(d.values.x)})
+        .attr("y", function(d){return context.y(d.values.y)})
+        .attr("height", context.y.rangeBand())
+        .attr("width", function(d){return context.x(d.values.x)  });
+    }//no split
+    else{
+      var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
+      var bars = bar_groups.selectAll("rect").data(function(d){return d.values}, function(d){return d.key});
+      bars.exit()
+        .transition()
+        .attr("x", context.x(0))
+        .attr("width", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("x", context.x(0))
+        .attr("width", 0);
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+
+      if(!mark.arrange){
+        bars.transition()
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("x", function(d){return context.x(0)})
+          .attr("height", context.y.rangeBand())
+          .attr("width", function(d){return context.x(d.values.x)  });
+      }//no arrangement
+      else if(mark.arrange === "stacked"){
+       bars.transition()
+          .attr("x", function(d){return context.x(d.values.start)})
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("height", context.y.rangeBand())
+          .attr("width", function(d){return context.x(d.values.x)  })
+      }//stacked
+      else if(mark.arrange === "grouped"){
+       bars.transition()
+          .attr("y", function(d,i){
+            var position = subcats.indexOf(d.key);
+            return context.y(d.values.y)+context.y.rangeBand()/subcats.length*position;
+          })
+          .attr("x", function(d){return context.x(0)})
+          .attr("height", function(d,i){
+            return context.y.rangeBand()/subcats.length;
+          })
+          .attr("width", function(d){return context.x(d.values.x)  });
+      }//grouped
+
+    }//split
+
+    bars.sort(function(a,b){
+      return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
+    });
+  }
+
+  function calcStartTotal(e){     
+    e.total = d3.max(e.values.map(function(m){return +m.values.y}));
+    var counter = 0;
+    e.values.forEach(function(v,i){
+      // if(config[contval+"_type"] === "percent")
+      //   v.values[contval] = v.values[contval]/e.total;
+      if(config.x.type === "ordinal"){
+        v.values.y = v.values.y || 0;
+        counter += +v.values.y;
+        v.values.start = e.values[i-1] ? counter : v.values.y;
+      }
+      else{
+        v.values.x = v.values.x || 0;
+        v.values.start = counter;
+        counter += +v.values.x;
+      }
+    });
+
+    // e.subcats = chunk_order;
+  };
+};//drawBars
 chart.prototype.drawRects = function(rect_data, container, class_match){
   var context = this;
   var config = this.config;
@@ -1027,7 +1236,7 @@ chart.prototype.transformData = function(raw, mark){
     });
   };
 
-  if(mark.type.indexOf("bar") > -1){
+  if(mark.type === "bar"){
     raw_nest = mark.arrange !== "stacked" ? makeNest(raw, sublevel) : makeNest(raw)
   }
   // console.log(raw_nest.nested)
@@ -1042,7 +1251,7 @@ chart.prototype.transformData = function(raw, mark){
     config.y.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.y.column]}) ).values().filter(function(f){return f}) :
     mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.y.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
-    d3.extent( raw.map(function(m){return +m[config.y.column]}).filter(function(f){return +f}) );
+    d3.extent( raw.map(function(m){return +m[config.y.column]}).filter(function(f){return +f || +f === 0}) );
 
   var filtered = raw;
 
@@ -1132,8 +1341,21 @@ chart.prototype.transformData = function(raw, mark){
   var current_nested = makeNest(filtered, sublevel);
 
   //extent of current data
-  var flex_dom_x = current_nested.dom_x;
-  var flex_dom_y = current_nested.dom_y;
+  if(mark.type === 'bar' && mark.arrange === 'stacked'){
+    var flex_dom_x = makeNest(filtered).dom_x;
+    var flex_dom_y = makeNest(filtered).dom_y;
+  }
+  else{
+    var flex_dom_x = current_nested.dom_x;
+    var flex_dom_y = current_nested.dom_y;
+  }
+
+  if(mark.type === 'bar'){
+    if(config.y.type === 'ordinal')
+      config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null]
+    else if(config.x.type === 'ordinal')
+      config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
+  }
 
   //several criteria must be met in order to use the 'firstfilter' domain
   var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" && 
@@ -1186,9 +1408,9 @@ chart.prototype.consolidateData = function(raw){
 chart.prototype.updateDataMarks = function(mark){
   var context = this;
   var config = context.config;
-  if(mark.type === "circle"){
-    var points = context.drawPoints(mark);
-  }
+
+  context.drawPoints(mark);
+
   if(mark.type === "line"){
      //LINES
     var line = d3.svg.line()
@@ -1203,186 +1425,8 @@ chart.prototype.updateDataMarks = function(mark){
     var lines = context.drawLines(mark);
 
   };
-  if(mark.type === "bar"){
-    if(config.x.type === "ordinal"){
-      if(mark.arrange === "stacked")
-        mark.data.forEach(calcStartTotal)
-      var bar_groups = context.svg.selectAll(".bar-group").data(mark.data, function(d){return d.key});
-      var old_bar_groups = bar_groups.exit();
 
-      old_bar_groups.selectAll(".bar")
-        .transition()
-        .attr("y", context.y(0))
-        .attr("height", 0)
-      old_bar_groups.transition().remove();
-
-      var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
-      nu_bar_groups.append("title");
-      if(!mark.split){
-        var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
-          .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill-opacity", config.fill_opacity || .8)
-          .style("clip-path", "url(#"+context.clippath_id+")")
-          .attr("y", context.y(0))
-          .attr("height", 0);
-        bars.transition()
-          .attr("x", function(d){return context.x(d.values.x)})
-          .attr("y", function(d){return context.y(d.values.y)})
-          .attr("width", context.x.rangeBand())
-          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
-      }//no arrangement
-      else{
-        var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
-        var bars = bar_groups.selectAll("rect").data(function(d){return d.values }, function(d){return d.key});
-        bars.exit()
-          .transition()
-          .attr("y", context.y(0))
-          .attr("height", 0)
-          .remove();
-        bars.enter().append("rect")
-          .attr("class", function(d){return "wc-data-mark bar "+d.key})
-          .style("clip-path", "url(#"+context.clippath_id+")")
-          .attr("y", context.y(0))
-          .attr("height", 0);
-
-        bars
-          .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill-opacity", config.fill_opacity || .8);
-
-        if(!mark.arrange){
-          bars.transition()
-            .attr("x", function(d){return context.x(d.values.x)})
-            .attr("y", function(d){return context.y(d.values.y)})
-            .attr("width", context.x.rangeBand())
-            .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
-        }
-        else if(mark.arrange === "stacked"){
-         bars.transition()
-            .attr("x", function(d){return context.x(d.values.x)})
-            .attr("y", function(d){return context.y(d.values.start)})
-            .attr("width", context.x.rangeBand())
-            .attr("height", function(d){return context.y(0) - context.y(d.values.y)  })
-        }//stacked
-        else if(mark.arrange === "grouped"){
-          bars.transition()
-            .attr("x", function(d,i){
-              var position = subcats.indexOf(d.key);
-              return context.x(d.values.x)+context.x.rangeBand()/subcats.length*position;
-            })
-            .attr("y", function(d){return context.y(d.values.y)})
-            .attr("width", function(d,i){
-              return context.x.rangeBand()/subcats.length;
-            })
-            .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
-        }//grouped
-      }//split
-    }
-    else if(config.y.type === "ordinal"){
-      if(mark.arrange === "stacked")
-        mark.data.forEach(calcStartTotal)
-      var bar_groups = context.svg.selectAll(".bar-group").data(mark.data, function(d){return d.key});
-      var old_bar_groups = bar_groups.exit();
-
-      old_bar_groups.selectAll(".bar")
-        .transition()
-        .attr("x", context.x(0))
-        .attr("width", 0)
-      old_bar_groups.transition().remove();
-
-      var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
-      nu_bar_groups.append("title");
-
-      if(!mark.split){
-        var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
-          .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill-opacity", config.fill_opacity || .8)
-          .style("clip-path", "url(#"+context.clippath_id+")")
-          .attr("x", context.x(0))
-          .attr("width", 0);
-        bars.transition()
-          //.attr("x", function(d){return context.x(d.values.x)})
-          .attr("y", function(d){return context.y(d.values.y)})
-          .attr("height", context.y.rangeBand())
-          .attr("width", function(d){return context.x(d.values.x)  });
-      }//no split
-      else{
-        var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
-        var bars = bar_groups.selectAll("rect").data(function(d){return d.values}, function(d){return d.key});
-        bars.exit()
-          .transition()
-          .attr("x", context.x(0))
-          .attr("width", 0)
-          .remove();
-        bars.enter().append("rect")
-          .attr("class", function(d){return "wc-data-mark bar "+d.key})
-          .style("clip-path", "url(#"+context.clippath_id+")")
-          .attr("x", context.x(0))
-          .attr("width", 0);
-
-        bars
-          .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-          .attr("fill-opacity", config.fill_opacity || .8)
-
-        if(!mark.arrange){
-          bars.transition()
-            .attr("y", function(d){return context.y(d.values.y)})
-            .attr("x", function(d){return context.x(0)})
-            .attr("height", context.y.rangeBand())
-            .attr("width", function(d){return context.x(d.values.x)  });
-        }//no arrangement
-        else if(mark.arrange === "stacked"){
-         bars.transition()
-            .attr("x", function(d){return context.x(d.values.start)})
-            .attr("y", function(d){return context.y(d.values.y)})
-            .attr("height", context.y.rangeBand())
-            .attr("width", function(d){return context.x(d.values.x)  })
-        }//stacked
-        else if(mark.arrange === "grouped"){
-         bars.transition()
-            .attr("y", function(d,i){
-              var position = subcats.indexOf(d.key);
-              return context.y(d.values.y)+context.y.rangeBand()/subcats.length*position;
-            })
-            .attr("x", function(d){return context.x(0)})
-            .attr("height", function(d,i){
-              return context.y.rangeBand()/subcats.length;
-            })
-            .attr("width", function(d){return context.x(d.values.x)  });
-        }//grouped
-
-      }//split
-
-      bars.sort(function(a,b){
-        return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
-      });
-    }
-
-  }
-
-  function calcStartTotal(e){     
-    e.total = d3.max(e.values.map(function(m){return +m.values.y}));
-    var counter = 0;
-    e.values.forEach(function(v,i){
-      // if(config[contval+"_type"] === "percent")
-      //   v.values[contval] = v.values[contval]/e.total;
-      if(config.x.type === "ordinal"){
-        v.values.y = v.values.y || 0;
-        counter += +v.values.y;
-        v.values.start = e.values[i-1] ? counter : v.values.y;
-      }
-      else{
-        v.values.x = v.values.x || 0;
-        v.values.start = counter;
-        counter += +v.values.x;
-      }
-    });
-
-    // e.subcats = chunk_order;
-  };
+  context.drawBars(mark);
 
   return this;
 
