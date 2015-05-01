@@ -782,7 +782,7 @@ chart.prototype.layout = function(){
   // );
 
   var eid = typeof element === "string" ? element.replace(/\./g, "") : d3.select(element).attr("class").replace(/\s/g, "") ;
-  var setting_string = btoa ? btoa(JSON.stringify(config)) : Math.random()*100;
+  var setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(config)) : Math.random()*100;
   var rand = Math.floor( Math.random()*setting_string.length );
   var setting_id = setting_string.slice( rand, rand+5);
   context.clippath_id = "plot-clip-"+eid+"-"+setting_id;
@@ -866,7 +866,6 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
     if(!config.highlight_on_legend)
       return;
     var fill = d3.select(this).select(".legend-mark").attr("fill");
-    console.log(fill)
     context.svg.selectAll(".wc-data-mark").attr("opacity", 0.1).filter(function(f){
       return d3.select(this).attr("fill") === fill || d3.select(this).attr("stroke") === fill;
     }).attr("opacity", 1)
