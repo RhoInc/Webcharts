@@ -257,7 +257,7 @@ chart.prototype.layout = function(){
   // );
 
   var eid = typeof element === "string" ? element.replace(/\./g, "") : d3.select(element).attr("class").replace(/\s/g, "") ;
-  var setting_string = btoa ? btoa(JSON.stringify(config)) : Math.random()*100;
+  var setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(config)) : Math.random()*100;
   var rand = Math.floor( Math.random()*setting_string.length );
   var setting_id = setting_string.slice( rand, rand+5);
   context.clippath_id = "plot-clip-"+eid+"-"+setting_id;
