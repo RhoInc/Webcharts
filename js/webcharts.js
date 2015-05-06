@@ -658,6 +658,7 @@ chart.prototype.drawLines = function(mark){
   var config = this.config;
   var svg = this.svg;
   var colorScale = this.colorScale;
+  var mark_data = mark.type === 'line' ? mark.data : [];
 
   var line = d3.svg.line()
     .interpolate(config.interpolate)
@@ -672,8 +673,9 @@ chart.prototype.drawLines = function(mark){
         context.y(d.values.y) + context.y.rangeBand()/2 
     }) 
 
-  var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
-    .data(mark.data, function(d){return d.key});
+  // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
+  var line_grps = svg.selectAll(".wc-data-mark.line")
+    .data(mark_data, function(d){return d.key});
   line_grps.exit().remove();
   var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line"});
   nu_line_grps.append("path");
@@ -702,8 +704,8 @@ chart.prototype.drawBars = function(mark){
   var mark_data = mark.type === 'bar' ? mark.data : [];
   
   if(config.x.type === "ordinal"){
-    if(mark.arrange === "stacked")
-      mark.data.forEach(calcStartTotal)
+    // if(mark.arrange === "stacked")
+    //   mark.data.forEach(calcStartTotal)
     var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
     var old_bar_groups = bar_groups.exit();
 
@@ -777,8 +779,8 @@ chart.prototype.drawBars = function(mark){
     }//split
   }
   else if(config.y.type === "ordinal"){
-    if(mark.arrange === "stacked")
-      mark.data.forEach(calcStartTotal)
+    // if(mark.arrange === "stacked")
+    //   mark.data.forEach(calcStartTotal)
     var bar_groups = context.svg.selectAll(".bar-group").data(mark.data, function(d){return d.key});
     var old_bar_groups = bar_groups.exit();
 
@@ -1308,7 +1310,37 @@ chart.prototype.transformData = function(raw, mark){
       return obj;
     })
     var test = this_nest.entries(entries);
-    return {nested: test, dom_x: d3.extent( d3.merge(dom_xs) ), dom_y: d3.extent( d3.merge(dom_ys) )};
+
+    var dom_x = d3.extent( d3.merge(dom_xs) );
+    var dom_y = d3.extent( d3.merge(dom_ys) );
+
+    if(sublevel && mark.type === 'bar' && mark.arrange === 'stacked'){
+      test.forEach(calcStartTotal);
+      if(config.x.type === 'ordinal')
+        dom_y = d3.extent( test.map(function(m){return m.total}) );
+      if(config.y.type === 'ordinal')
+        dom_x = d3.extent( test.map(function(m){return m.total}) );
+    }
+    // console.log(test)
+
+    return {nested: test, dom_x: dom_x, dom_y: dom_y};
+  };
+
+  function calcStartTotal(e){     
+    e.total = d3.sum(e.values.map(function(m){return +m.values.y}));
+    var counter = 0;
+    e.values.forEach(function(v,i){
+      if(config.x.type === 'ordinal'){
+        v.values.y = v.values.y || 0;
+        counter += +v.values.y;
+        v.values.start = e.values[i-1] ? counter : v.values.y;
+      }
+      else{
+        v.values.x = v.values.x || 0;
+        v.values.start = counter;
+        counter += +v.values.x;
+      }
+    });
   };
 
   var filt1_xs = [];
@@ -1341,13 +1373,16 @@ chart.prototype.transformData = function(raw, mark){
   var current_nested = makeNest(filtered, sublevel);
 
   //extent of current data
-  if(mark.type === 'bar' && mark.arrange === 'stacked'){
-    var flex_dom_x = makeNest(filtered).dom_x;
-    var flex_dom_y = makeNest(filtered).dom_y;
-  }
-  else{
+  // if(mark.type === 'bar' && mark.arrange === 'stacked'){
+  //   var flex_dom_x = makeNest(filtered).dom_x;
+  //   var flex_dom_y = makeNest(filtered).dom_y;
+  // }
+  // else{
     var flex_dom_x = current_nested.dom_x;
     var flex_dom_y = current_nested.dom_y;
+  // }
+  if(mark.type === 'bar' && mark.arrange === 'stacked'){
+
   }
 
   if(mark.type === 'bar'){
@@ -1411,20 +1446,7 @@ chart.prototype.updateDataMarks = function(mark){
 
   context.drawPoints(mark);
 
-  if(mark.type === "line"){
-     //LINES
-    var line = d3.svg.line()
-      .interpolate(config.interpolate)
-      .x(function(d){ 
-        return config.x.type === "linear" ? context.x(+d.values.x) : 
-          config.x.type === "time" ? context.x(new Date(d.values.x)) :
-          context.x(d.values.x)+ context.x.rangeBand()/2 
-      }) 
-      .y(function(d) { return context.y(d.values.y);});
-
-    var lines = context.drawLines(mark);
-
-  };
+  context.drawLines(mark);
 
   context.drawBars(mark);
 
