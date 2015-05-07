@@ -17,14 +17,14 @@ chart.prototype.xScaleAxis = function(type, max_range, domain){
   else
     x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
 
-  var x_format = config.x_format ? config.x_format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
+  var format = config.x.format ? config.x.format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var xAxis = d3.svg.axis()
     .scale(x)
-    .orient(config.x_location)
+    .orient(config.x.location)
     .ticks(tick_count)
-    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(x_format) : d3.format(x_format))
-    .tickValues(config.x_ticks ? config.x_ticks : null)
+    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(format) : d3.format(format))
+    .tickValues(config.x.ticks ? config.x.ticks : null)
     .innerTickSize(6)
     .outerTickSize(3);
 

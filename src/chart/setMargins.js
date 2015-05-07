@@ -7,8 +7,8 @@ chart.prototype.setMargins = function(){
   if(this.config.y_format && this.config.y_format.indexOf("%") > -1 )
     max_y_text_length += 1
   max_y_text_length = Math.max(2, max_y_text_length);
-  var x_label_on = this.config.x_label ? 1.5 : 0;
-  var y_label_on = this.config.y_label ? 1.5 : 0.25;
+  var x_label_on = this.config.x.label ? 1.5 : 0;
+  var y_label_on = this.config.y.label ? 1.5 : 0.25;
   var font_size = parseInt(this.wrap.style("font-size"));
   var x_second = this.config.x2_interval ? 1 : 0;
   var y_margin = max_y_text_length*font_size*.5+ (font_size*y_label_on*1.5) || 8;

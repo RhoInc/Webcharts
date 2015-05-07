@@ -29,10 +29,10 @@ chart.prototype.draw = function(processed_data, raw_data){
   var pseudo_height = context.svg.select(".overlay").attr("height") ? context.svg.select(".overlay").attr("height") : context.raw_height;
 
   var x_axis_label = context.svg.select(".x.axis").select(".axis-title").text(function(){
-    return typeof config.x_label === "string" ? config.x_label : typeof config.x_label === "function" ? config.x_label(context) : null;
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
   });
   var y_axis_label = context.svg.select(".y.axis").select(".axis-title").text(function(){
-    return typeof config.y_label === "string" ? config.y_label : typeof config.y_label === "function" ? config.y_label(context) : null;
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
   });
 
   context.xScaleAxis(config.x.type, pseudo_width, context.x_dom);

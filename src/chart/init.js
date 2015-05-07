@@ -11,6 +11,8 @@ chart.prototype.init = function(data){
     if(this.chart_type)
       context.wrap.classed("wc-"+this.chart_type.toLowerCase(), true)
 
+    context.setDefaults();
+
     var startup = function(data){
       if(controls){
           controls.targets.push(context);

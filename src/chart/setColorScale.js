@@ -5,6 +5,8 @@ chart.prototype.setColorScale = function(){
 
   if(config.chunk_order)
     colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
+  else
+  	colordom = colordom.sort(d3.ascending)
 
   this.colorScale = d3.scale.ordinal()
     .domain(colordom)

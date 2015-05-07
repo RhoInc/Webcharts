@@ -17,14 +17,14 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
   else
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 
-  var y_format = config.y_format ? config.y_format : type === "percent" ? "0%" : ".0f";
+  var y_format = config.y.format ? config.y.format : type === "percent" ? "0%" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
     .ticks(tick_count)
     .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(y_format) : d3.format(y_format))
-    .tickValues(config.y_ticks ? config.y_ticks : null)
+    .tickValues(config.y.ticks ? config.y.ticks : null)
     .innerTickSize(6)
     .outerTickSize(3);
 

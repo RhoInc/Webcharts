@@ -35,6 +35,8 @@ chart.prototype.init = function(data){
     if(this.chart_type)
       context.wrap.classed("wc-"+this.chart_type.toLowerCase(), true)
 
+    context.setDefaults();
+
     var startup = function(data){
       if(controls){
           controls.targets.push(context);
@@ -165,46 +167,56 @@ chart.prototype.layout = function(){
 chart.prototype.makeLegend = function(scale, label, custom_data){
   var context = this;
   var config = this.config;
-  config.legend_mark = config.legend_mark ? config.legend_mark :
-    config.marks && config.marks[0].type === 'bar' ? 'square' :
-    config.marks ? config.marks[0].type :
+
+  config.legend.mark = config.legend.mark ? config.legend.mark :
+    config.marks.length && config.marks[0].type === 'bar' ? 'square' :
+    config.marks.length ? config.marks[0].type :
     'square';
+
+  var legend_label = label ? label :
+   typeof config.legend.label === 'string' ? config.legend.label :
+   config.meta_map ? context.metaMap(context.config.color_by) :
+   "";
+
+  // label = !legend_label && !config.meta_map ? "" : label || label === "" ? label : 
+  //   context.metaMap.domain().indexOf(context.config.color_by) < 0 ? "" :
+  //   context.metaMap(context.config.color_by);
+
   var legend = context.legend || context.wrap.select(".legend")//.style("padding-left", context.margin.left+"px");
   scale = scale || context.colorScale;
-  label = !label && !config.meta_map ? "" : label || label === "" ? label : 
-    context.metaMap.domain().indexOf(context.config.color_by) < 0 ? "" :
-    context.metaMap(context.config.color_by);
+  
 
   var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f !== undefined && f !== null}).map(function(m){
-    return {label: m,  mark: config.legend_mark};
+    return {label: m,  mark: config.legend.mark};
   });
-  legend.select(".legend-title").text(label).style("display", label ? "inline" : "none");
+
+  legend.select(".legend-title").text(legend_label).style("display", legend_label ? "inline" : "none");
+  
   var leg_parts = legend.selectAll(".legend-item")
-      .data(legend_data, function(d){return d.label});
+      .data(legend_data, function(d){return d.label + d.mark});
+  
   leg_parts.exit().remove()
+  
   var new_parts = leg_parts.enter().append("li")
       .attr("class", "legend-item")
-
-  new_parts.each(drawMark)
+  new_parts.append("span").attr("class", "legend-mark-text").style("color", function(d){return scale(d.label)});
+  new_parts.append("svg").attr("class", "legend-color-block");
   
-  function drawMark(e){
-    if(!e.mark)
-      return;
-    d3.select(this).append("span").attr("class", "legend-mark-text").style("color", scale(e.label));
-    var svg = d3.select(this).append("svg").attr("class", "legend-color-block");
-    //e.mark = e.mark || "square";
+
+  leg_parts.sort(function(a,b){
+    return d3.ascending(scale.domain().indexOf(a), scale.domain().indexOf(b));
+  });
+    
+  leg_parts.selectAll(".legend-color-block").select(".legend-mark").remove();
+  leg_parts.selectAll(".legend-color-block").each(function(e){
+    var svg = d3.select(this);
     if(e.mark === "circle")
       svg.append("circle").attr({"cx": ".5em", "cy": ".45em", "r": ".45em", "class": "legend-mark"});
     else if(e.mark === "line")
       svg.append("line").attr({"x1": 0, "y1": ".5em", "x2": "1em", "y2": ".5em", "stroke-width": 2, "shape-rendering": "crispEdges", "class": "legend-mark"});
     else if(e.mark === "square")
       svg.append("rect").attr({"height": "1em", "width": "1em", "class": "legend-mark"});
-  };
-
-  leg_parts.sort(function(a,b){
-    return scale.domain().indexOf(a) - scale.domain().indexOf(b);
-  });
-    
+  })
   leg_parts.selectAll(".legend-color-block").select(".legend-mark")
     .attr("fill", function(d){return d.color || scale(d.label)})
     .attr("stroke", function(d){return d.color || scale(d.label)})
@@ -224,7 +236,8 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
     context.svg.selectAll(".wc-data-mark").attr("opacity", 0.1).filter(function(f){
       return d3.select(this).attr("fill") === fill || d3.select(this).attr("stroke") === fill;
     }).attr("opacity", 1)
-  }).on("mouseout", function(d){
+  })
+  .on("mouseout", function(d){
     if(!config.highlight_on_legend)
       return;
      context.svg.selectAll(".wc-data-mark").attr("opacity", 1)
@@ -256,14 +269,14 @@ chart.prototype.xScaleAxis = function(type, max_range, domain){
   else
     x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
 
-  var x_format = config.x_format ? config.x_format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
+  var format = config.x.format ? config.x.format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var xAxis = d3.svg.axis()
     .scale(x)
-    .orient(config.x_location)
+    .orient(config.x.location)
     .ticks(tick_count)
-    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(x_format) : d3.format(x_format))
-    .tickValues(config.x_ticks ? config.x_ticks : null)
+    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(format) : d3.format(format))
+    .tickValues(config.x.ticks ? config.x.ticks : null)
     .innerTickSize(6)
     .outerTickSize(3);
 
@@ -290,14 +303,14 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
   else
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 
-  var y_format = config.y_format ? config.y_format : type === "percent" ? "0%" : ".0f";
+  var y_format = config.y.format ? config.y.format : type === "percent" ? "0%" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
     .ticks(tick_count)
     .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(y_format) : d3.format(y_format))
-    .tickValues(config.y_ticks ? config.y_ticks : null)
+    .tickValues(config.y.ticks ? config.y.ticks : null)
     .innerTickSize(6)
     .outerTickSize(3);
 
@@ -313,6 +326,8 @@ chart.prototype.setColorScale = function(){
 
   if(config.chunk_order)
     colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
+  else
+  	colordom = colordom.sort(d3.ascending)
 
   this.colorScale = d3.scale.ordinal()
     .domain(colordom)
@@ -369,8 +384,8 @@ chart.prototype.setMargins = function(){
   if(this.config.y_format && this.config.y_format.indexOf("%") > -1 )
     max_y_text_length += 1
   max_y_text_length = Math.max(2, max_y_text_length);
-  var x_label_on = this.config.x_label ? 1.5 : 0;
-  var y_label_on = this.config.y_label ? 1.5 : 0.25;
+  var x_label_on = this.config.x.label ? 1.5 : 0;
+  var y_label_on = this.config.y.label ? 1.5 : 0.25;
   var font_size = parseInt(this.wrap.style("font-size"));
   var x_second = this.config.x2_interval ? 1 : 0;
   var y_margin = max_y_text_length*font_size*.5+ (font_size*y_label_on*1.5) || 8;
@@ -424,44 +439,45 @@ chart.prototype.drawPoints = function(mark, container){
   nupoints.append("circle")
     .attr("r", 0);
   nupoints.append("title");
-  // points.select("circle")
-  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
-  //   .attr("fill", function(d){
-  //     return colorScale(d.values.raw[0][config.color_by])
-  //   })
-  //   .attr("stroke", function(d){
-  //     return colorScale(d.values.raw[0][config.color_by])
-  //   })
-  //   .transition()
-  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
-  //   .attr("cx", function(d){
-  //     var x_pos = x(d.values.x) || 0;
-  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
-  //   })
-  //   .attr("cy", function(d){
-  //     var y_pos = y(d.values.y) || 0;
-  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
-  //   })
-  //   .attr(mark.attributes);
   points.select("circle")
     .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
     .attr("fill", function(d){
-      return colorScale(d.values[0].values.raw[0][config.color_by])
+      return colorScale(d.values.raw[0][config.color_by])
     })
     .attr("stroke", function(d){
-      return colorScale(d.values[0].values.raw[0][config.color_by])
+      return colorScale(d.values.raw[0][config.color_by])
     })
     .transition()
     .attr("r", config.point_size ? config.point_size : config.flex_point_size)
     .attr("cx", function(d){
-      var x_pos = x(d.values[0].values.x) || 0;
+      var x_pos = x(d.values.x) || 0;
       return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
     })
     .attr("cy", function(d){
-      var y_pos = y(d.values[0].values.y) || 0;
+      var y_pos = y(d.values.y) || 0;
       return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
     })
     .attr(mark.attributes);
+  // points.select("circle")
+  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
+  //   .attr("fill", function(d){
+  //     console.log(d)
+  //     return colorScale(d.values[0].values.raw[0][config.color_by])
+  //   })
+  //   .attr("stroke", function(d){
+  //     return colorScale(d.values[0].values.raw[0][config.color_by])
+  //   })
+  //   .transition()
+  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
+  //   .attr("cx", function(d){
+  //     var x_pos = x(d.values[0].values.x) || 0;
+  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
+  //   })
+  //   .attr("cy", function(d){
+  //     var y_pos = y(d.values[0].values.y) || 0;
+  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
+  //   })
+  //   .attr(mark.attributes);
 
   return points;
 }
@@ -698,27 +714,6 @@ chart.prototype.drawBars = function(mark){
       return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
     });
   }
-
-  function calcStartTotal(e){     
-    e.total = d3.max(e.values.map(function(m){return +m.values.y}));
-    var counter = 0;
-    e.values.forEach(function(v,i){
-      // if(config[contval+"_type"] === "percent")
-      //   v.values[contval] = v.values[contval]/e.total;
-      if(config.x.type === "ordinal"){
-        v.values.y = v.values.y || 0;
-        counter += +v.values.y;
-        v.values.start = e.values[i-1] ? counter : v.values.y;
-      }
-      else{
-        v.values.x = v.values.x || 0;
-        v.values.start = counter;
-        counter += +v.values.x;
-      }
-    });
-
-    // e.subcats = chunk_order;
-  };
 }
 chart.prototype.drawRects = function(rect_data, container, class_match){
   var context = this;
@@ -838,10 +833,10 @@ chart.prototype.draw = function(processed_data, raw_data){
   var pseudo_height = context.svg.select(".overlay").attr("height") ? context.svg.select(".overlay").attr("height") : context.raw_height;
 
   var x_axis_label = context.svg.select(".x.axis").select(".axis-title").text(function(){
-    return typeof config.x_label === "string" ? config.x_label : typeof config.x_label === "function" ? config.x_label(context) : null;
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
   });
   var y_axis_label = context.svg.select(".y.axis").select(".axis-title").text(function(){
-    return typeof config.y_label === "string" ? config.y_label : typeof config.y_label === "function" ? config.y_label(context) : null;
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
   });
 
   context.xScaleAxis(config.x.type, pseudo_width, context.x_dom);
@@ -1024,7 +1019,7 @@ chart.prototype.transformData = function(raw, mark){
   var x_behavior = config.x.behavior || "raw";
   var y_behavior = config.y.behavior || "raw";
   var sublevel = mark.type === "line" ? config.x.column : 
-    mark.split ? mark.split : 
+    mark.type === 'bar' && mark.split ? mark.split : 
     null;
   var dateConvert = d3.time.format(config.date_format);
   // context.raw_data = raw;
@@ -1032,7 +1027,7 @@ chart.prototype.transformData = function(raw, mark){
   if(config.lengthen_columns)
     raw = webCharts.dataOps.lengthenRaw(raw, config.lengthen_columns);
 
-  raw = mark.per.length ? raw.filter(function(f){return f[mark.per[0]]}) : raw;
+  raw = mark.per && mark.per.length ? raw.filter(function(f){return f[mark.per[0]]}) : raw;
 
   //run initial filter if specified
   if(config.initial_filter){
@@ -1269,15 +1264,26 @@ chart.prototype.consolidateData = function(raw){
   var all_y = [];
   context.marks = [];
   this.config.marks.forEach(function(e){
-    var mark_info = context.transformData(raw, e);
+    var mark_info = e.per ? context.transformData(raw, e) : {data: [], x_dom: [], y_dom: []};
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
     context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, attributes: e.attributes})
   });
 
-  context.x_dom = context.config.x.type === "ordinal" ? d3.set(d3.merge(all_x)).values() : d3.extent(d3.merge(all_x));
-  context.y_dom = context.config.y.type === "ordinal" ? d3.set(d3.merge(all_y)).values() : d3.extent(d3.merge(all_y));
+  var sortOrderX;
+  var sortOrderY;
+  if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
+    sortOrderX = d3.ascending
+  if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
+    sortOrderX = d3.descending
+  if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
+    sortOrderY = d3.ascending
+  if( context.config.y.sort && context.config.y.sort === 'alphabetical-descending' )
+    sortOrderY = d3.descending
+
+  context.x_dom = context.config.x.type === "ordinal" ? d3.set(d3.merge(all_x)).values().sort(sortOrderX) : d3.extent(d3.merge(all_x));
+  context.y_dom = context.config.y.type === "ordinal" ? d3.set(d3.merge(all_y)).values().sort(sortOrderY) : d3.extent(d3.merge(all_y));
 }
 chart.prototype.updateDataMarks = function(mark){
   var context = this;
@@ -1293,3 +1299,40 @@ chart.prototype.updateDataMarks = function(mark){
 
 }
 webCharts.Chart = chart;
+chart.prototype.setDefaults = function(){
+	this.config.x = this.config.x || {};
+	this.config.y = this.config.y || {};
+	
+	//backwards compatibility with x/y settings
+	if(this.config.x_type)
+		this.config.x.type = this.config.x_type;
+	if(this.config.x_vals && this.config.x_vals.col)
+		this.config.x.type = this.config.x_vals.col;
+	if(this.config.x_vals && this.config.x_vals.stat)
+		this.config.x.summary = this.config.x_vals.stat;
+	if(this.config.x_behavior)
+		this.config.x.behavior = this.config.x_behavior;
+	if(this.config.x_label)
+		this.config.x.label = this.config.x_label;
+	if(this.config.y_type)
+		this.config.y.type = this.config.y_type;
+	if(this.config.y_vals && this.config.y_vals.col)
+		this.config.y.type = this.config.y_vals.col;
+	if(this.config.y_vals && this.config.y_vals.stat)
+		this.config.y.summary = this.config.y_vals.stat;
+	if(this.config.y_behavior)
+		this.config.y.behavior = this.config.y_behavior;
+	if(this.config.y_label)
+		this.config.y.label = this.config.y_label;
+
+	this.config.x.label = typeof this.config.x.label === 'string' ? this.config.x.label : this.config.x.column;
+	this.config.y.label = typeof this.config.y.label === 'string' ? this.config.y.label : this.config.y.column;
+
+	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
+	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
+
+	this.config.margin = this.config.margin || {};
+	this.config.legend = this.config.legend || {};
+	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
+	this.config.marks = this.config.marks || [];
+};

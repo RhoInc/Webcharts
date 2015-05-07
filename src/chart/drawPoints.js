@@ -21,44 +21,45 @@ chart.prototype.drawPoints = function(mark, container){
   nupoints.append("circle")
     .attr("r", 0);
   nupoints.append("title");
-  // points.select("circle")
-  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
-  //   .attr("fill", function(d){
-  //     return colorScale(d.values.raw[0][config.color_by])
-  //   })
-  //   .attr("stroke", function(d){
-  //     return colorScale(d.values.raw[0][config.color_by])
-  //   })
-  //   .transition()
-  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
-  //   .attr("cx", function(d){
-  //     var x_pos = x(d.values.x) || 0;
-  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
-  //   })
-  //   .attr("cy", function(d){
-  //     var y_pos = y(d.values.y) || 0;
-  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
-  //   })
-  //   .attr(mark.attributes);
   points.select("circle")
     .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
     .attr("fill", function(d){
-      return colorScale(d.values[0].values.raw[0][config.color_by])
+      return colorScale(d.values.raw[0][config.color_by])
     })
     .attr("stroke", function(d){
-      return colorScale(d.values[0].values.raw[0][config.color_by])
+      return colorScale(d.values.raw[0][config.color_by])
     })
     .transition()
     .attr("r", config.point_size ? config.point_size : config.flex_point_size)
     .attr("cx", function(d){
-      var x_pos = x(d.values[0].values.x) || 0;
+      var x_pos = x(d.values.x) || 0;
       return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
     })
     .attr("cy", function(d){
-      var y_pos = y(d.values[0].values.y) || 0;
+      var y_pos = y(d.values.y) || 0;
       return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
     })
     .attr(mark.attributes);
+  // points.select("circle")
+  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
+  //   .attr("fill", function(d){
+  //     console.log(d)
+  //     return colorScale(d.values[0].values.raw[0][config.color_by])
+  //   })
+  //   .attr("stroke", function(d){
+  //     return colorScale(d.values[0].values.raw[0][config.color_by])
+  //   })
+  //   .transition()
+  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
+  //   .attr("cx", function(d){
+  //     var x_pos = x(d.values[0].values.x) || 0;
+  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
+  //   })
+  //   .attr("cy", function(d){
+  //     var y_pos = y(d.values[0].values.y) || 0;
+  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
+  //   })
+  //   .attr(mark.attributes);
 
   return points;
 }

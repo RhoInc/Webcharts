@@ -163,25 +163,4 @@ chart.prototype.drawBars = function(mark){
       return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
     });
   }
-
-  function calcStartTotal(e){     
-    e.total = d3.max(e.values.map(function(m){return +m.values.y}));
-    var counter = 0;
-    e.values.forEach(function(v,i){
-      // if(config[contval+"_type"] === "percent")
-      //   v.values[contval] = v.values[contval]/e.total;
-      if(config.x.type === "ordinal"){
-        v.values.y = v.values.y || 0;
-        counter += +v.values.y;
-        v.values.start = e.values[i-1] ? counter : v.values.y;
-      }
-      else{
-        v.values.x = v.values.x || 0;
-        v.values.start = counter;
-        counter += +v.values.x;
-      }
-    });
-
-    // e.subcats = chunk_order;
-  };
 }

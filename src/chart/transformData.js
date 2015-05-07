@@ -4,7 +4,7 @@ chart.prototype.transformData = function(raw, mark){
   var x_behavior = config.x.behavior || "raw";
   var y_behavior = config.y.behavior || "raw";
   var sublevel = mark.type === "line" ? config.x.column : 
-    mark.split ? mark.split : 
+    mark.type === 'bar' && mark.split ? mark.split : 
     null;
   var dateConvert = d3.time.format(config.date_format);
   // context.raw_data = raw;
@@ -12,7 +12,7 @@ chart.prototype.transformData = function(raw, mark){
   if(config.lengthen_columns)
     raw = webCharts.dataOps.lengthenRaw(raw, config.lengthen_columns);
 
-  raw = mark.per.length ? raw.filter(function(f){return f[mark.per[0]]}) : raw;
+  raw = mark.per && mark.per.length ? raw.filter(function(f){return f[mark.per[0]]}) : raw;
 
   //run initial filter if specified
   if(config.initial_filter){
