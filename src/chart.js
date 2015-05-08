@@ -1331,6 +1331,9 @@ chart.prototype.setDefaults = function(){
 	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
 	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
 
+	this.config.x.type = this.config.x.type || 'linear';
+	this.config.y.type = this.config.y.type || 'linear';
+
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
 	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
