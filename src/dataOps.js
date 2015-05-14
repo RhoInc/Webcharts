@@ -1,14 +1,9 @@
 webCharts.dataOps = {summarize: function(vals, operation){
   var nvals = vals.filter(function(f){return +f || +f === 0}).map(function(m){return +m});
-  var mathed;
   if(operation === "cumulative")
     return null;
   var stat = operation || "mean";
-  if(!stat || stat !== "count")
-    mathed = d3[stat](nvals);
-  else
-    mathed = vals.length;
-
+  var mathed = stat === "count" ? vals.length : d3[stat](nvals);
   return mathed;
 },linearRegression: function(x,y){
   //http://stackoverflow.com/questions/20507536/d3-js-linear-regression

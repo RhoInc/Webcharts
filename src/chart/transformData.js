@@ -57,8 +57,12 @@ chart.prototype.transformData = function(raw, mark){
     });
   };
 
+  var raw_nest;
   if(mark.type === "bar"){
     raw_nest = mark.arrange !== "stacked" ? makeNest(raw, sublevel) : makeNest(raw)
+  }
+  else if(config.x.summary === 'count' || config.y.summary === 'count'){
+    raw_nest = makeNest(raw);
   }
   // console.log(raw_nest.nested)
 
@@ -105,23 +109,26 @@ chart.prototype.transformData = function(raw, mark){
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x ]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y ]);
 
-      if(config.y.summarize === "cumulative"){
+      if(config.y.summary === "cumulative"){
         var interm = entries.filter(function(f){
             return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : 
               +f[config.x.column] <= +r[0][config.x.column]
           });
-        if(config.group.length)
-          interm = interm.filter(function(f){return f[config.group[0]] === r[0][config.group[0]] })
-        dom_ys.push([interm.length]);
-        obj.y = interm.length;
+        if(mark.per.length)
+          interm = interm.filter(function(f){return f[mark.per[0]] === r[0][mark.per[0]] })
+
+        var cumul = config.x.type === 'time' ? interm.length : 
+          d3.sum( interm.map(function(m){return +m[config.y.column] || +m[config.y.column] === 0 ? +m[config.y.column] : 1}) );
+        dom_ys.push([cumul]);
+        obj.y = cumul;
       };
-      if(config.x.summarize === "cumulative"){
+      if(config.x.summary === "cumulative"){
         var interm = entries.filter(function(f){
             return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : 
               +f[config.y.column] <= +r[0][config.y.column]
           });
-        if(config.group.length)
-          interm = interm.filter(function(f){return f[config.group[0]] === r[0][config.group[0]] })
+        if(mark.per.length)
+          interm = interm.filter(function(f){return f[mark.per[0]] === r[0][mark.per[0]] })
         dom_xs.push([interm.length]);
         obj.x = interm.length;
       };
@@ -140,13 +147,13 @@ chart.prototype.transformData = function(raw, mark){
       if(config.y.type === 'ordinal')
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
-    // console.log(test)
 
     return {nested: test, dom_x: dom_x, dom_y: dom_y};
   };
 
-  function calcStartTotal(e){     
-    e.total = d3.sum(e.values.map(function(m){return +m.values.y}));
+  function calcStartTotal(e){    
+    var axis = config.x.type === 'ordinal' ? 'y' : 'x'; 
+    e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config.x.type === 'ordinal'){
@@ -186,11 +193,8 @@ chart.prototype.transformData = function(raw, mark){
 
   context.filtered_data = filtered;
 
-  var flex_xs = [];
-  var flex_ys = [];
-
   var current_nested = makeNest(filtered, sublevel);
-
+console.log(current_nested)
   //extent of current data
   // if(mark.type === 'bar' && mark.arrange === 'stacked'){
   //   var flex_dom_x = makeNest(filtered).dom_x;
@@ -199,10 +203,6 @@ chart.prototype.transformData = function(raw, mark){
   // else{
     var flex_dom_x = current_nested.dom_x;
     var flex_dom_y = current_nested.dom_y;
-  // }
-  if(mark.type === 'bar' && mark.arrange === 'stacked'){
-
-  }
 
   if(mark.type === 'bar'){
     if(config.y.type === 'ordinal')

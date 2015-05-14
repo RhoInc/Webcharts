@@ -7,12 +7,10 @@ chart.prototype.drawBars = function(mark){
   var y = context.y;
   var mark_data = mark.type === 'bar' ? mark.data : [];
   
-  if(config.x.type === "ordinal"){
-    // if(mark.arrange === "stacked")
-    //   mark.data.forEach(calcStartTotal)
-    var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
-    var old_bar_groups = bar_groups.exit();
+  var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
+  var old_bar_groups = bar_groups.exit();
 
+  if(config.x.type === "ordinal"){
     old_bar_groups.selectAll(".bar")
       .transition()
       .attr("y", context.y(0))
@@ -22,13 +20,14 @@ chart.prototype.drawBars = function(mark){
     var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
     nu_bar_groups.append("title");
     if(!mark.split){
-      var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+      nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
         .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
         .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
         .attr("fill-opacity", config.fill_opacity || .8)
         .style("clip-path", "url(#"+context.clippath_id+")")
         .attr("y", context.y(0))
         .attr("height", 0);
+      var bars = bar_groups.selectAll("rect.bar");
       bars.transition()
         .attr("x", function(d){return context.x(d.values.x)})
         .attr("y", function(d){return context.y(d.values.y)})
@@ -83,10 +82,7 @@ chart.prototype.drawBars = function(mark){
     }//split
   }
   else if(config.y.type === "ordinal"){
-    // if(mark.arrange === "stacked")
-    //   mark.data.forEach(calcStartTotal)
-    var bar_groups = context.svg.selectAll(".bar-group").data(mark.data, function(d){return d.key});
-    var old_bar_groups = bar_groups.exit();
+    console.dir(mark_data)
 
     old_bar_groups.selectAll(".bar")
       .transition()
@@ -98,14 +94,40 @@ chart.prototype.drawBars = function(mark){
     nu_bar_groups.append("title");
 
     if(!mark.split){
-      var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
-        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill-opacity", config.fill_opacity || .8)
+      // nu_bar_groups
+      //   .append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+      //   .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      //   .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      //   .attr("fill-opacity", config.fill_opacity || .8)
+      //   .style("clip-path", "url(#"+context.clippath_id+")")
+      //   .attr("x", context.x(0))
+      //   .attr("width", 0);
+      // var bars = bar_groups.selectAll("rect.bar").datum(function(d){return d});
+      // bars.transition()
+      //   //.attr("x", function(d){return context.x(d.values.x)})
+      //   .attr("y", function(d){return context.y(d.values.y)})
+      //   .attr("height", context.y.rangeBand())
+      //   .attr("width", function(d){return context.x(d.values.x)  });
+
+      var bars = bar_groups.selectAll("rect").data(function(d){return [d]}, function(d){return d.key});
+
+      bars.exit()
+        .transition()
+        .attr("x", context.x(0))
+        .attr("width", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
         .style("clip-path", "url(#"+context.clippath_id+")")
         .attr("x", context.x(0))
         .attr("width", 0);
-      bars.transition()
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+
+       bars.transition()
         //.attr("x", function(d){return context.x(d.values.x)})
         .attr("y", function(d){return context.y(d.values.y)})
         .attr("height", context.y.rangeBand())
@@ -138,7 +160,7 @@ chart.prototype.drawBars = function(mark){
           .attr("width", function(d){return context.x(d.values.x)  });
       }//no arrangement
       else if(mark.arrange === "stacked"){
-       bars.transition()
+        bars.transition()
           .attr("x", function(d){return context.x(d.values.start)})
           .attr("y", function(d){return context.y(d.values.y)})
           .attr("height", context.y.rangeBand())

@@ -5,15 +5,10 @@ webCharts.colors = {
 };
 webCharts.dataOps = {summarize: function(vals, operation){
   var nvals = vals.filter(function(f){return +f || +f === 0}).map(function(m){return +m});
-  var mathed;
   if(operation === "cumulative")
     return null;
   var stat = operation || "mean";
-  if(!stat || stat !== "count")
-    mathed = d3[stat](nvals);
-  else
-    mathed = vals.length;
-
+  var mathed = stat === "count" ? vals.length : d3[stat](nvals);
   return mathed;
 },linearRegression: function(x,y){
   //http://stackoverflow.com/questions/20507536/d3-js-linear-regression
@@ -217,7 +212,7 @@ chart.prototype.layout = function(){
   // );
 
   var eid = typeof element === "string" ? element.replace(/\./g, "") : d3.select(element).attr("class").replace(/\s/g, "") ;
-  var setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(config)) : Math.random()*100;
+  var setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(config)) : String(Math.random()*100);
   var rand = Math.floor( Math.random()*setting_string.length );
   var setting_id = setting_string.slice( rand, rand+5);
   context.clippath_id = "plot-clip-"+eid+"-"+setting_id;
@@ -641,12 +636,10 @@ chart.prototype.drawBars = function(mark){
   var y = context.y;
   var mark_data = mark.type === 'bar' ? mark.data : [];
   
-  if(config.x.type === "ordinal"){
-    // if(mark.arrange === "stacked")
-    //   mark.data.forEach(calcStartTotal)
-    var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
-    var old_bar_groups = bar_groups.exit();
+  var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
+  var old_bar_groups = bar_groups.exit();
 
+  if(config.x.type === "ordinal"){
     old_bar_groups.selectAll(".bar")
       .transition()
       .attr("y", context.y(0))
@@ -656,13 +649,14 @@ chart.prototype.drawBars = function(mark){
     var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
     nu_bar_groups.append("title");
     if(!mark.split){
-      var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+      nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
         .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
         .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
         .attr("fill-opacity", config.fill_opacity || .8)
         .style("clip-path", "url(#"+context.clippath_id+")")
         .attr("y", context.y(0))
         .attr("height", 0);
+      var bars = bar_groups.selectAll("rect.bar");
       bars.transition()
         .attr("x", function(d){return context.x(d.values.x)})
         .attr("y", function(d){return context.y(d.values.y)})
@@ -717,10 +711,7 @@ chart.prototype.drawBars = function(mark){
     }//split
   }
   else if(config.y.type === "ordinal"){
-    // if(mark.arrange === "stacked")
-    //   mark.data.forEach(calcStartTotal)
-    var bar_groups = context.svg.selectAll(".bar-group").data(mark.data, function(d){return d.key});
-    var old_bar_groups = bar_groups.exit();
+    console.dir(mark_data)
 
     old_bar_groups.selectAll(".bar")
       .transition()
@@ -732,14 +723,40 @@ chart.prototype.drawBars = function(mark){
     nu_bar_groups.append("title");
 
     if(!mark.split){
-      var bars = nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
-        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill-opacity", config.fill_opacity || .8)
+      // nu_bar_groups
+      //   .append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+      //   .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      //   .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      //   .attr("fill-opacity", config.fill_opacity || .8)
+      //   .style("clip-path", "url(#"+context.clippath_id+")")
+      //   .attr("x", context.x(0))
+      //   .attr("width", 0);
+      // var bars = bar_groups.selectAll("rect.bar").datum(function(d){return d});
+      // bars.transition()
+      //   //.attr("x", function(d){return context.x(d.values.x)})
+      //   .attr("y", function(d){return context.y(d.values.y)})
+      //   .attr("height", context.y.rangeBand())
+      //   .attr("width", function(d){return context.x(d.values.x)  });
+
+      var bars = bar_groups.selectAll("rect").data(function(d){return [d]}, function(d){return d.key});
+
+      bars.exit()
+        .transition()
+        .attr("x", context.x(0))
+        .attr("width", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
         .style("clip-path", "url(#"+context.clippath_id+")")
         .attr("x", context.x(0))
         .attr("width", 0);
-      bars.transition()
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+
+       bars.transition()
         //.attr("x", function(d){return context.x(d.values.x)})
         .attr("y", function(d){return context.y(d.values.y)})
         .attr("height", context.y.rangeBand())
@@ -772,7 +789,7 @@ chart.prototype.drawBars = function(mark){
           .attr("width", function(d){return context.x(d.values.x)  });
       }//no arrangement
       else if(mark.arrange === "stacked"){
-       bars.transition()
+        bars.transition()
           .attr("x", function(d){return context.x(d.values.start)})
           .attr("y", function(d){return context.y(d.values.y)})
           .attr("height", context.y.rangeBand())
@@ -1155,8 +1172,12 @@ chart.prototype.transformData = function(raw, mark){
     });
   };
 
+  var raw_nest;
   if(mark.type === "bar"){
     raw_nest = mark.arrange !== "stacked" ? makeNest(raw, sublevel) : makeNest(raw)
+  }
+  else if(config.x.summary === 'count' || config.y.summary === 'count'){
+    raw_nest = makeNest(raw);
   }
   // console.log(raw_nest.nested)
 
@@ -1203,23 +1224,26 @@ chart.prototype.transformData = function(raw, mark){
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x ]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y ]);
 
-      if(config.y.summarize === "cumulative"){
+      if(config.y.summary === "cumulative"){
         var interm = entries.filter(function(f){
             return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : 
               +f[config.x.column] <= +r[0][config.x.column]
           });
-        if(config.group.length)
-          interm = interm.filter(function(f){return f[config.group[0]] === r[0][config.group[0]] })
-        dom_ys.push([interm.length]);
-        obj.y = interm.length;
+        if(mark.per.length)
+          interm = interm.filter(function(f){return f[mark.per[0]] === r[0][mark.per[0]] })
+
+        var cumul = config.x.type === 'time' ? interm.length : 
+          d3.sum( interm.map(function(m){return +m[config.y.column] || +m[config.y.column] === 0 ? +m[config.y.column] : 1}) );
+        dom_ys.push([cumul]);
+        obj.y = cumul;
       };
-      if(config.x.summarize === "cumulative"){
+      if(config.x.summary === "cumulative"){
         var interm = entries.filter(function(f){
             return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : 
               +f[config.y.column] <= +r[0][config.y.column]
           });
-        if(config.group.length)
-          interm = interm.filter(function(f){return f[config.group[0]] === r[0][config.group[0]] })
+        if(mark.per.length)
+          interm = interm.filter(function(f){return f[mark.per[0]] === r[0][mark.per[0]] })
         dom_xs.push([interm.length]);
         obj.x = interm.length;
       };
@@ -1238,13 +1262,13 @@ chart.prototype.transformData = function(raw, mark){
       if(config.y.type === 'ordinal')
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
-    // console.log(test)
 
     return {nested: test, dom_x: dom_x, dom_y: dom_y};
   };
 
-  function calcStartTotal(e){     
-    e.total = d3.sum(e.values.map(function(m){return +m.values.y}));
+  function calcStartTotal(e){    
+    var axis = config.x.type === 'ordinal' ? 'y' : 'x'; 
+    e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config.x.type === 'ordinal'){
@@ -1284,11 +1308,8 @@ chart.prototype.transformData = function(raw, mark){
 
   context.filtered_data = filtered;
 
-  var flex_xs = [];
-  var flex_ys = [];
-
   var current_nested = makeNest(filtered, sublevel);
-
+console.log(current_nested)
   //extent of current data
   // if(mark.type === 'bar' && mark.arrange === 'stacked'){
   //   var flex_dom_x = makeNest(filtered).dom_x;
@@ -1297,10 +1318,6 @@ chart.prototype.transformData = function(raw, mark){
   // else{
     var flex_dom_x = current_nested.dom_x;
     var flex_dom_y = current_nested.dom_y;
-  // }
-  if(mark.type === 'bar' && mark.arrange === 'stacked'){
-
-  }
 
   if(mark.type === 'bar'){
     if(config.y.type === 'ordinal')
