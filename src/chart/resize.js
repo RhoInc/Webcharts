@@ -91,8 +91,8 @@ chart.prototype.resize = function(){
   };
 
   //update the chart's specific marks
-  context.chart_type === "timeline" ? context.updateDataMarks() : context.marks.forEach(function(e){
-    context.updateDataMarks(e);
+  context.chart_type === "timeline" ? context.updateDataMarks() : context.marks.forEach(function(e,i){
+    context.updateDataMarks(e,i);
   });
 
   //call .on("resize") function, if any

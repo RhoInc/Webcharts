@@ -64,7 +64,6 @@ chart.prototype.transformData = function(raw, mark){
   else if(config.x.summary === 'count' || config.y.summary === 'count'){
     raw_nest = makeNest(raw);
   }
-  // console.log(raw_nest.nested)
 
   var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] : 
     config.x.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.x.column]}) ).values().filter(function(f){return f}) :
@@ -91,7 +90,7 @@ chart.prototype.transformData = function(raw, mark){
       this_nest.sortKeys(function(a,b){
         return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
-          config.x.type === "ordinal" || config.y.type === "ordinal" ? d3.ascending(a,b) :
+          config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a,b) :
           d3.ascending(+a, +b);
       })
     }
@@ -194,7 +193,7 @@ chart.prototype.transformData = function(raw, mark){
   context.filtered_data = filtered;
 
   var current_nested = makeNest(filtered, sublevel);
-console.log(current_nested)
+
   //extent of current data
   // if(mark.type === 'bar' && mark.arrange === 'stacked'){
   //   var flex_dom_x = makeNest(filtered).dom_x;

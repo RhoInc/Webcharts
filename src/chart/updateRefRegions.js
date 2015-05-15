@@ -2,7 +2,7 @@ chart.prototype.updateRefRegions = function(){
   //define/draw reference regions, if any
   var config = this.config;
   var context = this;
-  var ref_region_data = !config.reference_regions ? [] : context.config.reference_regions.slice(0).map(function(m){
+  var ref_region_data = context.config.reference_regions.slice(0).map(function(m){
     var xx = m.x;
     var yy = m.y;
     if(config.x.type === "time")

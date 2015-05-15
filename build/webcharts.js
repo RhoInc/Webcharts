@@ -75,7 +75,36 @@ webCharts.dataOps = {summarize: function(vals, operation){
       })
     });
     return my_data;
-  }}
+  },naturalSorter: function(a, b){
+  //http://www.davekoelle.com/files/alphanum.js
+  function chunkify(t) {
+    var tz = new Array();
+    var x = 0, y = -1, n = 0, i, j;
+
+    while (i = (j = t.charAt(x++)).charCodeAt(0)) {
+      var m = (i == 46 || (i >=48 && i <= 57));
+      if (m !== n) {
+        tz[++y] = "";
+        n = m;
+      }
+      tz[y] += j;
+    }
+    return tz;
+  }
+
+  var aa = chunkify(a.toLowerCase());
+  var bb = chunkify(b.toLowerCase());
+
+  for (x = 0; aa[x] && bb[x]; x++) {
+    if (aa[x] !== bb[x]) {
+      var c = Number(aa[x]), d = Number(bb[x]);
+      if (c == aa[x] && d == bb[x]) {
+        return c - d;
+      } else return (aa[x] > bb[x]) ? 1 : -1;
+    }
+  }
+  return aa.length - bb.length;
+}}
 var chart = function(element, filepath, config, controls){
 	this.element = element;
 	this.filepath = filepath;
@@ -494,7 +523,7 @@ chart.prototype.drawGridlines = function(){
     svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
   } 
 }
-chart.prototype.drawPoints = function(mark, container){
+chart.prototype.drawPoints = function(mark, index, container){
   var context = this;
   var config = this.config;
   var svg = this.svg;
@@ -505,15 +534,15 @@ chart.prototype.drawPoints = function(mark, container){
 
   container = container || svg;
 
-  var points = container.selectAll(".wc-data-mark.point")
+  var points = container.selectAll(".wc-data-mark.index-"+index)
     .data(mark_data, function(d){return d.key});
   var oldPoints = points.exit();
   oldPoints.selectAll("circle")
     .transition()
     .attr("r", 0)
   oldPoints.transition().remove();
-
-  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point"});
+console.log(points)
+  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point index-"+index});
   nupoints.append("circle")
     .attr("r", 0);
   nupoints.append("title");
@@ -586,7 +615,7 @@ chart.prototype.drawSimpleLines = function(line_data, container, class_match, bi
   });
   return lines;
 }
-chart.prototype.drawLines = function(mark){
+chart.prototype.drawLines = function(mark, index){
   var context = this;
   var config = this.config;
   var svg = this.svg;
@@ -607,10 +636,10 @@ chart.prototype.drawLines = function(mark){
     }) 
 
   // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
-  var line_grps = svg.selectAll(".wc-data-mark.line")
+  var line_grps = svg.selectAll(".wc-data-mark.index-"+index)
     .data(mark_data, function(d){return d.key});
   line_grps.exit().remove();
-  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line"});
+  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line index-"+index});
   nu_line_grps.append("path");
   nu_line_grps.append("title");
   line_grps.select("path")
@@ -627,7 +656,7 @@ chart.prototype.drawLines = function(mark){
 
   return line_grps;
 }
-chart.prototype.drawBars = function(mark){
+chart.prototype.drawBars = function(mark, index){
   var context = this;
   var config = this.config;
   var svg = this.svg;
@@ -636,7 +665,7 @@ chart.prototype.drawBars = function(mark){
   var y = context.y;
   var mark_data = mark.type === 'bar' ? mark.data : [];
   
-  var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
+  var bar_groups = context.svg.selectAll(".bar-group index-"+index).data(mark_data, function(d){return d.key});
   var old_bar_groups = bar_groups.exit();
 
   if(config.x.type === "ordinal"){
@@ -646,7 +675,7 @@ chart.prototype.drawBars = function(mark){
       .attr("height", 0)
     old_bar_groups.transition().remove();
 
-    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key+" index-"+index})
     nu_bar_groups.append("title");
     if(!mark.split){
       nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
@@ -719,7 +748,7 @@ chart.prototype.drawBars = function(mark){
       .attr("width", 0)
     old_bar_groups.transition().remove();
 
-    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key+" index-"+index})
     nu_bar_groups.append("title");
 
     if(!mark.split){
@@ -885,7 +914,7 @@ chart.prototype.updateRefRegions = function(){
   //define/draw reference regions, if any
   var config = this.config;
   var context = this;
-  var ref_region_data = !config.reference_regions ? [] : context.config.reference_regions.slice(0).map(function(m){
+  var ref_region_data = context.config.reference_regions.slice(0).map(function(m){
     var xx = m.x;
     var yy = m.y;
     if(config.x.type === "time")
@@ -1044,8 +1073,8 @@ chart.prototype.resize = function(){
   };
 
   //update the chart's specific marks
-  context.chart_type === "timeline" ? context.updateDataMarks() : context.marks.forEach(function(e){
-    context.updateDataMarks(e);
+  context.chart_type === "timeline" ? context.updateDataMarks() : context.marks.forEach(function(e,i){
+    context.updateDataMarks(e,i);
   });
 
   //call .on("resize") function, if any
@@ -1179,7 +1208,6 @@ chart.prototype.transformData = function(raw, mark){
   else if(config.x.summary === 'count' || config.y.summary === 'count'){
     raw_nest = makeNest(raw);
   }
-  // console.log(raw_nest.nested)
 
   var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] : 
     config.x.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.x.column]}) ).values().filter(function(f){return f}) :
@@ -1206,7 +1234,7 @@ chart.prototype.transformData = function(raw, mark){
       this_nest.sortKeys(function(a,b){
         return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
-          config.x.type === "ordinal" || config.y.type === "ordinal" ? d3.ascending(a,b) :
+          config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a,b) :
           d3.ascending(+a, +b);
       })
     }
@@ -1309,7 +1337,7 @@ chart.prototype.transformData = function(raw, mark){
   context.filtered_data = filtered;
 
   var current_nested = makeNest(filtered, sublevel);
-console.log(current_nested)
+
   //extent of current data
   // if(mark.type === 'bar' && mark.arrange === 'stacked'){
   //   var flex_dom_x = makeNest(filtered).dom_x;
@@ -1371,29 +1399,47 @@ chart.prototype.consolidateData = function(raw){
     context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, attributes: e.attributes})
   });
 
-  var sortOrderX;
-  var sortOrderY;
-  if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
-    sortOrderX = d3.ascending
-  if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
-    sortOrderX = d3.descending
-  if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
-    sortOrderY = d3.ascending
-  if( context.config.y.sort && context.config.y.sort === 'alphabetical-descending' )
-    sortOrderY = d3.descending
-
-  context.x_dom = context.config.x.type === "ordinal" ? d3.set(d3.merge(all_x)).values().sort(sortOrderX) : d3.extent(d3.merge(all_x));
-  context.y_dom = context.config.y.type === "ordinal" ? d3.set(d3.merge(all_y)).values().sort(sortOrderY) : d3.extent(d3.merge(all_y));
+  if(context.config.x.type === 'ordinal'){
+    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
+    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
+    if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
+      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    else
+      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+  }
+  else
+    context.x_dom = d3.extent(d3.merge(all_x));
+  if(context.config.y.type === 'ordinal'){
+    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
+    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
+    if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
+      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+    else
+      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+  }
+  else
+    context.y_dom = d3.extent(d3.merge(all_y));
+  
 }
-chart.prototype.updateDataMarks = function(mark){
+chart.prototype.updateDataMarks = function(mark, index){
   var context = this;
   var config = context.config;
 
-  context.drawPoints(mark);
-
-  context.drawLines(mark);
-
-  context.drawBars(mark);
+if(mark.type === 'circle')
+  context.drawPoints(mark,index);
+else{
+	context.svg.selectAll(".wc-data-mark.point.index-"+index).remove();
+}
+if(mark.type === 'line')
+  context.drawLines(mark,index);
+else{
+	context.svg.selectAll(".wc-data-mark.line.index-"+index).remove();
+}
+if(mark.type === 'bar')
+  context.drawBars(mark,index);
+else{
+	context.svg.selectAll(".bar-group.index-"+index).remove();
+}
 
   return this;
 
@@ -1438,4 +1484,6 @@ chart.prototype.setDefaults = function(){
 	this.config.legend = this.config.legend || {};
 	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
 	this.config.marks = this.config.marks || [];
+
+	this.config.reference_regions = this.config.reference_regions || [];
 }; return webCharts; }));
