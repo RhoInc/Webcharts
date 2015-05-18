@@ -784,7 +784,7 @@ chart.prototype.layout = function(){
   var eid = typeof element === "string" ? element.replace(/\./g, "") : d3.select(element).attr("class").replace(/\s/g, "") ;
   var setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(config)) : Math.random()*100;
   var rand = Math.floor( Math.random()*setting_string.length );
-  var setting_id = setting_string.slice( rand, rand+5);
+  var setting_id = String(setting_string).slice( rand, rand+5);
   context.clippath_id = "plot-clip-"+eid+"-"+setting_id;
   defs.append("clipPath").attr("id", context.clippath_id).append("rect").attr("class", "plotting-area");
 
@@ -1881,7 +1881,6 @@ webCharts.lineChart.prototype.transformData = function(raw){
   };
   if(config.x_type === "time"){
     raw = raw.filter(function(f){
-      // console.log(f[config.x_vals.col]); 
       return f[config.x_vals.col] instanceof Date ? f[config.x_vals.col] : dateConvert.parse(f[config.x_vals.col]) 
     })
     raw.forEach(function(e){
@@ -2170,7 +2169,6 @@ webCharts.barChart = function (element, filepath, config, controls){
 };//bar chart
 webCharts.barChart.prototype = Object.create(chart.prototype);
 webCharts.barChart.prototype.transformData = function(raw){
-  //console.time("barChart2 transformData")
   var context = this;
   var config = this.config;
   if(typeof config.group === "string")
@@ -2352,7 +2350,6 @@ webCharts.barChart.prototype.transformData = function(raw){
 
   context.events.onDatatransform(context);
 
-  //console.timeEnd("barChart2 transformData")
   return context.current_data;
 }//end transformData
 webCharts.barChart.prototype.updateDataMarks = function(){
