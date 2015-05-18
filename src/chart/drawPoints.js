@@ -1,4 +1,4 @@
-chart.prototype.drawPoints = function(mark, index, container){
+chart.prototype.drawPoints = function(mark, container){
   var context = this;
   var config = this.config;
   var svg = this.svg;
@@ -9,15 +9,15 @@ chart.prototype.drawPoints = function(mark, index, container){
 
   container = container || svg;
 
-  var points = container.selectAll(".wc-data-mark.index-"+index)
+  var points = container.selectAll(".wc-data-mark.point")
     .data(mark_data, function(d){return d.key});
   var oldPoints = points.exit();
   oldPoints.selectAll("circle")
     .transition()
     .attr("r", 0)
   oldPoints.transition().remove();
-console.log(points)
-  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point index-"+index});
+
+  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point"});
   nupoints.append("circle")
     .attr("r", 0);
   nupoints.append("title");

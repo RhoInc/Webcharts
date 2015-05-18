@@ -1,4 +1,4 @@
-chart.prototype.drawBars = function(mark, index){
+chart.prototype.drawBars = function(mark){
   var context = this;
   var config = this.config;
   var svg = this.svg;
@@ -7,7 +7,7 @@ chart.prototype.drawBars = function(mark, index){
   var y = context.y;
   var mark_data = mark.type === 'bar' ? mark.data : [];
   
-  var bar_groups = context.svg.selectAll(".bar-group index-"+index).data(mark_data, function(d){return d.key});
+  var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
   var old_bar_groups = bar_groups.exit();
 
   if(config.x.type === "ordinal"){
@@ -17,7 +17,7 @@ chart.prototype.drawBars = function(mark, index){
       .attr("height", 0)
     old_bar_groups.transition().remove();
 
-    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key+" index-"+index})
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
     nu_bar_groups.append("title");
     if(!mark.split){
       nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
@@ -90,7 +90,7 @@ chart.prototype.drawBars = function(mark, index){
       .attr("width", 0)
     old_bar_groups.transition().remove();
 
-    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key+" index-"+index})
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
     nu_bar_groups.append("title");
 
     if(!mark.split){

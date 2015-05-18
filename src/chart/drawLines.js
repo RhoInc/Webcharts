@@ -1,4 +1,4 @@
-chart.prototype.drawLines = function(mark, index){
+chart.prototype.drawLines = function(mark){
   var context = this;
   var config = this.config;
   var svg = this.svg;
@@ -19,10 +19,10 @@ chart.prototype.drawLines = function(mark, index){
     }) 
 
   // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
-  var line_grps = svg.selectAll(".wc-data-mark.index-"+index)
+  var line_grps = svg.selectAll(".wc-data-mark.line")
     .data(mark_data, function(d){return d.key});
   line_grps.exit().remove();
-  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line index-"+index});
+  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line"});
   nu_line_grps.append("path");
   nu_line_grps.append("title");
   line_grps.select("path")
