@@ -204,9 +204,9 @@ chart.prototype.transformData = function(raw, mark){
     var flex_dom_y = current_nested.dom_y;
 
   if(mark.type === 'bar'){
-    if(config.y.type === 'ordinal')
+    if(config.y.type === 'ordinal' && config.x.summary === 'count')
       config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null]
-    else if(config.x.type === 'ordinal')
+    else if(config.x.type === 'ordinal' && config.y.summary === 'count')
       config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
   }
 
@@ -237,7 +237,7 @@ chart.prototype.transformData = function(raw, mark){
     y_dom[1] = config.y.domain[1]
 
   context.current_data = current_nested.nested;
-  // context.events.onDatatransform(context);
+  // context.events.onDatatransform(context); 
 
   return {data: current_nested.nested, x_dom: x_dom, y_dom: y_dom};
 }

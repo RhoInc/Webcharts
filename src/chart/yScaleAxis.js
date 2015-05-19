@@ -32,4 +32,4 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
 
   this.y = y;
   this.yAxis = yAxis;
-}
+};

@@ -82,8 +82,6 @@ chart.prototype.drawBars = function(mark){
     }//split
   }
   else if(config.y.type === "ordinal"){
-    console.dir(mark_data)
-
     old_bar_groups.selectAll(".bar")
       .transition()
       .attr("x", context.x(0))

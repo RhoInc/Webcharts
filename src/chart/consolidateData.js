@@ -5,6 +5,10 @@ chart.prototype.consolidateData = function(raw){
   var all_y = [];
   context.marks = [];
   this.config.marks.forEach(function(e){
+    if(e.type !== 'bar'){
+      e.arrange = null;
+      e.split = null;
+    }
     var mark_info = e.per ? context.transformData(raw, e) : {data: [], x_dom: [], y_dom: []};
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);

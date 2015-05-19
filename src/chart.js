@@ -22,6 +22,496 @@ var chart = function(element, filepath, config, controls){
 
 	return this;
 };//BASIC CHART
+webCharts.Chart = chart;
+chart.prototype.checkRequired = function(){
+    var context = this;
+    var config = context.config;
+    var colnames = d3.keys(context.raw_data[0]);
+    context.required_cols = context.required_cols || [];
+    context.required_cols.forEach(function(e, i){
+        if(colnames.indexOf(e) < 0){
+            d3.select(context.div).select(".loader").remove();
+            context.wrap.append("div").attr("class", "alert alert-error alert-danger").html("The value '"+e+"' for the <code>"+context.required_vars[i]+"</code> setting does not match any column in the provided dataset.");
+            throw new Error("Error in settings object: The value '"+e+"' for the "+context.required_vars[i]+" setting does not match any column in the provided dataset.");
+        };
+      });
+}
+chart.prototype.consolidateData = function(raw){
+  var context = this;
+  var all_data = [];
+  var all_x = [];
+  var all_y = [];
+  context.marks = [];
+  this.config.marks.forEach(function(e){
+    if(e.type !== 'bar'){
+      e.arrange = null;
+      e.split = null;
+    }
+    var mark_info = e.per ? context.transformData(raw, e) : {data: [], x_dom: [], y_dom: []};
+    all_data.push(mark_info.data);
+    all_x.push(mark_info.x_dom);
+    all_y.push(mark_info.y_dom);
+    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, attributes: e.attributes})
+  });
+
+  if(context.config.x.type === 'ordinal'){
+    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
+    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
+    if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
+      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    else
+      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+  }
+  else
+    context.x_dom = d3.extent(d3.merge(all_x));
+  if(context.config.y.type === 'ordinal'){
+    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
+    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
+    if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
+      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+    else
+      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+  }
+  else
+    context.y_dom = d3.extent(d3.merge(all_y));
+  
+}
+chart.prototype.draw = function(processed_data, raw_data){
+  var context = this;
+  var raw = raw_data ? raw_data : context.raw_data;
+  var config = context.config;
+  var aspect2 = 1/config.aspect;
+  var data = context.chart_type === "timeline" ? context.transformData(raw) : context.consolidateData(raw);
+  config.padding = config.padding ? config.padding : config.tight ? .01 : .3;
+  config.outer_pad = config.outer_pad ? config.outer_pad : config.tight ? .01 : .1;
+  // config.y_behavior = config.y_behavior || "flex";
+  // config.x_behavior = config.x_behavior || "flex";
+  context.wrap.datum(data)
+
+  var div_width = parseInt(context.wrap.style('width')); 
+
+  context.setColorScale();
+
+  config.resizable = config.resizable === false ? false : true;
+  var max_width = config.max_width ? config.max_width : div_width;
+  context.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.x_dom.length :
+    config.resizable ? max_width : 
+    config.width ? config.width : 
+    div_width;
+  context.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.y_dom.length :
+    config.resizable ? max_width*aspect2 : 
+    config.height ? config.height : 
+    div_width*aspect2;
+
+  var pseudo_width = context.svg.select(".overlay").attr("width") ? context.svg.select(".overlay").attr("width") : context.raw_width;
+  var pseudo_height = context.svg.select(".overlay").attr("height") ? context.svg.select(".overlay").attr("height") : context.raw_height;
+
+  var x_axis_label = context.svg.select(".x.axis").select(".axis-title").text(function(){
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
+  });
+  var y_axis_label = context.svg.select(".y.axis").select(".axis-title").text(function(){
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
+  });
+
+  context.xScaleAxis(config.x.type, pseudo_width, context.x_dom);
+  context.yScaleAxis(config.y.type, pseudo_height, context.y_dom);
+
+  var id = config.id || Math.random();
+  if(config.resizable)
+    d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, function(){context.resize()});
+  else
+    d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, null);
+
+  context.resize();
+  context.events.onDraw(this);
+}
+chart.prototype.drawArea = function(area_drawer, area_data, datum_accessor, class_match, bind_accessor, attr_accessor){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var colorScale = this.colorScale;
+  var x = context.x;
+  var y = context.y;
+  class_match = class_match ? class_match : "chart-area";
+  attr_accessor = attr_accessor ? attr_accessor : function(d){return d};
+
+  var area_grps = svg.selectAll("."+class_match)
+    .data(area_data, bind_accessor);
+  area_grps.exit().remove();
+  area_grps.enter().append("g").attr("class", function(d){return class_match+" "+d.key})
+    .append("path");
+  area_grps.select("path")
+    .datum(datum_accessor)
+    .attr("fill", function(d){
+      var d_attr = attr_accessor(d);
+      return d_attr ? colorScale(d_attr[config.color_by]) : null;
+    })
+    .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : 0.3)
+    .transition()
+    .attr("d", area_drawer);
+
+  return area_grps;
+}
+chart.prototype.drawBars = function(mark){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var colorScale = this.colorScale;
+  var x = context.x;
+  var y = context.y;
+  var mark_data = mark.type === 'bar' ? mark.data : [];
+  
+  var bar_groups = context.svg.selectAll(".bar-group").data(mark_data, function(d){return d.key});
+  var old_bar_groups = bar_groups.exit();
+
+  if(config.x.type === "ordinal"){
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("y", context.y(0))
+      .attr("height", 0)
+    old_bar_groups.transition().remove();
+
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    nu_bar_groups.append("title");
+    if(!mark.split){
+      nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("y", context.y(0))
+        .attr("height", 0);
+      var bars = bar_groups.selectAll("rect.bar");
+      bars.transition()
+        .attr("x", function(d){return context.x(d.values.x)})
+        .attr("y", function(d){return context.y(d.values.y)})
+        .attr("width", context.x.rangeBand())
+        .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
+    }//no arrangement
+    else{
+      var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
+      var bars = bar_groups.selectAll("rect").data(function(d){return d.values }, function(d){return d.key});
+      bars.exit()
+        .transition()
+        .attr("y", context.y(0))
+        .attr("height", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("y", context.y(0))
+        .attr("height", 0);
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8);
+
+      if(!mark.arrange){
+        bars.transition()
+          .attr("x", function(d){return context.x(d.values.x)})
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("width", context.x.rangeBand())
+          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
+      }
+      else if(mark.arrange === "stacked"){
+       bars.transition()
+          .attr("x", function(d){return context.x(d.values.x)})
+          .attr("y", function(d){return context.y(d.values.start)})
+          .attr("width", context.x.rangeBand())
+          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  })
+      }//stacked
+      else if(mark.arrange === "grouped"){
+        bars.transition()
+          .attr("x", function(d,i){
+            var position = subcats.indexOf(d.key);
+            return context.x(d.values.x)+context.x.rangeBand()/subcats.length*position;
+          })
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("width", function(d,i){
+            return context.x.rangeBand()/subcats.length;
+          })
+          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
+      }//grouped
+    }//split
+  }
+  else if(config.y.type === "ordinal"){
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("x", context.x(0))
+      .attr("width", 0)
+    old_bar_groups.transition().remove();
+
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    nu_bar_groups.append("title");
+
+    if(!mark.split){
+      // nu_bar_groups
+      //   .append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
+      //   .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      //   .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      //   .attr("fill-opacity", config.fill_opacity || .8)
+      //   .style("clip-path", "url(#"+context.clippath_id+")")
+      //   .attr("x", context.x(0))
+      //   .attr("width", 0);
+      // var bars = bar_groups.selectAll("rect.bar").datum(function(d){return d});
+      // bars.transition()
+      //   //.attr("x", function(d){return context.x(d.values.x)})
+      //   .attr("y", function(d){return context.y(d.values.y)})
+      //   .attr("height", context.y.rangeBand())
+      //   .attr("width", function(d){return context.x(d.values.x)  });
+
+      var bars = bar_groups.selectAll("rect").data(function(d){return [d]}, function(d){return d.key});
+
+      bars.exit()
+        .transition()
+        .attr("x", context.x(0))
+        .attr("width", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("x", context.x(0))
+        .attr("width", 0);
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+
+       bars.transition()
+        //.attr("x", function(d){return context.x(d.values.x)})
+        .attr("y", function(d){return context.y(d.values.y)})
+        .attr("height", context.y.rangeBand())
+        .attr("width", function(d){return context.x(d.values.x)  });
+    }//no split
+    else{
+      var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
+      var bars = bar_groups.selectAll("rect").data(function(d){return d.values}, function(d){return d.key});
+      bars.exit()
+        .transition()
+        .attr("x", context.x(0))
+        .attr("width", 0)
+        .remove();
+      bars.enter().append("rect")
+        .attr("class", function(d){return "wc-data-mark bar "+d.key})
+        .style("clip-path", "url(#"+context.clippath_id+")")
+        .attr("x", context.x(0))
+        .attr("width", 0);
+
+      bars
+        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+        .attr("fill-opacity", config.fill_opacity || .8)
+
+      if(!mark.arrange){
+        bars.transition()
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("x", function(d){return context.x(0)})
+          .attr("height", context.y.rangeBand())
+          .attr("width", function(d){return context.x(d.values.x)  });
+      }//no arrangement
+      else if(mark.arrange === "stacked"){
+        bars.transition()
+          .attr("x", function(d){return context.x(d.values.start)})
+          .attr("y", function(d){return context.y(d.values.y)})
+          .attr("height", context.y.rangeBand())
+          .attr("width", function(d){return context.x(d.values.x)  })
+      }//stacked
+      else if(mark.arrange === "grouped"){
+       bars.transition()
+          .attr("y", function(d,i){
+            var position = subcats.indexOf(d.key);
+            return context.y(d.values.y)+context.y.rangeBand()/subcats.length*position;
+          })
+          .attr("x", function(d){return context.x(0)})
+          .attr("height", function(d,i){
+            return context.y.rangeBand()/subcats.length;
+          })
+          .attr("width", function(d){return context.x(d.values.x)  });
+      }//grouped
+
+    }//split
+
+    bars.sort(function(a,b){
+      return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
+    });
+  }
+}
+chart.prototype.drawGridlines = function(){
+  var svg = this.svg;
+  var gridlines = this.config.gridlines// === "none" ? null : config.gridlines;
+  this.wrap.classed("gridlines", gridlines);
+  if(gridlines){
+    svg.select(".y.axis").selectAll(".tick line").attr("x1", 0);
+    svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
+    if(gridlines === "y" || gridlines === "xy")
+      svg.select(".y.axis").selectAll(".tick line").attr("x1", this.plot_width);
+    if(gridlines === "x" || gridlines === "xy")
+      svg.select(".x.axis").selectAll(".tick line").attr("y1", -this.plot_height);
+  }
+  else{
+    svg.select(".y.axis").selectAll(".tick line").attr("x1", 0);
+    svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
+  } 
+}
+chart.prototype.drawLines = function(mark){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var colorScale = this.colorScale;
+  var mark_data = mark.type === 'line' ? mark.data : [];
+
+  var line = d3.svg.line()
+    .interpolate(config.interpolate)
+    .x(function(d){ 
+      return config.x.type === "linear" ? context.x(+d.values.x) : 
+        config.x.type === "time" ? context.x(new Date(d.values.x)) :
+        context.x(d.values.x) + context.x.rangeBand()/2 
+    }) 
+    .y(function(d){ 
+      return config.y.type === "linear" ? context.y(+d.values.y) : 
+        config.y.type === "time" ? context.y(new Date(d.values.y)) :
+        context.y(d.values.y) + context.y.rangeBand()/2 
+    }) 
+
+  // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
+  var line_grps = svg.selectAll(".wc-data-mark.line")
+    .data(mark_data, function(d){return d.key});
+  line_grps.exit().remove();
+  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line"});
+  nu_line_grps.append("path");
+  nu_line_grps.append("title");
+  line_grps.select("path")
+    .datum(function(d){return d.values})
+    .attr("stroke", function(d){
+      return colorScale(d[0].values.raw[0][config.color_by]);
+    })
+    .attr("stroke-width", config.stroke_width ? config.stroke_width : config.flex_stroke_width)
+    .attr("stroke-linecap", "round")
+    .attr("fill", "none")
+    .transition()
+    .attr("d", line)
+    .attr(mark.attributes);
+
+  return line_grps;
+}
+chart.prototype.drawPoints = function(mark, container){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var colorScale = this.colorScale;
+  var x = context.x;
+  var y = context.y;
+  var mark_data = mark.type === 'circle' ? mark.data : [];
+
+  container = container || svg;
+
+  var points = container.selectAll(".wc-data-mark.point")
+    .data(mark_data, function(d){return d.key});
+  var oldPoints = points.exit();
+  oldPoints.selectAll("circle")
+    .transition()
+    .attr("r", 0)
+  oldPoints.transition().remove();
+
+  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point"});
+  nupoints.append("circle")
+    .attr("r", 0);
+  nupoints.append("title");
+  points.select("circle")
+    .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
+    .attr("fill", function(d){
+      return colorScale(d.values.raw[0][config.color_by])
+    })
+    .attr("stroke", function(d){
+      return colorScale(d.values.raw[0][config.color_by])
+    })
+    .transition()
+    .attr("r", config.point_size ? config.point_size : config.flex_point_size)
+    .attr("cx", function(d){
+      var x_pos = x(d.values.x) || 0;
+      return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
+    })
+    .attr("cy", function(d){
+      var y_pos = y(d.values.y) || 0;
+      return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
+    })
+    .attr(mark.attributes);
+  // points.select("circle")
+  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
+  //   .attr("fill", function(d){
+  //     console.log(d)
+  //     return colorScale(d.values[0].values.raw[0][config.color_by])
+  //   })
+  //   .attr("stroke", function(d){
+  //     return colorScale(d.values[0].values.raw[0][config.color_by])
+  //   })
+  //   .transition()
+  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
+  //   .attr("cx", function(d){
+  //     var x_pos = x(d.values[0].values.x) || 0;
+  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
+  //   })
+  //   .attr("cy", function(d){
+  //     var y_pos = y(d.values[0].values.y) || 0;
+  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
+  //   })
+  //   .attr(mark.attributes);
+
+  return points;
+}
+chart.prototype.drawRects = function(rect_data, container, class_match){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var w = context.plot_width;
+  var h = context.plot_height;
+  container = container || svg;
+  class_match = class_match || "reference-region";
+  var rects = container.selectAll("."+class_match).data(rect_data);
+  rects.exit().remove();
+  rects.enter().append("rect").attr("class", class_match).append("title");
+  rects.attr({"stroke": "none", "shape-rendering": "crispEdges"})
+    .transition()
+    .attr("x", function(d){return config.x.type === "ordinal" ? d.xs[0] : context.x(d.xs[0]) } )
+    .attr("y", function(d){return config.y.type === "ordinal" ? d.ys[0] : context.y(d.ys[1])})
+    .attr("width", function(d){return config.x.type === "ordinal" ? d.xs[1] - d.xs[0] : context.x(d.xs[1]) - context.x(d.xs[0]) })
+    .attr("height", function(d){return config.y.type === "ordinal" ? Math.abs(d.ys[0] - d.ys[1]) : context.y(d.ys[0]) - context.y(d.ys[1]) });
+  rects.each(function(e){
+    e.attributes = e.attributes || {};
+    e.attributes["fill"] = e.attributes["fill"] || "#eee"; 
+    d3.select(this).attr(e.attributes); 
+  });
+  return rects;
+}
+chart.prototype.drawSimpleLines = function(line_data, container, class_match, bind_accessor){
+  var context = this;
+  var config = this.config;
+  var svg = this.svg;
+  var w = context.plot_width;
+  var h = context.plot_height;
+  container = container || svg;
+  class_match = class_match || "reference-line";
+  var lines = container.selectAll("."+class_match).data(line_data, bind_accessor);
+  lines.exit().remove();
+  lines.enter().append("line").attr("class", class_match).append("title");
+  lines.attr("shape-rendering", "crispEdges")
+    .transition()
+    .attr("x1", function(d){var unscale = d.xs ? d.xs[2] : false; var x1 = !d.xs ? 0 : context.x(d.xs[0]); return unscale ? d.xs[0] : config.x.type === "ordinal" ? x1 + context.x.rangeBand()/2 : x1})
+    .attr("x2", function(d){var unscale = d.xs ? d.xs[2] : false; var x2 = !d.xs ? 0 : context.x(d.xs[1]); return unscale ? d.xs[1] : config.x.type === "ordinal" ? x2 + context.x.rangeBand()/2 : x2})
+    .attr("y1", function(d){var unscale = d.ys ? d.ys[2] : false; var y1 = !d.ys ? 0 : context.y(d.ys[0]); return unscale ? d.ys[0] : config.y.type === "ordinal" ? y1 + context.y.rangeBand()/2 : y1})
+    .attr("y2", function(d){var unscale = d.ys ? d.ys[2] : false; var y2 = !d.ys ? 0 : context.y(d.ys[1]); return unscale ? d.ys[1] : config.y.type === "ordinal" ? y2 + context.y.rangeBand()/2 : y2});
+  lines.each(function(e){
+    e.attributes = e.attributes || {};
+    e.attributes["stroke-opacity"] = e.attributes["stroke-opacity"] || config.stroke_opacity || 1;
+    e.attributes["stroke-width"] = e.attributes["stroke-width"] || config.stroke_width || 1;
+    e.attributes["stroke"] = e.attributes["stroke"] || "black"; 
+    d3.select(this).attr(e.attributes); 
+    d3.select(this).select("title").datum(e);
+  });
+  return lines;
+}
 chart.prototype.init = function(data){ 
     var context = this;
     var controls = context.controls;
@@ -86,26 +576,6 @@ chart.prototype.init = function(data){
 
     return this;    
 };
-chart.prototype.onDataError = function(error){
-  if(error){
-      d3.select(this.div).select(".loader").remove();
-      this.wrap.append("div").attr("class", "alert alert-error alert-danger").text("Dataset could not be loaded.");
-      throw new Error("Dataset could not be loaded. Check provided path ("+this.filepath+").");
-    };
-}
-chart.prototype.checkRequired = function(){
-    var context = this;
-    var config = context.config;
-    var colnames = d3.keys(context.raw_data[0]);
-    context.required_cols = context.required_cols || [];
-    context.required_cols.forEach(function(e, i){
-        if(colnames.indexOf(e) < 0){
-            d3.select(context.div).select(".loader").remove();
-            context.wrap.append("div").attr("class", "alert alert-error alert-danger").html("The value '"+e+"' for the <code>"+context.required_vars[i]+"</code> setting does not match any column in the provided dataset.");
-            throw new Error("Error in settings object: The value '"+e+"' for the "+context.required_vars[i]+" setting does not match any column in the provided dataset.");
-        };
-      });
-}
 chart.prototype.layout = function(){
   var context = this;
   var config = context.config;
@@ -250,628 +720,74 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
 
   context.legend = legend;
 }
-chart.prototype.xScaleAxis = function(type, max_range, domain){
-  //domain = type === "percent" ? [0,1] : domain;
-  var config = this.config;
-
-  if(type === "log")
-    var x = d3.scale.log();
-  else if(type === "ordinal")
-    var x = d3.scale.ordinal();
-  else if(type === "time")
-    var x = d3.time.scale();
-  else
-    var x = d3.scale.linear();
-
-  x.domain(domain)
-  if(type === "ordinal")
-    x.rangeBands([0, +max_range], config.padding, config.outer_pad);
-  else
-    x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
-
-  var format = config.x.format ? config.x.format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
-  var tick_count = Math.max(2, Math.min(max_range/80,8));
-  var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient(config.x.location)
-    .ticks(tick_count)
-    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(format) : d3.format(format))
-    .tickValues(config.x.ticks ? config.x.ticks : null)
-    .innerTickSize(6)
-    .outerTickSize(3);
-
-  this.svg.select("g.x.axis").attr("class", "x axis "+type);
-  this.x = x;
-  this.xAxis = xAxis;
-}
-chart.prototype.yScaleAxis = function(type, max_range, domain){
-  //domain = type === "percent" ? [0,1] : domain;
-  var config = this.config;
-  var y;
-  if(type === "log")
-    var y = d3.scale.log();
-  else if(type === "ordinal")
-    var y = d3.scale.ordinal();
-  else if(type === "time")
-   var y = d3.time.scale();
-  else
-    var y = d3.scale.linear();
-
-  y.domain(domain);
-  if(type === "ordinal")
-    y.rangeBands([+max_range, 0], config.padding, config.outer_pad); 
-  else
-    y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
-
-  var y_format = config.y.format ? config.y.format : type === "percent" ? "0%" : ".0f";
-  var tick_count = Math.max(2, Math.min(max_range/80,8));
-  var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left")
-    .ticks(tick_count)
-    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(y_format) : d3.format(y_format))
-    .tickValues(config.y.ticks ? config.y.ticks : null)
-    .innerTickSize(6)
-    .outerTickSize(3);
-
-  this.svg.select("g.y.axis").attr("class", "y axis "+type);
-
-  this.y = y;
-  this.yAxis = yAxis;
-}
-chart.prototype.setColorScale = function(){
-  var config = this.config;
-  colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values()
-    .filter(function(f){return f && f !== "undefined"});
-
-  if(config.chunk_order)
-    colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
-  else
-  	colordom = colordom.sort(d3.ascending)
-
-  this.colorScale = d3.scale.ordinal()
-    .domain(colordom)
-    .range(config.colors ? config.colors : webCharts.colors.nb);
-}
-chart.prototype.textSize = function(width,height){
-  var context = this
-  var font_size = "14px";
-  var point_size = 4;
-  var stroke_width = 2;
-
-  if(this.config.no_text_size){
-    font_size = context.config.font_size;
-    point_size = context.config.point_size || 4;
-    stroke_width = context.config.stroke_width || 2;
-  }
-  else if(width >= 600){
-    font_size = "14px";
-    point_size = 4;
-    stroke_width = 2;
-  }
-  else if(width > 450 && width < 600){
-    font_size = "12px";
-    point_size = 3;
-    stroke_width = 2;
-  }
-  else if(width > 300 && width < 450){
-    font_size = "10px";
-    point_size = 2;
-    stroke_width = 2;
-  }
-  else if(width <= 300){
-    font_size = "10px";
-    point_size = 2;
-    stroke_width = 1;
-  }
-
-  // context.svg.select("defs style").html(
-  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
-  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: "+font_size+";}"+
-  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
-  // );
-
-  context.wrap.style("font-size",font_size);
-  context.config.flex_point_size = point_size;
-  context.config.flex_stroke_width = stroke_width;
-}
-chart.prototype.setMargins = function(){
+chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
   var context = this;
-  var x_ticks = context.xAxis.tickFormat() ? context.x.domain().map(function(m){return context.xAxis.tickFormat()(m)}) : context.x.domain();
-  var y_ticks = context.yAxis.tickFormat() ? context.y.domain().map(function(m){return context.yAxis.tickFormat()(m)}) : context.y.domain();
-
-  var max_y_text_length = d3.max( y_ticks.map(function(m){return String(m).length}) );
-  if(this.config.y_format && this.config.y_format.indexOf("%") > -1 )
-    max_y_text_length += 1
-  max_y_text_length = Math.max(2, max_y_text_length);
-  var x_label_on = this.config.x.label ? 1.5 : 0;
-  var y_label_on = this.config.y.label ? 1.5 : 0.25;
-  var font_size = parseInt(this.wrap.style("font-size"));
-  var x_second = this.config.x2_interval ? 1 : 0;
-  var y_margin = max_y_text_length*font_size*.5+ (font_size*y_label_on*1.5) || 8;
-  var x_margin = font_size+(font_size/1.5) + (font_size*x_label_on)+(font_size*x_second) || 8;
-
-  y_margin += 6;
-  x_margin += 3;
-
-  return {top: this.config.margin && this.config.margin.top ? this.config.margin.top : 8, 
-      right: this.config.margin && this.config.margin.right ? this.config.margin.right : 16, 
-      bottom: this.config.margin && this.config.margin.bottom ? this.config.margin.bottom : x_margin, 
-      left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin};
-}
-chart.prototype.drawGridlines = function(){
-  var svg = this.svg;
-  var gridlines = this.config.gridlines// === "none" ? null : config.gridlines;
-  this.wrap.classed("gridlines", gridlines);
-  if(gridlines){
-    svg.select(".y.axis").selectAll(".tick line").attr("x1", 0);
-    svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
-    if(gridlines === "y" || gridlines === "xy")
-      svg.select(".y.axis").selectAll(".tick line").attr("x1", this.plot_width);
-    if(gridlines === "x" || gridlines === "xy")
-      svg.select(".x.axis").selectAll(".tick line").attr("y1", -this.plot_height);
+  var config = this.config;
+  var wrap = context.wrap.classed("wc-layout wc-small-multiples", true).classed("wc-chart", false);
+  var master_legend = wrap.append("ul").attr("class", "legend");
+  var charts = [];
+  if(raw){
+    context.raw_data = raw;
+    goAhead(raw);
   }
   else{
-    svg.select(".y.axis").selectAll(".tick line").attr("x1", 0);
-    svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
-  } 
-}
-chart.prototype.drawPoints = function(mark, index, container){
-  var context = this;
-  var config = this.config;
-  var svg = this.svg;
-  var colorScale = this.colorScale;
-  var x = context.x;
-  var y = context.y;
-  var mark_data = mark.type === 'circle' ? mark.data : [];
-
-  container = container || svg;
-
-  var points = container.selectAll(".wc-data-mark.index-"+index)
-    .data(mark_data, function(d){return d.key});
-  var oldPoints = points.exit();
-  oldPoints.selectAll("circle")
-    .transition()
-    .attr("r", 0)
-  oldPoints.transition().remove();
-console.log(points)
-  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point index-"+index});
-  nupoints.append("circle")
-    .attr("r", 0);
-  nupoints.append("title");
-  points.select("circle")
-    .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
-    .attr("fill", function(d){
-      return colorScale(d.values.raw[0][config.color_by])
-    })
-    .attr("stroke", function(d){
-      return colorScale(d.values.raw[0][config.color_by])
-    })
-    .transition()
-    .attr("r", config.point_size ? config.point_size : config.flex_point_size)
-    .attr("cx", function(d){
-      var x_pos = x(d.values.x) || 0;
-      return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
-    })
-    .attr("cy", function(d){
-      var y_pos = y(d.values.y) || 0;
-      return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
-    })
-    .attr(mark.attributes);
-  // points.select("circle")
-  //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
-  //   .attr("fill", function(d){
-  //     console.log(d)
-  //     return colorScale(d.values[0].values.raw[0][config.color_by])
-  //   })
-  //   .attr("stroke", function(d){
-  //     return colorScale(d.values[0].values.raw[0][config.color_by])
-  //   })
-  //   .transition()
-  //   .attr("r", config.point_size ? config.point_size : config.flex_point_size)
-  //   .attr("cx", function(d){
-  //     var x_pos = x(d.values[0].values.x) || 0;
-  //     return config.x.type === "ordinal" ? x_pos+x.rangeBand()/2 : x_pos;
-  //   })
-  //   .attr("cy", function(d){
-  //     var y_pos = y(d.values[0].values.y) || 0;
-  //     return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
-  //   })
-  //   .attr(mark.attributes);
-
-  return points;
-}
-chart.prototype.drawSimpleLines = function(line_data, container, class_match, bind_accessor){
-  var context = this;
-  var config = this.config;
-  var svg = this.svg;
-  var w = context.plot_width;
-  var h = context.plot_height;
-  container = container || svg;
-  class_match = class_match || "reference-line";
-  var lines = container.selectAll("."+class_match).data(line_data, bind_accessor);
-  lines.exit().remove();
-  lines.enter().append("line").attr("class", class_match).append("title");
-  lines.attr("shape-rendering", "crispEdges")
-    .transition()
-    .attr("x1", function(d){var unscale = d.xs ? d.xs[2] : false; var x1 = !d.xs ? 0 : context.x(d.xs[0]); return unscale ? d.xs[0] : config.x.type === "ordinal" ? x1 + context.x.rangeBand()/2 : x1})
-    .attr("x2", function(d){var unscale = d.xs ? d.xs[2] : false; var x2 = !d.xs ? 0 : context.x(d.xs[1]); return unscale ? d.xs[1] : config.x.type === "ordinal" ? x2 + context.x.rangeBand()/2 : x2})
-    .attr("y1", function(d){var unscale = d.ys ? d.ys[2] : false; var y1 = !d.ys ? 0 : context.y(d.ys[0]); return unscale ? d.ys[0] : config.y.type === "ordinal" ? y1 + context.y.rangeBand()/2 : y1})
-    .attr("y2", function(d){var unscale = d.ys ? d.ys[2] : false; var y2 = !d.ys ? 0 : context.y(d.ys[1]); return unscale ? d.ys[1] : config.y.type === "ordinal" ? y2 + context.y.rangeBand()/2 : y2});
-  lines.each(function(e){
-    e.attributes = e.attributes || {};
-    e.attributes["stroke-opacity"] = e.attributes["stroke-opacity"] || config.stroke_opacity || 1;
-    e.attributes["stroke-width"] = e.attributes["stroke-width"] || config.stroke_width || 1;
-    e.attributes["stroke"] = e.attributes["stroke"] || "black"; 
-    d3.select(this).attr(e.attributes); 
-    d3.select(this).select("title").datum(e);
-  });
-  return lines;
-}
-chart.prototype.drawLines = function(mark, index){
-  var context = this;
-  var config = this.config;
-  var svg = this.svg;
-  var colorScale = this.colorScale;
-  var mark_data = mark.type === 'line' ? mark.data : [];
-
-  var line = d3.svg.line()
-    .interpolate(config.interpolate)
-    .x(function(d){ 
-      return config.x.type === "linear" ? context.x(+d.values.x) : 
-        config.x.type === "time" ? context.x(new Date(d.values.x)) :
-        context.x(d.values.x) + context.x.rangeBand()/2 
-    }) 
-    .y(function(d){ 
-      return config.y.type === "linear" ? context.y(+d.values.y) : 
-        config.y.type === "time" ? context.y(new Date(d.values.y)) :
-        context.y(d.values.y) + context.y.rangeBand()/2 
-    }) 
-
-  // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
-  var line_grps = svg.selectAll(".wc-data-mark.index-"+index)
-    .data(mark_data, function(d){return d.key});
-  line_grps.exit().remove();
-  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line index-"+index});
-  nu_line_grps.append("path");
-  nu_line_grps.append("title");
-  line_grps.select("path")
-    .datum(function(d){return d.values})
-    .attr("stroke", function(d){
-      return colorScale(d[0].values.raw[0][config.color_by]);
-    })
-    .attr("stroke-width", config.stroke_width ? config.stroke_width : config.flex_stroke_width)
-    .attr("stroke-linecap", "round")
-    .attr("fill", "none")
-    .transition()
-    .attr("d", line)
-    .attr(mark.attributes);
-
-  return line_grps;
-}
-chart.prototype.drawBars = function(mark, index){
-  var context = this;
-  var config = this.config;
-  var svg = this.svg;
-  var colorScale = this.colorScale;
-  var x = context.x;
-  var y = context.y;
-  var mark_data = mark.type === 'bar' ? mark.data : [];
-  
-  var bar_groups = context.svg.selectAll(".bar-group index-"+index).data(mark_data, function(d){return d.key});
-  var old_bar_groups = bar_groups.exit();
-
-  if(config.x.type === "ordinal"){
-    old_bar_groups.selectAll(".bar")
-      .transition()
-      .attr("y", context.y(0))
-      .attr("height", 0)
-    old_bar_groups.transition().remove();
-
-    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key+" index-"+index})
-    nu_bar_groups.append("title");
-    if(!mark.split){
-      nu_bar_groups.append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
-        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill-opacity", config.fill_opacity || .8)
-        .style("clip-path", "url(#"+context.clippath_id+")")
-        .attr("y", context.y(0))
-        .attr("height", 0);
-      var bars = bar_groups.selectAll("rect.bar");
-      bars.transition()
-        .attr("x", function(d){return context.x(d.values.x)})
-        .attr("y", function(d){return context.y(d.values.y)})
-        .attr("width", context.x.rangeBand())
-        .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
-    }//no arrangement
-    else{
-      var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
-      var bars = bar_groups.selectAll("rect").data(function(d){return d.values }, function(d){return d.key});
-      bars.exit()
-        .transition()
-        .attr("y", context.y(0))
-        .attr("height", 0)
-        .remove();
-      bars.enter().append("rect")
-        .attr("class", function(d){return "wc-data-mark bar "+d.key})
-        .style("clip-path", "url(#"+context.clippath_id+")")
-        .attr("y", context.y(0))
-        .attr("height", 0);
-
-      bars
-        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill-opacity", config.fill_opacity || .8);
-
-      if(!mark.arrange){
-        bars.transition()
-          .attr("x", function(d){return context.x(d.values.x)})
-          .attr("y", function(d){return context.y(d.values.y)})
-          .attr("width", context.x.rangeBand())
-          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
-      }
-      else if(mark.arrange === "stacked"){
-       bars.transition()
-          .attr("x", function(d){return context.x(d.values.x)})
-          .attr("y", function(d){return context.y(d.values.start)})
-          .attr("width", context.x.rangeBand())
-          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  })
-      }//stacked
-      else if(mark.arrange === "grouped"){
-        bars.transition()
-          .attr("x", function(d,i){
-            var position = subcats.indexOf(d.key);
-            return context.x(d.values.x)+context.x.rangeBand()/subcats.length*position;
-          })
-          .attr("y", function(d){return context.y(d.values.y)})
-          .attr("width", function(d,i){
-            return context.x.rangeBand()/subcats.length;
-          })
-          .attr("height", function(d){return context.y(0) - context.y(d.values.y)  });
-      }//grouped
-    }//split
-  }
-  else if(config.y.type === "ordinal"){
-    console.dir(mark_data)
-
-    old_bar_groups.selectAll(".bar")
-      .transition()
-      .attr("x", context.x(0))
-      .attr("width", 0)
-    old_bar_groups.transition().remove();
-
-    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key+" index-"+index})
-    nu_bar_groups.append("title");
-
-    if(!mark.split){
-      // nu_bar_groups
-      //   .append("rect").attr("class", function(d){return "wc-data-mark bar "+d.key})
-      //   .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-      //   .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-      //   .attr("fill-opacity", config.fill_opacity || .8)
-      //   .style("clip-path", "url(#"+context.clippath_id+")")
-      //   .attr("x", context.x(0))
-      //   .attr("width", 0);
-      // var bars = bar_groups.selectAll("rect.bar").datum(function(d){return d});
-      // bars.transition()
-      //   //.attr("x", function(d){return context.x(d.values.x)})
-      //   .attr("y", function(d){return context.y(d.values.y)})
-      //   .attr("height", context.y.rangeBand())
-      //   .attr("width", function(d){return context.x(d.values.x)  });
-
-      var bars = bar_groups.selectAll("rect").data(function(d){return [d]}, function(d){return d.key});
-
-      bars.exit()
-        .transition()
-        .attr("x", context.x(0))
-        .attr("width", 0)
-        .remove();
-      bars.enter().append("rect")
-        .attr("class", function(d){return "wc-data-mark bar "+d.key})
-        .style("clip-path", "url(#"+context.clippath_id+")")
-        .attr("x", context.x(0))
-        .attr("width", 0);
-
-      bars
-        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill-opacity", config.fill_opacity || .8)
-
-       bars.transition()
-        //.attr("x", function(d){return context.x(d.values.x)})
-        .attr("y", function(d){return context.y(d.values.y)})
-        .attr("height", context.y.rangeBand())
-        .attr("width", function(d){return context.x(d.values.x)  });
-    }//no split
-    else{
-      var subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
-      var bars = bar_groups.selectAll("rect").data(function(d){return d.values}, function(d){return d.key});
-      bars.exit()
-        .transition()
-        .attr("x", context.x(0))
-        .attr("width", 0)
-        .remove();
-      bars.enter().append("rect")
-        .attr("class", function(d){return "wc-data-mark bar "+d.key})
-        .style("clip-path", "url(#"+context.clippath_id+")")
-        .attr("x", context.x(0))
-        .attr("width", 0);
-
-      bars
-        .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
-        .attr("fill-opacity", config.fill_opacity || .8)
-
-      if(!mark.arrange){
-        bars.transition()
-          .attr("y", function(d){return context.y(d.values.y)})
-          .attr("x", function(d){return context.x(0)})
-          .attr("height", context.y.rangeBand())
-          .attr("width", function(d){return context.x(d.values.x)  });
-      }//no arrangement
-      else if(mark.arrange === "stacked"){
-        bars.transition()
-          .attr("x", function(d){return context.x(d.values.start)})
-          .attr("y", function(d){return context.y(d.values.y)})
-          .attr("height", context.y.rangeBand())
-          .attr("width", function(d){return context.x(d.values.x)  })
-      }//stacked
-      else if(mark.arrange === "grouped"){
-       bars.transition()
-          .attr("y", function(d,i){
-            var position = subcats.indexOf(d.key);
-            return context.y(d.values.y)+context.y.rangeBand()/subcats.length*position;
-          })
-          .attr("x", function(d){return context.x(0)})
-          .attr("height", function(d,i){
-            return context.y.rangeBand()/subcats.length;
-          })
-          .attr("width", function(d){return context.x(d.values.x)  });
-      }//grouped
-
-    }//split
-
-    bars.sort(function(a,b){
-      return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
+    d3.csv(context.filepath, function(error, csv){
+      context.raw_data = csv;
+      context.onDataError(error);
+      context.checkRequired(csv);
+      goAhead(csv);
     });
-  }
+  };
+  
+  function goAhead(data){
+    var split_vals = d3.set(data.map(function(m){return m[split_by]})).values().filter(function(f){return f});
+    if(order)
+      split_vals = split_vals.sort(function(a,b){return d3.ascending(order.indexOf(a), order.indexOf(b))});
+
+    var master_chart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
+    master_chart.wrap.style("display", "none")
+
+    split_vals.forEach(function(e){
+      var split_data = data.filter(function(f){return f[split_by] === e});
+      var mchart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
+      mchart.events = context.events;
+      mchart.legend = master_legend;
+      mchart.multiplied = {col: split_by, value: e};
+      if(constrain_domains)
+        mchart.on("datatransform", matchDomains);
+      mchart.wrap.insert("span", "svg").attr("class", "wc-chart-title").text(e);
+      charts.push({subchart: mchart, subdata: split_data});
+    });
+
+    charts.forEach(function(e){e.subchart.init(e.subdata); });
+
+    function matchDomains(chart){
+      var allx = [];
+      var ally = [];
+      charts.forEach(function(e){
+        master_chart.transformData(e.subdata);
+        allx.push(master_chart.x_dom);
+        ally.push(master_chart.y_dom);
+      });
+      
+      chart.config.color_dom = d3.set(data.map(function(m){return m[config.color_by]})).values().filter(function(f){return f && f !== "undefined"});
+      // var allx = d3.merge(charts.map(function(m){return m.x_dom}));
+      chart.x_dom = config.x_dom ? config.x_dom : config.x.type !== "ordinal" ? d3.extent(d3.merge(allx)) : d3.set(d3.merge(allx)).values();
+      chart.y_dom = config.y_com ? config.y_dom : config.y.type !== "ordinal" ? d3.extent(d3.merge(ally)) : d3.set(d3.merge(ally)).values();
+      // var ally = d3.merge(charts.map(function(m){return m.y_dom}));
+      // chart.y_dom = config.y.type !== "ordinal" ? d3.extent(ally) : d3.set(ally).values();
+    };
+
+  };//goAhead
+
+  return this;
 }
-chart.prototype.drawRects = function(rect_data, container, class_match){
-  var context = this;
-  var config = this.config;
-  var svg = this.svg;
-  var w = context.plot_width;
-  var h = context.plot_height;
-  container = container || svg;
-  class_match = class_match || "reference-region";
-  var rects = container.selectAll("."+class_match).data(rect_data);
-  rects.exit().remove();
-  rects.enter().append("rect").attr("class", class_match).append("title");
-  rects.attr({"stroke": "none", "shape-rendering": "crispEdges"})
-    .transition()
-    .attr("x", function(d){return config.x.type === "ordinal" ? d.xs[0] : context.x(d.xs[0]) } )
-    .attr("y", function(d){return config.y.type === "ordinal" ? d.ys[0] : context.y(d.ys[1])})
-    .attr("width", function(d){return config.x.type === "ordinal" ? d.xs[1] - d.xs[0] : context.x(d.xs[1]) - context.x(d.xs[0]) })
-    .attr("height", function(d){return config.y.type === "ordinal" ? Math.abs(d.ys[0] - d.ys[1]) : context.y(d.ys[0]) - context.y(d.ys[1]) });
-  rects.each(function(e){
-    e.attributes = e.attributes || {};
-    e.attributes["fill"] = e.attributes["fill"] || "#eee"; 
-    d3.select(this).attr(e.attributes); 
-  });
-  return rects;
-}
-chart.prototype.drawArea = function(area_drawer, area_data, datum_accessor, class_match, bind_accessor, attr_accessor){
-  var context = this;
-  var config = this.config;
-  var svg = this.svg;
-  var colorScale = this.colorScale;
-  var x = context.x;
-  var y = context.y;
-  class_match = class_match ? class_match : "chart-area";
-  attr_accessor = attr_accessor ? attr_accessor : function(d){return d};
-
-  var area_grps = svg.selectAll("."+class_match)
-    .data(area_data, bind_accessor);
-  area_grps.exit().remove();
-  area_grps.enter().append("g").attr("class", function(d){return class_match+" "+d.key})
-    .append("path");
-  area_grps.select("path")
-    .datum(datum_accessor)
-    .attr("fill", function(d){
-      var d_attr = attr_accessor(d);
-      return d_attr ? colorScale(d_attr[config.color_by]) : null;
-    })
-    .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : 0.3)
-    .transition()
-    .attr("d", area_drawer);
-
-  return area_grps;
-}
-chart.prototype.updateRefLines = function(){
-  //define/draw reference lines, if any
-  var config = this.config;
-  var context = this;
-  var ref_line_data = !config.reference_lines ? [] : config.reference_lines.map(function(m){
-    var xx = m.x;
-    var yy = m.y;
-    if(config.x.type === "time" && m.x)
-      xx = d3.time.format(config.date_format).parse(m.x);
-    if(config.y.type === "time" && m.y)
-      yy = d3.time.format(config.date_format).parse(m.y);
-    return {xs: !m.x && +m.x !== 0 ? [0, context.plot_width,true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0,context.plot_height,true] : [yy, yy], attributes: m.attributes};
-  });
-  var ref_lines = context.drawSimpleLines(ref_line_data).style("clip-path", "url(#"+context.clippath_id+")");
-}
-chart.prototype.updateRefRegions = function(){
-  //define/draw reference regions, if any
-  var config = this.config;
-  var context = this;
-  var ref_region_data = context.config.reference_regions.slice(0).map(function(m){
-    var xx = m.x;
-    var yy = m.y;
-    if(config.x.type === "time")
-      if(m.x)
-        xx = m.x.map(function(w){return d3.time.format(config.date_format).parse(w)});
-      else
-        xx = context.x_dom;
-    if(config.y.type === "time")
-      if(m.y)
-        yy = m.y.map(function(w){return d3.time.format(config.date_format).parse(w)});
-      else
-        yy = context.y_dom;
-    return {xs: !xx ? [1, context.plot_width] : xx, ys: !m.y ? [0, context.plot_height-1] : yy, attributes: m.attributes};
-  });
-  context.drawRects(ref_region_data).style("clip-path", "url(#"+context.clippath_id+")");
-}
-chart.prototype.draw = function(processed_data, raw_data){
-  var context = this;
-  var raw = raw_data ? raw_data : context.raw_data;
-  var config = context.config;
-  var aspect2 = 1/config.aspect;
-  var data = context.chart_type === "timeline" ? context.transformData(raw) : context.consolidateData(raw);
-  config.padding = config.padding ? config.padding : config.tight ? .01 : .3;
-  config.outer_pad = config.outer_pad ? config.outer_pad : config.tight ? .01 : .1;
-  // config.y_behavior = config.y_behavior || "flex";
-  // config.x_behavior = config.x_behavior || "flex";
-  context.wrap.datum(data)
-
-  var div_width = parseInt(context.wrap.style('width')); 
-
-  context.setColorScale();
-
-  config.resizable = config.resizable === false ? false : true;
-  var max_width = config.max_width ? config.max_width : div_width;
-  context.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.x_dom.length :
-    config.resizable ? max_width : 
-    config.width ? config.width : 
-    div_width;
-  context.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.y_dom.length :
-    config.resizable ? max_width*aspect2 : 
-    config.height ? config.height : 
-    div_width*aspect2;
-
-  var pseudo_width = context.svg.select(".overlay").attr("width") ? context.svg.select(".overlay").attr("width") : context.raw_width;
-  var pseudo_height = context.svg.select(".overlay").attr("height") ? context.svg.select(".overlay").attr("height") : context.raw_height;
-
-  var x_axis_label = context.svg.select(".x.axis").select(".axis-title").text(function(){
-    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
-  });
-  var y_axis_label = context.svg.select(".y.axis").select(".axis-title").text(function(){
-    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
-  });
-
-  context.xScaleAxis(config.x.type, pseudo_width, context.x_dom);
-  context.yScaleAxis(config.y.type, pseudo_height, context.y_dom);
-
-  var id = config.id || Math.random();
-  if(config.resizable)
-    d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, function(){context.resize()});
-  else
-    d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, null);
-
-  context.resize();
-  context.events.onDraw(this);
+chart.prototype.onDataError = function(error){
+  if(error){
+      d3.select(this.div).select(".loader").remove();
+      this.wrap.append("div").attr("class", "alert alert-error alert-danger").text("Dataset could not be loaded.");
+      throw new Error("Dataset could not be loaded. Check provided path ("+this.filepath+").");
+    };
 }
 chart.prototype.resize = function(){
   var context = this;
@@ -973,67 +889,127 @@ chart.prototype.resize = function(){
   //call .on("resize") function, if any
   context.events.onResize(this);
 }
-chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
-  var context = this;
+chart.prototype.setColorScale = function(){
   var config = this.config;
-  var wrap = context.wrap.classed("wc-layout wc-small-multiples", true).classed("wc-chart", false);
-  var master_legend = wrap.append("ul").attr("class", "legend");
-  var charts = [];
-  if(raw){
-    context.raw_data = raw;
-    goAhead(raw);
+  colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values()
+    .filter(function(f){return f && f !== "undefined"});
+
+  if(config.chunk_order)
+    colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
+  else
+  	colordom = colordom.sort(d3.ascending)
+
+  this.colorScale = d3.scale.ordinal()
+    .domain(colordom)
+    .range(config.colors ? config.colors : webCharts.colors.nb);
+}
+chart.prototype.setDefaults = function(){
+	this.config.x = this.config.x || {};
+	this.config.y = this.config.y || {};
+	
+	//backwards compatibility with x/y settings
+	if(this.config.x_type)
+		this.config.x.type = this.config.x_type;
+	if(this.config.x_vals && this.config.x_vals.col)
+		this.config.x.type = this.config.x_vals.col;
+	if(this.config.x_vals && this.config.x_vals.stat)
+		this.config.x.summary = this.config.x_vals.stat;
+	if(this.config.x_behavior)
+		this.config.x.behavior = this.config.x_behavior;
+	if(this.config.x_label)
+		this.config.x.label = this.config.x_label;
+	if(this.config.y_type)
+		this.config.y.type = this.config.y_type;
+	if(this.config.y_vals && this.config.y_vals.col)
+		this.config.y.type = this.config.y_vals.col;
+	if(this.config.y_vals && this.config.y_vals.stat)
+		this.config.y.summary = this.config.y_vals.stat;
+	if(this.config.y_behavior)
+		this.config.y.behavior = this.config.y_behavior;
+	if(this.config.y_label)
+		this.config.y.label = this.config.y_label;
+
+	this.config.x.label = typeof this.config.x.label === 'string' ? this.config.x.label : this.config.x.column;
+	this.config.y.label = typeof this.config.y.label === 'string' ? this.config.y.label : this.config.y.column;
+
+	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
+	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
+
+	this.config.x.type = this.config.x.type || 'linear';
+	this.config.y.type = this.config.y.type || 'linear';
+
+	this.config.margin = this.config.margin || {};
+	this.config.legend = this.config.legend || {};
+	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
+	this.config.marks = this.config.marks || [];
+
+	this.config.reference_regions = this.config.reference_regions || [];
+};
+chart.prototype.setMargins = function(){
+  var context = this;
+  var x_ticks = context.xAxis.tickFormat() ? context.x.domain().map(function(m){return context.xAxis.tickFormat()(m)}) : context.x.domain();
+  var y_ticks = context.yAxis.tickFormat() ? context.y.domain().map(function(m){return context.yAxis.tickFormat()(m)}) : context.y.domain();
+
+  var max_y_text_length = d3.max( y_ticks.map(function(m){return String(m).length}) );
+  if(this.config.y_format && this.config.y_format.indexOf("%") > -1 )
+    max_y_text_length += 1
+  max_y_text_length = Math.max(2, max_y_text_length);
+  var x_label_on = this.config.x.label ? 1.5 : 0;
+  var y_label_on = this.config.y.label ? 1.5 : 0.25;
+  var font_size = parseInt(this.wrap.style("font-size"));
+  var x_second = this.config.x2_interval ? 1 : 0;
+  var y_margin = max_y_text_length*font_size*.5+ (font_size*y_label_on*1.5) || 8;
+  var x_margin = font_size+(font_size/1.5) + (font_size*x_label_on)+(font_size*x_second) || 8;
+
+  y_margin += 6;
+  x_margin += 3;
+
+  return {top: this.config.margin && this.config.margin.top ? this.config.margin.top : 8, 
+      right: this.config.margin && this.config.margin.right ? this.config.margin.right : 16, 
+      bottom: this.config.margin && this.config.margin.bottom ? this.config.margin.bottom : x_margin, 
+      left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin};
+}
+chart.prototype.textSize = function(width,height){
+  var context = this
+  var font_size = "14px";
+  var point_size = 4;
+  var stroke_width = 2;
+
+  if(this.config.no_text_size){
+    font_size = context.config.font_size;
+    point_size = context.config.point_size || 4;
+    stroke_width = context.config.stroke_width || 2;
   }
-  else{
-    d3.csv(context.filepath, function(error, csv){
-      context.raw_data = csv;
-      context.onDataError(error);
-      context.checkRequired(csv);
-      goAhead(csv);
-    });
-  };
-  
-  function goAhead(data){
-    var split_vals = d3.set(data.map(function(m){return m[split_by]})).values().filter(function(f){return f});
-    if(order)
-      split_vals = split_vals.sort(function(a,b){return d3.ascending(order.indexOf(a), order.indexOf(b))});
+  else if(width >= 600){
+    font_size = "14px";
+    point_size = 4;
+    stroke_width = 2;
+  }
+  else if(width > 450 && width < 600){
+    font_size = "12px";
+    point_size = 3;
+    stroke_width = 2;
+  }
+  else if(width > 300 && width < 450){
+    font_size = "10px";
+    point_size = 2;
+    stroke_width = 2;
+  }
+  else if(width <= 300){
+    font_size = "10px";
+    point_size = 2;
+    stroke_width = 1;
+  }
 
-    var master_chart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
-    master_chart.wrap.style("display", "none")
+  // context.svg.select("defs style").html(
+  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
+  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: "+font_size+";}"+
+  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
+  // );
 
-    split_vals.forEach(function(e){
-      var split_data = data.filter(function(f){return f[split_by] === e});
-      var mchart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
-      mchart.events = context.events;
-      mchart.legend = master_legend;
-      mchart.multiplied = {col: split_by, value: e};
-      if(constrain_domains)
-        mchart.on("datatransform", matchDomains);
-      mchart.wrap.insert("span", "svg").attr("class", "wc-chart-title").text(e);
-      charts.push({subchart: mchart, subdata: split_data});
-    });
-
-    charts.forEach(function(e){e.subchart.init(e.subdata); });
-
-    function matchDomains(chart){
-      var allx = [];
-      var ally = [];
-      charts.forEach(function(e){
-        master_chart.transformData(e.subdata);
-        allx.push(master_chart.x_dom);
-        ally.push(master_chart.y_dom);
-      });
-      
-      chart.config.color_dom = d3.set(data.map(function(m){return m[config.color_by]})).values().filter(function(f){return f && f !== "undefined"});
-      // var allx = d3.merge(charts.map(function(m){return m.x_dom}));
-      chart.x_dom = config.x_dom ? config.x_dom : config.x.type !== "ordinal" ? d3.extent(d3.merge(allx)) : d3.set(d3.merge(allx)).values();
-      chart.y_dom = config.y_com ? config.y_dom : config.y.type !== "ordinal" ? d3.extent(d3.merge(ally)) : d3.set(d3.merge(ally)).values();
-      // var ally = d3.merge(charts.map(function(m){return m.y_dom}));
-      // chart.y_dom = config.y.type !== "ordinal" ? d3.extent(ally) : d3.set(ally).values();
-    };
-
-  };//goAhead
-
-  return this;
+  context.wrap.style("font-size",font_size);
+  context.config.flex_point_size = point_size;
+  context.config.flex_stroke_width = stroke_width;
 }
 chart.prototype.transformData = function(raw, mark){
   var context = this;
@@ -1241,9 +1217,9 @@ chart.prototype.transformData = function(raw, mark){
     var flex_dom_y = current_nested.dom_y;
 
   if(mark.type === 'bar'){
-    if(config.y.type === 'ordinal')
+    if(config.y.type === 'ordinal' && config.x.summary === 'count')
       config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null]
-    else if(config.x.type === 'ordinal')
+    else if(config.x.type === 'ordinal' && config.y.summary === 'count')
       config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
   }
 
@@ -1274,109 +1250,125 @@ chart.prototype.transformData = function(raw, mark){
     y_dom[1] = config.y.domain[1]
 
   context.current_data = current_nested.nested;
-  // context.events.onDatatransform(context);
+  // context.events.onDatatransform(context); 
 
   return {data: current_nested.nested, x_dom: x_dom, y_dom: y_dom};
 }
-chart.prototype.consolidateData = function(raw){
-  var context = this;
-  var all_data = [];
-  var all_x = [];
-  var all_y = [];
-  context.marks = [];
-  this.config.marks.forEach(function(e){
-    var mark_info = e.per ? context.transformData(raw, e) : {data: [], x_dom: [], y_dom: []};
-    all_data.push(mark_info.data);
-    all_x.push(mark_info.x_dom);
-    all_y.push(mark_info.y_dom);
-    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, attributes: e.attributes})
-  });
-
-  if(context.config.x.type === 'ordinal'){
-    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
-    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
-    if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
-      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
-    else
-      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
-  }
-  else
-    context.x_dom = d3.extent(d3.merge(all_x));
-  if(context.config.y.type === 'ordinal'){
-    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
-    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
-    if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
-      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
-    else
-      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
-  }
-  else
-    context.y_dom = d3.extent(d3.merge(all_y));
-  
-}
-chart.prototype.updateDataMarks = function(mark, index){
+chart.prototype.updateDataMarks = function(mark){
   var context = this;
   var config = context.config;
 
-if(mark.type === 'circle')
-  context.drawPoints(mark,index);
-else{
-	context.svg.selectAll(".wc-data-mark.point.index-"+index).remove();
-}
-if(mark.type === 'line')
-  context.drawLines(mark,index);
-else{
-	context.svg.selectAll(".wc-data-mark.line.index-"+index).remove();
-}
-if(mark.type === 'bar')
-  context.drawBars(mark,index);
-else{
-	context.svg.selectAll(".bar-group.index-"+index).remove();
-}
+  context.drawPoints(mark);
+
+  context.drawLines(mark);
+
+  context.drawBars(mark);
 
   return this;
 
 }
-webCharts.Chart = chart;
-chart.prototype.setDefaults = function(){
-	this.config.x = this.config.x || {};
-	this.config.y = this.config.y || {};
-	
-	//backwards compatibility with x/y settings
-	if(this.config.x_type)
-		this.config.x.type = this.config.x_type;
-	if(this.config.x_vals && this.config.x_vals.col)
-		this.config.x.type = this.config.x_vals.col;
-	if(this.config.x_vals && this.config.x_vals.stat)
-		this.config.x.summary = this.config.x_vals.stat;
-	if(this.config.x_behavior)
-		this.config.x.behavior = this.config.x_behavior;
-	if(this.config.x_label)
-		this.config.x.label = this.config.x_label;
-	if(this.config.y_type)
-		this.config.y.type = this.config.y_type;
-	if(this.config.y_vals && this.config.y_vals.col)
-		this.config.y.type = this.config.y_vals.col;
-	if(this.config.y_vals && this.config.y_vals.stat)
-		this.config.y.summary = this.config.y_vals.stat;
-	if(this.config.y_behavior)
-		this.config.y.behavior = this.config.y_behavior;
-	if(this.config.y_label)
-		this.config.y.label = this.config.y_label;
+chart.prototype.updateRefLines = function(){
+  //define/draw reference lines, if any
+  var config = this.config;
+  var context = this;
+  var ref_line_data = !config.reference_lines ? [] : config.reference_lines.map(function(m){
+    var xx = m.x;
+    var yy = m.y;
+    if(config.x.type === "time" && m.x)
+      xx = d3.time.format(config.date_format).parse(m.x);
+    if(config.y.type === "time" && m.y)
+      yy = d3.time.format(config.date_format).parse(m.y);
+    return {xs: !m.x && +m.x !== 0 ? [0, context.plot_width,true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0,context.plot_height,true] : [yy, yy], attributes: m.attributes};
+  });
+  var ref_lines = context.drawSimpleLines(ref_line_data).style("clip-path", "url(#"+context.clippath_id+")");
+}
+chart.prototype.updateRefRegions = function(){
+  //define/draw reference regions, if any
+  var config = this.config;
+  var context = this;
+  var ref_region_data = context.config.reference_regions.slice(0).map(function(m){
+    var xx = m.x;
+    var yy = m.y;
+    if(config.x.type === "time")
+      if(m.x)
+        xx = m.x.map(function(w){return d3.time.format(config.date_format).parse(w)});
+      else
+        xx = context.x_dom;
+    if(config.y.type === "time")
+      if(m.y)
+        yy = m.y.map(function(w){return d3.time.format(config.date_format).parse(w)});
+      else
+        yy = context.y_dom;
+    return {xs: !xx ? [1, context.plot_width] : xx, ys: !m.y ? [0, context.plot_height-1] : yy, attributes: m.attributes};
+  });
+  context.drawRects(ref_region_data).style("clip-path", "url(#"+context.clippath_id+")");
+}
+chart.prototype.xScaleAxis = function(type, max_range, domain){
+  //domain = type === "percent" ? [0,1] : domain;
+  var config = this.config;
 
-	this.config.x.label = typeof this.config.x.label === 'string' ? this.config.x.label : this.config.x.column;
-	this.config.y.label = typeof this.config.y.label === 'string' ? this.config.y.label : this.config.y.column;
+  if(type === "log")
+    var x = d3.scale.log();
+  else if(type === "ordinal")
+    var x = d3.scale.ordinal();
+  else if(type === "time")
+    var x = d3.time.scale();
+  else
+    var x = d3.scale.linear();
 
-	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
-	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
+  x.domain(domain)
+  if(type === "ordinal")
+    x.rangeBands([0, +max_range], config.padding, config.outer_pad);
+  else
+    x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
 
-	this.config.x.type = this.config.x.type || 'linear';
-	this.config.y.type = this.config.y.type || 'linear';
+  var format = config.x.format ? config.x.format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
+  var tick_count = Math.max(2, Math.min(max_range/80,8));
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient(config.x.location)
+    .ticks(tick_count)
+    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(format) : d3.format(format))
+    .tickValues(config.x.ticks ? config.x.ticks : null)
+    .innerTickSize(6)
+    .outerTickSize(3);
 
-	this.config.margin = this.config.margin || {};
-	this.config.legend = this.config.legend || {};
-	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
-	this.config.marks = this.config.marks || [];
+  this.svg.select("g.x.axis").attr("class", "x axis "+type);
+  this.x = x;
+  this.xAxis = xAxis;
+}
+chart.prototype.yScaleAxis = function(type, max_range, domain){
+  //domain = type === "percent" ? [0,1] : domain;
+  var config = this.config;
+  var y;
+  if(type === "log")
+    var y = d3.scale.log();
+  else if(type === "ordinal")
+    var y = d3.scale.ordinal();
+  else if(type === "time")
+   var y = d3.time.scale();
+  else
+    var y = d3.scale.linear();
 
-	this.config.reference_regions = this.config.reference_regions || [];
+  y.domain(domain);
+  if(type === "ordinal")
+    y.rangeBands([+max_range, 0], config.padding, config.outer_pad); 
+  else
+    y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
+
+  var y_format = config.y.format ? config.y.format : type === "percent" ? "0%" : ".0f";
+  var tick_count = Math.max(2, Math.min(max_range/80,8));
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(tick_count)
+    .tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(y_format) : d3.format(y_format))
+    .tickValues(config.y.ticks ? config.y.ticks : null)
+    .innerTickSize(6)
+    .outerTickSize(3);
+
+  this.svg.select("g.y.axis").attr("class", "y axis "+type);
+
+  this.y = y;
+  this.yAxis = yAxis;
 };

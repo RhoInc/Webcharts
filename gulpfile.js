@@ -39,7 +39,7 @@ gulp.task('test-wrap', $.folders('src', function(folder) {
 }));
 
 gulp.task('chart-bundle', function(){
-  return gulp.src('src/chart/*.js')
+  return gulp.src(['src/chart/main.js', 'src/chart/*.js'])
     .pipe($.concat('chart.js'))
     .pipe(gulp.dest('src')) ;
 });

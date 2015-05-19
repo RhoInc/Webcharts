@@ -211,7 +211,7 @@ div[class*="wc-"] .record-note{
 .wc-controls .control-group{
 	display: inline-table;
 	max-width: 100%;
-	margin: 0px 10px 10px 0;
+	margin: 0px 1em 1em 0;
 }
 .wc-controls.bottom .control-group{
 	display: inline-table;
