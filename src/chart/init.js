@@ -59,6 +59,7 @@ chart.prototype.init = function(data){
     else
       startup(data);
     //else return;
+    console.log(this.raw_data);
 
     return this;    
 };

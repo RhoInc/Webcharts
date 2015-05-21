@@ -48,12 +48,12 @@ chart.prototype.transformData = function(raw, mark){
 
   if( (config.x.type === "linear" || config.x.type === "log") && config.x.column){
     raw = raw.filter(function(f){
-      return (+f[config.x.column] || +f[config.x.column] === 0);
+      return config.x.summary !== 'count' ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
     });
   };
   if( (config.y.type === "linear" || config.y.type === "log") && config.y.column){
     raw = raw.filter(function(f){
-      return (+f[config.y.column] || +f[config.y.column] === 0);
+      return config.y.summary !== 'count' ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
     });
   };
 

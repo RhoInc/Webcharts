@@ -98,5 +98,6 @@ webCharts.dataOps = {isCont: function(data, varname){
     return null;
   var stat = operation || "mean";
   var mathed = stat === "count" ? vals.length : d3[stat](nvals);
+
   return mathed;
 }}

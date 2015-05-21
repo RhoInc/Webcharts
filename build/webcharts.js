@@ -103,6 +103,7 @@ webCharts.dataOps = {isCont: function(data, varname){
     return null;
   var stat = operation || "mean";
   var mathed = stat === "count" ? vals.length : d3[stat](nvals);
+
   return mathed;
 }}
 var chart = function(element, filepath, config, controls){
@@ -680,6 +681,7 @@ chart.prototype.init = function(data){
     else
       startup(data);
     //else return;
+    console.log(this.raw_data);
 
     return this;    
 };
@@ -1168,12 +1170,12 @@ chart.prototype.transformData = function(raw, mark){
 
   if( (config.x.type === "linear" || config.x.type === "log") && config.x.column){
     raw = raw.filter(function(f){
-      return (+f[config.x.column] || +f[config.x.column] === 0);
+      return config.x.summary !== 'count' ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
     });
   };
   if( (config.y.type === "linear" || config.y.type === "log") && config.y.column){
     raw = raw.filter(function(f){
-      return (+f[config.y.column] || +f[config.y.column] === 0);
+      return config.y.summary !== 'count' ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
     });
   };
 
