@@ -36,7 +36,9 @@ chart.prototype.setDefaults = function(){
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
 	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
-	this.config.marks = this.config.marks || [];
+	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}]; 
 
 	this.config.reference_regions = this.config.reference_regions || [];
+
+	this.config.date_format = this.config.date_format || '%x';
 };

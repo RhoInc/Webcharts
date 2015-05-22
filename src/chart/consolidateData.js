@@ -4,6 +4,9 @@ chart.prototype.consolidateData = function(raw){
   var all_x = [];
   var all_y = [];
   context.marks = [];
+  
+  this.setDefaults();
+
   this.config.marks.forEach(function(e){
     if(e.type !== 'bar'){
       e.arrange = null;
