@@ -1,23 +1,26 @@
-chart.prototype.drawPoints = function(mark, container){
+chart.prototype.drawPoints = function(marks){
   var context = this;
   var config = this.config;
   var svg = this.svg;
   var colorScale = this.colorScale;
   var x = context.x;
   var y = context.y;
-  var mark_data = mark.type === 'circle' ? mark.data : [];
+  // var mark_data = mark.type === 'circle' ? mark.data : [];
 
-  container = container || svg;
+  // container = container || svg;
+  var point_supergroups = context.svg.selectAll(".point-supergroup").data(marks, function(d){return d.per.join('-')});
+  point_supergroups.enter().append('g').attr('class', 'point-supergroup');
+  point_supergroups.exit().remove();
 
-  var points = container.selectAll(".wc-data-mark.point")
-    .data(mark_data, function(d){return d.key});
+  var points = point_supergroups.selectAll(".wc-data-mark.point")
+    .data(function(d){return d.data}, function(d){return d.key});
   var oldPoints = points.exit();
   oldPoints.selectAll("circle")
     .transition()
     .attr("r", 0)
   oldPoints.transition().remove();
 
-  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" "+mark.per.join(" ")+" wc-data-mark point"});
+  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" wc-data-mark point"});
   nupoints.append("circle")
     .attr("r", 0);
   nupoints.append("title");
@@ -38,8 +41,13 @@ chart.prototype.drawPoints = function(mark, container){
     .attr("cy", function(d){
       var y_pos = y(d.values.y) || 0;
       return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
-    })
-    .attr(mark.attributes);
+    });
+
+    points.each(function(d){
+      var mark = d3.select(this.parentNode).datum();
+      d3.select(this).select('circle').attr(mark.attributes)
+    });
+    // .attr(mark.attributes);
   // points.select("circle")
   //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
   //   .attr("fill", function(d){

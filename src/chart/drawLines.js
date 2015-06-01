@@ -1,9 +1,9 @@
-chart.prototype.drawLines = function(mark){
+chart.prototype.drawLines = function(marks){
   var context = this;
   var config = this.config;
   var svg = this.svg;
   var colorScale = this.colorScale;
-  var mark_data = mark.type === 'line' ? mark.data : [];
+  // var mark_data = mark.type === 'line' ? mark.data : [];
 
   var line = d3.svg.line()
     .interpolate(config.interpolate)
@@ -19,10 +19,14 @@ chart.prototype.drawLines = function(mark){
     }) 
 
   // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
-  var line_grps = svg.selectAll(".wc-data-mark.line")
-    .data(mark_data, function(d){return d.key});
+  var line_supergroups = context.svg.selectAll(".line-supergroup").data(marks, function(d){return d.per.join('-')});
+  line_supergroups.enter().append('g').attr('class', 'line-supergroup');
+  line_supergroups.exit().remove();
+
+  var line_grps = line_supergroups.selectAll(".wc-data-mark.line")
+    .data(function(d){return d.data}, function(d){return d.key});
   line_grps.exit().remove();
-  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" "+mark.per+" wc-data-mark line"});
+  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" wc-data-mark line"});
   nu_line_grps.append("path");
   nu_line_grps.append("title");
   line_grps.select("path")
@@ -34,8 +38,12 @@ chart.prototype.drawLines = function(mark){
     .attr("stroke-linecap", "round")
     .attr("fill", "none")
     .transition()
-    .attr("d", line)
-    .attr(mark.attributes);
+    .attr("d", line);
+  
+  line_grps.each(function(d){
+    var mark = d3.select(this.parentNode).datum();
+    d3.select(this).select('path').attr(mark.attributes)
+  });
 
   return line_grps;
 }
