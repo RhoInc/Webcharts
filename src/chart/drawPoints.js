@@ -8,7 +8,7 @@ chart.prototype.drawPoints = function(marks){
   // var mark_data = mark.type === 'circle' ? mark.data : [];
 
   // container = container || svg;
-  var point_supergroups = context.svg.selectAll(".point-supergroup").data(marks, function(d){return d.per.join('-')});
+  var point_supergroups = context.svg.selectAll('.point-supergroup').data(marks, function(d){return d.per.join('-')});
   point_supergroups.enter().append('g').attr('class', 'point-supergroup');
   point_supergroups.exit().remove();
 
@@ -43,10 +43,10 @@ chart.prototype.drawPoints = function(marks){
       return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
     });
 
-    points.each(function(d){
-      var mark = d3.select(this.parentNode).datum();
-      d3.select(this).select('circle').attr(mark.attributes)
-    });
+  points.each(function(d){
+    var mark = d3.select(this.parentNode).datum();
+    d3.select(this).select('circle').attr(mark.attributes)
+  });
     // .attr(mark.attributes);
   // points.select("circle")
   //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)

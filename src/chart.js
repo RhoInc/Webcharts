@@ -125,8 +125,8 @@ chart.prototype.draw = function(processed_data, raw_data){
   else
     d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, null);
 
-  context.resize();
   context.events.onDraw(this);
+  context.resize();
 }
 chart.prototype.drawArea = function(area_drawer, area_data, datum_accessor, class_match, bind_accessor, attr_accessor){
   var context = this;
@@ -294,7 +294,61 @@ chart.prototype.drawBars = function(marks){
     //   return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
     // });
   }
-  else if(config.y.type === 'quantile'){
+  else if(config.x.type === 'linear' && config.x.bin){
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("y", context.y(0))
+      .attr("height", 0)
+    old_bar_groups.transition().remove();
+
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    nu_bar_groups.append("title");
+
+    var bars = bar_groups.selectAll("rect").data(function(d){return d.values instanceof Array ? d.values : [d] }, function(d){return d.key});
+    bars.exit()
+      .transition()
+      .attr("y", context.y(0))
+      .attr("height", 0)
+      .remove();
+    bars.enter().append("rect")
+      .attr("class", function(d){return "wc-data-mark bar "+d.key})
+      .style("clip-path", "url(#"+context.clippath_id+")")
+      .attr("y", context.y(0))
+      .attr("height", 0);
+
+    bars
+      .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      .attr("fill-opacity", config.fill_opacity || .8);
+
+    bars.each(function(d){
+      var mark = d3.select(this.parentNode.parentNode).datum();
+      d.arrange = mark.split ? mark.arrange : null;
+      d.subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
+      d3.select(this).attr(mark.attributes);
+      var parent = d3.select(this.parentNode).datum();
+      var rangeSet = parent.key.split(',').map(function(m){return +m});
+      d.rangeLow = d3.min(rangeSet);
+      d.rangeHigh = d3.max(rangeSet);
+    });
+
+    bars.transition()
+      .attr("x", function(d){
+        return context.x(d.rangeLow)
+      })
+      .attr("y", function(d){
+        if(d.arrange !== 'stacked')
+          return context.y(d.values.y)
+        else
+          return context.y(d.values.start);
+      })
+      .attr("width", function(d){
+        return context.x(d.rangeHigh) - context.x(d.rangeLow);
+      })
+      .attr("height", function(d){ return context.y(0) - context.y(d.values.y)  });
+
+  }
+  else if(config.y.type === 'linear' && config.y.bin){
     old_bar_groups.selectAll(".bar")
       .transition()
       .attr("x", context.x(0))
@@ -349,9 +403,14 @@ chart.prototype.drawBars = function(marks){
         return context.y(d.rangeLow) - context.y(d.rangeHigh);
       });
 
-    // bars.sort(function(a,b){
-    //   return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
-    // });
+  }
+  else{
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("y", context.y(0))
+      .attr("height", 0)
+    old_bar_groups.transition().remove();
+    bar_supergroups.remove();
   }
 }
 chart.prototype.drawGridlines = function(){
@@ -430,7 +489,7 @@ chart.prototype.drawPoints = function(marks){
   // var mark_data = mark.type === 'circle' ? mark.data : [];
 
   // container = container || svg;
-  var point_supergroups = context.svg.selectAll(".point-supergroup").data(marks, function(d){return d.per.join('-')});
+  var point_supergroups = context.svg.selectAll('.point-supergroup').data(marks, function(d){return d.per.join('-')});
   point_supergroups.enter().append('g').attr('class', 'point-supergroup');
   point_supergroups.exit().remove();
 
@@ -465,10 +524,10 @@ chart.prototype.drawPoints = function(marks){
       return config.y.type === "ordinal" ? y_pos+y.rangeBand()/2 : y_pos;
     });
 
-    points.each(function(d){
-      var mark = d3.select(this.parentNode).datum();
-      d3.select(this).select('circle').attr(mark.attributes)
-    });
+  points.each(function(d){
+    var mark = d3.select(this.parentNode).datum();
+    d3.select(this).select('circle').attr(mark.attributes)
+  });
     // .attr(mark.attributes);
   // points.select("circle")
   //   .attr("fill-opacity", config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : .6)
@@ -777,12 +836,12 @@ chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
     if(order)
       split_vals = split_vals.sort(function(a,b){return d3.ascending(order.indexOf(a), order.indexOf(b))});
 
-    var master_chart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
+    var master_chart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
     master_chart.wrap.style("display", "none")
 
     split_vals.forEach(function(e){
       var split_data = data.filter(function(f){return f[split_by] === e});
-      var mchart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
+      var mchart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
       mchart.events = context.events;
       mchart.legend = master_legend;
       mchart.multiplied = {col: split_by, value: e};
@@ -1133,11 +1192,11 @@ chart.prototype.transformData = function(raw, mark){
     var dom_ys = [];
     var this_nest = d3.nest()
 
-    if(config.x.type === 'quantile' || config.y.type === 'quantile'){
-      var xy = config.x.type === 'quantile' ? 'x' : 'y';
+    if((config.x.type === 'linear' && config.x.bin) || (config.y.type === 'linear' && config.y.bin)){
+      var xy = (config.x.type === 'linear' && config.x.bin) ? 'x' : 'y';
       var quant = d3.scale.quantile()
         .domain(d3.extent(entries.map(function(m){return +m[config[xy].column]})))
-        .range(d3.range(+config[xy].bin+1));
+        .range(d3.range(+config[xy].bin));
 
       entries.forEach(function(e){
         e['wc_bin'] = quant(e[config[xy].column])
@@ -1204,9 +1263,9 @@ chart.prototype.transformData = function(raw, mark){
 
     if(sublevel && mark.type === 'bar' && mark.arrange === 'stacked'){
       test.forEach(calcStartTotal);
-      if(config.x.type === 'ordinal')
+      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin))
         dom_y = d3.extent( test.map(function(m){return m.total}) );
-      if(config.y.type === 'ordinal')
+      if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin))
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
 
@@ -1214,11 +1273,11 @@ chart.prototype.transformData = function(raw, mark){
   };
 
   function calcStartTotal(e){    
-    var axis = config.x.type === 'ordinal' ? 'y' : 'x'; 
+    var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x'; 
     e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
     var counter = 0;
     e.values.forEach(function(v,i){
-      if(config.x.type === 'ordinal'){
+      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
         v.values.y = v.values.y || 0;
         counter += +v.values.y;
         v.values.start = e.values[i-1] ? counter : v.values.y;

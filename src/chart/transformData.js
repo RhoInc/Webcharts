@@ -84,11 +84,11 @@ chart.prototype.transformData = function(raw, mark){
     var dom_ys = [];
     var this_nest = d3.nest()
 
-    if(config.x.type === 'quantile' || config.y.type === 'quantile'){
-      var xy = config.x.type === 'quantile' ? 'x' : 'y';
+    if((config.x.type === 'linear' && config.x.bin) || (config.y.type === 'linear' && config.y.bin)){
+      var xy = (config.x.type === 'linear' && config.x.bin) ? 'x' : 'y';
       var quant = d3.scale.quantile()
         .domain(d3.extent(entries.map(function(m){return +m[config[xy].column]})))
-        .range(d3.range(+config[xy].bin+1));
+        .range(d3.range(+config[xy].bin));
 
       entries.forEach(function(e){
         e['wc_bin'] = quant(e[config[xy].column])
@@ -155,9 +155,9 @@ chart.prototype.transformData = function(raw, mark){
 
     if(sublevel && mark.type === 'bar' && mark.arrange === 'stacked'){
       test.forEach(calcStartTotal);
-      if(config.x.type === 'ordinal')
+      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin))
         dom_y = d3.extent( test.map(function(m){return m.total}) );
-      if(config.y.type === 'ordinal')
+      if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin))
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
 
@@ -165,11 +165,11 @@ chart.prototype.transformData = function(raw, mark){
   };
 
   function calcStartTotal(e){    
-    var axis = config.x.type === 'ordinal' ? 'y' : 'x'; 
+    var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x'; 
     e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
     var counter = 0;
     e.values.forEach(function(v,i){
-      if(config.x.type === 'ordinal'){
+      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
         v.values.y = v.values.y || 0;
         counter += +v.values.y;
         v.values.start = e.values[i-1] ? counter : v.values.y;

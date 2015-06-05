@@ -44,6 +44,6 @@ chart.prototype.draw = function(processed_data, raw_data){
   else
     d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, null);
 
-  context.resize();
   context.events.onDraw(this);
+  context.resize();
 }
