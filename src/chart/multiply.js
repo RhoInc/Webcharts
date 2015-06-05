@@ -22,12 +22,12 @@ chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
     if(order)
       split_vals = split_vals.sort(function(a,b){return d3.ascending(order.indexOf(a), order.indexOf(b))});
 
-    var master_chart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
+    var master_chart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
     master_chart.wrap.style("display", "none")
 
     split_vals.forEach(function(e){
       var split_data = data.filter(function(f){return f[split_by] === e});
-      var mchart = new webCharts[context.chart_type](context.wrap.node(), null, config, context.controls);
+      var mchart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
       mchart.events = context.events;
       mchart.legend = master_legend;
       mchart.multiplied = {col: split_by, value: e};
