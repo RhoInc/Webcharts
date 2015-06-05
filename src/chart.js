@@ -170,7 +170,6 @@ chart.prototype.drawBars = function(marks){
   
   var bar_groups = bar_supergroups.selectAll(".bar-group").data(function(d){return d.data}, function(d){return d.key});
   var old_bar_groups = bar_groups.exit();
-  console.log(old_bar_groups)
 
   if(config.x.type === "ordinal"){
     old_bar_groups.selectAll(".bar")
@@ -283,10 +282,71 @@ chart.prototype.drawBars = function(marks){
         return context.x(d.values.x)
       })
       .attr("height", function(d){ 
-        if(d.arrange !== 'grouped')
+        if(config.y.type === 'quantile')
+          return 20
+        else if(d.arrange !== 'grouped')
           return context.y.rangeBand()
         else
           return context.y.rangeBand()/d.subcats.length;
+      });
+
+    // bars.sort(function(a,b){
+    //   return mark.order ? d3.ascending(mark.order.indexOf(a.key), mark.order.indexOf(b.key)) : a-b
+    // });
+  }
+  else if(config.y.type === 'quantile'){
+    old_bar_groups.selectAll(".bar")
+      .transition()
+      .attr("x", context.x(0))
+      .attr("width", 0)
+    old_bar_groups.transition().remove();
+
+    var nu_bar_groups = bar_groups.enter().append("g").attr("class", function(d){return "bar-group "+d.key})
+    nu_bar_groups.append("title");
+
+    var bars = bar_groups.selectAll("rect").data(function(d){return d.values instanceof Array ? d.values : [d] }, function(d){return d.key});
+    bars.exit()
+      .transition()
+      .attr("x", context.x(0))
+      .attr("width", 0)
+      .remove();
+    bars.enter().append("rect")
+      .attr("class", function(d){return "wc-data-mark bar "+d.key})
+      .style("clip-path", "url(#"+context.clippath_id+")")
+      .attr("x", context.x(0))
+      .attr("width", 0);
+
+    bars
+      .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      .attr("fill", function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
+      .attr("fill-opacity", config.fill_opacity || .8);
+
+    bars.each(function(d){
+      var mark = d3.select(this.parentNode.parentNode).datum();
+      d.arrange = mark.split ? mark.arrange : null;
+      d.subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
+      var parent = d3.select(this.parentNode).datum();
+      var rangeSet = parent.key.split(',').map(function(m){return +m});
+      d.rangeLow = d3.min(rangeSet);
+      d.rangeHigh = d3.max(rangeSet);
+    });
+
+    bars.transition()
+      .attr("x", function(d){
+        if(d.arrange === 'stacked')
+          return context.x(d.values.start)
+        else{
+          return context.x(0)
+        }
+      })
+      .attr("y", function(d){
+        return context.y(d.rangeHigh)
+      })
+      .attr("width", function(d){
+        return context.x(d.values.x)
+      })
+      .attr("height", function(d){ 
+        return context.y(d.rangeLow) - context.y(d.rangeHigh);
       });
 
     // bars.sort(function(a,b){
@@ -1071,9 +1131,23 @@ chart.prototype.transformData = function(raw, mark){
   function makeNest(entries, sublevel){
     var dom_xs = [];
     var dom_ys = [];
-
     var this_nest = d3.nest()
-    this_nest.key(function(d){ return mark.per.map(function(m){return d[m]}).join(" "); })
+
+    if(config.x.type === 'quantile' || config.y.type === 'quantile'){
+      var xy = config.x.type === 'quantile' ? 'x' : 'y';
+      var quant = d3.scale.quantile()
+        .domain(d3.extent(entries.map(function(m){return +m[config[xy].column]})))
+        .range(d3.range(+config[xy].bin+1));
+
+      entries.forEach(function(e){
+        e['wc_bin'] = quant(e[config[xy].column])
+      });
+
+      this_nest.key(function(d){return quant.invertExtent(d['wc_bin']) })
+    }
+    else
+      this_nest.key(function(d){return mark.per.map(function(m){return d[m]}).join(" "); })
+
     if(sublevel){
       this_nest.key(function(d){return d[sublevel]})
       this_nest.sortKeys(function(a,b){
@@ -1189,8 +1263,8 @@ chart.prototype.transformData = function(raw, mark){
   //   var flex_dom_y = makeNest(filtered).dom_y;
   // }
   // else{
-    var flex_dom_x = current_nested.dom_x;
-    var flex_dom_y = current_nested.dom_y;
+  var flex_dom_x = current_nested.dom_x;
+  var flex_dom_y = current_nested.dom_y;
 
   if(mark.type === 'bar'){
     if(config.y.type === 'ordinal' && config.x.summary === 'count')
@@ -1207,11 +1281,13 @@ chart.prototype.transformData = function(raw, mark){
   var pre_y_dom = !context.filters.length ? flex_dom_y : y_behavior === "raw" ? raw_dom_y : nonall && y_behavior === "firstfilter" ? filt1_dom_y : flex_dom_y;
 
   var x_dom = config.x_dom ? config.x_dom : 
+    config.x.type === "ordinal" && config.x.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.x.column]})).values() :
     config.x.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.x.column]})).values() : 
     config.x_from0 ? [0, d3.max(pre_x_dom)] : 
     pre_x_dom;
 
   var y_dom =  config.y_dom ? config.y_dom : 
+    config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.y.column]})).values() :
     config.y.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.y.column]})).values() : 
     config.y_from0 ? [0, d3.max(pre_y_dom)] : 
     pre_y_dom;

@@ -82,9 +82,23 @@ chart.prototype.transformData = function(raw, mark){
   function makeNest(entries, sublevel){
     var dom_xs = [];
     var dom_ys = [];
-
     var this_nest = d3.nest()
-    this_nest.key(function(d){ return mark.per.map(function(m){return d[m]}).join(" "); })
+
+    if(config.x.type === 'quantile' || config.y.type === 'quantile'){
+      var xy = config.x.type === 'quantile' ? 'x' : 'y';
+      var quant = d3.scale.quantile()
+        .domain(d3.extent(entries.map(function(m){return +m[config[xy].column]})))
+        .range(d3.range(+config[xy].bin+1));
+
+      entries.forEach(function(e){
+        e['wc_bin'] = quant(e[config[xy].column])
+      });
+
+      this_nest.key(function(d){return quant.invertExtent(d['wc_bin']) })
+    }
+    else
+      this_nest.key(function(d){return mark.per.map(function(m){return d[m]}).join(" "); })
+
     if(sublevel){
       this_nest.key(function(d){return d[sublevel]})
       this_nest.sortKeys(function(a,b){
@@ -200,8 +214,8 @@ chart.prototype.transformData = function(raw, mark){
   //   var flex_dom_y = makeNest(filtered).dom_y;
   // }
   // else{
-    var flex_dom_x = current_nested.dom_x;
-    var flex_dom_y = current_nested.dom_y;
+  var flex_dom_x = current_nested.dom_x;
+  var flex_dom_y = current_nested.dom_y;
 
   if(mark.type === 'bar'){
     if(config.y.type === 'ordinal' && config.x.summary === 'count')
@@ -218,11 +232,13 @@ chart.prototype.transformData = function(raw, mark){
   var pre_y_dom = !context.filters.length ? flex_dom_y : y_behavior === "raw" ? raw_dom_y : nonall && y_behavior === "firstfilter" ? filt1_dom_y : flex_dom_y;
 
   var x_dom = config.x_dom ? config.x_dom : 
+    config.x.type === "ordinal" && config.x.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.x.column]})).values() :
     config.x.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.x.column]})).values() : 
     config.x_from0 ? [0, d3.max(pre_x_dom)] : 
     pre_x_dom;
 
   var y_dom =  config.y_dom ? config.y_dom : 
+    config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.y.column]})).values() :
     config.y.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.y.column]})).values() : 
     config.y_from0 ? [0, d3.max(pre_y_dom)] : 
     pre_y_dom;
