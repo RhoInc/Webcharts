@@ -82,9 +82,23 @@ chart.prototype.transformData = function(raw, mark){
   function makeNest(entries, sublevel){
     var dom_xs = [];
     var dom_ys = [];
-
     var this_nest = d3.nest()
-    this_nest.key(function(d){ return mark.per.map(function(m){return d[m]}).join(" "); })
+
+    if(config.x.type === 'quantile' || config.y.type === 'quantile'){
+      var xy = config.x.type === 'quantile' ? 'x' : 'y';
+      var quant = d3.scale.quantile()
+        .domain(d3.extent(entries.map(function(m){return +m[config[xy].column]})))
+        .range(d3.range(+config[xy].bin+1));
+
+      entries.forEach(function(e){
+        e['wc_bin'] = quant(e[config[xy].column])
+      });
+
+      this_nest.key(function(d){return quant.invertExtent(d['wc_bin']) })
+    }
+    else
+      this_nest.key(function(d){return mark.per.map(function(m){return d[m]}).join(" "); })
+
     if(sublevel){
       this_nest.key(function(d){return d[sublevel]})
       this_nest.sortKeys(function(a,b){
