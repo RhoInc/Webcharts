@@ -10,7 +10,8 @@ var scripts = [
   'src/version.js',
   'src/colors.js',
   'src/dataOps.js',
-  'src/chart.js'
+  'src/chart.js',
+  'src/webtable.js'
 ];
 
 var wrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){<%= contents %> return webCharts; }));';
