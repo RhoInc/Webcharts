@@ -81,7 +81,7 @@ chart.prototype.consolidateData = function(raw){
 }
 chart.prototype.draw = function(processed_data, raw_data){
   var context = this;
-  var raw = raw_data ? raw_data : context.raw_data;
+  var raw = raw_data ? raw_data : context.raw_data ? context.raw_data : [];
   var config = context.config;
   var aspect2 = 1/config.aspect;
   var data = context.chart_type === "timeline" ? context.transformData(raw) : context.consolidateData(raw);
@@ -995,6 +995,8 @@ chart.prototype.setColorScale = function(){
     .range(config.colors ? config.colors : webCharts.colors.nb);
 }
 chart.prototype.setDefaults = function(){
+	this.raw_data = this.raw_data || [];
+	
 	this.config.x = this.config.x || {};
 	this.config.y = this.config.y || {};
 	

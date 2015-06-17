@@ -1,6 +1,6 @@
 chart.prototype.draw = function(processed_data, raw_data){
   var context = this;
-  var raw = raw_data ? raw_data : context.raw_data;
+  var raw = raw_data ? raw_data : context.raw_data ? context.raw_data : [];
   var config = context.config;
   var aspect2 = 1/config.aspect;
   var data = context.chart_type === "timeline" ? context.transformData(raw) : context.consolidateData(raw);
