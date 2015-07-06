@@ -1315,7 +1315,7 @@ chart.prototype.transformData = function(raw, mark){
   if(context.filters.length){
     context.filters.forEach(function(e){
       filtered = filtered.filter(function(d){
-        return e.val !== "All" ? d[e.col] === e.val : d;
+        return e.val === "All" ? d : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
       })
     });
     //get domain for all non-All values of first filter
