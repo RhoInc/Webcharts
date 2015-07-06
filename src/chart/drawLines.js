@@ -23,13 +23,13 @@ chart.prototype.drawLines = function(marks){
   line_supergroups.enter().append('g').attr('class', 'line-supergroup');
   line_supergroups.exit().remove();
 
-  var line_grps = line_supergroups.selectAll(".wc-data-mark.line")
+  var line_grps = line_supergroups.selectAll(".line")
     .data(function(d){return d.data}, function(d){return d.key});
   line_grps.exit().remove();
-  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" wc-data-mark line"});
+  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" line"});
   nu_line_grps.append("path");
   nu_line_grps.append("title");
-  line_grps.select("path")
+  line_grps.select("path").attr("class", "wc-data-mark")
     .datum(function(d){return d.values})
     .attr("stroke", function(d){
       return colorScale(d[0].values.raw[0][config.color_by]);

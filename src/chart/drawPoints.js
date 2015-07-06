@@ -12,7 +12,7 @@ chart.prototype.drawPoints = function(marks){
   point_supergroups.enter().append('g').attr('class', 'point-supergroup');
   point_supergroups.exit().remove();
 
-  var points = point_supergroups.selectAll(".wc-data-mark.point")
+  var points = point_supergroups.selectAll(".point")
     .data(function(d){return d.data}, function(d){return d.key});
   var oldPoints = points.exit();
   oldPoints.selectAll("circle")
@@ -20,8 +20,8 @@ chart.prototype.drawPoints = function(marks){
     .attr("r", 0)
   oldPoints.transition().remove();
 
-  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" wc-data-mark point"});
-  nupoints.append("circle")
+  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" point"});
+  nupoints.append("circle").attr("class", "wc-data-mark")
     .attr("r", 0);
   nupoints.append("title");
   points.select("circle")

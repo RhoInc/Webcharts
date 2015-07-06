@@ -58,20 +58,42 @@ chart.prototype.consolidateData = function(raw){
   });
 
   if(context.config.x.type === 'ordinal'){
-    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
-    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
       context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    else if(context.config.y.type === 'time' && context.config.x.sort === 'earliest' ){
+      var dateFormat = d3.time.format(context.config.date_format);
+      context.x_dom = d3.nest()
+        .key(function(d){return d[context.config.x.column]})
+        .rollup(function(d){
+          return d.map(function(m){return m[context.config.y.column] }).filter(function(f){return f instanceof Date});
+        })
+        .entries(context.raw_data)
+        .sort(function(a,b){
+          return d3.min(b.values) - d3.min(a.values)
+        })
+        .map(function(m){return m.key});
+    }
     else
       context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
   }
   else
     context.x_dom = d3.extent(d3.merge(all_x));
   if(context.config.y.type === 'ordinal'){
-    // if( context.config.x.sort && context.config.x.sort === 'alphabetical-ascending' )
-    //   context.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
       context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+    else if( context.config.x.type === 'time' && context.config.y.sort === 'earliest' ){
+      var dateFormat = d3.time.format(context.config.date_format);
+      context.y_dom = d3.nest()
+        .key(function(d){return d[context.config.y.column]})
+        .rollup(function(d){
+          return d.map(function(m){return m[context.config.x.column] }).filter(function(f){return f instanceof Date});
+        })
+        .entries(context.raw_data)
+        .sort(function(a,b){
+          return d3.min(b.values) - d3.min(a.values)
+        })
+        .map(function(m){return m.key});
+    }
     else
       context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
   }
@@ -455,13 +477,13 @@ chart.prototype.drawLines = function(marks){
   line_supergroups.enter().append('g').attr('class', 'line-supergroup');
   line_supergroups.exit().remove();
 
-  var line_grps = line_supergroups.selectAll(".wc-data-mark.line")
+  var line_grps = line_supergroups.selectAll(".line")
     .data(function(d){return d.data}, function(d){return d.key});
   line_grps.exit().remove();
-  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" wc-data-mark line"});
+  var nu_line_grps = line_grps.enter().append("g").attr("class", function(d){return d.key+" line"});
   nu_line_grps.append("path");
   nu_line_grps.append("title");
-  line_grps.select("path")
+  line_grps.select("path").attr("class", "wc-data-mark")
     .datum(function(d){return d.values})
     .attr("stroke", function(d){
       return colorScale(d[0].values.raw[0][config.color_by]);
@@ -493,7 +515,7 @@ chart.prototype.drawPoints = function(marks){
   point_supergroups.enter().append('g').attr('class', 'point-supergroup');
   point_supergroups.exit().remove();
 
-  var points = point_supergroups.selectAll(".wc-data-mark.point")
+  var points = point_supergroups.selectAll(".point")
     .data(function(d){return d.data}, function(d){return d.key});
   var oldPoints = points.exit();
   oldPoints.selectAll("circle")
@@ -501,8 +523,8 @@ chart.prototype.drawPoints = function(marks){
     .attr("r", 0)
   oldPoints.transition().remove();
 
-  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" wc-data-mark point"});
-  nupoints.append("circle")
+  var nupoints = points.enter().append("g").attr("class", function(d){return d.key+" point"});
+  nupoints.append("circle").attr("class", "wc-data-mark")
     .attr("r", 0);
   nupoints.append("title");
   points.select("circle")
@@ -745,7 +767,6 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   var legend = context.legend || context.wrap.select(".legend")//.style("padding-left", context.margin.left+"px");
   scale = scale || context.colorScale;
   
-
   var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f !== undefined && f !== null}).map(function(m){
     return {label: m,  mark: config.legend.mark};
   });
@@ -763,9 +784,9 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   new_parts.append("svg").attr("class", "legend-color-block");
   
 
-  leg_parts.sort(function(a,b){
-    return d3.ascending(scale.domain().indexOf(a), scale.domain().indexOf(b));
-  });
+  // leg_parts.sort(function(a,b){
+  //   return d3.ascending(scale.domain().indexOf(a), scale.domain().indexOf(b));
+  // });
     
   leg_parts.selectAll(".legend-color-block").select(".legend-mark").remove();
   leg_parts.selectAll(".legend-color-block").each(function(e){
@@ -789,16 +810,15 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   });
 
   leg_parts.on("mouseover", function(d){
-    if(!config.highlight_on_legend)
+    if(!config.legend.highlight_on_hover)
       return;
     var fill = d3.select(this).select(".legend-mark").attr("fill");
-    console.log(fill)
     context.svg.selectAll(".wc-data-mark").attr("opacity", 0.1).filter(function(f){
       return d3.select(this).attr("fill") === fill || d3.select(this).attr("stroke") === fill;
     }).attr("opacity", 1)
   })
   .on("mouseout", function(d){
-    if(!config.highlight_on_legend)
+    if(!config.legend.highlight_on_hover)
       return;
      context.svg.selectAll(".wc-data-mark").attr("opacity", 1)
   })
@@ -988,7 +1008,7 @@ chart.prototype.setColorScale = function(){
   if(config.chunk_order)
     colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
   else
-  	colordom = colordom.sort(d3.ascending)
+  	colordom = colordom.sort(webCharts.dataOps.naturalSorter);
 
   this.colorScale = d3.scale.ordinal()
     .domain(colordom)

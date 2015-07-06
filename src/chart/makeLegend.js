@@ -19,7 +19,6 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   var legend = context.legend || context.wrap.select(".legend")//.style("padding-left", context.margin.left+"px");
   scale = scale || context.colorScale;
   
-
   var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f !== undefined && f !== null}).map(function(m){
     return {label: m,  mark: config.legend.mark};
   });
@@ -37,9 +36,9 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   new_parts.append("svg").attr("class", "legend-color-block");
   
 
-  leg_parts.sort(function(a,b){
-    return d3.ascending(scale.domain().indexOf(a), scale.domain().indexOf(b));
-  });
+  // leg_parts.sort(function(a,b){
+  //   return d3.ascending(scale.domain().indexOf(a), scale.domain().indexOf(b));
+  // });
     
   leg_parts.selectAll(".legend-color-block").select(".legend-mark").remove();
   leg_parts.selectAll(".legend-color-block").each(function(e){
@@ -63,16 +62,15 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   });
 
   leg_parts.on("mouseover", function(d){
-    if(!config.highlight_on_legend)
+    if(!config.legend.highlight_on_hover)
       return;
     var fill = d3.select(this).select(".legend-mark").attr("fill");
-    console.log(fill)
     context.svg.selectAll(".wc-data-mark").attr("opacity", 0.1).filter(function(f){
       return d3.select(this).attr("fill") === fill || d3.select(this).attr("stroke") === fill;
     }).attr("opacity", 1)
   })
   .on("mouseout", function(d){
-    if(!config.highlight_on_legend)
+    if(!config.legend.highlight_on_hover)
       return;
      context.svg.selectAll(".wc-data-mark").attr("opacity", 1)
   })
