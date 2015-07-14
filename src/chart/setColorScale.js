@@ -3,8 +3,8 @@ chart.prototype.setColorScale = function(){
   colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values()
     .filter(function(f){return f && f !== "undefined"});
 
-  if(config.chunk_order)
-    colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
+  if(config.legend.order)
+    colordom = colordom.sort(function(a,b){return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)); })
   else
   	colordom = colordom.sort(webCharts.dataOps.naturalSorter);
 

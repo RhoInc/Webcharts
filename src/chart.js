@@ -769,8 +769,8 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   
   var legend_data = custom_data || scale.domain().slice(0).filter(function(f){return f !== undefined && f !== null}).map(function(m){
     return {label: m,  mark: config.legend.mark};
-  });
-
+  })
+  
   legend.select(".legend-title").text(legend_label).style("display", legend_label ? "inline" : "none");
   
   var leg_parts = legend.selectAll(".legend-item")
@@ -784,9 +784,9 @@ chart.prototype.makeLegend = function(scale, label, custom_data){
   new_parts.append("svg").attr("class", "legend-color-block");
   
 
-  // leg_parts.sort(function(a,b){
-  //   return d3.ascending(scale.domain().indexOf(a), scale.domain().indexOf(b));
-  // });
+  if(config.legend.order)
+    leg_parts.sort(function(a,b){return d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label)); });
+
     
   leg_parts.selectAll(".legend-color-block").select(".legend-mark").remove();
   leg_parts.selectAll(".legend-color-block").each(function(e){
@@ -1005,8 +1005,8 @@ chart.prototype.setColorScale = function(){
   colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values()
     .filter(function(f){return f && f !== "undefined"});
 
-  if(config.chunk_order)
-    colordom = colordom.sort(function(a,b){return d3.ascending(config.chunk_order.indexOf(a), config.chunk_order.indexOf(b)); })
+  if(config.legend.order)
+    colordom = colordom.sort(function(a,b){return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)); })
   else
   	colordom = colordom.sort(webCharts.dataOps.naturalSorter);
 
@@ -1232,6 +1232,7 @@ chart.prototype.transformData = function(raw, mark){
       this_nest.sortKeys(function(a,b){
         return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
+          sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a,b) :
           d3.ascending(+a, +b);
       })

@@ -104,6 +104,7 @@ chart.prototype.transformData = function(raw, mark){
       this_nest.sortKeys(function(a,b){
         return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
+          sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a,b) :
           d3.ascending(+a, +b);
       })
