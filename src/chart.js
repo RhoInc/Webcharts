@@ -229,8 +229,13 @@ chart.prototype.drawBars = function(marks){
 
     bars.transition()
       .attr("x", function(d){
-        if(d.arrange !== 'grouped')
+        if(d.arrange === 'stacked')
           return context.x(d.values.x)
+        else if(d.arrange === 'nested'){
+          var position = d.subcats.indexOf(d.key);
+          var offset = position ? context.x.rangeBand()/(d.subcats.length*(position)*.5)/2 : context.x.rangeBand()/2
+          return context.x(d.values.x) + context.x.rangeBand()/2 - offset
+        }
         else{
           var position = d.subcats.indexOf(d.key);
           return context.x(d.values.x)+context.x.rangeBand()/d.subcats.length*position;
@@ -243,8 +248,12 @@ chart.prototype.drawBars = function(marks){
           return context.y(d.values.start);
       })
       .attr("width", function(d){
-        if(d.arrange !== 'grouped')
-          return context.x.rangeBand()
+        if(d.arrange === 'stacked')
+          return context.x.rangeBand();
+        else if(d.arrange === 'nested'){
+          var position = d.subcats.indexOf(d.key);
+          return position ? context.x.rangeBand()/(d.subcats.length*(position)*.5) : context.x.rangeBand();
+        }
         else
           return context.x.rangeBand()/d.subcats.length;
       })
@@ -306,8 +315,12 @@ chart.prototype.drawBars = function(marks){
       .attr("height", function(d){ 
         if(config.y.type === 'quantile')
           return 20
-        else if(d.arrange !== 'grouped')
+        else if(d.arrange === 'stacked')
           return context.y.rangeBand()
+        else if(d.arrange === 'nested'){
+          var position = d.subcats.indexOf(d.key);
+          return position ? context.y.rangeBand()/(sibs.length*(position)*.75) : context.y.rangeBand();
+        }
         else
           return context.y.rangeBand()/d.subcats.length;
       });
