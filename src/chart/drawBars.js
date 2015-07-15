@@ -50,7 +50,7 @@ chart.prototype.drawBars = function(marks){
 
     bars.transition()
       .attr("x", function(d){
-        if(d.arrange === 'stacked')
+        if(!d.arrange || d.arrange === 'stacked')
           return context.x(d.values.x)
         else if(d.arrange === 'nested'){
           var position = d.subcats.indexOf(d.key);

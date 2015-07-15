@@ -7,6 +7,7 @@ chart.prototype.transformData = function(raw, mark){
     mark.type === 'bar' && mark.split ? mark.split : 
     null;
   var dateConvert = d3.time.format(config.date_format);
+  var totalOrder;
   // context.raw_data = raw;
 
   if(config.lengthen_columns)
@@ -162,6 +163,11 @@ chart.prototype.transformData = function(raw, mark){
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
 
+    if(config.x.sort === 'total-ascending' || config.y.sort === 'total-ascending')
+      totalOrder = test.sort(function(a,b){return d3.ascending(a.total, b.total) }).map(function(m){return m.key});
+    else if(config.x.sort === 'total-descending' || config.y.sort === 'total-descending')
+      totalOrder = test.sort(function(a,b){return d3.ascending(a.total, b.total) }).map(function(m){return m.key}).reverse();
+
     return {nested: test, dom_x: dom_x, dom_y: dom_y};
   };
 
@@ -201,7 +207,7 @@ chart.prototype.transformData = function(raw, mark){
       }); 
     };
   };
-  // console.log(filt1_ys)
+
   var filt1_dom_x = d3.extent( d3.merge(filt1_xs) );
   var filt1_dom_y = d3.extent( d3.merge(filt1_ys) );
 
@@ -252,6 +258,11 @@ chart.prototype.transformData = function(raw, mark){
     y_dom[0] = config.y.domain[0]
   if(config.y.domain && (config.y.domain[1] || config.y.domain[1] === 0) )
     y_dom[1] = config.y.domain[1]
+
+  if(config.x.type === 'ordinal')
+    config.x.order = totalOrder;
+  if(config.y.type === 'ordinal')
+    config.y.order = totalOrder;
 
   context.current_data = current_nested.nested;
   // context.events.onDatatransform(context); 

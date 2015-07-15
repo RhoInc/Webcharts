@@ -35,8 +35,14 @@ chart.prototype.consolidateData = function(raw){
         })
         .map(function(m){return m.key});
     }
-    else
+    else if( context.config.x.order ){
+      context.x_dom = d3.set(d3.merge(all_x)).values()
+        .sort(function(a,b){return d3.ascending(context.config.x.order.indexOf(a), context.config.x.order.indexOf(b)) });
+    }
+    else if( !context.config.x.sort || context.config.x.sort === 'alphabetical-ascending' )
       context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+    else
+      context.x_dom = d3.set(d3.merge(all_x)).values();
   }
   else
     context.x_dom = d3.extent(d3.merge(all_x));
@@ -56,10 +62,15 @@ chart.prototype.consolidateData = function(raw){
         })
         .map(function(m){return m.key});
     }
-    else
+    else if( context.config.y.order ){
+      context.y_dom = d3.set(d3.merge(all_y)).values()
+        .sort(function(a,b){return d3.ascending(context.config.y.order.indexOf(a), context.config.y.order.indexOf(b)) });
+    }
+    else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-ascending' )
       context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+
   }
   else
     context.y_dom = d3.extent(d3.merge(all_y));
-  
+
 }
