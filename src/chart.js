@@ -106,7 +106,8 @@ chart.prototype.consolidateData = function(raw){
     }
     else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-ascending' )
       context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
-
+    else
+      context.y_dom = d3.set(d3.merge(all_y)).values();
   }
   else
     context.y_dom = d3.extent(d3.merge(all_y));
