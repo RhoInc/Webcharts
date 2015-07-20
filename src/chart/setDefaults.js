@@ -26,8 +26,8 @@ chart.prototype.setDefaults = function(){
 	if(this.config.y_label)
 		this.config.y.label = this.config.y_label;
 
-	this.config.x.label = typeof this.config.x.label === 'string' ? this.config.x.label : this.config.x.column;
-	this.config.y.label = typeof this.config.y.label === 'string' ? this.config.y.label : this.config.y.column;
+	this.config.x.label = this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
+	this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
 
 	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
 	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
@@ -37,7 +37,7 @@ chart.prototype.setDefaults = function(){
 
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
-	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
+	this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
 	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}]; 
 
 	this.config.reference_regions = this.config.reference_regions || [];

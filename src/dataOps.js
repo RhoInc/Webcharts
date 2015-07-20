@@ -1,15 +1,15 @@
 webCharts.dataOps = {isCont: function(data, varname){
-    var arr = d3.set(data.map(function(m){return m[varname]})).values();
-    var test = true;
-    arr.forEach(function(e){
-      if(!+e && e !== "." && +e !== 0)
-        test = false;
-    });
-    if(!test || arr.length < 4)
-      return false;
-    else
-      return true;
-  },lengthenRaw: function(data, columns){
+  var arr = d3.set(data.map(function(m){return m[varname]})).values();
+  var test = true;
+  arr.forEach(function(e){
+    if(!+e && e !== "." && +e !== 0)
+      test = false;
+  });
+  if(!test || arr.length < 4)
+    return false;
+  else
+    return true;
+},lengthenRaw: function(data, columns){
     var my_data = [];
     data.forEach(function(e){
       columns.forEach(function(g){
@@ -94,10 +94,12 @@ webCharts.dataOps = {isCont: function(data, varname){
   return Math.sqrt(s / (n - 1)) / Math.sqrt(n);
 },summarize: function(vals, operation){
   var nvals = vals.filter(function(f){return +f || +f === 0}).map(function(m){return +m});
-  if(operation === "cumulative")
+  if(operation === 'cumulative')
     return null;
-  var stat = operation || "mean";
-  var mathed = stat === "count" ? vals.length : d3[stat](nvals);
+  var stat = operation || 'mean';
+  var mathed = stat === 'count' ? vals.length : 
+  	stat === 'percent' ? vals.length :
+  	d3[stat](nvals);
 
   return mathed;
 }}

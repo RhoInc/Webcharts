@@ -17,7 +17,7 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
   else
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 
-  var y_format = config.y.format ? config.y.format : type === "percent" ? "0%" : ".0f";
+  var y_format = config.y.format ? config.y.format : config.y.summary === "percent" ? "0%" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var yAxis = d3.svg.axis()
     .scale(y)

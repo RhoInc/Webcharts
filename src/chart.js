@@ -77,7 +77,7 @@ chart.prototype.consolidateData = function(raw){
       context.x_dom = d3.set(d3.merge(all_x)).values()
         .sort(function(a,b){return d3.ascending(context.config.x.order.indexOf(a), context.config.x.order.indexOf(b)) });
     }
-    else if( !context.config.x.sort || context.config.x.sort === 'alphabetical-ascending' )
+    else if( !context.config.x.sort || context.config.x.sort === 'alphabetical-descending' )
       context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     else
       context.x_dom = d3.set(d3.merge(all_x)).values();
@@ -104,11 +104,14 @@ chart.prototype.consolidateData = function(raw){
       context.y_dom = d3.set(d3.merge(all_y)).values()
         .sort(function(a,b){return d3.ascending(context.config.y.order.indexOf(a), context.config.y.order.indexOf(b)) });
     }
-    else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-ascending' )
+    else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-descending' ){
       context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    }
     else
       context.y_dom = d3.set(d3.merge(all_y)).values();
   }
+  else if(context.config.y.summary === 'percent')
+    context.y_dom = [0,1];
   else
     context.y_dom = d3.extent(d3.merge(all_y));
 
@@ -1067,8 +1070,8 @@ chart.prototype.setDefaults = function(){
 	if(this.config.y_label)
 		this.config.y.label = this.config.y_label;
 
-	this.config.x.label = typeof this.config.x.label === 'string' ? this.config.x.label : this.config.x.column;
-	this.config.y.label = typeof this.config.y.label === 'string' ? this.config.y.label : this.config.y.column;
+	this.config.x.label = this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
+	this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
 
 	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
 	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
@@ -1078,7 +1081,7 @@ chart.prototype.setDefaults = function(){
 
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
-	this.config.legend.label = typeof this.config.legend.label === 'string' ? this.config.legend.label : this.config.color_by;
+	this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
 	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}]; 
 
 	this.config.reference_regions = this.config.reference_regions || [];
@@ -1202,12 +1205,12 @@ chart.prototype.transformData = function(raw, mark){
 
   if( (config.x.type === "linear" || config.x.type === "log") && config.x.column){
     raw = raw.filter(function(f){
-      return config.x.summary !== 'count' ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
+      return (config.x.summary !== 'count' && config.x.summary !== 'percent') ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
     });
   };
   if( (config.y.type === "linear" || config.y.type === "log") && config.y.column){
     raw = raw.filter(function(f){
-      return config.y.summary !== 'count' ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
+      return (config.y.summary !== 'count' && config.y.summary !== 'percent')  ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
     });
   };
 
@@ -1304,6 +1307,7 @@ chart.prototype.transformData = function(raw, mark){
       return obj;
     })
     var test = this_nest.entries(entries);
+    console.log(test)
 
     var dom_x = d3.extent( d3.merge(dom_xs) );
     var dom_y = d3.extent( d3.merge(dom_ys) );
@@ -1315,6 +1319,9 @@ chart.prototype.transformData = function(raw, mark){
       if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin))
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
+    else if(sublevel && config.y.summary === 'percent'){
+      test.forEach(calcPercents)
+    }
 
     if(config.x.sort === 'total-ascending' || config.y.sort === 'total-ascending')
       totalOrder = test.sort(function(a,b){return d3.ascending(a.total, b.total) }).map(function(m){return m.key});
@@ -1324,18 +1331,26 @@ chart.prototype.transformData = function(raw, mark){
     return {nested: test, dom_x: dom_x, dom_y: dom_y};
   };
 
+  function calcPercents(e){
+    var max = d3.sum(e.values.map(function(m){return +m.values.y}));
+    e.values.forEach(function(v){
+      v.values.y = v.values.y/max
+    });
+  };
+
   function calcStartTotal(e){    
     var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x'; 
     e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
+    console.log(e.total)
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
-        v.values.y = v.values.y || 0;
+        v.values.y = config.y.summary === 'percent' ? v.values.y/e.total : v.values.y || 0;
         counter += +v.values.y;
         v.values.start = e.values[i-1] ? counter : v.values.y;
       }
       else{
-        v.values.x = v.values.x || 0;
+        v.values.x = config.x.summary === 'percent' ? v.values.x/e.total : v.values.x || 0;
         v.values.start = counter;
         counter += +v.values.x;
       }
@@ -1426,27 +1441,11 @@ chart.prototype.updateDataMarks = function(){
   var context = this;
   var config = context.config;
 
-  // context.marks.filter(function(f){return f.type === 'circle'}).forEach(function(mark){
-  // 	context.drawPoints(mark);
-  // })
-  // context.marks.filter(function(f){return f.type === 'line'}).forEach(function(mark){
-  // 	context.drawLines(mark);
-  // })
-  // context.marks.filter(function(f){return f.type === 'bar'}).forEach(function(mark){
-  // 	context.drawBars(mark);
-  // })
   context.drawPoints( context.marks.filter(function(f){return f.type === 'circle'}));
   context.drawLines( context.marks.filter(function(f){return f.type === 'line'}));
   context.drawBars( context.marks.filter(function(f){return f.type === 'bar'}));
-  
-  // context.drawPoints(mark);
-
-  // context.drawLines(mark);
-
-  // context.drawBars(mark);
 
   return this;
-
 }
 chart.prototype.updateRefLines = function(){
   //define/draw reference lines, if any
@@ -1537,7 +1536,7 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
   else
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 
-  var y_format = config.y.format ? config.y.format : type === "percent" ? "0%" : ".0f";
+  var y_format = config.y.format ? config.y.format : config.y.summary === "percent" ? "0%" : ".0f";
   var tick_count = Math.max(2, Math.min(max_range/80,8));
   var yAxis = d3.svg.axis()
     .scale(y)

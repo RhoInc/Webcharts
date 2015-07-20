@@ -49,12 +49,12 @@ chart.prototype.transformData = function(raw, mark){
 
   if( (config.x.type === "linear" || config.x.type === "log") && config.x.column){
     raw = raw.filter(function(f){
-      return config.x.summary !== 'count' ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
+      return (config.x.summary !== 'count' && config.x.summary !== 'percent') ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
     });
   };
   if( (config.y.type === "linear" || config.y.type === "log") && config.y.column){
     raw = raw.filter(function(f){
-      return config.y.summary !== 'count' ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
+      return (config.y.summary !== 'count' && config.y.summary !== 'percent')  ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
     });
   };
 
@@ -151,6 +151,7 @@ chart.prototype.transformData = function(raw, mark){
       return obj;
     })
     var test = this_nest.entries(entries);
+    console.log(test)
 
     var dom_x = d3.extent( d3.merge(dom_xs) );
     var dom_y = d3.extent( d3.merge(dom_ys) );
@@ -162,6 +163,9 @@ chart.prototype.transformData = function(raw, mark){
       if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin))
         dom_x = d3.extent( test.map(function(m){return m.total}) );
     }
+    else if(sublevel && config.y.summary === 'percent'){
+      test.forEach(calcPercents)
+    }
 
     if(config.x.sort === 'total-ascending' || config.y.sort === 'total-ascending')
       totalOrder = test.sort(function(a,b){return d3.ascending(a.total, b.total) }).map(function(m){return m.key});
@@ -171,18 +175,26 @@ chart.prototype.transformData = function(raw, mark){
     return {nested: test, dom_x: dom_x, dom_y: dom_y};
   };
 
+  function calcPercents(e){
+    var max = d3.sum(e.values.map(function(m){return +m.values.y}));
+    e.values.forEach(function(v){
+      v.values.y = v.values.y/max
+    });
+  };
+
   function calcStartTotal(e){    
     var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x'; 
     e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
+    console.log(e.total)
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
-        v.values.y = v.values.y || 0;
+        v.values.y = config.y.summary === 'percent' ? v.values.y/e.total : v.values.y || 0;
         counter += +v.values.y;
         v.values.start = e.values[i-1] ? counter : v.values.y;
       }
       else{
-        v.values.x = v.values.x || 0;
+        v.values.x = config.x.summary === 'percent' ? v.values.x/e.total : v.values.x || 0;
         v.values.start = counter;
         counter += +v.values.x;
       }

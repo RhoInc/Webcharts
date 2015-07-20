@@ -39,7 +39,7 @@ chart.prototype.consolidateData = function(raw){
       context.x_dom = d3.set(d3.merge(all_x)).values()
         .sort(function(a,b){return d3.ascending(context.config.x.order.indexOf(a), context.config.x.order.indexOf(b)) });
     }
-    else if( !context.config.x.sort || context.config.x.sort === 'alphabetical-ascending' )
+    else if( !context.config.x.sort || context.config.x.sort === 'alphabetical-descending' )
       context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     else
       context.x_dom = d3.set(d3.merge(all_x)).values();
@@ -66,11 +66,14 @@ chart.prototype.consolidateData = function(raw){
       context.y_dom = d3.set(d3.merge(all_y)).values()
         .sort(function(a,b){return d3.ascending(context.config.y.order.indexOf(a), context.config.y.order.indexOf(b)) });
     }
-    else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-ascending' )
+    else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-descending' ){
       context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    }
     else
       context.y_dom = d3.set(d3.merge(all_y)).values();
   }
+  else if(context.config.y.summary === 'percent')
+    context.y_dom = [0,1];
   else
     context.y_dom = d3.extent(d3.merge(all_y));
 
