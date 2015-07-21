@@ -13,7 +13,7 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
 
   y.domain(domain);
   if(type === "ordinal")
-    y.rangeBands([+max_range, 0], config.padding, config.outer_pad); 
+    y.rangeBands([+max_range, 0], config.padding, config.outer_pad);
   else
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 

@@ -45,7 +45,19 @@ chart.prototype.drawPoints = function(marks){
 
   points.each(function(d){
     var mark = d3.select(this.parentNode).datum();
+    d.tooltip = mark.tooltip;
     d3.select(this).select('circle').attr(mark.attributes)
+  });
+
+  points.select('title').text(function(d){
+    var tt = d.tooltip || '';
+    var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
+    var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+    return tt.replace(/\$x/g, xformat(d.values.x))
+      .replace(/\$y/g, yformat(d.values.y))
+      .replace(/\[(.+?)\]/g, function(str, orig){
+        return d.values.raw[0][orig];
+      });
   });
     // .attr(mark.attributes);
   // points.select("circle")

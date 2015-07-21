@@ -3,8 +3,8 @@ chart.prototype.transformData = function(raw, mark){
   var config = this.config;
   var x_behavior = config.x.behavior || "raw";
   var y_behavior = config.y.behavior || "raw";
-  var sublevel = mark.type === "line" ? config.x.column : 
-    mark.type === 'bar' && mark.split ? mark.split : 
+  var sublevel = mark.type === "line" ? config.x.column :
+    mark.type === 'bar' && mark.split ? mark.split :
     null;
   var dateConvert = d3.time.format(config.date_format);
   var totalOrder;
@@ -19,7 +19,7 @@ chart.prototype.transformData = function(raw, mark){
   if(config.initial_filter){
     raw = raw.filter(function(f){
       return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1
-    }) 
+    })
   };
 
   //make sure data has x and y values
@@ -30,7 +30,7 @@ chart.prototype.transformData = function(raw, mark){
 
   if(config.x.type === "time"){
     raw = raw.filter(function(f){
-      return f[config.x.column] instanceof Date ? f[config.x.column] : dateConvert.parse(f[config.x.column]) 
+      return f[config.x.column] instanceof Date ? f[config.x.column] : dateConvert.parse(f[config.x.column])
     })
     raw.forEach(function(e){
       e[config.x.column] = e[config.x.column] instanceof Date ? e[config.x.column] :
@@ -39,7 +39,7 @@ chart.prototype.transformData = function(raw, mark){
   };
   if(config.y.type === "time"){
     raw = raw.filter(function(f){
-      return f[config.y.column] instanceof Date ? f[config.y.column] : dateConvert.parse(f[config.y.column]) 
+      return f[config.y.column] instanceof Date ? f[config.y.column] : dateConvert.parse(f[config.y.column])
     })
     raw.forEach(function(e){
       e[config.y.column] = e[config.y.column] instanceof Date ? e[config.y.column] :
@@ -66,13 +66,13 @@ chart.prototype.transformData = function(raw, mark){
     raw_nest = makeNest(raw);
   }
 
-  var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] : 
+  var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] :
     config.x.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.x.column]}) ).values().filter(function(f){return f}) :
     mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.x.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
     d3.extent( raw.map(function(m){return +m[config.x.column]}).filter(function(f){return +f}) );
 
-  var raw_dom_y = config.y.summary === "cumulative" ? [0, raw.length] : 
+  var raw_dom_y = config.y.summary === "cumulative" ? [0, raw.length] :
     config.y.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.y.column]}) ).values().filter(function(f){return f}) :
     mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.y.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
@@ -103,7 +103,7 @@ chart.prototype.transformData = function(raw, mark){
     if(sublevel){
       this_nest.key(function(d){return d[sublevel]})
       this_nest.sortKeys(function(a,b){
-        return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
+        return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) :
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
           sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a,b) :
@@ -120,26 +120,26 @@ chart.prototype.transformData = function(raw, mark){
       obj.x_q25 = config.error_bars && config.y.type === "ordinal" ? d3.quantile(x_vals, 0.25) : obj.x;
       obj.x_q75 = config.error_bars && config.y.type === "ordinal" ? d3.quantile(x_vals, 0.75) : obj.x;
       obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
-      obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y; 
+      obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x ]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y ]);
 
       if(config.y.summary === "cumulative"){
         var interm = entries.filter(function(f){
-            return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : 
+            return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) :
               +f[config.x.column] <= +r[0][config.x.column]
           });
         if(mark.per.length)
           interm = interm.filter(function(f){return f[mark.per[0]] === r[0][mark.per[0]] })
 
-        var cumul = config.x.type === 'time' ? interm.length : 
+        var cumul = config.x.type === 'time' ? interm.length :
           d3.sum( interm.map(function(m){return +m[config.y.column] || +m[config.y.column] === 0 ? +m[config.y.column] : 1}) );
         dom_ys.push([cumul]);
         obj.y = cumul;
       };
       if(config.x.summary === "cumulative"){
         var interm = entries.filter(function(f){
-            return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : 
+            return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) :
               +f[config.y.column] <= +r[0][config.y.column]
           });
         if(mark.per.length)
@@ -151,7 +151,6 @@ chart.prototype.transformData = function(raw, mark){
       return obj;
     })
     var test = this_nest.entries(entries);
-    console.log(test)
 
     var dom_x = d3.extent( d3.merge(dom_xs) );
     var dom_y = d3.extent( d3.merge(dom_ys) );
@@ -182,10 +181,9 @@ chart.prototype.transformData = function(raw, mark){
     });
   };
 
-  function calcStartTotal(e){    
-    var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x'; 
+  function calcStartTotal(e){
+    var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x';
     e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
-    console.log(e.total)
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
@@ -216,7 +214,7 @@ chart.prototype.transformData = function(raw, mark){
         var filt_nested = makeNest(perfilter, sublevel);
         filt1_xs.push(filt_nested.dom_x);
         filt1_ys.push(filt_nested.dom_y);
-      }); 
+      });
     };
   };
 
@@ -244,22 +242,22 @@ chart.prototype.transformData = function(raw, mark){
   }
 
   //several criteria must be met in order to use the 'firstfilter' domain
-  var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" && 
+  var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" &&
     context.filters.slice(1).filter(function(f){return f.val === "All"}).length === context.filters.length-1 );
 
   var pre_x_dom = !context.filters.length ? flex_dom_x : x_behavior === "raw" ? raw_dom_x : nonall && x_behavior === "firstfilter" ? filt1_dom_x : flex_dom_x;
   var pre_y_dom = !context.filters.length ? flex_dom_y : y_behavior === "raw" ? raw_dom_y : nonall && y_behavior === "firstfilter" ? filt1_dom_y : flex_dom_y;
 
-  var x_dom = config.x_dom ? config.x_dom : 
+  var x_dom = config.x_dom ? config.x_dom :
     config.x.type === "ordinal" && config.x.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.x.column]})).values() :
-    config.x.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.x.column]})).values() : 
-    config.x_from0 ? [0, d3.max(pre_x_dom)] : 
+    config.x.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.x.column]})).values() :
+    config.x_from0 ? [0, d3.max(pre_x_dom)] :
     pre_x_dom;
 
-  var y_dom =  config.y_dom ? config.y_dom : 
+  var y_dom =  config.y_dom ? config.y_dom :
     config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.y.column]})).values() :
-    config.y.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.y.column]})).values() : 
-    config.y_from0 ? [0, d3.max(pre_y_dom)] : 
+    config.y.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.y.column]})).values() :
+    config.y_from0 ? [0, d3.max(pre_y_dom)] :
     pre_y_dom;
 
   if(config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0) )
@@ -277,7 +275,7 @@ chart.prototype.transformData = function(raw, mark){
     config.y.order = totalOrder;
 
   context.current_data = current_nested.nested;
-  // context.events.onDatatransform(context); 
+  // context.events.onDatatransform(context);
 
   return {data: current_nested.nested, x_dom: x_dom, y_dom: y_dom};
 }

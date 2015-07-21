@@ -1,9 +1,9 @@
 chart.prototype.setDefaults = function(){
 	this.raw_data = this.raw_data || [];
-	
+
 	this.config.x = this.config.x || {};
 	this.config.y = this.config.y || {};
-	
+
 	//backwards compatibility with x/y settings
 	if(this.config.x_type)
 		this.config.x.type = this.config.x_type;
@@ -38,7 +38,7 @@ chart.prototype.setDefaults = function(){
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
 	this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
-	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}]; 
+	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
 
 	this.config.reference_regions = this.config.reference_regions || [];
 

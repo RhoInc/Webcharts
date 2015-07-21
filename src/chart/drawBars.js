@@ -10,7 +10,7 @@ chart.prototype.drawBars = function(marks){
   var bar_supergroups = context.svg.selectAll(".bar-supergroup").data(marks, function(d){return d.per.join('-')});
   bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
   bar_supergroups.exit().remove();
-  
+
   var bar_groups = bar_supergroups.selectAll(".bar-group").data(function(d){return d.data}, function(d){return d.key});
   var old_bar_groups = bar_groups.exit();
 
@@ -34,7 +34,8 @@ chart.prototype.drawBars = function(marks){
       .attr("class", function(d){return "wc-data-mark bar "+d.key})
       .style("clip-path", "url(#"+context.clippath_id+")")
       .attr("y", context.y(0))
-      .attr("height", 0);
+      .attr("height", 0)
+      .append('title');
 
     bars
       .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
@@ -43,9 +44,21 @@ chart.prototype.drawBars = function(marks){
 
     bars.each(function(d){
       var mark = d3.select(this.parentNode.parentNode).datum();
+      d.tooltip = mark.tooltip;
       d.arrange = mark.split ? mark.arrange : null;
       d.subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
       d3.select(this).attr(mark.attributes)
+    });
+
+    bars.select('title').text(function(d){
+      var tt = d.tooltip || '';
+      var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
+      var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+      return tt.replace(/\$x/g, xformat(d.values.x))
+        .replace(/\$y/g, yformat(d.values.y))
+        .replace(/\[(.+?)\]/g, function(str, orig){
+          return d.values.raw[0][orig];
+        });
     });
 
     bars.transition()
@@ -133,7 +146,7 @@ chart.prototype.drawBars = function(marks){
       .attr("width", function(d){
         return context.x(d.values.x)
       })
-      .attr("height", function(d){ 
+      .attr("height", function(d){
         if(config.y.type === 'quantile')
           return 20
         else if(d.arrange === 'stacked')
@@ -255,7 +268,7 @@ chart.prototype.drawBars = function(marks){
       .attr("width", function(d){
         return context.x(d.values.x)
       })
-      .attr("height", function(d){ 
+      .attr("height", function(d){
         return context.y(d.rangeLow) - context.y(d.rangeHigh);
       });
 

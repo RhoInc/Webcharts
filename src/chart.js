@@ -42,7 +42,7 @@ chart.prototype.consolidateData = function(raw){
   var all_x = [];
   var all_y = [];
   context.marks = [];
-  
+
   this.setDefaults();
 
   this.config.marks.forEach(function(e){
@@ -54,7 +54,7 @@ chart.prototype.consolidateData = function(raw){
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
-    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, attributes: e.attributes})
+    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes})
   });
 
   if(context.config.x.type === 'ordinal'){
@@ -116,6 +116,7 @@ chart.prototype.consolidateData = function(raw){
     context.y_dom = d3.extent(d3.merge(all_y));
 
 }
+
 chart.prototype.draw = function(processed_data, raw_data){
   var context = this;
   var raw = raw_data ? raw_data : context.raw_data ? context.raw_data : [];
@@ -204,7 +205,7 @@ chart.prototype.drawBars = function(marks){
   var bar_supergroups = context.svg.selectAll(".bar-supergroup").data(marks, function(d){return d.per.join('-')});
   bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
   bar_supergroups.exit().remove();
-  
+
   var bar_groups = bar_supergroups.selectAll(".bar-group").data(function(d){return d.data}, function(d){return d.key});
   var old_bar_groups = bar_groups.exit();
 
@@ -228,7 +229,8 @@ chart.prototype.drawBars = function(marks){
       .attr("class", function(d){return "wc-data-mark bar "+d.key})
       .style("clip-path", "url(#"+context.clippath_id+")")
       .attr("y", context.y(0))
-      .attr("height", 0);
+      .attr("height", 0)
+      .append('title');
 
     bars
       .attr("stroke",  function(d){return context.colorScale(d.values.raw[0][config.color_by]) })
@@ -237,9 +239,21 @@ chart.prototype.drawBars = function(marks){
 
     bars.each(function(d){
       var mark = d3.select(this.parentNode.parentNode).datum();
+      d.tooltip = mark.tooltip;
       d.arrange = mark.split ? mark.arrange : null;
       d.subcats = d3.set(context.raw_data.map(function(m){return m[mark.split]})).values();
       d3.select(this).attr(mark.attributes)
+    });
+
+    bars.select('title').text(function(d){
+      var tt = d.tooltip || '';
+      var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
+      var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+      return tt.replace(/\$x/g, xformat(d.values.x))
+        .replace(/\$y/g, yformat(d.values.y))
+        .replace(/\[(.+?)\]/g, function(str, orig){
+          return d.values.raw[0][orig];
+        });
     });
 
     bars.transition()
@@ -327,7 +341,7 @@ chart.prototype.drawBars = function(marks){
       .attr("width", function(d){
         return context.x(d.values.x)
       })
-      .attr("height", function(d){ 
+      .attr("height", function(d){
         if(config.y.type === 'quantile')
           return 20
         else if(d.arrange === 'stacked')
@@ -449,7 +463,7 @@ chart.prototype.drawBars = function(marks){
       .attr("width", function(d){
         return context.x(d.values.x)
       })
-      .attr("height", function(d){ 
+      .attr("height", function(d){
         return context.y(d.rangeLow) - context.y(d.rangeHigh);
       });
 
@@ -463,6 +477,7 @@ chart.prototype.drawBars = function(marks){
     bar_supergroups.remove();
   }
 }
+
 chart.prototype.drawGridlines = function(){
   var svg = this.svg;
   var gridlines = this.config.gridlines// === "none" ? null : config.gridlines;
@@ -489,16 +504,16 @@ chart.prototype.drawLines = function(marks){
 
   var line = d3.svg.line()
     .interpolate(config.interpolate)
-    .x(function(d){ 
-      return config.x.type === "linear" ? context.x(+d.values.x) : 
+    .x(function(d){
+      return config.x.type === "linear" ? context.x(+d.values.x) :
         config.x.type === "time" ? context.x(new Date(d.values.x)) :
-        context.x(d.values.x) + context.x.rangeBand()/2 
-    }) 
-    .y(function(d){ 
-      return config.y.type === "linear" ? context.y(+d.values.y) : 
+        context.x(d.values.x) + context.x.rangeBand()/2
+    })
+    .y(function(d){
+      return config.y.type === "linear" ? context.y(+d.values.y) :
         config.y.type === "time" ? context.y(new Date(d.values.y)) :
-        context.y(d.values.y) + context.y.rangeBand()/2 
-    }) 
+        context.y(d.values.y) + context.y.rangeBand()/2
+    })
 
   // var line_grps = svg.selectAll(mark.per.length ? ".line."+mark.per : ".line")
   var line_supergroups = context.svg.selectAll(".line-supergroup").data(marks, function(d){return d.per.join('-')});
@@ -521,14 +536,27 @@ chart.prototype.drawLines = function(marks){
     .attr("fill", "none")
     .transition()
     .attr("d", line);
-  
+
   line_grps.each(function(d){
     var mark = d3.select(this.parentNode).datum();
+    d.tooltip = mark.tooltip;
     d3.select(this).select('path').attr(mark.attributes)
+  });
+
+  line_grps.select('title').text(function(d){
+    var tt = d.tooltip || '';
+    var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
+    var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+    return tt.replace(/\$x/g, xformat(d.values.x))
+      .replace(/\$y/g, yformat(d.values.y))
+      .replace(/\[(.+?)\]/g, function(str, orig){
+        return d.values[0].values.raw[0][orig];
+      });
   });
 
   return line_grps;
 }
+
 chart.prototype.drawPoints = function(marks){
   var context = this;
   var config = this.config;
@@ -576,7 +604,19 @@ chart.prototype.drawPoints = function(marks){
 
   points.each(function(d){
     var mark = d3.select(this.parentNode).datum();
+    d.tooltip = mark.tooltip;
     d3.select(this).select('circle').attr(mark.attributes)
+  });
+
+  points.select('title').text(function(d){
+    var tt = d.tooltip || '';
+    var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
+    var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+    return tt.replace(/\$x/g, xformat(d.values.x))
+      .replace(/\$y/g, yformat(d.values.y))
+      .replace(/\[(.+?)\]/g, function(str, orig){
+        return d.values.raw[0][orig];
+      });
   });
     // .attr(mark.attributes);
   // points.select("circle")
@@ -602,6 +642,7 @@ chart.prototype.drawPoints = function(marks){
 
   return points;
 }
+
 chart.prototype.drawRects = function(rect_data, container, class_match){
   var context = this;
   var config = this.config;
@@ -1044,10 +1085,10 @@ chart.prototype.setColorScale = function(){
 }
 chart.prototype.setDefaults = function(){
 	this.raw_data = this.raw_data || [];
-	
+
 	this.config.x = this.config.x || {};
 	this.config.y = this.config.y || {};
-	
+
 	//backwards compatibility with x/y settings
 	if(this.config.x_type)
 		this.config.x.type = this.config.x_type;
@@ -1082,12 +1123,13 @@ chart.prototype.setDefaults = function(){
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
 	this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
-	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}]; 
+	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
 
 	this.config.reference_regions = this.config.reference_regions || [];
 
 	this.config.date_format = this.config.date_format || '%x';
 };
+
 chart.prototype.setMargins = function(){
   var context = this;
   var x_ticks = context.xAxis.tickFormat() ? context.x.domain().map(function(m){return context.xAxis.tickFormat()(m)}) : context.x.domain();
@@ -1159,8 +1201,8 @@ chart.prototype.transformData = function(raw, mark){
   var config = this.config;
   var x_behavior = config.x.behavior || "raw";
   var y_behavior = config.y.behavior || "raw";
-  var sublevel = mark.type === "line" ? config.x.column : 
-    mark.type === 'bar' && mark.split ? mark.split : 
+  var sublevel = mark.type === "line" ? config.x.column :
+    mark.type === 'bar' && mark.split ? mark.split :
     null;
   var dateConvert = d3.time.format(config.date_format);
   var totalOrder;
@@ -1175,7 +1217,7 @@ chart.prototype.transformData = function(raw, mark){
   if(config.initial_filter){
     raw = raw.filter(function(f){
       return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1
-    }) 
+    })
   };
 
   //make sure data has x and y values
@@ -1186,7 +1228,7 @@ chart.prototype.transformData = function(raw, mark){
 
   if(config.x.type === "time"){
     raw = raw.filter(function(f){
-      return f[config.x.column] instanceof Date ? f[config.x.column] : dateConvert.parse(f[config.x.column]) 
+      return f[config.x.column] instanceof Date ? f[config.x.column] : dateConvert.parse(f[config.x.column])
     })
     raw.forEach(function(e){
       e[config.x.column] = e[config.x.column] instanceof Date ? e[config.x.column] :
@@ -1195,7 +1237,7 @@ chart.prototype.transformData = function(raw, mark){
   };
   if(config.y.type === "time"){
     raw = raw.filter(function(f){
-      return f[config.y.column] instanceof Date ? f[config.y.column] : dateConvert.parse(f[config.y.column]) 
+      return f[config.y.column] instanceof Date ? f[config.y.column] : dateConvert.parse(f[config.y.column])
     })
     raw.forEach(function(e){
       e[config.y.column] = e[config.y.column] instanceof Date ? e[config.y.column] :
@@ -1222,13 +1264,13 @@ chart.prototype.transformData = function(raw, mark){
     raw_nest = makeNest(raw);
   }
 
-  var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] : 
+  var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] :
     config.x.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.x.column]}) ).values().filter(function(f){return f}) :
     mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.x.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
     d3.extent( raw.map(function(m){return +m[config.x.column]}).filter(function(f){return +f}) );
 
-  var raw_dom_y = config.y.summary === "cumulative" ? [0, raw.length] : 
+  var raw_dom_y = config.y.summary === "cumulative" ? [0, raw.length] :
     config.y.type === "ordinal" ? d3.set( raw.map(function(m){return m[config.y.column]}) ).values().filter(function(f){return f}) :
     mark.split && mark.arrange !== "stacked" ? d3.extent( d3.merge( raw_nest.nested.map(function(m){return m.values.map(function(p){return p.values.raw.length}) }) ) ) :
     config.y.summary === "count" ? d3.extent( raw_nest.nested.map(function(m){return m.values.raw.length}) ) :
@@ -1259,7 +1301,7 @@ chart.prototype.transformData = function(raw, mark){
     if(sublevel){
       this_nest.key(function(d){return d[sublevel]})
       this_nest.sortKeys(function(a,b){
-        return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : 
+        return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) :
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
           sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a,b) :
@@ -1276,26 +1318,26 @@ chart.prototype.transformData = function(raw, mark){
       obj.x_q25 = config.error_bars && config.y.type === "ordinal" ? d3.quantile(x_vals, 0.25) : obj.x;
       obj.x_q75 = config.error_bars && config.y.type === "ordinal" ? d3.quantile(x_vals, 0.75) : obj.x;
       obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
-      obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y; 
+      obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x ]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y ]);
 
       if(config.y.summary === "cumulative"){
         var interm = entries.filter(function(f){
-            return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : 
+            return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) :
               +f[config.x.column] <= +r[0][config.x.column]
           });
         if(mark.per.length)
           interm = interm.filter(function(f){return f[mark.per[0]] === r[0][mark.per[0]] })
 
-        var cumul = config.x.type === 'time' ? interm.length : 
+        var cumul = config.x.type === 'time' ? interm.length :
           d3.sum( interm.map(function(m){return +m[config.y.column] || +m[config.y.column] === 0 ? +m[config.y.column] : 1}) );
         dom_ys.push([cumul]);
         obj.y = cumul;
       };
       if(config.x.summary === "cumulative"){
         var interm = entries.filter(function(f){
-            return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : 
+            return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) :
               +f[config.y.column] <= +r[0][config.y.column]
           });
         if(mark.per.length)
@@ -1307,7 +1349,6 @@ chart.prototype.transformData = function(raw, mark){
       return obj;
     })
     var test = this_nest.entries(entries);
-    console.log(test)
 
     var dom_x = d3.extent( d3.merge(dom_xs) );
     var dom_y = d3.extent( d3.merge(dom_ys) );
@@ -1338,10 +1379,9 @@ chart.prototype.transformData = function(raw, mark){
     });
   };
 
-  function calcStartTotal(e){    
-    var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x'; 
+  function calcStartTotal(e){
+    var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x';
     e.total = d3.sum(e.values.map(function(m){return +m.values[axis]}));
-    console.log(e.total)
     var counter = 0;
     e.values.forEach(function(v,i){
       if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
@@ -1372,7 +1412,7 @@ chart.prototype.transformData = function(raw, mark){
         var filt_nested = makeNest(perfilter, sublevel);
         filt1_xs.push(filt_nested.dom_x);
         filt1_ys.push(filt_nested.dom_y);
-      }); 
+      });
     };
   };
 
@@ -1400,22 +1440,22 @@ chart.prototype.transformData = function(raw, mark){
   }
 
   //several criteria must be met in order to use the 'firstfilter' domain
-  var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" && 
+  var nonall = Boolean( context.filters.length && context.filters[0].val !== "All" &&
     context.filters.slice(1).filter(function(f){return f.val === "All"}).length === context.filters.length-1 );
 
   var pre_x_dom = !context.filters.length ? flex_dom_x : x_behavior === "raw" ? raw_dom_x : nonall && x_behavior === "firstfilter" ? filt1_dom_x : flex_dom_x;
   var pre_y_dom = !context.filters.length ? flex_dom_y : y_behavior === "raw" ? raw_dom_y : nonall && y_behavior === "firstfilter" ? filt1_dom_y : flex_dom_y;
 
-  var x_dom = config.x_dom ? config.x_dom : 
+  var x_dom = config.x_dom ? config.x_dom :
     config.x.type === "ordinal" && config.x.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.x.column]})).values() :
-    config.x.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.x.column]})).values() : 
-    config.x_from0 ? [0, d3.max(pre_x_dom)] : 
+    config.x.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.x.column]})).values() :
+    config.x_from0 ? [0, d3.max(pre_x_dom)] :
     pre_x_dom;
 
-  var y_dom =  config.y_dom ? config.y_dom : 
+  var y_dom =  config.y_dom ? config.y_dom :
     config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function(m){return m[config.y.column]})).values() :
-    config.y.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.y.column]})).values() : 
-    config.y_from0 ? [0, d3.max(pre_y_dom)] : 
+    config.y.type === "ordinal" ? d3.set(raw.map(function(m){return m[config.y.column]})).values() :
+    config.y_from0 ? [0, d3.max(pre_y_dom)] :
     pre_y_dom;
 
   if(config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0) )
@@ -1433,10 +1473,11 @@ chart.prototype.transformData = function(raw, mark){
     config.y.order = totalOrder;
 
   context.current_data = current_nested.nested;
-  // context.events.onDatatransform(context); 
+  // context.events.onDatatransform(context);
 
   return {data: current_nested.nested, x_dom: x_dom, y_dom: y_dom};
 }
+
 chart.prototype.updateDataMarks = function(){
   var context = this;
   var config = context.config;
@@ -1532,7 +1573,7 @@ chart.prototype.yScaleAxis = function(type, max_range, domain){
 
   y.domain(domain);
   if(type === "ordinal")
-    y.rangeBands([+max_range, 0], config.padding, config.outer_pad); 
+    y.rangeBands([+max_range, 0], config.padding, config.outer_pad);
   else
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 

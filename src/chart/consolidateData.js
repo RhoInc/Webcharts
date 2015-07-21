@@ -4,7 +4,7 @@ chart.prototype.consolidateData = function(raw){
   var all_x = [];
   var all_y = [];
   context.marks = [];
-  
+
   this.setDefaults();
 
   this.config.marks.forEach(function(e){
@@ -16,7 +16,7 @@ chart.prototype.consolidateData = function(raw){
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
-    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, attributes: e.attributes})
+    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes})
   });
 
   if(context.config.x.type === 'ordinal'){
