@@ -11,34 +11,30 @@
 */
 class Chart {
 
-	constructor(element, filepath, config, controls){
+	constructor(element = 'body', filepath, config = {}, controls){
 		/** @member {string} */
-		this.element = element;
+		this.div = element;
 		/** @member {string} */
 		this.filepath = filepath;
-		/** @member {string} */
-		this.div = element ? element : "body";
+		/** @member {Object} */
+		this.config = config;
+		/** @member {Controls} */
+		this.controls = controls;
 		/** @member {Array} */
 		this.filters = [];
 		/** @member {Array} */
 		this.required_cols = [];
 		/** @member {Array} */
 		this.marks = [];
-		/** @member {Object} */
-		this.config = config || {};
-		/** @member {Controls} */
-		this.controls = controls;
 		/** @member {d3.selection} */
-		this.wrap = d3.select(this.div).append("div");
-
-		config.date_format = config.date_format || "%x";
+		this.wrap = d3.select(this.div).append('div');
 
 		/** @member {Object} */
 		this.events = {
-			onLayout: function(){},
-			onDatatransform: function(){},
-			onDraw: function(){},
-			onResize: function(){}
+			onLayout(){},
+			onDatatransform(){},
+			onDraw(){},
+			onResize(){}
 		};
 		/**run the supplied callback function at the specified time in the Chart lifecycle
 			*@method
@@ -46,12 +42,27 @@ class Chart {
 			*@param {function} callback - function to run
 		*/
 		this.on = function(event, callback){
-			var possible_events = ["layout", "datatransform", "draw", "resize"];
+			let possible_events = ['layout', 'datatransform', 'draw', 'resize'];
 			if(possible_events.indexOf(event) < 0)
 				return;
-			callback = callback || function(){};
-			this.events["on"+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+			if(callback)
+				this.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
 		};
 
+		this.checkRequired = checkRequired;
+		this.consolidateData = consolidateData;
+		this.draw = draw;
+		this.drawArea = drawArea;
+		this.drawBars = drawBars;
+		this.drawGridlines = drawGridlines;
+		this.drawLines = drawLines;
+		this.drawPoints = drawPoints;
+		this.drawRects = drawRects;
+		this.drawSimpleLines = drawSimpleLines;
+		this.init = init;
+		this.layout = layout;
+		this.setDefaults = setDefaults;
+		this.updateDataMarks = updateDataMarks;
 	}
+
 }

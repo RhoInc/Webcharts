@@ -1,10 +1,10 @@
-Chart.prototype.setDefaults = function(){
+export function setDefaults(){
 	this.raw_data = this.raw_data || [];
 
 	this.config.x = this.config.x || {};
 	this.config.y = this.config.y || {};
 
-	//backwards compatibility with x/y settings
+	//backwards compatibility with x/y settings -- is this needed?
 	if(this.config.x_type)
 		this.config.x.type = this.config.x_type;
 	if(this.config.x_vals && this.config.x_vals.col)
@@ -43,4 +43,12 @@ Chart.prototype.setDefaults = function(){
 	this.config.reference_regions = this.config.reference_regions || [];
 
 	this.config.date_format = this.config.date_format || '%x';
-};
+
+	this.config.padding = this.config.padding !== 'undefined' ? this.config.padding : 0.3;
+	this.config.outer_pad = this.config.outer_pad !== 'undefined' ? this.config.outer_pad : 0.1;
+
+	this.config.resizable = this.config.resizable !== 'undefined' ? this.config.resizable : true;
+
+	this.config.aspect = this.config.aspect || 1.33;
+
+}

@@ -3,6 +3,7 @@
 
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
+var browserify = require('browserify');
 
 var scripts = [
   'src/version.js',
@@ -25,6 +26,13 @@ gulp.task('wrapper', ['chart-bundle', 'dataops-bundle'], function() {
     .pipe(gulp.dest('build'));
 });
 
+gulp.task('test', ['chart-bundle'], function(){
+
+  return gulp.src('src/chart.js')
+    .pipe($.browserify())
+    .pipe(gulp.dest('test'));
+});
+
 gulp.task('dc-wrapper', ['controls-bundle'], function() {
   return gulp.src(['src/dc-version.js', 'src/controls.js'])
     // .pipe($.sourcemaps.init())
@@ -44,20 +52,26 @@ gulp.task('dataops-bundle', function() {
 
 gulp.task('chart-bundle', function(){
   return gulp.src(['src/chart/main.js', 'src/chart/*.js'])
+    .pipe($.babel({
+      modules: 'ignore'
+    }))
     .pipe($.concat('chart.js'))
+    // .pipe($.babel())
     .pipe(gulp.dest('src')) ;
 });
 
 gulp.task('controls-bundle', function(){
   return gulp.src(['src/controls/main.js', 'src/controls/*.js'])
-    .pipe($.sourcemaps.init())
+    // .pipe($.sourcemaps.init())
+    .pipe($.babel())
     .pipe($.concat('controls.js'))
-    .pipe($.sourcemaps.write('/maps'))
+    // .pipe($.sourcemaps.write('/maps'))
     .pipe(gulp.dest('src')) ;
 });
 
 gulp.task('watch', function(){
   // gulp.watch(scripts, ['wrapper']);
   gulp.watch('src/chart/*', ['wrapper']);
+  gulp.watch('src/controls/*', ['dc-wrapper']);
   gulp.watch(['src/dc-version.js', 'src/controls.js', 'src/controls/*'], ['dc-wrapper']);
 });

@@ -1,7 +1,7 @@
 Chart.prototype.resize = function(){
   var context = this;
   var config = this.config;
-  config.aspect = config.aspect || 1.33;
+  // config.aspect = config.aspect || 1.33;
   var aspect2 = 1/config.aspect;
   var div_width = parseInt(context.wrap.style('width'));
   var max_width = config.max_width ? config.max_width : div_width;

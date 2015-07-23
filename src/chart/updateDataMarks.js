@@ -1,10 +1,5 @@
-Chart.prototype.updateDataMarks = function(){
-  var context = this;
-  var config = context.config;
-
-  context.drawPoints( context.marks.filter(function(f){return f.type === 'circle'}));
-  context.drawLines( context.marks.filter(function(f){return f.type === 'line'}));
-  context.drawBars( context.marks.filter(function(f){return f.type === 'bar'}));
-
-  return this;
+export function updateDataMarks(){
+  this.drawPoints( this.marks.filter(f => f.type === 'circle') );
+  this.drawLines( this.marks.filter(f => f.type === 'line') );
+  this.drawBars( this.marks.filter(f => f.type === 'bar') );
 }

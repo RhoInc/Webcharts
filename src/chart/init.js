@@ -1,7 +1,7 @@
 /**initialize Chart
 *@param {Array} [data=parsed data from file] - an array of objects representing the raw data to be passed to the chart
 */
-Chart.prototype.init = function(data){
+export function init(data){
     var context = this;
     var controls = context.controls;
     var config = context.config;

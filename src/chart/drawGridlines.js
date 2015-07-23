@@ -1,17 +1,15 @@
-Chart.prototype.drawGridlines = function(){
-  var svg = this.svg;
-  var gridlines = this.config.gridlines// === "none" ? null : config.gridlines;
-  this.wrap.classed("gridlines", gridlines);
-  if(gridlines){
-    svg.select(".y.axis").selectAll(".tick line").attr("x1", 0);
-    svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
-    if(gridlines === "y" || gridlines === "xy")
-      svg.select(".y.axis").selectAll(".tick line").attr("x1", this.plot_width);
-    if(gridlines === "x" || gridlines === "xy")
-      svg.select(".x.axis").selectAll(".tick line").attr("y1", -this.plot_height);
+export function drawGridlines(){
+  this.wrap.classed('gridlines', this.config.gridlines);
+  if(this.config.gridlines){
+    this.svg.select('.y.axis').selectAll('.tick line').attr('x1', 0);
+    this.svg.select('.x.axis').selectAll('.tick line').attr('y1', 0);
+    if(this.config.gridlines === 'y' || this.config.gridlines === 'xy')
+      this.svg.select('.y.axis').selectAll('.tick line').attr('x1', this.plot_width);
+    if(this.config.gridlines === 'x' || this.config.gridlines === 'xy')
+      this.svg.select('.x.axis').selectAll('.tick line').attr('y1', -this.plot_height);
   }
   else{
-    svg.select(".y.axis").selectAll(".tick line").attr("x1", 0);
-    svg.select(".x.axis").selectAll(".tick line").attr("y1", 0);
-  } 
-}
+    this.svg.select('.y.axis').selectAll('.tick line').attr('x1', 0);
+    this.svg.select('.x.axis').selectAll('.tick line').attr('y1', 0);
+  }
+};

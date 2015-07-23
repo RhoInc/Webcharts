@@ -1,4 +1,4 @@
-Chart.prototype.consolidateData = function(raw){
+export function consolidateData(raw){
   // var this = this;
   let config = this.config;
   let all_data = [];
@@ -75,4 +75,4 @@ Chart.prototype.consolidateData = function(raw){
   else
     this.y_dom = d3.extent(d3.merge(all_y));
 
-};
+}
