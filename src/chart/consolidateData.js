@@ -1,80 +1,78 @@
 Chart.prototype.consolidateData = function(raw){
-  var context = this;
-  var all_data = [];
-  var all_x = [];
-  var all_y = [];
-  context.marks = [];
+  // var this = this;
+  let config = this.config;
+  let all_data = [];
+  let all_x = [];
+  let all_y = [];
+  // this.marks = [];
 
   this.setDefaults();
 
-  this.config.marks.forEach(function(e){
+  config.marks.forEach((e,i) => {
     if(e.type !== 'bar'){
       e.arrange = null;
       e.split = null;
     }
-    var mark_info = e.per ? context.transformData(raw, e) : {data: [], x_dom: [], y_dom: []};
+    let mark_info = e.per ? this.transformData(raw, e) : {data: [], x_dom: [], y_dom: []};
+
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
-    context.marks.push({type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes})
+    this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes};
   });
 
-  if(context.config.x.type === 'ordinal'){
-    if( context.config.x.sort && context.config.x.sort === 'alphabetical-descending' )
-      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
-    else if(context.config.y.type === 'time' && context.config.x.sort === 'earliest' ){
-      var dateFormat = d3.time.format(context.config.date_format);
-      context.x_dom = d3.nest()
-        .key(function(d){return d[context.config.x.column]})
-        .rollup(function(d){
-          return d.map(function(m){return m[context.config.y.column] }).filter(function(f){return f instanceof Date});
+  if(config.x.type === 'ordinal'){
+    if( config.x.sort && config.x.sort === 'alphabetical-descending' )
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    else if(config.y.type === 'time' && config.x.sort === 'earliest' ){
+      var dateFormat = d3.time.format(config.date_format);
+      this.x_dom = d3.nest()
+        .key(d => d[config.x.column] )
+        .rollup(d =>{
+          return d.map(m => m[config.y.column] ).filter(f => f instanceof Date);
         })
-        .entries(context.raw_data)
-        .sort(function(a,b){
-          return d3.min(b.values) - d3.min(a.values)
-        })
-        .map(function(m){return m.key});
+        .entries(this.raw_data)
+        .sort((a,b) => d3.min(b.values) - d3.min(a.values) )
+        .map(m => m.key);
     }
-    else if( context.config.x.order ){
-      context.x_dom = d3.set(d3.merge(all_x)).values()
-        .sort(function(a,b){return d3.ascending(context.config.x.order.indexOf(a), context.config.x.order.indexOf(b)) });
+    else if( config.x.order ){
+      this.x_dom = d3.set(d3.merge(all_x)).values()
+        .sort((a,b) => d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) );
     }
-    else if( !context.config.x.sort || context.config.x.sort === 'alphabetical-descending' )
-      context.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+    else if( !config.x.sort || config.x.sort === 'alphabetical-descending' )
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     else
-      context.x_dom = d3.set(d3.merge(all_x)).values();
+      this.x_dom = d3.set(d3.merge(all_x)).values();
   }
   else
-    context.x_dom = d3.extent(d3.merge(all_x));
-  if(context.config.y.type === 'ordinal'){
-    if( context.config.y.sort && context.config.y.sort === 'alphabetical-ascending' )
-      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
-    else if( context.config.x.type === 'time' && context.config.y.sort === 'earliest' ){
-      var dateFormat = d3.time.format(context.config.date_format);
-      context.y_dom = d3.nest()
-        .key(function(d){return d[context.config.y.column]})
-        .rollup(function(d){
-          return d.map(function(m){return m[context.config.x.column] }).filter(function(f){return f instanceof Date});
+    this.x_dom = d3.extent(d3.merge(all_x));
+  if(config.y.type === 'ordinal'){
+    if( config.y.sort && config.y.sort === 'alphabetical-ascending' )
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+    else if( config.x.type === 'time' && config.y.sort === 'earliest' ){
+      var dateFormat = d3.time.format(config.date_format);
+      this.y_dom = d3.nest()
+        .key(d => d[config.y.column] )
+        .rollup(d => {
+          return d.map(m => m[config.x.column] ).filter(f => f instanceof Date );
         })
-        .entries(context.raw_data)
-        .sort(function(a,b){
-          return d3.min(b.values) - d3.min(a.values)
-        })
-        .map(function(m){return m.key});
+        .entries(this.raw_data)
+        .sort((a,b) => d3.min(b.values) - d3.min(a.values) )
+        .map(m => m.key);
     }
-    else if( context.config.y.order ){
-      context.y_dom = d3.set(d3.merge(all_y)).values()
-        .sort(function(a,b){return d3.ascending(context.config.y.order.indexOf(a), context.config.y.order.indexOf(b)) });
+    else if( config.y.order ){
+      this.y_dom = d3.set(d3.merge(all_y)).values()
+        .sort((a,b) => d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b)) );
     }
-    else if( !context.config.y.sort || context.config.y.sort === 'alphabetical-descending' ){
-      context.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    else if( !config.y.sort || config.y.sort === 'alphabetical-descending' ){
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
     }
     else
-      context.y_dom = d3.set(d3.merge(all_y)).values();
+      this.y_dom = d3.set(d3.merge(all_y)).values();
   }
-  else if(context.config.y.summary === 'percent')
-    context.y_dom = [0,1];
+  else if(config.y.summary === 'percent')
+    this.y_dom = [0,1];
   else
-    context.y_dom = d3.extent(d3.merge(all_y));
+    this.y_dom = d3.extent(d3.merge(all_y));
 
-}
+};

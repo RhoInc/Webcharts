@@ -1,7 +1,7 @@
 webCharts.webTable = function(element, filepath, config, controls, callback){
   this.chart_type = "webTable";
   this.required_cols = config.cols || [];
-  chart.call(this, element, filepath, config, controls, callback);
+  Chart.call(this, element, filepath, config, controls, callback);
 
   return this;
 };//webTable

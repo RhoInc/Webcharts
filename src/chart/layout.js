@@ -11,7 +11,7 @@ Chart.prototype.layout = function(){
         "xlink": "http://www.w3.org/1999/xlink"
      })
     .append("g");
-  var svg = context.svg;  
+  var svg = context.svg;
   var defs = svg.append("defs");
   defs.append("pattern").attr({
     "id": "diagonal-stripes",
