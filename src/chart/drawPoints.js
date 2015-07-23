@@ -1,4 +1,4 @@
-chart.prototype.drawPoints = function(marks){
+Chart.prototype.drawPoints = function(marks){
   var context = this;
   var config = this.config;
   var svg = this.svg;

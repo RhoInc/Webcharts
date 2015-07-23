@@ -1,4 +1,4 @@
-chart.prototype.drawLines = function(marks){
+Chart.prototype.drawLines = function(marks){
   var context = this;
   var config = this.config;
   var svg = this.svg;

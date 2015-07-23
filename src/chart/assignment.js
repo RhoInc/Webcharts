@@ -1,1 +1,1 @@
-webCharts.Chart = chart;
+webCharts.Chart = Chart;

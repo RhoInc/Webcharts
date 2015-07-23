@@ -1,4 +1,4 @@
-standardError: function(vals){
+webCharts.dataOps.standardError = function(vals){
   if(!vals)
     return null;
   var n = +vals.length;
@@ -12,7 +12,7 @@ standardError: function(vals){
   while (++i < n) {
     var v = vals[i] - mean;
     s += v * v;
-  };
+  }
 
   return Math.sqrt(s / (n - 1)) / Math.sqrt(n);
-}
+};

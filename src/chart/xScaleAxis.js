@@ -1,4 +1,4 @@
-chart.prototype.xScaleAxis = function(type, max_range, domain){
+Chart.prototype.xScaleAxis = function(type, max_range, domain){
   //domain = type === "percent" ? [0,1] : domain;
   var config = this.config;
 

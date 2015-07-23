@@ -1,4 +1,4 @@
-chart.prototype.updateDataMarks = function(){
+Chart.prototype.updateDataMarks = function(){
   var context = this;
   var config = context.config;
 

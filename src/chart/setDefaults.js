@@ -1,4 +1,4 @@
-chart.prototype.setDefaults = function(){
+Chart.prototype.setDefaults = function(){
 	this.raw_data = this.raw_data || [];
 
 	this.config.x = this.config.x || {};

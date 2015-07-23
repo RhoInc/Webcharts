@@ -1,4 +1,4 @@
-chart.prototype.drawArea = function(area_drawer, area_data, datum_accessor, class_match, bind_accessor, attr_accessor){
+Chart.prototype.drawArea = function(area_drawer, area_data, datum_accessor, class_match, bind_accessor, attr_accessor){
   var context = this;
   var config = this.config;
   var svg = this.svg;

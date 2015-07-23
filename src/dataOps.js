@@ -1,4 +1,6 @@
-webCharts.dataOps = {isCont: function(data, varname){
+webCharts.dataOps = {};
+
+webCharts.dataOps.isCont = function(data, varname){
   var arr = d3.set(data.map(function(m){return m[varname]})).values();
   var test = true;
   arr.forEach(function(e){
@@ -9,7 +11,9 @@ webCharts.dataOps = {isCont: function(data, varname){
     return false;
   else
     return true;
-},lengthenRaw: function(data, columns){
+};
+
+webCharts.dataOps.lengthenRaw = function(data, columns){
     var my_data = [];
     data.forEach(function(e){
       columns.forEach(function(g){
@@ -17,13 +21,15 @@ webCharts.dataOps = {isCont: function(data, varname){
         obj.wc_category = g;
         obj.wc_value = e[g];
         for(x in e){
-          obj[x] = e[x]
+          obj[x] = e[x];
         }
-        my_data.push(obj)
-      })
+        my_data.push(obj);
+      });
     });
     return my_data;
-  },linearRegression: function(x,y){
+  };
+
+webCharts.dataOps.linearRegression = function(x,y){
   //http://stackoverflow.com/questions/20507536/d3-js-linear-regression
   var lr = {};
   var n = y.length;
@@ -39,17 +45,19 @@ webCharts.dataOps = {isCont: function(data, varname){
     sum_xy += (x[i]*y[i]);
     sum_xx += (x[i]*x[i]);
     sum_yy += (y[i]*y[i]);
-  } 
+  }
 
-  lr['slope'] = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
-  lr['intercept'] = (sum_y - lr.slope * sum_x)/n;
-  lr['r2'] = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+  lr.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+  lr.intercept = (sum_y - lr.slope * sum_x)/n;
+  lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
 
   return lr;
-},naturalSorter: function(a, b){
+};
+
+webCharts.dataOps.naturalSorter = function(a, b){
   //http://www.davekoelle.com/files/alphanum.js
   function chunkify(t) {
-    var tz = new Array();
+    var tz = [];
     var x = 0, y = -1, n = 0, i, j;
 
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
@@ -75,7 +83,9 @@ webCharts.dataOps = {isCont: function(data, varname){
     }
   }
   return aa.length - bb.length;
-},standardError: function(vals){
+};
+
+webCharts.dataOps.standardError = function(vals){
   if(!vals)
     return null;
   var n = +vals.length;
@@ -89,17 +99,19 @@ webCharts.dataOps = {isCont: function(data, varname){
   while (++i < n) {
     var v = vals[i] - mean;
     s += v * v;
-  };
+  }
 
   return Math.sqrt(s / (n - 1)) / Math.sqrt(n);
-},summarize: function(vals, operation){
-  var nvals = vals.filter(function(f){return +f || +f === 0}).map(function(m){return +m});
+};
+
+webCharts.dataOps.summarize = function(vals, operation){
+  var nvals = vals.filter(function(f){return +f || +f === 0; }).map(function(m){return +m; });
   if(operation === 'cumulative')
     return null;
   var stat = operation || 'mean';
-  var mathed = stat === 'count' ? vals.length : 
+  var mathed = stat === 'count' ? vals.length :
   	stat === 'percent' ? vals.length :
   	d3[stat](nvals);
 
   return mathed;
-}}
+};

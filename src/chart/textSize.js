@@ -1,4 +1,4 @@
-chart.prototype.textSize = function(width,height){
+Chart.prototype.textSize = function(width,height){
   var context = this
   var font_size = "14px";
   var point_size = 4;

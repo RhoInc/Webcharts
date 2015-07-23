@@ -12,11 +12,11 @@ var scripts = [
   'src/webtable.js'
 ];
 
-var wcWrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){<%= contents %>\n return webCharts; }));';
+var wcWrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){\n<%= contents %>\n return webCharts; }));';
 
 var dcWrapper = '(function (root, factory) { if(typeof define === "function" && define.amd) { define(["webCharts"], factory); } else if(typeof module === "object" && module.exports) {module.exports = factory(require("webCharts")); } else { root.dataControls = factory(root.webCharts); } }(this, function(webCharts){<%= contents %>\n return dataControls; }));';
 
-gulp.task('wrapper', ['chart-bundle', 'data-ops-wrap'], function() {
+gulp.task('wrapper', ['chart-bundle', 'dataops-bundle'], function() {
   return gulp.src(scripts)
     .pipe($.concat('webcharts.js'))
     .pipe($.wrap(wcWrapper))
@@ -35,10 +35,10 @@ gulp.task('dc-wrapper', ['controls-bundle'], function() {
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('data-ops-wrap', function() {
-  return gulp.src('src/dataOps/*.js')
-    .pipe($.concat('dataOps.js', {newLine: ','}))
-    .pipe($.wrap('webCharts.dataOps = {<%= contents %>}'))
+gulp.task('dataops-bundle', function() {
+  return gulp.src(['src/dataOps/main.js','src/dataOps/*.js'])
+    .pipe($.concat('dataOps.js'))
+    // .pipe($.wrap('webCharts.dataOps = {<%= contents %>}'))
     .pipe(gulp.dest('src'));
 });
 
@@ -49,7 +49,7 @@ gulp.task('chart-bundle', function(){
 });
 
 gulp.task('controls-bundle', function(){
-  return gulp.src(['src/datacontrols/main.js', 'src/datacontrols/*.js'])
+  return gulp.src(['src/controls/main.js', 'src/controls/*.js'])
     .pipe($.sourcemaps.init())
     .pipe($.concat('controls.js'))
     .pipe($.sourcemaps.write('/maps'))
@@ -59,5 +59,5 @@ gulp.task('controls-bundle', function(){
 gulp.task('watch', function(){
   // gulp.watch(scripts, ['wrapper']);
   gulp.watch('src/chart/*', ['wrapper']);
-  gulp.watch(['src/dc-version.js', 'src/datacontrols.js', 'src/datacontrols/*'], ['dc-wrapper']);
+  gulp.watch(['src/dc-version.js', 'src/controls.js', 'src/controls/*'], ['dc-wrapper']);
 });

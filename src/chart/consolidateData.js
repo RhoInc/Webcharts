@@ -1,4 +1,4 @@
-chart.prototype.consolidateData = function(raw){
+Chart.prototype.consolidateData = function(raw){
   var context = this;
   var all_data = [];
   var all_x = [];

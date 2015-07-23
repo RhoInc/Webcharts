@@ -1,4 +1,4 @@
-chart.prototype.setColorScale = function(){
+Chart.prototype.setColorScale = function(){
   var config = this.config;
   colordom = config.color_dom || d3.set(this.raw_data.map(function(m){return m[config.color_by]})).values()
     .filter(function(f){return f && f !== "undefined"});

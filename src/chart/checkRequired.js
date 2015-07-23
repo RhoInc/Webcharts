@@ -1,4 +1,4 @@
-chart.prototype.checkRequired = function(){
+Chart.prototype.checkRequired = function(){
     var context = this;
     var config = context.config;
     var colnames = d3.keys(context.raw_data[0]);

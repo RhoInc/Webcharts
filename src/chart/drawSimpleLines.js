@@ -1,4 +1,4 @@
-chart.prototype.drawSimpleLines = function(line_data, container, class_match, bind_accessor){
+Chart.prototype.drawSimpleLines = function(line_data, container, class_match, bind_accessor){
   var context = this;
   var config = this.config;
   var svg = this.svg;

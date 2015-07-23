@@ -1,4 +1,4 @@
-chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
+Chart.prototype.multiply = function(raw, split_by, constrain_domains, order){
   var context = this;
   var config = this.config;
   var wrap = context.wrap.classed("wc-layout wc-small-multiples", true).classed("wc-chart", false);

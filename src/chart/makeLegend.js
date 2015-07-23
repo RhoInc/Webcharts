@@ -1,4 +1,4 @@
-chart.prototype.makeLegend = function(scale, label, custom_data){
+Chart.prototype.makeLegend = function(scale, label, custom_data){
   var context = this;
   var config = this.config;
 

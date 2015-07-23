@@ -1,4 +1,4 @@
-chart.prototype.layout = function(){
+Chart.prototype.layout = function(){
   var context = this;
   var config = context.config;
   var wrap = context.wrap;

@@ -1,4 +1,4 @@
-chart.prototype.updateRefRegions = function(){
+Chart.prototype.updateRefRegions = function(){
   //define/draw reference regions, if any
   var config = this.config;
   var context = this;

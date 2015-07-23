@@ -5,7 +5,7 @@ webCharts.webTable = function(element, filepath, config, controls, callback){
 
   return this;
 };//webTable
-webCharts.webTable.prototype = Object.create(chart.prototype);
+webCharts.webTable.prototype = Object.create(webCharts.Chart.prototype);
 webCharts.webTable.prototype.layout = function(){
   var config = this.config;
   d3.select(this.div).select(".loader").remove();
@@ -40,13 +40,13 @@ webCharts.webTable.prototype.transformData = function(data){
             else
                 return e.val !== "All" ? d[e.col] === e.val : d
           });
-        }); 
+        });
     };
 
     var slimmed = d3.nest()
       .key(function(d){
           if(config.row_per){
-            var test = config.row_per.map(function(m){return d[m]}); 
+            var test = config.row_per.map(function(m){return d[m]});
             return  test.join(" ");
           }
           else
@@ -54,7 +54,7 @@ webCharts.webTable.prototype.transformData = function(data){
       })
       .rollup(function(r){
           if(config.dataManipulate)
-            r = config.dataManipulate(r);            
+            r = config.dataManipulate(r);
           var nuarr = r.map(function(m){
             var arr = [];
             for(x in m){
@@ -70,7 +70,7 @@ webCharts.webTable.prototype.transformData = function(data){
       .entries(filtered);
 
   context.current_data = slimmed;
-  
+
   context.events.onDatatransform(context);
 
   return context.current_data;
@@ -111,7 +111,7 @@ webCharts.webTable.prototype.draw = function(processed_data, raw_data){
         });
     });
   };
-  var rows = tbodies.selectAll("tr").data(function(d){ return d.values }); 
+  var rows = tbodies.selectAll("tr").data(function(d){ return d.values });
   rows.exit().remove();
   rows.enter().append("tr");
   //sort rows by criteria in sort_rows
@@ -129,7 +129,7 @@ webCharts.webTable.prototype.draw = function(processed_data, raw_data){
         return 0;
     });
   };
-  
+
   //add columns (once per row)
   var tds = rows.selectAll("td").data(function(d){return d.cells.filter(function(f){
     return col_list.indexOf(f.col) > -1;

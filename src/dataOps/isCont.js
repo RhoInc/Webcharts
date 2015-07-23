@@ -1,4 +1,4 @@
-isCont: function(data, varname){
+webCharts.dataOps.isCont = function(data, varname){
   var arr = d3.set(data.map(function(m){return m[varname]})).values();
   var test = true;
   arr.forEach(function(e){
@@ -9,4 +9,4 @@ isCont: function(data, varname){
     return false;
   else
     return true;
-}
+};

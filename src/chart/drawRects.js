@@ -1,4 +1,4 @@
-chart.prototype.drawRects = function(rect_data, container, class_match){
+Chart.prototype.drawRects = function(rect_data, container, class_match){
   var context = this;
   var config = this.config;
   var svg = this.svg;

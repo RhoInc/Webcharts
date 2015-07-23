@@ -1,4 +1,4 @@
-chart.prototype.draw = function(processed_data, raw_data){
+Chart.prototype.draw = function(processed_data, raw_data){
   var context = this;
   var raw = raw_data ? raw_data : context.raw_data ? context.raw_data : [];
   var config = context.config;
@@ -10,19 +10,19 @@ chart.prototype.draw = function(processed_data, raw_data){
   // config.x_behavior = config.x_behavior || "flex";
   context.wrap.datum(data)
 
-  var div_width = parseInt(context.wrap.style('width')); 
+  var div_width = parseInt(context.wrap.style('width'));
 
   context.setColorScale();
 
   config.resizable = config.resizable === false ? false : true;
   var max_width = config.max_width ? config.max_width : div_width;
   context.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.x_dom.length :
-    config.resizable ? max_width : 
-    config.width ? config.width : 
+    config.resizable ? max_width :
+    config.width ? config.width :
     div_width;
   context.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*context.y_dom.length :
-    config.resizable ? max_width*aspect2 : 
-    config.height ? config.height : 
+    config.resizable ? max_width*aspect2 :
+    config.height ? config.height :
     div_width*aspect2;
 
   var pseudo_width = context.svg.select(".overlay").attr("width") ? context.svg.select(".overlay").attr("width") : context.raw_width;

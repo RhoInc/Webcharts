@@ -1,4 +1,4 @@
-chart.prototype.drawGridlines = function(){
+Chart.prototype.drawGridlines = function(){
   var svg = this.svg;
   var gridlines = this.config.gridlines// === "none" ? null : config.gridlines;
   this.wrap.classed("gridlines", gridlines);

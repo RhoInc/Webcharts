@@ -1,4 +1,4 @@
-chart.prototype.updateRefLines = function(){
+Chart.prototype.updateRefLines = function(){
   //define/draw reference lines, if any
   var config = this.config;
   var context = this;

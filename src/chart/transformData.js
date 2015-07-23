@@ -1,4 +1,4 @@
-chart.prototype.transformData = function(raw, mark){
+Chart.prototype.transformData = function(raw, mark){
   var context = this;
   var config = this.config;
   var x_behavior = config.x.behavior || "raw";

@@ -1,4 +1,4 @@
-linearRegression: function(x,y){
+webCharts.dataOps.linearRegression = function(x,y){
   //http://stackoverflow.com/questions/20507536/d3-js-linear-regression
   var lr = {};
   var n = y.length;
@@ -14,11 +14,11 @@ linearRegression: function(x,y){
     sum_xy += (x[i]*y[i]);
     sum_xx += (x[i]*x[i]);
     sum_yy += (y[i]*y[i]);
-  } 
+  }
 
-  lr['slope'] = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
-  lr['intercept'] = (sum_y - lr.slope * sum_x)/n;
-  lr['r2'] = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+  lr.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+  lr.intercept = (sum_y - lr.slope * sum_x)/n;
+  lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
 
   return lr;
-}
+};

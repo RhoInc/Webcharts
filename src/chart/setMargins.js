@@ -1,4 +1,4 @@
-chart.prototype.setMargins = function(){
+Chart.prototype.setMargins = function(){
   var context = this;
   var x_ticks = context.xAxis.tickFormat() ? context.x.domain().map(function(m){return context.xAxis.tickFormat()(m)}) : context.x.domain();
   var y_ticks = context.yAxis.tickFormat() ? context.y.domain().map(function(m){return context.yAxis.tickFormat()(m)}) : context.y.domain();

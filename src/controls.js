@@ -1,3 +1,11 @@
+/**The base Controls object.
+	*@alias module:webCharts.Controls
+	*@constructor
+	*@param {string} element - CSS selector identifying the element in which to create the chart.
+	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
+	*@param {Controls} controls - Controls instance that will be linked to this chart instance.
+*/
 var Controls = function(element, data, config, defaults, callback){
 	if(config.location === "top")
    		this.div = d3.select(element).insert("div", ":first-child").attr("class", "wc-controls top");
@@ -20,6 +28,7 @@ var Controls = function(element, data, config, defaults, callback){
 
   return this;
 };
+
 dataControls.controls = Controls;
 Controls.prototype.init = function(raw){
   	this.data = raw;

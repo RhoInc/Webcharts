@@ -1,4 +1,4 @@
-chart.prototype.resize = function(){
+Chart.prototype.resize = function(){
   var context = this;
   var config = this.config;
   config.aspect = config.aspect || 1.33
