@@ -6,8 +6,8 @@ export function layout(){
         "xlink": "http://www.w3.org/1999/xlink"
      })
     .append("g");
-  // var svg = context.svg;
-  var defs = this.svg.append("defs");
+
+  let defs = this.svg.append("defs");
   defs.append("pattern").attr({
     "id": "diagonal-stripes",
     "x": 0, "y": 0, "width": 3, "height": 8, 'patternUnits': "userSpaceOnUse", 'patternTransform': "rotate(30)"

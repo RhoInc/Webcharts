@@ -44,10 +44,10 @@ export function setDefaults(){
 
 	this.config.date_format = this.config.date_format || '%x';
 
-	this.config.padding = this.config.padding !== 'undefined' ? this.config.padding : 0.3;
-	this.config.outer_pad = this.config.outer_pad !== 'undefined' ? this.config.outer_pad : 0.1;
+	this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
+	this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
 
-	this.config.resizable = this.config.resizable !== 'undefined' ? this.config.resizable : true;
+	this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
 
 	this.config.aspect = this.config.aspect || 1.33;
 

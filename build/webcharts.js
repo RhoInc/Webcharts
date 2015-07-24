@@ -195,8 +195,19 @@ var Chart = function Chart(element, filepath, config, controls) {
 	this.drawSimpleLines = drawSimpleLines;
 	this.init = init;
 	this.layout = layout;
+	this.makeLegend = makeLegend;
+	this.onDataError = onDataError;
+	this.resize = resize;
+	this.setColorScale = setColorScale;
 	this.setDefaults = setDefaults;
+	this.setMargins = setMargins;
+	this.textSize = textSize;
+	this.transformData = transformData;
 	this.updateDataMarks = updateDataMarks;
+	this.updateRefLines = updateRefLines;
+	this.updateRefRegions = updateRefRegions;
+	this.xScaleAxis = xScaleAxis;
+	this.yScaleAxis = yScaleAxis;
 };
 "use strict";
 
@@ -303,7 +314,7 @@ function draw(processed_data, raw_data) {
   // config.x_behavior = config.x_behavior || "flex";
   this.wrap.datum(data);
 
-  var div_width = parseInt(this.wrap.style('width'));
+  var div_width = parseInt(this.wrap.style("width"));
 
   this.setColorScale();
 
@@ -326,9 +337,9 @@ function draw(processed_data, raw_data) {
   this.yScaleAxis(config.y.type, pseudo_height, this.y_dom);
 
   var id = config.id || Math.random();
-  if (config.resizable) d3.select(window).on('resize.' + context.chart_type + "." + context.element + id, function () {
+  if (config.resizable) d3.select(window).on("resize." + context.chart_type + "." + context.element + id, function () {
     context.resize();
-  });else d3.select(window).on('resize.' + context.chart_type + "." + context.element + id, null);
+  });else d3.select(window).on("resize." + context.chart_type + "." + context.element + id, null);
 
   this.events.onDraw(this);
   this.resize();
@@ -389,7 +400,7 @@ function drawBars(marks) {
     });
     nu_bar_groups.append('title');
 
-    bars = bar_groups.selectAll("rect").data(function (d) {
+    bars = bar_groups.selectAll('rect').data(function (d) {
       return d.values instanceof Array ? d.values : [d];
     }, function (d) {
       return d.key;
@@ -797,70 +808,71 @@ function drawSimpleLines(line_data, container, class_match, bind_accessor) {
 /**initialize Chart
 *@param {Array} [data=parsed data from file] - an array of objects representing the raw data to be passed to the chart
 */
-"use strict";
+'use strict';
 
 function init(data) {
-  var context = this;
-  var controls = context.controls;
-  var config = context.config;
-  if (d3.select(this.div).select(".loader").empty()) {
-    d3.select(this.div).insert("div", ":first-child").attr("class", "loader").selectAll(".blockG").data(d3.range(8)).enter().append("div").attr("class", function (d) {
-      return "blockG rotate" + (d + 1);
+  var _this = this;
+
+  var config = this.config;
+
+  if (d3.select(this.div).select('.loader').empty()) {
+    d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
+      return 'blockG rotate' + (d + 1);
     });
   }
-  context.wrap.attr("class", "wc-chart");
-  if (this.chart_type) context.wrap.classed("wc-" + this.chart_type.toLowerCase(), true);
+  this.wrap.attr('class', 'wc-chart');
 
-  context.setDefaults();
+  this.setDefaults();
 
   var startup = function startup(data) {
-    if (controls) {
-      controls.targets.push(context);
-      if (!controls.ready) controls.init(data);else controls.layout();
+    if (_this.controls) {
+      _this.controls.targets.push(_this);
+      if (!_this.controls.ready) _this.controls.init(data);else _this.controls.layout();
     }
+
     var meta_map = config.meta_map ? config.meta_map : data && data.length ? d3.keys(data[0]).map(function (m) {
       return { col: m, label: m };
     }) : [];
 
-    context.metaMap = d3.scale.ordinal().domain(meta_map.map(function (m) {
+    _this.metaMap = d3.scale.ordinal().domain(meta_map.map(function (m) {
       return m.col;
     })).range(meta_map.map(function (m) {
       return m.label;
     }));
 
-    context.raw_data = data;
-    var visible = window.$ ? $(context.div).is(':visible') : true;
+    _this.raw_data = data;
+
+    //redo this without jquery
+    var visible = window.$ ? $(_this.div).is(':visible') : true;
     if (!visible) {
-      var onVisible = setInterval(function () {
-        var visible_now = $(context.div).is(':visible');
+      var onVisible = setInterval(function (i) {
+        var visible_now = $(_this.div).is(':visible');
         if (visible_now) {
-          context.layout();
-          context.wrap.datum(context);
-          var init_data = context.transformData(data);
-          context.draw(init_data);
+          _this.layout();
+          _this.wrap.datum(_this);
+          var init_data = _this.transformData(data);
+          _this.draw(init_data);
           clearInterval(onVisible);
         }
       }, 500);
     } else {
-      context.layout();
-      context.wrap.datum(context);
-      context.draw();
+      _this.layout();
+      _this.wrap.datum(_this);
+      _this.draw();
     };
-  }; //startup
+  };
 
-  if (context.filepath && !data) {
-    d3.csv(context.filepath, function (error, csv) {
-      context.raw_data = csv;
-      context.onDataError(error);
-      context.checkRequired(csv);
+  if (this.filepath && !data) {
+    d3.csv(this.filepath, function (error, csv) {
+      _this.raw_data = csv;
+      _this.onDataError(error);
+      _this.checkRequired(csv);
       startup(csv);
     });
   } else startup(data);
 
   return this;
 }
-
-;
 "use strict";
 
 function layout() {
@@ -869,11 +881,11 @@ function layout() {
     "version": "1.1",
     "xlink": "http://www.w3.org/1999/xlink"
   }).append("g");
-  // var svg = context.svg;
+
   var defs = this.svg.append("defs");
   defs.append("pattern").attr({
     "id": "diagonal-stripes",
-    "x": 0, "y": 0, "width": 3, "height": 8, 'patternUnits': "userSpaceOnUse", 'patternTransform': "rotate(30)"
+    "x": 0, "y": 0, "width": 3, "height": 8, "patternUnits": "userSpaceOnUse", "patternTransform": "rotate(30)"
   }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
 
   // defs.append("style").attr("type", "text/css").html(
@@ -882,43 +894,42 @@ function layout() {
   //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
   // );
 
-  var eid = typeof this.div === 'string' ? this.div.replace(/\./g, '') : d3.select(this.div).attr('class').replace(/\s/g, '');
-  var setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(this.config)) : String(Math.random() * 100);
+  var eid = typeof this.div === "string" ? this.div.replace(/\./g, "") : d3.select(this.div).attr("class").replace(/\s/g, "");
+  var setting_string = typeof btoa !== "undefined" ? btoa(JSON.stringify(this.config)) : String(Math.random() * 100);
   var rand = Math.floor(Math.random() * setting_string.length);
   var setting_id = setting_string.slice(rand, rand + 5);
-  this.clippath_id = 'plot-clip-' + eid + '-' + setting_id;
+  this.clippath_id = "plot-clip-" + eid + "-" + setting_id;
 
-  defs.append('clipPath').attr('id', this.clippath_id).append('rect').attr('class', 'plotting-area');
+  defs.append("clipPath").attr("id", this.clippath_id).append("rect").attr("class", "plotting-area");
 
   //y axis
-  this.svg.append('g').attr('class', 'y axis').append('text').attr('class', 'axis-title').attr('transform', 'rotate(-90)').attr('dy', '.75em').attr('text-anchor', 'middle');
+  this.svg.append("g").attr("class", "y axis").append("text").attr("class", "axis-title").attr("transform", "rotate(-90)").attr("dy", ".75em").attr("text-anchor", "middle");
   //x axis
-  this.svg.append('g').attr('class', 'x axis').append('text').attr('class', 'axis-title').attr('dy', '-.35em').attr('text-anchor', 'middle');
+  this.svg.append("g").attr("class", "x axis").append("text").attr("class", "axis-title").attr("dy", "-.35em").attr("text-anchor", "middle");
   //overlay
-  this.svg.append('rect').attr('class', 'overlay').attr('opacity', 0);
+  this.svg.append("rect").attr("class", "overlay").attr("opacity", 0);
   //add legend
-  this.wrap.append('ul').attr('class', 'legend').append('span').attr('class', 'legend-title');
+  this.wrap.append("ul").attr("class", "legend").append("span").attr("class", "legend-title");
 
-  d3.select(this.div).select('.loader').remove();
+  d3.select(this.div).select(".loader").remove();
 
   this.events.onLayout(this);
 }
 'use strict';
 
-Chart.prototype.makeLegend = function (scale, label, custom_data) {
+function makeLegend(scale, label, custom_data) {
+  if (scale === undefined) scale = this.colorScale;
+
+  var _this = this;
+
   var context = this;
   var config = this.config;
 
   config.legend.mark = config.legend.mark ? config.legend.mark : config.marks.length && config.marks[0].type === 'bar' ? 'square' : config.marks.length ? config.marks[0].type : 'square';
 
-  var legend_label = label ? label : typeof config.legend.label === 'string' ? config.legend.label : config.meta_map ? context.metaMap(context.config.color_by) : "";
+  var legend_label = label ? label : typeof config.legend.label === 'string' ? config.legend.label : config.meta_map ? this.metaMap(config.color_by) : '';
 
-  // label = !legend_label && !config.meta_map ? "" : label || label === "" ? label :
-  //   context.metaMap.domain().indexOf(context.config.color_by) < 0 ? "" :
-  //   context.metaMap(context.config.color_by);
-
-  var legend = context.legend || context.wrap.select(".legend"); //.style("padding-left", context.margin.left+"px");
-  scale = scale || context.colorScale;
+  var legend = this.legend || this.wrap.select('.legend');
 
   var legend_data = custom_data || scale.domain().slice(0).filter(function (f) {
     return f !== undefined && f !== null;
@@ -926,56 +937,56 @@ Chart.prototype.makeLegend = function (scale, label, custom_data) {
     return { label: m, mark: config.legend.mark };
   });
 
-  legend.select(".legend-title").text(legend_label).style("display", legend_label ? "inline" : "none");
+  legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none');
 
-  var leg_parts = legend.selectAll(".legend-item").data(legend_data, function (d) {
+  var leg_parts = legend.selectAll('.legend-item').data(legend_data, function (d) {
     return d.label + d.mark;
   });
 
   leg_parts.exit().remove();
 
-  var new_parts = leg_parts.enter().append("li").attr("class", "legend-item");
-  new_parts.append("span").attr("class", "legend-mark-text").style("color", function (d) {
+  var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item');
+  new_parts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
     return scale(d.label);
   });
-  new_parts.append("svg").attr("class", "legend-color-block");
+  new_parts.append('svg').attr('class', 'legend-color-block');
 
   if (config.legend.order) leg_parts.sort(function (a, b) {
     return d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label));
   });
 
-  leg_parts.selectAll(".legend-color-block").select(".legend-mark").remove();
-  leg_parts.selectAll(".legend-color-block").each(function (e) {
+  leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
+  leg_parts.selectAll('.legend-color-block').each(function (e) {
     var svg = d3.select(this);
-    if (e.mark === "circle") svg.append("circle").attr({ "cx": ".5em", "cy": ".45em", "r": ".45em", "class": "legend-mark" });else if (e.mark === "line") svg.append("line").attr({ "x1": 0, "y1": ".5em", "x2": "1em", "y2": ".5em", "stroke-width": 2, "shape-rendering": "crispEdges", "class": "legend-mark" });else if (e.mark === "square") svg.append("rect").attr({ "height": "1em", "width": "1em", "class": "legend-mark" });
+    if (e.mark === 'circle') svg.append('circle').attr({ 'cx': '.5em', 'cy': '.45em', 'r': '.45em', 'class': 'legend-mark' });else if (e.mark === 'line') svg.append('line').attr({ 'x1': 0, 'y1': '.5em', 'x2': '1em', 'y2': '.5em', 'stroke-width': 2, 'shape-rendering': 'crispEdges', 'class': 'legend-mark' });else if (e.mark === 'square') svg.append('rect').attr({ 'height': '1em', 'width': '1em', 'class': 'legend-mark' });
   });
-  leg_parts.selectAll(".legend-color-block").select(".legend-mark").attr("fill", function (d) {
+  leg_parts.selectAll('.legend-color-block').select('.legend-mark').attr('fill', function (d) {
     return d.color || scale(d.label);
-  }).attr("stroke", function (d) {
+  }).attr('stroke', function (d) {
     return d.color || scale(d.label);
   }).each(function (e) {
     d3.select(this).attr(e.attributes);
   });
 
-  new_parts.append("span").attr("class", "legend-label").text(function (d) {
-    return context.metaMap.domain().indexOf(d.label) > -1 ? context.metaMap(d.label) : d.label;
+  new_parts.append('span').attr('class', 'legend-label').text(function (d) {
+    return _this.metaMap.domain().indexOf(d.label) > -1 ? _this.metaMap(d.label) : d.label;
   });
 
-  leg_parts.on("mouseover", function (d) {
+  leg_parts.on('mouseover', function (d) {
     if (!config.legend.highlight_on_hover) return;
-    var fill = d3.select(this).select(".legend-mark").attr("fill");
-    context.svg.selectAll(".wc-data-mark").attr("opacity", 0.1).filter(function (f) {
-      return d3.select(this).attr("fill") === fill || d3.select(this).attr("stroke") === fill;
-    }).attr("opacity", 1);
-  }).on("mouseout", function (d) {
+    var fill = d3.select(this).select('.legend-mark').attr('fill');
+    context.svg.selectAll('.wc-data-mark').attr('opacity', 0.1).filter(function (f) {
+      return d3.select(this).attr('fill') === fill || d3.select(this).attr('stroke') === fill;
+    }).attr('opacity', 1);
+  }).on('mouseout', function (d) {
     if (!config.legend.highlight_on_hover) return;
-    context.svg.selectAll(".wc-data-mark").attr("opacity", 1);
+    _this.svg.selectAll('.wc-data-mark').attr('opacity', 1);
   });
 
-  if (scale.domain().length > 1) legend.style("display", "block");else legend.style("display", "none");
+  if (scale.domain().length > 1) legend.style('display', 'block');else legend.style('display', 'none');
 
-  context.legend = legend;
-};
+  this.legend = legend;
+}
 "use strict";
 
 Chart.prototype.multiply = function (raw, split_by, constrain_domains, order) {
@@ -1050,74 +1061,74 @@ Chart.prototype.multiply = function (raw, split_by, constrain_domains, order) {
 
   return this;
 };
-"use strict";
+'use strict';
 
-Chart.prototype.onDataError = function (error) {
-    if (error) {
-        d3.select(this.div).select(".loader").remove();
-        this.wrap.append("div").attr("class", "alert alert-error alert-danger").text("Dataset could not be loaded.");
-        throw new Error("Dataset could not be loaded. Check provided path (" + this.filepath + ").");
-    };
-};
-"use strict";
+function onDataError(error) {
+  if (!error) return;
 
-Chart.prototype.resize = function () {
+  d3.select(this.div).select('.loader').remove();
+  this.wrap.append('div').attr('class', 'alert alert-error alert-danger').text('Dataset could not be loaded.');
+  throw new Error('Dataset could not be loaded. Check provided path (' + this.filepath + ').');
+}
+'use strict';
+
+function resize() {
   var context = this;
   var config = this.config;
   // config.aspect = config.aspect || 1.33;
   var aspect2 = 1 / config.aspect;
-  var div_width = parseInt(context.wrap.style('width'));
+  var div_width = parseInt(this.wrap.style('width'));
   var max_width = config.max_width ? config.max_width : div_width;
-  var preWidth = !config.resizable ? config.width : !max_width || div_width < max_width ? div_width : context.raw_width;
+  var preWidth = !config.resizable ? config.width : !max_width || div_width < max_width ? div_width : this.raw_width;
 
-  context.textSize(preWidth);
+  this.textSize(preWidth);
 
-  context.margin = context.setMargins();
+  this.margin = context.setMargins();
 
-  var svg_width = config.x.type === "ordinal" && +config.range_band ? context.raw_width + context.margin.left + context.margin.right : !config.resizable ? context.raw_width : !config.max_width || div_width < config.max_width ? div_width : context.raw_width;
-  context.plot_width = svg_width - context.margin.left - context.margin.right;
-  var svg_height = config.y.type === "ordinal" && +config.range_band ? context.raw_height + context.margin.top + context.margin.bottom : !config.resizable && config.height ? config.height : !config.resizable ? svg_width * aspect2 : context.plot_width * aspect2;
-  context.plot_height = svg_height - context.margin.top - context.margin.bottom;
+  var svg_width = config.x.type === 'ordinal' && +config.range_band ? context.raw_width + context.margin.left + context.margin.right : !config.resizable ? context.raw_width : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
+  this.plot_width = svg_width - this.margin.left - this.margin.right;
+  var svg_height = config.y.type === 'ordinal' && +config.range_band ? this.raw_height + this.margin.top + this.margin.bottom : !config.resizable && config.height ? config.height : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
+  this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
-  d3.select(context.svg.node().parentNode).attr("width", svg_width).attr("height", svg_height).select("g").attr("transform", "translate(" + context.margin.left + "," + context.margin.top + ")");
+  d3.select(this.svg.node().parentNode).attr('width', svg_width).attr('height', svg_height).select('g').attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
-  context.svg.select(".overlay").attr("width", context.plot_width).attr("height", context.plot_height).classed("zoomable", config.zoomable);
+  this.svg.select('.overlay').attr('width', this.plot_width).attr('height', this.plot_height).classed('zoomable', config.zoomable);
 
-  context.svg.select(".plotting-area").attr("width", context.plot_width).attr("height", context.plot_height + 1).attr("transform", "translate(0, -1)");
+  this.svg.select('.plotting-area').attr('width', this.plot_width).attr('height', this.plot_height + 1).attr('transform', 'translate(0, -1)');
 
-  context.xScaleAxis(config.x.type, context.plot_width, context.x_dom);
-  context.yScaleAxis(config.y.type, context.plot_height, context.y_dom);
+  this.xScaleAxis(config.x.type, this.plot_width, this.x_dom);
+  this.yScaleAxis(config.y.type, this.plot_height, this.y_dom);
 
-  var g_x_axis = context.svg.select(".x.axis");
-  var g_y_axis = context.svg.select(".y.axis");
-  var x_axis_label = g_x_axis.select(".axis-title");
-  var y_axis_label = g_y_axis.select(".axis-title");
+  var g_x_axis = this.svg.select('.x.axis');
+  var g_y_axis = this.svg.select('.y.axis');
+  var x_axis_label = g_x_axis.select('.axis-title');
+  var y_axis_label = g_y_axis.select('.axis-title');
 
-  if (config.x_location !== "top") g_x_axis.attr("transform", "translate(0," + context.plot_height + ")");
-  g_x_axis.transition().call(context.xAxis);
-  g_y_axis.transition().call(context.yAxis);
-  x_axis_label.attr("transform", "translate(" + context.plot_width / 2 + "," + (context.margin.bottom - 2) + ")");
-  y_axis_label.attr("x", -1 * context.plot_height / 2).attr("y", -1 * context.margin.left);
+  if (config.x_location !== 'top') g_x_axis.attr('transform', 'translate(0,' + this.plot_height + ')');
+  g_x_axis.transition().call(this.xAxis);
+  g_y_axis.transition().call(this.yAxis);
+  x_axis_label.attr('transform', 'translate(' + this.plot_width / 2 + ',' + (this.margin.bottom - 2) + ')');
+  y_axis_label.attr('x', -1 * this.plot_height / 2).attr('y', -1 * this.margin.left);
 
   //relabel axis ticks if metaMap says so
-  context.svg.select(".x.axis.ordinal").selectAll(".tick text").text(function (d) {
+  this.svg.select('.x.axis.ordinal').selectAll('.tick text').text(function (d) {
     return context.metaMap.domain().indexOf(d) > -1 ? context.metaMap(d) : d;
   });
-  context.svg.select(".y.axis.ordinal").selectAll(".tick text").text(function (d) {
+  this.svg.select('.y.axis.ordinal').selectAll('.tick text').text(function (d) {
     return context.metaMap.domain().indexOf(d) > -1 ? context.metaMap(d) : d;
   });
 
-  context.drawGridlines();
+  this.drawGridlines();
   //update legend - margins need to be set first
-  context.makeLegend();
+  this.makeLegend();
 
   //update reference regions and reference lines
-  context.updateRefRegions();
-  context.updateRefLines();
+  this.updateRefRegions();
+  this.updateRefLines();
 
   //draw linear regression line
   if (config.regression_line) {
-    var reg_data = context.current_data.slice(0).filter(function (f) {
+    var reg_data = this.current_data.slice(0).filter(function (f) {
       return (+f.values.x || +f.values.x === 0) && (+f.values.y || +f.values.y === 0);
     });
     var all_x = reg_data.map(function (m) {
@@ -1127,37 +1138,38 @@ Chart.prototype.resize = function () {
       return m.values.y;
     });
     var lr = webCharts.dataOps.linearRegression(all_x, all_y);
-    var max = context.x.domain()[1];
+    var max = this.x.domain()[1];
     var reg_line_data = [{ xs: [0, max], ys: [lr.intercept, max * lr.slope + lr.intercept] }];
-    var reg_line = context.drawSimpleLines(reg_line_data, null, "regression-line").style("clip-path", "url(#" + context.clippath_id + ")").style("shape-rendering", "auto");
-    reg_line.select("title").text("slope: " + d3.format(".2f")(lr.slope) + "\n" + "intercept: " + d3.format(".2f")(lr.intercept) + "\n" + "r2: " + d3.format(".2f")(lr.r2));
+    var reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line').style('clip-path', 'url(#' + this.clippath_id + ')').style('shape-rendering', 'auto');
+    reg_line.select('title').text('slope: ' + d3.format('.2f')(lr.slope) + '\n' + 'intercept: ' + d3.format('.2f')(lr.intercept) + '\n' + 'r2: ' + d3.format('.2f')(lr.r2));
   } else {
-    context.drawSimpleLines([], null, "regression-line");
+    this.drawSimpleLines([], null, 'regression-line');
   }
 
   //update the chart's specific marks
-  //context.chart_type === "timeline" ? context.updateDataMarks() :
-  context.updateDataMarks();
+  this.updateDataMarks();
 
   //call .on("resize") function, if any
-  context.events.onResize(this);
-};
-"use strict";
+  this.events.onResize(this);
+}
 
-Chart.prototype.setColorScale = function () {
+;
+'use strict';
+
+function setColorScale() {
   var config = this.config;
-  colordom = config.color_dom || d3.set(this.raw_data.map(function (m) {
+  var colordom = config.color_dom || d3.set(this.raw_data.map(function (m) {
     return m[config.color_by];
   })).values().filter(function (f) {
-    return f && f !== "undefined";
+    return f && f !== 'undefined';
   });
 
   if (config.legend.order) colordom = colordom.sort(function (a, b) {
     return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
   });else colordom = colordom.sort(webCharts.dataOps.naturalSorter);
 
-  this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors ? config.colors : webCharts.colors.nb);
-};
+  this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors ? config.colors : ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']);
+}
 'use strict';
 
 function setDefaults() {
@@ -1196,32 +1208,33 @@ function setDefaults() {
 
 	this.config.date_format = this.config.date_format || '%x';
 
-	this.config.padding = this.config.padding !== 'undefined' ? this.config.padding : 0.3;
-	this.config.outer_pad = this.config.outer_pad !== 'undefined' ? this.config.outer_pad : 0.1;
+	this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
+	this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
 
-	this.config.resizable = this.config.resizable !== 'undefined' ? this.config.resizable : true;
+	this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
 
 	this.config.aspect = this.config.aspect || 1.33;
 }
-"use strict";
+'use strict';
 
-Chart.prototype.setMargins = function () {
-  var context = this;
-  var x_ticks = context.xAxis.tickFormat() ? context.x.domain().map(function (m) {
-    return context.xAxis.tickFormat()(m);
-  }) : context.x.domain();
-  var y_ticks = context.yAxis.tickFormat() ? context.y.domain().map(function (m) {
-    return context.yAxis.tickFormat()(m);
-  }) : context.y.domain();
+function setMargins() {
+  var _this = this;
+
+  var x_ticks = this.xAxis.tickFormat() ? this.x.domain().map(function (m) {
+    return _this.xAxis.tickFormat()(m);
+  }) : this.x.domain();
+  var y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(function (m) {
+    return _this.yAxis.tickFormat()(m);
+  }) : this.y.domain();
 
   var max_y_text_length = d3.max(y_ticks.map(function (m) {
     return String(m).length;
   }));
-  if (this.config.y_format && this.config.y_format.indexOf("%") > -1) max_y_text_length += 1;
+  if (this.config.y_format && this.config.y_format.indexOf('%') > -1) max_y_text_length += 1;
   max_y_text_length = Math.max(2, max_y_text_length);
   var x_label_on = this.config.x.label ? 1.5 : 0;
   var y_label_on = this.config.y.label ? 1.5 : 0.25;
-  var font_size = parseInt(this.wrap.style("font-size"));
+  var font_size = parseInt(this.wrap.style('font-size'));
   var x_second = this.config.x2_interval ? 1 : 0;
   var y_margin = max_y_text_length * font_size * .5 + font_size * y_label_on * 1.5 || 8;
   var x_margin = font_size + font_size / 1.5 + font_size * x_label_on + font_size * x_second || 8;
@@ -1229,63 +1242,59 @@ Chart.prototype.setMargins = function () {
   y_margin += 6;
   x_margin += 3;
 
-  return { top: this.config.margin && this.config.margin.top ? this.config.margin.top : 8,
+  return {
+    top: this.config.margin && this.config.margin.top ? this.config.margin.top : 8,
     right: this.config.margin && this.config.margin.right ? this.config.margin.right : 16,
     bottom: this.config.margin && this.config.margin.bottom ? this.config.margin.bottom : x_margin,
-    left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin };
-};
-"use strict";
+    left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin
+  };
+}
+'use strict';
 
-Chart.prototype.textSize = function (width, height) {
-  var context = this;
-  var font_size = "14px";
+function textSize(width, height) {
+  var font_size = '14px';
   var point_size = 4;
   var stroke_width = 2;
 
   if (this.config.no_text_size) {
-    font_size = context.config.font_size;
-    point_size = context.config.point_size || 4;
-    stroke_width = context.config.stroke_width || 2;
+    font_size = this.config.font_size;
+    point_size = this.config.point_size || 4;
+    stroke_width = this.config.stroke_width || 2;
   } else if (width >= 600) {
-    font_size = "14px";
+    font_size = '14px';
     point_size = 4;
     stroke_width = 2;
   } else if (width > 450 && width < 600) {
-    font_size = "12px";
+    font_size = '12px';
     point_size = 3;
     stroke_width = 2;
   } else if (width > 300 && width < 450) {
-    font_size = "10px";
+    font_size = '10px';
     point_size = 2;
     stroke_width = 2;
   } else if (width <= 300) {
-    font_size = "10px";
+    font_size = '10px';
     point_size = 2;
     stroke_width = 1;
   }
 
-  // context.svg.select("defs style").html(
-  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
-  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: "+font_size+";}"+
-  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
-  // );
+  this.wrap.style('font-size', font_size);
+  this.config.flex_point_size = point_size;
+  this.config.flex_stroke_width = stroke_width;
+}
+'use strict';
 
-  context.wrap.style("font-size", font_size);
-  context.config.flex_point_size = point_size;
-  context.config.flex_stroke_width = stroke_width;
-};
-"use strict";
+function transformData(raw, mark) {
+  var _this = this;
 
-Chart.prototype.transformData = function (raw, mark) {
-  var context = this;
   var config = this.config;
-  var x_behavior = config.x.behavior || "raw";
-  var y_behavior = config.y.behavior || "raw";
-  var sublevel = mark.type === "line" ? config.x.column : mark.type === 'bar' && mark.split ? mark.split : null;
+  var x_behavior = config.x.behavior || 'raw';
+  var y_behavior = config.y.behavior || 'raw';
+  var sublevel = mark.type === 'line' ? config.x.column : mark.type === 'bar' && mark.split ? mark.split : null;
   var dateConvert = d3.time.format(config.date_format);
-  var totalOrder;
-  // context.raw_data = raw;
+  var totalOrder = undefined;
 
+  //this functionality should go in a 'pre-data' callback
   if (config.lengthen_columns) raw = webCharts.dataOps.lengthenRaw(raw, config.lengthen_columns);
 
   raw = mark.per && mark.per.length ? raw.filter(function (f) {
@@ -1293,11 +1302,9 @@ Chart.prototype.transformData = function (raw, mark) {
   }) : raw;
 
   //run initial filter if specified
-  if (config.initial_filter) {
-    raw = raw.filter(function (f) {
-      return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1;
-    });
-  };
+  if (config.initial_filter) raw = raw.filter(function (f) {
+    return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1;
+  });
 
   //make sure data has x and y values
   if (config.x.column) raw = raw.filter(function (f) {
@@ -1307,50 +1314,46 @@ Chart.prototype.transformData = function (raw, mark) {
     return f[config.y.column];
   });
 
-  if (config.x.type === "time") {
+  if (config.x.type === 'time') {
     raw = raw.filter(function (f) {
       return f[config.x.column] instanceof Date ? f[config.x.column] : dateConvert.parse(f[config.x.column]);
     });
     raw.forEach(function (e) {
-      e[config.x.column] = e[config.x.column] instanceof Date ? e[config.x.column] : dateConvert.parse(e[config.x.column]);
+      return e[config.x.column] = e[config.x.column] instanceof Date ? e[config.x.column] : dateConvert.parse(e[config.x.column]);
     });
   };
-  if (config.y.type === "time") {
+  if (config.y.type === 'time') {
     raw = raw.filter(function (f) {
       return f[config.y.column] instanceof Date ? f[config.y.column] : dateConvert.parse(f[config.y.column]);
     });
     raw.forEach(function (e) {
-      e[config.y.column] = e[config.y.column] instanceof Date ? e[config.y.column] : dateConvert.parse(e[config.y.column]);
+      return e[config.y.column] = e[config.y.column] instanceof Date ? e[config.y.column] : dateConvert.parse(e[config.y.column]);
     });
   };
 
-  if ((config.x.type === "linear" || config.x.type === "log") && config.x.column) {
+  if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
     raw = raw.filter(function (f) {
       return config.x.summary !== 'count' && config.x.summary !== 'percent' ? +f[config.x.column] || +f[config.x.column] === 0 : f;
     });
   };
-  if ((config.y.type === "linear" || config.y.type === "log") && config.y.column) {
+  if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
     raw = raw.filter(function (f) {
       return config.y.summary !== 'count' && config.y.summary !== 'percent' ? +f[config.y.column] || +f[config.y.column] === 0 : f;
     });
   };
 
-  var raw_nest;
-  if (mark.type === "bar") {
-    raw_nest = mark.arrange !== "stacked" ? makeNest(raw, sublevel) : makeNest(raw);
-  } else if (config.x.summary === 'count' || config.y.summary === 'count') {
-    raw_nest = makeNest(raw);
-  }
+  var raw_nest = undefined;
+  if (mark.type === 'bar') raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);else if (config.x.summary === 'count' || config.y.summary === 'count') raw_nest = makeNest(raw);
 
-  var raw_dom_x = config.x.summary === "cumulative" ? [0, raw.length] : config.x.type === "ordinal" ? d3.set(raw.map(function (m) {
+  var raw_dom_x = config.x.summary === 'cumulative' ? [0, raw.length] : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.x.column];
   })).values().filter(function (f) {
     return f;
-  }) : mark.split && mark.arrange !== "stacked" ? d3.extent(d3.merge(raw_nest.nested.map(function (m) {
+  }) : mark.split && mark.arrange !== 'stacked' ? d3.extent(d3.merge(raw_nest.nested.map(function (m) {
     return m.values.map(function (p) {
       return p.values.raw.length;
     });
-  }))) : config.x.summary === "count" ? d3.extent(raw_nest.nested.map(function (m) {
+  }))) : config.x.summary === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
     return m.values.raw.length;
   })) : d3.extent(raw.map(function (m) {
     return +m[config.x.column];
@@ -1358,15 +1361,15 @@ Chart.prototype.transformData = function (raw, mark) {
     return +f;
   }));
 
-  var raw_dom_y = config.y.summary === "cumulative" ? [0, raw.length] : config.y.type === "ordinal" ? d3.set(raw.map(function (m) {
+  var raw_dom_y = config.y.summary === 'cumulative' ? [0, raw.length] : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values().filter(function (f) {
     return f;
-  }) : mark.split && mark.arrange !== "stacked" ? d3.extent(d3.merge(raw_nest.nested.map(function (m) {
+  }) : mark.split && mark.arrange !== 'stacked' ? d3.extent(d3.merge(raw_nest.nested.map(function (m) {
     return m.values.map(function (p) {
       return p.values.raw.length;
     });
-  }))) : config.y.summary === "count" ? d3.extent(raw_nest.nested.map(function (m) {
+  }))) : config.y.summary === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
     return m.values.raw.length;
   })) : d3.extent(raw.map(function (m) {
     return +m[config.y.column];
@@ -1382,22 +1385,24 @@ Chart.prototype.transformData = function (raw, mark) {
     var this_nest = d3.nest();
 
     if (config.x.type === 'linear' && config.x.bin || config.y.type === 'linear' && config.y.bin) {
-      var xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
-      var quant = d3.scale.quantile().domain(d3.extent(entries.map(function (m) {
-        return +m[config[xy].column];
-      }))).range(d3.range(+config[xy].bin));
+      (function () {
+        var xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
+        var quant = d3.scale.quantile().domain(d3.extent(entries.map(function (m) {
+          return +m[config[xy].column];
+        }))).range(d3.range(+config[xy].bin));
 
-      entries.forEach(function (e) {
-        e['wc_bin'] = quant(e[config[xy].column]);
-      });
+        entries.forEach(function (e) {
+          return e['wc_bin'] = quant(e[config[xy].column]);
+        });
 
-      this_nest.key(function (d) {
-        return quant.invertExtent(d['wc_bin']);
-      });
+        this_nest.key(function (d) {
+          return quant.invertExtent(d['wc_bin']);
+        });
+      })();
     } else this_nest.key(function (d) {
       return mark.per.map(function (m) {
         return d[m];
-      }).join(" ");
+      }).join(' ');
     });
 
     if (sublevel) {
@@ -1405,7 +1410,7 @@ Chart.prototype.transformData = function (raw, mark) {
         return d[sublevel];
       });
       this_nest.sortKeys(function (a, b) {
-        return config.x.type === "time" ? d3.ascending(new Date(a), new Date(b)) : config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) : sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) : config.x.type === "ordinal" || config.y.type === "ordinal" ? webCharts.dataOps.naturalSorter(a, b) : d3.ascending(+a, +b);
+        return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) : config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) : sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) : config.x.type === 'ordinal' || config.y.type === 'ordinal' ? webCharts.dataOps.naturalSorter(a, b) : d3.ascending(+a, +b);
       });
     }
     this_nest.rollup(function (r) {
@@ -1416,19 +1421,19 @@ Chart.prototype.transformData = function (raw, mark) {
       var x_vals = r.map(function (m) {
         return m[config.x.column];
       }).sort(d3.ascending);
-      obj.x = config.x.type === "ordinal" ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, config.x.summary);
-      obj.y = config.y.type === "ordinal" ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, config.y.summary);
+      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, config.x.summary);
+      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, config.y.summary);
 
-      obj.x_q25 = config.error_bars && config.y.type === "ordinal" ? d3.quantile(x_vals, 0.25) : obj.x;
-      obj.x_q75 = config.error_bars && config.y.type === "ordinal" ? d3.quantile(x_vals, 0.75) : obj.x;
+      obj.x_q25 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.25) : obj.x;
+      obj.x_q75 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.75) : obj.x;
       obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
       obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
 
-      if (config.y.summary === "cumulative") {
+      if (config.y.summary === 'cumulative') {
         var interm = entries.filter(function (f) {
-          return config.x.type === "time" ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : +f[config.x.column] <= +r[0][config.x.column];
+          return config.x.type === 'time' ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : +f[config.x.column] <= +r[0][config.x.column];
         });
         if (mark.per.length) interm = interm.filter(function (f) {
           return f[mark.per[0]] === r[0][mark.per[0]];
@@ -1440,9 +1445,9 @@ Chart.prototype.transformData = function (raw, mark) {
         dom_ys.push([cumul]);
         obj.y = cumul;
       };
-      if (config.x.summary === "cumulative") {
+      if (config.x.summary === 'cumulative') {
         var interm = entries.filter(function (f) {
-          return config.y.type === "time" ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : +f[config.y.column] <= +r[0][config.y.column];
+          return config.y.type === 'time' ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : +f[config.y.column] <= +r[0][config.y.column];
         });
         if (mark.per.length) interm = interm.filter(function (f) {
           return f[mark.per[0]] === r[0][mark.per[0]];
@@ -1453,6 +1458,7 @@ Chart.prototype.transformData = function (raw, mark) {
 
       return obj;
     });
+
     var test = this_nest.entries(entries);
 
     var dom_x = d3.extent(d3.merge(dom_xs));
@@ -1466,9 +1472,10 @@ Chart.prototype.transformData = function (raw, mark) {
       if (config.y.type === 'ordinal' || config.y.type === 'linear' && config.y.bin) dom_x = d3.extent(test.map(function (m) {
         return m.total;
       }));
-    } else if (sublevel && config.y.summary === 'percent') {
-      test.forEach(calcPercents);
     }
+    // else if(sublevel && config.y.summary === 'percent'){
+    //   test.forEach(calcPercents);
+    // }
 
     if (config.x.sort === 'total-ascending' || config.y.sort === 'total-ascending') totalOrder = test.sort(function (a, b) {
       return d3.ascending(a.total, b.total);
@@ -1483,14 +1490,12 @@ Chart.prototype.transformData = function (raw, mark) {
     return { nested: test, dom_x: dom_x, dom_y: dom_y };
   };
 
-  function calcPercents(e) {
-    var max = d3.sum(e.values.map(function (m) {
-      return +m.values.y;
-    }));
-    e.values.forEach(function (v) {
-      v.values.y = v.values.y / max;
-    });
-  };
+  // function calcPercents(e){
+  //   let max = d3.sum(e.values.map(function(m){return +m.values.y}));
+  //   e.values.forEach(function(v){
+  //     v.values.y = v.values.y/max
+  //   });
+  // };
 
   function calcStartTotal(e) {
     var axis = config.x.type === 'ordinal' || config.x.type === 'linear' && config.x.bin ? 'y' : 'x';
@@ -1509,42 +1514,42 @@ Chart.prototype.transformData = function (raw, mark) {
         counter += +v.values.x;
       }
     });
-  };
+  }
 
   var filt1_xs = [];
   var filt1_ys = [];
-  if (context.filters.length) {
-    context.filters.forEach(function (e) {
+  if (this.filters.length) {
+    this.filters.forEach(function (e) {
       filtered = filtered.filter(function (d) {
-        return e.val === "All" ? d : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
+        return e.val === 'All' ? d : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
       });
     });
     //get domain for all non-All values of first filter
-    if (config.x.behavior === "firstfilter" || config.y.behavior === "firstfilter") {
-      context.filters[0].choices.filter(function (f) {
-        return f !== "All";
+    if (config.x.behavior === 'firstfilter' || config.y.behavior === 'firstfilter') {
+      this.filters[0].choices.filter(function (f) {
+        return f !== 'All';
       }).forEach(function (e) {
         var perfilter = raw.filter(function (f) {
-          return f[context.filters[0].col] === e;
+          return f[_this.filters[0].col] === e;
         });
         var filt_nested = makeNest(perfilter, sublevel);
         filt1_xs.push(filt_nested.dom_x);
         filt1_ys.push(filt_nested.dom_y);
       });
-    };
-  };
+    }
+  }
 
   var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
   var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
 
-  context.filtered_data = filtered;
+  this.filtered_data = filtered;
 
   var current_nested = makeNest(filtered, sublevel);
 
   //extent of current data
   // if(mark.type === 'bar' && mark.arrange === 'stacked'){
-  //   var flex_dom_x = makeNest(filtered).dom_x;
-  //   var flex_dom_y = makeNest(filtered).dom_y;
+  //   let flex_dom_x = makeNest(filtered).dom_x;
+  //   let flex_dom_y = makeNest(filtered).dom_y;
   // }
   // else{
   var flex_dom_x = current_nested.dom_x;
@@ -1555,22 +1560,22 @@ Chart.prototype.transformData = function (raw, mark) {
   }
 
   //several criteria must be met in order to use the 'firstfilter' domain
-  var nonall = Boolean(context.filters.length && context.filters[0].val !== "All" && context.filters.slice(1).filter(function (f) {
-    return f.val === "All";
-  }).length === context.filters.length - 1);
+  var nonall = Boolean(this.filters.length && this.filters[0].val !== 'All' && this.filters.slice(1).filter(function (f) {
+    return f.val === 'All';
+  }).length === this.filters.length - 1);
 
-  var pre_x_dom = !context.filters.length ? flex_dom_x : x_behavior === "raw" ? raw_dom_x : nonall && x_behavior === "firstfilter" ? filt1_dom_x : flex_dom_x;
-  var pre_y_dom = !context.filters.length ? flex_dom_y : y_behavior === "raw" ? raw_dom_y : nonall && y_behavior === "firstfilter" ? filt1_dom_y : flex_dom_y;
+  var pre_x_dom = !this.filters.length ? flex_dom_x : x_behavior === 'raw' ? raw_dom_x : nonall && x_behavior === 'firstfilter' ? filt1_dom_x : flex_dom_x;
+  var pre_y_dom = !this.filters.length ? flex_dom_y : y_behavior === 'raw' ? raw_dom_y : nonall && y_behavior === 'firstfilter' ? filt1_dom_y : flex_dom_y;
 
-  var x_dom = config.x_dom ? config.x_dom : config.x.type === "ordinal" && config.x.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+  var x_dom = config.x_dom ? config.x_dom : config.x.type === 'ordinal' && config.x.behavior === 'flex' ? d3.set(filtered.map(function (m) {
     return m[config.x.column];
-  })).values() : config.x.type === "ordinal" ? d3.set(raw.map(function (m) {
+  })).values() : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.x.column];
   })).values() : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
 
-  var y_dom = config.y_dom ? config.y_dom : config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+  var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
     return m[config.y.column];
-  })).values() : config.y.type === "ordinal" ? d3.set(raw.map(function (m) {
+  })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values() : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
 
@@ -1582,11 +1587,11 @@ Chart.prototype.transformData = function (raw, mark) {
   if (config.x.type === 'ordinal') config.x.order = totalOrder;
   if (config.y.type === 'ordinal') config.y.order = totalOrder;
 
-  context.current_data = current_nested.nested;
+  this.current_data = current_nested.nested;
   // context.events.onDatatransform(context);
 
   return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
-};
+}
 'use strict';
 
 function updateDataMarks() {
@@ -1600,79 +1605,84 @@ function updateDataMarks() {
     return f.type === 'bar';
   }));
 }
-"use strict";
+'use strict';
 
-Chart.prototype.updateRefLines = function () {
+function updateRefLines() {
+  var _this = this;
+
   //define/draw reference lines, if any
   var config = this.config;
-  var context = this;
   var ref_line_data = !config.reference_lines ? [] : config.reference_lines.map(function (m) {
     var xx = m.x;
     var yy = m.y;
-    if (config.x.type === "time" && m.x) xx = d3.time.format(config.date_format).parse(m.x);
-    if (config.y.type === "time" && m.y) yy = d3.time.format(config.date_format).parse(m.y);
-    return { xs: !m.x && +m.x !== 0 ? [0, context.plot_width, true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0, context.plot_height, true] : [yy, yy], attributes: m.attributes };
+    if (config.x.type === 'time' && m.x) xx = d3.time.format(config.date_format).parse(m.x);
+    if (config.y.type === 'time' && m.y) yy = d3.time.format(config.date_format).parse(m.y);
+    return { xs: !m.x && +m.x !== 0 ? [0, _this.plot_width, true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0, _this.plot_height, true] : [yy, yy], attributes: m.attributes };
   });
-  var ref_lines = context.drawSimpleLines(ref_line_data).style("clip-path", "url(#" + context.clippath_id + ")");
-};
-"use strict";
 
-Chart.prototype.updateRefRegions = function () {
+  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#' + this.clippath_id + ')');
+}
+'use strict';
+
+function updateRefRegions() {
+  var _this = this;
+
   //define/draw reference regions, if any
   var config = this.config;
-  var context = this;
-  var ref_region_data = context.config.reference_regions.slice(0).map(function (m) {
+  var ref_region_data = this.config.reference_regions.slice(0).map(function (m) {
     var xx = m.x;
     var yy = m.y;
-    if (config.x.type === "time") if (m.x) xx = m.x.map(function (w) {
+    if (config.x.type === 'time') if (m.x) xx = m.x.map(function (w) {
       return d3.time.format(config.date_format).parse(w);
-    });else xx = context.x_dom;
-    if (config.y.type === "time") if (m.y) yy = m.y.map(function (w) {
+    });else xx = _this.x_dom;
+    if (config.y.type === 'time') if (m.y) yy = m.y.map(function (w) {
       return d3.time.format(config.date_format).parse(w);
-    });else yy = context.y_dom;
-    return { xs: !xx ? [1, context.plot_width] : xx, ys: !m.y ? [0, context.plot_height - 1] : yy, attributes: m.attributes };
+    });else yy = _this.y_dom;
+    return { xs: !xx ? [1, _this.plot_width] : xx, ys: !m.y ? [0, _this.plot_height - 1] : yy, attributes: m.attributes };
   });
-  context.drawRects(ref_region_data).style("clip-path", "url(#" + context.clippath_id + ")");
-};
-"use strict";
+  this.drawRects(ref_region_data).style('clip-path', 'url(#' + this.clippath_id + ')');
+}
+'use strict';
 
-Chart.prototype.xScaleAxis = function (type, max_range, domain) {
-  //domain = type === "percent" ? [0,1] : domain;
+function xScaleAxis(type, max_range, domain) {
   var config = this.config;
+  var x = undefined;
 
-  if (type === "log") var x = d3.scale.log();else if (type === "ordinal") var x = d3.scale.ordinal();else if (type === "time") var x = d3.time.scale();else var x = d3.scale.linear();
+  if (type === 'log') x = d3.scale.log();else if (type === 'ordinal') x = d3.scale.ordinal();else if (type === 'time') x = d3.time.scale();else x = d3.scale.linear();
 
   x.domain(domain);
-  if (type === "ordinal") x.rangeBands([0, +max_range], config.padding, config.outer_pad);else x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
 
-  var format = config.x.format ? config.x.format : type === "percent" ? "0%" : type === "time" ? "%x" : ".0f";
+  if (type === 'ordinal') x.rangeBands([0, +max_range], config.padding, config.outer_pad);else x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
+
+  var format = config.x.format ? config.x.format : type === 'percent' ? '0%' : type === 'time' ? '%x' : '.0f';
   var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-  var xAxis = d3.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(format) : d3.format(format)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
+  var xAxis = d3.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(format) : d3.format(format)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
 
-  this.svg.select("g.x.axis").attr("class", "x axis " + type);
+  this.svg.select('g.x.axis').attr('class', 'x axis ' + type);
   this.x = x;
   this.xAxis = xAxis;
-};
-"use strict";
+}
+'use strict';
 
-Chart.prototype.yScaleAxis = function (type, max_range, domain) {
-  //domain = type === "percent" ? [0,1] : domain;
+function yScaleAxis(type, max_range, domain) {
+  //domain = type === 'percent' ? [0,1] : domain;
   var config = this.config;
-  var y;
-  if (type === "log") var y = d3.scale.log();else if (type === "ordinal") var y = d3.scale.ordinal();else if (type === "time") var y = d3.time.scale();else var y = d3.scale.linear();
+  var y = undefined;
+  if (type === 'log') y = d3.scale.log();else if (type === 'ordinal') y = d3.scale.ordinal();else if (type === 'time') y = d3.time.scale();else y = d3.scale.linear();
 
   y.domain(domain);
-  if (type === "ordinal") y.rangeBands([+max_range, 0], config.padding, config.outer_pad);else y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
 
-  var y_format = config.y.format ? config.y.format : config.y.summary === "percent" ? "0%" : ".0f";
+  if (type === 'ordinal') y.rangeBands([+max_range, 0], config.padding, config.outer_pad);else y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
+
+  var y_format = config.y.format ? config.y.format : config.y.summary === 'percent' ? '0%' : '.0f';
   var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-  var yAxis = d3.svg.axis().scale(y).orient("left").ticks(tick_count).tickFormat(type === "ordinal" ? null : type === "time" ? d3.time.format(y_format) : d3.format(y_format)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
+  var yAxis = d3.svg.axis().scale(y).orient('left').ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(y_format) : d3.format(y_format)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
 
-  this.svg.select("g.y.axis").attr("class", "y axis " + type);
+  this.svg.select('g.y.axis').attr('class', 'y axis ' + type);
 
   this.y = y;
   this.yAxis = yAxis;
-};
+}
 webCharts.webTable = function(element, filepath, config, controls, callback){
   this.chart_type = "webTable";
   this.required_cols = config.cols || [];

@@ -61,8 +61,20 @@ class Chart {
 		this.drawSimpleLines = drawSimpleLines;
 		this.init = init;
 		this.layout = layout;
+		this.makeLegend = makeLegend;
+		this.onDataError = onDataError;
+		this.resize = resize;
+		this.setColorScale = setColorScale;
 		this.setDefaults = setDefaults;
+		this.setMargins = setMargins;
+		this.textSize = textSize;
+		this.transformData = transformData;
 		this.updateDataMarks = updateDataMarks;
+		this.updateRefLines = updateRefLines;
+		this.updateRefRegions = updateRefRegions;
+		this.xScaleAxis = xScaleAxis;
+		this.yScaleAxis = yScaleAxis;
+
 	}
 
 }
