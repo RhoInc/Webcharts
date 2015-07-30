@@ -3,44 +3,80 @@
 *@module webCharts
 *@version 0.2
 */
-webCharts = {version: "0.2"};
+'use strict';
 
-webCharts.colors = {
-  qualitative: ['rgb(102,194,165)','rgb(252,141,98)','rgb(141,160,203)','rgb(231,138,195)','rgb(166,216,84)','rgb(255,217,47)','rgb(229,196,148)','rgb(179,179,179)'],
-  nb: ["#2A415A", "#50BD6F","#EE6148", "#4BBCF3", "#D79109","#A03249", "#81980F", "#F888CA", "#349782", "#CB0E73"]
-};
-webCharts.dataOps = {};
+var webCharts = { version: '0.2' };
+'use strict';
 
-webCharts.dataOps.isCont = function(data, varname){
-  var arr = d3.set(data.map(function(m){return m[varname]})).values();
-  var test = true;
-  arr.forEach(function(e){
-    if(!+e && e !== "." && +e !== 0)
-      test = false;
+webCharts.multiply = function (chart, split_by, constrain_domains, order) {
+  // let context = this;
+  var config = chart.config;
+  var wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
+  var master_legend = wrap.append('ul').attr('class', 'legend');
+
+  d3.csv(chart.filepath, function (error, csv) {
+    chart.raw_data = csv;
+    chart.onDataError(error);
+    chart.checkRequired(csv);
+    goAhead(csv);
   });
-  if(!test || arr.length < 4)
-    return false;
-  else
-    return true;
-};
 
-webCharts.dataOps.lengthenRaw = function(data, columns){
-    var my_data = [];
-    data.forEach(function(e){
-      columns.forEach(function(g){
-        var obj = {};
-        obj.wc_category = g;
-        obj.wc_value = e[g];
-        for(x in e){
-          obj[x] = e[x];
-        }
-        my_data.push(obj);
-      });
+  function goAhead(data) {
+    var split_vals = d3.set(data.map(function (m) {
+      return m[split_by];
+    })).values().filter(function (f) {
+      return f;
     });
-    return my_data;
-  };
+    if (order) split_vals = split_vals.sort(function (a, b) {
+      return d3.ascending(order.indexOf(a), order.indexOf(b));
+    });
 
-webCharts.dataOps.linearRegression = function(x,y){
+    split_vals.forEach(function (e) {
+      var split_data = data.filter(function (f) {
+        return f[split_by] === e;
+      });
+      var mchart = webCharts.chart(chart.wrap.node(), null, config, chart.controls);
+      mchart.events = chart.events;
+      mchart.legend = master_legend;
+      // mchart.multiplied = {col: split_by, value: e};
+      mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
+      mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
+      mchart.init(data);
+    });
+  }
+};
+"use strict";
+
+webCharts.dataOps = {
+
+  getValType: getValType,
+  lengthenRaw: lengthenRaw,
+  linearRegression: linearRegression,
+  naturalSorter: naturalSorter,
+  standardError: standardError,
+  summarize: summarize
+
+};
+"use strict";
+
+function lengthenRaw(data, columns) {
+  var my_data = [];
+
+  data.forEach(function (e) {
+
+    columns.forEach(function (g) {
+      var obj = Object.create(e);
+      obj.wc_category = g;
+      obj.wc_value = e[g];
+      my_data.push(obj);
+    });
+  });
+
+  return my_data;
+}
+"use strict";
+
+function linearRegression(x, y) {
   //http://stackoverflow.com/questions/20507536/d3-js-linear-regression
   var lr = {};
   var n = y.length;
@@ -53,26 +89,31 @@ webCharts.dataOps.linearRegression = function(x,y){
   for (var i = 0; i < n; i++) {
     sum_x += x[i];
     sum_y += y[i];
-    sum_xy += (x[i]*y[i]);
-    sum_xx += (x[i]*x[i]);
-    sum_yy += (y[i]*y[i]);
+    sum_xy += x[i] * y[i];
+    sum_xx += x[i] * x[i];
+    sum_yy += y[i] * y[i];
   }
 
-  lr.slope = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
-  lr.intercept = (sum_y - lr.slope * sum_x)/n;
-  lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+  lr.slope = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
+  lr.intercept = (sum_y - lr.slope * sum_x) / n;
+  lr.r2 = Math.pow((n * sum_xy - sum_x * sum_y) / Math.sqrt((n * sum_xx - sum_x * sum_x) * (n * sum_yy - sum_y * sum_y)), 2);
 
   return lr;
-};
+}
+"use strict";
 
-webCharts.dataOps.naturalSorter = function(a, b){
+function naturalSorter(a, b) {
   //http://www.davekoelle.com/files/alphanum.js
   function chunkify(t) {
     var tz = [];
-    var x = 0, y = -1, n = 0, i, j;
+    var x = 0,
+        y = -1,
+        n = 0,
+        i = undefined,
+        j = undefined;
 
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
-      var m = (i == 46 || (i >=48 && i <= 57));
+      var m = i == 46 || i >= 48 && i <= 57;
       if (m !== n) {
         tz[++y] = "";
         n = m;
@@ -85,27 +126,31 @@ webCharts.dataOps.naturalSorter = function(a, b){
   var aa = chunkify(a.toLowerCase());
   var bb = chunkify(b.toLowerCase());
 
-  for (x = 0; aa[x] && bb[x]; x++) {
+  for (var x = 0; aa[x] && bb[x]; x++) {
     if (aa[x] !== bb[x]) {
-      var c = Number(aa[x]), d = Number(bb[x]);
+      var c = Number(aa[x]),
+          d = Number(bb[x]);
       if (c == aa[x] && d == bb[x]) {
         return c - d;
-      } else return (aa[x] > bb[x]) ? 1 : -1;
+      } else return aa[x] > bb[x] ? 1 : -1;
     }
   }
-  return aa.length - bb.length;
-};
 
-webCharts.dataOps.standardError = function(vals){
-  if(!vals)
-    return null;
+  return aa.length - bb.length;
+}
+"use strict";
+
+function standardError(vals) {
+  if (!vals) return null;
+
   var n = +vals.length;
+
   if (n < 1) return NaN;
   if (n === 1) return 0;
 
-  var mean = d3.sum(vals)/n,
-      i = -1,
-      s = 0;
+  var mean = d3.sum(vals) / n;
+  var i = -1;
+  var s = 0;
 
   while (++i < n) {
     var v = vals[i] - mean;
@@ -113,60 +158,106 @@ webCharts.dataOps.standardError = function(vals){
   }
 
   return Math.sqrt(s / (n - 1)) / Math.sqrt(n);
-};
+}
+'use strict';
 
-webCharts.dataOps.summarize = function(vals, operation){
-  var nvals = vals.filter(function(f){return +f || +f === 0; }).map(function(m){return +m; });
-  if(operation === 'cumulative')
-    return null;
+function summarize(vals, operation) {
+  var nvals = vals.filter(function (f) {
+    return +f || +f === 0;
+  }).map(function (m) {
+    return +m;
+  });
+
+  if (operation === 'cumulative') return null;
+
   var stat = operation || 'mean';
-  var mathed = stat === 'count' ? vals.length :
-  	stat === 'percent' ? vals.length :
-  	d3[stat](nvals);
+  var mathed = stat === 'count' ? vals.length : stat === 'percent' ? vals.length : d3[stat](nvals);
 
   return mathed;
-};
+}
+'use strict';
 
-/**The base Chart object.
-	*@alias module:webCharts.Chart
-	*@constructor
+function getValType(data, variable) {
+  var var_vals = d3.set(data.map(function (m) {
+    return m[variable];
+  })).values();
+  var vals_numbers = var_vals.filter(function (f) {
+    return +f || f === 0;
+  });
+
+  if (var_vals.length === vals_numbers.length && var_vals.length > 4) return 'continuous';else return 'categorical';
+}
+
+;
+"use strict";
+
+var chartProto = {
+
+		checkRequired: checkRequired,
+		consolidateData: consolidateData,
+		draw: draw,
+		drawArea: drawArea,
+		drawBars: drawBars,
+		drawGridlines: drawGridlines,
+		drawLines: drawLines,
+		drawPoints: drawPoints,
+		drawRects: drawRects,
+		drawSimpleLines: drawSimpleLines,
+		init: init,
+		layout: layout,
+		makeLegend: makeLegend,
+		onDataError: onDataError,
+		resize: resize,
+		setColorScale: setColorScale,
+		setDefaults: setDefaults,
+		setMargins: setMargins,
+		textSize: textSize,
+		transformData: transformData,
+		updateDataMarks: updateDataMarks,
+		updateRefLines: updateRefLines,
+		updateRefRegions: updateRefRegions,
+		xScaleAxis: xScaleAxis,
+		yScaleAxis: yScaleAxis
+
+};
+'use strict';
+
+webCharts.chartCount = 0;
+
+/**The base chart object.
+	*@alias module:webCharts.chart
 	*@param {string} element - CSS selector identifying the element in which to create the chart.
 	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
 	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
 	*@param {Object} config.x - object with properties to define the x-axis.
 	*@param {Object} config.x.column - column from the supplied dataset to supply values for x-axis.
  	*@param {Object} config.y - object with properties to define the y-axis.
-	*@param {Controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
+	*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
 */
-'use strict';
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var Chart = function Chart(element, filepath, config, controls) {
+webCharts.chart = function (element, filepath, config, controls) {
 	if (element === undefined) element = 'body';
 	if (config === undefined) config = {};
 
-	_classCallCheck(this, Chart);
-
+	var chart = Object.create(chartProto);
 	/** @member {string} */
-	this.div = element;
+	chart.div = element;
 	/** @member {string} */
-	this.filepath = filepath;
+	chart.filepath = filepath;
 	/** @member {Object} */
-	this.config = config;
+	chart.config = Object.create(config);
 	/** @member {Controls} */
-	this.controls = controls;
+	chart.controls = controls;
 	/** @member {Array} */
-	this.filters = [];
+	chart.filters = [];
 	/** @member {Array} */
-	this.required_cols = [];
+	chart.required_cols = [];
 	/** @member {Array} */
-	this.marks = [];
+	chart.marks = [];
 	/** @member {d3.selection} */
-	this.wrap = d3.select(this.div).append('div');
+	chart.wrap = d3.select(chart.div).append('div');
 
 	/** @member {Object} */
-	this.events = {
+	chart.events = {
 		onLayout: function onLayout() {},
 		onDatatransform: function onDatatransform() {},
 		onDraw: function onDraw() {},
@@ -177,41 +268,17 @@ var Chart = function Chart(element, filepath, config, controls) {
  	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
  	*@param {function} callback - function to run
  */
-	this.on = function (event, callback) {
+	chart.on = function (event, callback) {
 		var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
 		if (possible_events.indexOf(event) < 0) return;
-		if (callback) this.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+		if (callback) chart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
 	};
 
-	this.checkRequired = checkRequired;
-	this.consolidateData = consolidateData;
-	this.draw = draw;
-	this.drawArea = drawArea;
-	this.drawBars = drawBars;
-	this.drawGridlines = drawGridlines;
-	this.drawLines = drawLines;
-	this.drawPoints = drawPoints;
-	this.drawRects = drawRects;
-	this.drawSimpleLines = drawSimpleLines;
-	this.init = init;
-	this.layout = layout;
-	this.makeLegend = makeLegend;
-	this.onDataError = onDataError;
-	this.resize = resize;
-	this.setColorScale = setColorScale;
-	this.setDefaults = setDefaults;
-	this.setMargins = setMargins;
-	this.textSize = textSize;
-	this.transformData = transformData;
-	this.updateDataMarks = updateDataMarks;
-	this.updateRefLines = updateRefLines;
-	this.updateRefRegions = updateRefRegions;
-	this.xScaleAxis = xScaleAxis;
-	this.yScaleAxis = yScaleAxis;
-};
-"use strict";
+	webCharts.chartCount++;
+	chart.id = webCharts.chartCount;
 
-webCharts.Chart = Chart;
+	return chart;
+};
 'use strict';
 
 function checkRequired() {
@@ -336,10 +403,9 @@ function draw(processed_data, raw_data) {
   this.xScaleAxis(config.x.type, pseudo_width, this.x_dom);
   this.yScaleAxis(config.y.type, pseudo_height, this.y_dom);
 
-  var id = config.id || Math.random();
-  if (config.resizable) d3.select(window).on("resize." + context.chart_type + "." + context.element + id, function () {
+  if (config.resizable) d3.select(window).on("resize." + context.element + context.id, function () {
     context.resize();
-  });else d3.select(window).on("resize." + context.chart_type + "." + context.element + id, null);
+  });else d3.select(window).on("resize." + context.element + context.id, null);
 
   this.events.onDraw(this);
   this.resize();
@@ -408,7 +474,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('y', this.y(0)).attr('height', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
+    }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -472,7 +538,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('x', this.x(0)).attr('width', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('x', this.x(0)).attr('width', 0);
+    }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -520,7 +586,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('y', this.y(0)).attr('height', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('y', this.y(0)).attr('height', 0);
+    }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0);
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -569,7 +635,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('x', this.x(0)).attr('width', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('x', this.x(0)).attr('width', 0);
+    }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -888,19 +954,7 @@ function layout() {
     "x": 0, "y": 0, "width": 3, "height": 8, "patternUnits": "userSpaceOnUse", "patternTransform": "rotate(30)"
   }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
 
-  // defs.append("style").attr("type", "text/css").html(
-  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
-  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: inherit;}"+
-  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
-  // );
-
-  var eid = typeof this.div === "string" ? this.div.replace(/\./g, "") : d3.select(this.div).attr("class").replace(/\s/g, "");
-  var setting_string = typeof btoa !== "undefined" ? btoa(JSON.stringify(this.config)) : String(Math.random() * 100);
-  var rand = Math.floor(Math.random() * setting_string.length);
-  var setting_id = setting_string.slice(rand, rand + 5);
-  this.clippath_id = "plot-clip-" + eid + "-" + setting_id;
-
-  defs.append("clipPath").attr("id", this.clippath_id).append("rect").attr("class", "plotting-area");
+  defs.append("clipPath").attr("id", this.id).append("rect").attr("class", "plotting-area");
 
   //y axis
   this.svg.append("g").attr("class", "y axis").append("text").attr("class", "axis-title").attr("transform", "rotate(-90)").attr("dy", ".75em").attr("text-anchor", "middle");
@@ -987,80 +1041,6 @@ function makeLegend(scale, label, custom_data) {
 
   this.legend = legend;
 }
-"use strict";
-
-Chart.prototype.multiply = function (raw, split_by, constrain_domains, order) {
-  var context = this;
-  var config = this.config;
-  var wrap = context.wrap.classed("wc-layout wc-small-multiples", true).classed("wc-chart", false);
-  var master_legend = wrap.append("ul").attr("class", "legend");
-  var charts = [];
-  if (raw) {
-    context.raw_data = raw;
-    goAhead(raw);
-  } else {
-    d3.csv(context.filepath, function (error, csv) {
-      context.raw_data = csv;
-      context.onDataError(error);
-      context.checkRequired(csv);
-      goAhead(csv);
-    });
-  };
-
-  function goAhead(data) {
-    var split_vals = d3.set(data.map(function (m) {
-      return m[split_by];
-    })).values().filter(function (f) {
-      return f;
-    });
-    if (order) split_vals = split_vals.sort(function (a, b) {
-      return d3.ascending(order.indexOf(a), order.indexOf(b));
-    });
-
-    var master_chart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
-    master_chart.wrap.style("display", "none");
-
-    split_vals.forEach(function (e) {
-      var split_data = data.filter(function (f) {
-        return f[split_by] === e;
-      });
-      var mchart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
-      mchart.events = context.events;
-      mchart.legend = master_legend;
-      mchart.multiplied = { col: split_by, value: e };
-      if (constrain_domains) mchart.on("datatransform", matchDomains);
-      mchart.wrap.insert("span", "svg").attr("class", "wc-chart-title").text(e);
-      charts.push({ subchart: mchart, subdata: split_data });
-    });
-
-    charts.forEach(function (e) {
-      e.subchart.init(e.subdata);
-    });
-
-    function matchDomains(chart) {
-      var allx = [];
-      var ally = [];
-      charts.forEach(function (e) {
-        master_chart.transformData(e.subdata);
-        allx.push(master_chart.x_dom);
-        ally.push(master_chart.y_dom);
-      });
-
-      chart.config.color_dom = d3.set(data.map(function (m) {
-        return m[config.color_by];
-      })).values().filter(function (f) {
-        return f && f !== "undefined";
-      });
-      // var allx = d3.merge(charts.map(function(m){return m.x_dom}));
-      chart.x_dom = config.x_dom ? config.x_dom : config.x.type !== "ordinal" ? d3.extent(d3.merge(allx)) : d3.set(d3.merge(allx)).values();
-      chart.y_dom = config.y_com ? config.y_dom : config.y.type !== "ordinal" ? d3.extent(d3.merge(ally)) : d3.set(d3.merge(ally)).values();
-      // var ally = d3.merge(charts.map(function(m){return m.y_dom}));
-      // chart.y_dom = config.y.type !== "ordinal" ? d3.extent(ally) : d3.set(ally).values();
-    };
-  }; //goAhead
-
-  return this;
-};
 'use strict';
 
 function onDataError(error) {
@@ -1140,7 +1120,7 @@ function resize() {
     var lr = webCharts.dataOps.linearRegression(all_x, all_y);
     var max = this.x.domain()[1];
     var reg_line_data = [{ xs: [0, max], ys: [lr.intercept, max * lr.slope + lr.intercept] }];
-    var reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line').style('clip-path', 'url(#' + this.clippath_id + ')').style('shape-rendering', 'auto');
+    var reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line').style('clip-path', 'url(#' + this.id + ')').style('shape-rendering', 'auto');
     reg_line.select('title').text('slope: ' + d3.format('.2f')(lr.slope) + '\n' + 'intercept: ' + d3.format('.2f')(lr.intercept) + '\n' + 'r2: ' + d3.format('.2f')(lr.r2));
   } else {
     this.drawSimpleLines([], null, 'regression-line');
@@ -1158,7 +1138,8 @@ function resize() {
 
 function setColorScale() {
   var config = this.config;
-  var colordom = config.color_dom || d3.set(this.raw_data.map(function (m) {
+  var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
+  var colordom = config.color_dom || d3.set(data.map(function (m) {
     return m[config.color_by];
   })).values().filter(function (f) {
     return f && f !== 'undefined';
@@ -1168,7 +1149,7 @@ function setColorScale() {
     return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
   });else colordom = colordom.sort(webCharts.dataOps.naturalSorter);
 
-  this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors ? config.colors : ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']);
+  this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
 }
 'use strict';
 
@@ -1214,6 +1195,10 @@ function setDefaults() {
 	this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
 
 	this.config.aspect = this.config.aspect || 1.33;
+
+	this.config.colors = this.config.colors || ['rgb(102,194,165)', 'rgb(252,141,98)', 'rgb(141,160,203)', 'rgb(231,138,195)', 'rgb(166,216,84)', 'rgb(255,217,47)', 'rgb(229,196,148)', 'rgb(179,179,179)'];
+
+	this.config.no_text_size = this.config.no_text_size === undefined ? false : this.config.no_text_size;
 }
 'use strict';
 
@@ -1620,7 +1605,7 @@ function updateRefLines() {
     return { xs: !m.x && +m.x !== 0 ? [0, _this.plot_width, true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0, _this.plot_height, true] : [yy, yy], attributes: m.attributes };
   });
 
-  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#' + this.clippath_id + ')');
+  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#' + this.id + ')');
 }
 'use strict';
 
@@ -1640,7 +1625,7 @@ function updateRefRegions() {
     });else yy = _this.y_dom;
     return { xs: !xx ? [1, _this.plot_width] : xx, ys: !m.y ? [0, _this.plot_height - 1] : yy, attributes: m.attributes };
   });
-  this.drawRects(ref_region_data).style('clip-path', 'url(#' + this.clippath_id + ')');
+  this.drawRects(ref_region_data).style('clip-path', 'url(#' + this.id + ')');
 }
 'use strict';
 
@@ -1683,177 +1668,537 @@ function yScaleAxis(type, max_range, domain) {
   this.y = y;
   this.yAxis = yAxis;
 }
-webCharts.webTable = function(element, filepath, config, controls, callback){
-  this.chart_type = "webTable";
-  this.required_cols = config.cols || [];
-  Chart.call(this, element, filepath, config, controls, callback);
+"use strict";
 
-  return this;
-};//webTable
-webCharts.webTable.prototype = Object.create(webCharts.Chart.prototype);
-webCharts.webTable.prototype.layout = function(){
-  var config = this.config;
-  d3.select(this.div).select(".loader").remove();
-  var table = this.wrap.append("table");
-  table.append("thead").append("tr").attr("class", "headers");
-  this.table = table;
-  this.events.onLayout(this);
-};//layout
+var controlsProto = {
 
-webCharts.webTable.prototype.transformData = function(data){
-  if(!data)
-      return;
-  var context = this;
-    var config = context.config;
-    var colList = config.cols || d3.keys(data[0]);
-    if(config.keep){
-      config.keep.forEach(function(e){
-          if(colList.indexOf(e) === -1)
-          colList.unshift(e)
+	changeOption: changeOption,
+	checkRequired: controlCheckRequired,
+	controlUpdate: controlUpdate,
+	init: controlInit,
+	layout: controlLayout,
+	makeControlItem: makeControlItem,
+	makeBtnGroupControl: makeBtnGroupControl,
+	makeCheckboxControl: makeCheckboxControl,
+	makeDropdownControl: makeDropdownControl,
+	makeListControl: makeListControl,
+	makeNumberControl: makeNumberControl,
+	makeRadioControl: makeRadioControl,
+	makeSubsetterControl: makeSubsetterControl,
+	makeTextControl: makeTextControl
+
+};
+'use strict';
+
+function makeCheckboxControl(control, control_wrap) {
+  var _this = this;
+
+  var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('checked');
+    _this.changeOption(d.option, value);
+  });
+}
+"use strict";
+
+function controlInit(raw) {
+  this.data = raw;
+  if (!this.config.builder) this.checkRequired(this.data);
+  this.layout();
+  this.ready = true;
+}
+/**The base controls object.
+	*@alias module:webCharts.controls
+	*@param {string} element - CSS selector identifying the element in which to create the chart.
+	*@param {string} data - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
+*/
+'use strict';
+
+webCharts.controls = function () {
+	var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+	var data = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+	var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	var defaults = arguments.length <= 3 || arguments[3] === undefined ? { resizable: true, max_width: 800 } : arguments[3];
+
+	var controls = Object.create(controlsProto);
+
+	controls.div = element;
+	controls.data = data;
+	controls.config = Object.create(config);
+	controls.config.inputs = controls.config.inputs || [];
+	controls.targets = [];
+
+	if (config.location === 'top') controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls top');else controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls ' + controls.config.location);
+
+	return controls;
+};
+'use strict';
+
+function controlCheckRequired(dataset) {
+  var _this = this;
+
+  var colnames = d3.keys(dataset[0]);
+  console.log('line 5??');
+  if (!this.config.inputs) return;
+  this.config.inputs.forEach(function (e, i) {
+    if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
+      _this.config.inputs = _this.config.inputs.splice(controls[i], 1);
+      throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
+    }
+  });
+}
+'use strict';
+
+function makeControlItem(control) {
+  var control_wrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
+  var ctrl_label = control_wrap.append('span').attr('class', 'control-label').text(control.label);
+  if (control.required) ctrl_label.append('span').attr('class', 'label label-required').text('Required');
+  control_wrap.append('span').attr('class', 'span-description').text(control.description);
+
+  if (control.type === 'text') this.makeTextControl(control, control_wrap);else if (control.type === 'number') this.makeNumberControl(control, control_wrap);else if (control.type === 'list') this.makeListControl(control, control_wrap);else if (control.type === 'dropdown') this.makeDropdownControl(control, control_wrap);else if (control.type === 'btngroup') this.makeBtnGroupControl(control, control_wrap);else if (control.type === 'checkbox') this.makeCheckboxControl(control, control_wrap);else if (control.type === 'radio') this.makeRadioControl(control, control_wrap);else if (control.type === 'subsetter') this.makeSubsetterControl(control, control_wrap);else throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
+}
+'use strict';
+
+function makeTextControl(control, control_wrap) {
+  var _this = this;
+
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('value');
+    _this.changeOption(control.option, value);
+  });
+}
+'use strict';
+
+function makeListControl(control, control_wrap) {
+  var _this = this;
+
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
+      return m.trim();
+    }) : null;
+    _this.changeOption(control.option, value);
+  });
+}
+'use strict';
+
+function makeNumberControl(control, control_wrap) {
+  var _this = this;
+
+  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+  });
+
+  changer.on('change', function (d) {
+    var value = +changer.property('value');
+    _this.changeOption(control.option, value);
+  });
+}
+'use strict';
+
+function makeDropdownControl(control, control_wrap) {
+  var _this = this;
+
+  var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
+
+  var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
+    return m[_this.targets[0].config[control.values]];
+  })).values() : d3.keys(this.data[0]);
+
+  if (!control.require || control.none) opt_values.unshift('None');
+
+  var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
+    return d;
+  }).property('selected', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this.targets[0].config[control.option] === d;
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('value') === 'None' ? null : changer.property('value');
+
+    if (control.multiple) {
+      value = options.filter(function (f) {
+        return d3.select(this).property('selected');
+      })[0].map(function (m) {
+        return d3.select(m).property('value');
+      }).filter(function (f) {
+        return f !== 'None';
       });
-    };
-  context.config.cols = colList;
+    }
 
-  var filtered = data;
+    _this.changeOption(control.option, value);
+  });
 
-    if(context.filters.length){
-      context.filters.forEach(function(e){
-        var is_array = e.val instanceof Array;
-          filtered = filtered.filter(function(d){
-            if(is_array)
-                return e.val.indexOf(d[e.col]) !== -1;
-            else
-                return e.val !== "All" ? d[e.col] === e.val : d
-          });
+  return changer;
+}
+'use strict';
+
+function makeBtnGroupControl(control, control_wrap) {
+  var _this = this;
+
+  var option_data = control.values ? control.values : d3.keys(this.data[0]);
+
+  var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
+
+  var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
+    return d;
+  }).classed('btn-primary', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this.targets[0].config[control.option] === d;
+  });
+
+  changers.on('click', function (d) {
+    changers.each(function (e) {
+      d3.select(this).classed('btn-primary', e === d);
+    });
+    _this.changeOption(control.option, d);
+  });
+}
+'use strict';
+
+function changeOption(option, value) {
+
+  this.targets.forEach(function (e) {
+    if (option.indexOf('.') !== -1) e.config[option.split('.')[0]][option.split('.')[1]] = value;else e.config[option] = value;
+    e.draw();
+  });
+}
+'use strict';
+
+function makeRadioControl(control, control_wrap) {
+  var _this = this;
+
+  var changers = control_wrap.selectAll('label').data(control.values).enter().append('label').attr('class', 'radio').text(function (d, i) {
+    return control.relabels ? control.relabels[i] : d;
+  }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
+    return d;
+  }).property('checked', function (d) {
+    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this.targets[0].config[control.option] === d;
+  });
+
+  changers.on('change', function (d) {
+    var value = null;
+    changers.each(function (c) {
+      if (d3.select(this).property('checked')) value = d3.select(this).property('value') === 'none' ? null : c;
+    });
+    _this.changeOption(control.option, value);
+  });
+}
+'use strict';
+
+function makeSubsetterControl(control, control_wrap) {
+  var targets = this.targets;
+  var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
+
+  var option_data = control.values ? control.values : d3.set(this.data.map(function (m) {
+    return m[control.value_col];
+  }).filter(function (f) {
+    return f;
+  })).values();
+  option_data.sort(d3.ascending);
+
+  control.start = control.start ? control.start : control.loose ? option_data[0] : null;
+
+  if (!control.multiple && !control.start) option_data.unshift('All');
+
+  control.loose = !control.loose && control.start ? true : control.loose;
+
+  var options = changer.selectAll('option').data(option_data).enter().append('option').text(function (d) {
+    return d;
+  }).property('selected', function (d) {
+    return d === control.start;
+  });
+
+  targets.forEach(function (e) {
+    var match = e.filters.slice().map(function (m) {
+      return m.col === control.value_col;
+    }).indexOf(true);
+    if (match > -1) e.filters[match] = { col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose };else e.filters.push({ col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose });
+  });
+
+  function setSubsetter(target, obj) {
+    var match = -1;
+    target.filters.forEach(function (e, i) {
+      if (e.col === obj.col) match = i;
+    });
+    if (match > -1) target.filters[match] = obj;
+  }
+
+  changer.on('change', function (d) {
+    var _this = this;
+
+    if (control.multiple) {
+      (function () {
+        var values = options.filter(function (f) {
+          return d3.select(this).property('selected');
+        })[0].map(function (m) {
+          return d3.select(m).property('value');
         });
-    };
 
-    var slimmed = d3.nest()
-      .key(function(d){
-          if(config.row_per){
-            var test = config.row_per.map(function(m){return d[m]});
-            return  test.join(" ");
-          }
-          else
-            return d;
-      })
-      .rollup(function(r){
-          if(config.dataManipulate)
-            r = config.dataManipulate(r);
-          var nuarr = r.map(function(m){
-            var arr = [];
-            for(x in m){
-              arr.push({col: x, text: m[x]});
-            };
-          arr.sort(function(a,b){
-                return config.cols.indexOf(a.col) - config.cols.indexOf(b.col);
-            });
-            return {cells: arr, raw: m};
-          });
-        return nuarr;
-      })
-      .entries(filtered);
+        var new_filter = { col: control.value_col, val: values, choices: option_data, loose: control.loose };
+        targets.forEach(function (e) {
+          setSubsetter(e, new_filter);
+          e.draw();
+        });
+      })();
+    } else {
+      (function () {
+        var value = d3.select(_this).property('value');
+        var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
+        targets.forEach(function (e) {
+          setSubsetter(e, new_filter);
+          e.draw();
+        });
+      })();
+    }
+  });
+}
+"use strict";
 
-  context.current_data = slimmed;
+function controlUpdate() {
+  var _this = this;
 
-  context.events.onDatatransform(context);
+  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) this.config.inputs.forEach(function (e) {
+    return _this.makeControlItem(e);
+  });
+}
+'use strict';
 
-  return context.current_data;
-};//transformData
+function controlLayout() {
+    this.wrap.selectAll('*').remove();
+    this.controlUpdate();
+}
+"use strict";
 
-webCharts.webTable.prototype.draw = function(processed_data, raw_data){
-  var context = this;
-  var raw = raw_data ? raw_data : context.raw_data;
-  var config = context.config;
-  var data = processed_data || context.transformData(raw);
-  context.wrap.datum(data)
-  var table = context.table;
+var tableProto = Object.create(chartProto);
+tableProto.layout = tableLayout;
+tableProto.transformData = tableTransformData;
+tableProto.draw = tableDraw;
+'use strict';
+
+function tableDraw(processed_data, raw_data) {
+  // let this = this;
+  var raw = raw_data ? raw_data : this.raw_data;
+  var config = this.config;
+  var data = processed_data || this.transformData(raw);
+  this.wrap.datum(data);
+  var table = this.table;
 
   var col_list = config.cols.length ? config.cols : data.length ? d3.keys(data[0].values[0].raw) : [];
 
-  if(config.bootstrap)
-    table.classed("table", true);
-  else
-    table.classed("table", false);
+  if (config.bootstrap) table.classed('table', true);else table.classed('table', false);
   //make a header
   var header_data = !data.length ? [] : config.headers && config.headers.length ? config.headers : col_list;
-  headerRow = table.select("thead").select("tr.headers");
-  var ths = headerRow.selectAll("th").data(header_data);
+  var headerRow = table.select('thead').select('tr.headers');
+  var ths = headerRow.selectAll('th').data(header_data);
   ths.exit().remove();
-  ths.enter().append("th");
-  ths.text(function(d){return d});
+  ths.enter().append('th');
+  ths.text(function (d) {
+    return d;
+  });
 
   //add table rows (1 per svg row)
-  var tbodies = table.selectAll("tbody").data(data, function(d,i){return d.key});
+  var tbodies = table.selectAll('tbody').data(data, function (d) {
+    return d.key;
+  });
   tbodies.exit().remove();
-  tbodies.enter().append("tbody");
+  tbodies.enter().append('tbody');
   //sort tbodies by row_per
-  if(config.row_per){
+  if (config.row_per) {
     var rev_order = config.row_per.slice(0).reverse();
-    rev_order.forEach(function(e){
-        tbodies.sort(function(a,b){
-          return a.values[0].raw[e] -  b.values[0].raw[e];
-        });
+    rev_order.forEach(function (e) {
+      tbodies.sort(function (a, b) {
+        return a.values[0].raw[e] - b.values[0].raw[e];
+      });
     });
   };
-  var rows = tbodies.selectAll("tr").data(function(d){ return d.values });
+  var rows = tbodies.selectAll('tr').data(function (d) {
+    return d.values;
+  });
   rows.exit().remove();
-  rows.enter().append("tr");
+  rows.enter().append('tr');
   //sort rows by criteria in sort_rows
-  if(config.sort_rows){
-    var row_order = config.sort_rows.slice(0)//.reverse();
-    row_order.unshift("0");
+  if (config.sort_rows) {
+    (function () {
+      var row_order = config.sort_rows.slice(0); //.reverse();
+      row_order.unshift('0');
 
-    rows.sort(function(a,b){
+      rows.sort(function (a, b) {
         var i = 0;
-        while(i < row_order.length && a.raw[row_order[i]] == b.raw[row_order[i]] ){
+        while (i < row_order.length && a.raw[row_order[i]] == b.raw[row_order[i]]) {
           i++;
         }
-        if(a.raw[row_order[i]] < b.raw[row_order[i]]) return -1;
-        if(a.raw[row_order[i]] > b.raw[row_order[i]]) return 1;
+        if (a.raw[row_order[i]] < b.raw[row_order[i]]) return -1;
+        if (a.raw[row_order[i]] > b.raw[row_order[i]]) return 1;
         return 0;
-    });
-  };
+      });
+    })();
+  }
 
   //add columns (once per row)
-  var tds = rows.selectAll("td").data(function(d){return d.cells.filter(function(f){
-    return col_list.indexOf(f.col) > -1;
-  })});
+  var tds = rows.selectAll('td').data(function (d) {
+    return d.cells.filter(function (f) {
+      return col_list.indexOf(f.col) > -1;
+    });
+  });
   tds.exit().remove();
-  tds.enter().append("td");
-  tds.attr("class", function(d){return d.col})
-  if(config.as_html)
-    tds.html(function(d){return d.text});
-  else
-    tds.text(function(d){return d.text});
+  tds.enter().append('td');
+  tds.attr('class', function (d) {
+    return d.col;
+  });
+  if (config.as_html) tds.html(function (d) {
+    return d.text;
+  });else tds.text(function (d) {
+    return d.text;
+  });
 
-  if(config.row_per){
-    rows.filter(function(f,i){
-        return i > 0
-    }).selectAll("td").filter(function(f){
-        return config.row_per.indexOf(f.col) > -1
-    }).text("");
-  };
+  if (config.row_per) rows.filter(function (f, i) {
+    return i > 0;
+  }).selectAll('td').filter(function (f) {
+    return config.row_per.indexOf(f.col) > -1;
+  }).text('');
 
-  if(config.data_tables){
-    if(jQuery() && jQuery().dataTable){
+  if (config.data_tables) {
+    if (jQuery() && jQuery().dataTable) {
       var dt_config = config.data_tables;
       dt_config.searching = config.searchable ? config.searchable : false;
       $(table.node()).dataTable(dt_config);
-      var print_btn = $(".print-btn", wrap.node());
-      print_btn.addClass("pull-right");
-      $(".dataTables_wrapper").prepend( print_btn )
-    }
-    else
-      throw new Error("dataTables jQuery plugin not available");
-  };
+      var print_btn = $('.print-btn', wrap.node());
+      print_btn.addClass('pull-right');
+      $('.dataTables_wrapper').prepend(print_btn);
+    } else throw new Error('dataTables jQuery plugin not available');
+  }
 
-  if(context.callback && context.callback[1]){
-    //if an array of callbacks, call them all
-      if(context.callback instanceof Array)
-      context.callback.forEach(function(e,i){ if(i >= 1) e(context); });
+  this.events.onDraw(this);
+}
+'use strict';
+
+function tableTransformData(data) {
+  if (!data) return;
+  var config = this.config;
+  var colList = config.cols || d3.keys(data[0]);
+  if (config.keep) {
+    config.keep.forEach(function (e) {
+      if (colList.indexOf(e) === -1) colList.unshift(e);
+    });
   };
-  context.events.onDraw(this);
+  this.config.cols = colList;
+
+  var filtered = data;
+
+  if (this.filters.length) {
+    this.filters.forEach(function (e) {
+      var is_array = e.val instanceof Array;
+      filtered = filtered.filter(function (d) {
+        if (is_array) return e.val.indexOf(d[e.col]) !== -1;else return e.val !== 'All' ? d[e.col] === e.val : d;
+      });
+    });
+  }
+
+  var slimmed = d3.nest().key(function (d) {
+    if (config.row_per) return config.row_per.map(function (m) {
+      return d[m];
+    }).join(' ');else return d;
+  }).rollup(function (r) {
+    if (config.dataManipulate) r = config.dataManipulate(r);
+    var nuarr = r.map(function (m) {
+      var arr = [];
+      for (var x in m) {
+        arr.push({ col: x, text: m[x] });
+      }
+      arr.sort(function (a, b) {
+        return config.cols.indexOf(a.col) - config.cols.indexOf(b.col);
+      });
+      return { cells: arr, raw: m };
+    });
+    return nuarr;
+  }).entries(filtered);
+
+  this.current_data = slimmed;
+
+  this.events.onDatatransform(this);
+
+  return this.current_data;
+}
+/**The base table object.
+	*@alias module:webCharts.table
+	*@param {string} element - CSS selector identifying the element in which to create the chart.
+	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
+	*@param {Object} config.x - object with properties to define the x-axis.
+	*@param {Object} config.x.column - column from the supplied dataset to supply values for x-axis.
+ 	*@param {Object} config.y - object with properties to define the y-axis.
+	*@param {Controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
+*/
+'use strict';
+
+webCharts.table = function (element, filepath, config, controls) {
+	if (element === undefined) element = 'body';
+	if (config === undefined) config = {};
+
+	var table = Object.create(webCharts.prototypes.table);
+	/** @member {string} */
+	table.div = element;
+	/** @member {string} */
+	table.filepath = filepath;
+	/** @member {Object} */
+	table.config = Object.create(config);
+	/** @member {Controls} */
+	table.controls = controls;
+	/** @member {Array} */
+	table.filters = [];
+	/** @member {Array} */
+	table.required_cols = [];
+	/** @member {Array} */
+	table.marks = [];
+	/** @member {d3.selection} */
+	table.wrap = d3.select(table.div).append('div');
+
+	/** @member {Object} */
+	table.events = {
+		onLayout: function onLayout() {},
+		onDatatransform: function onDatatransform() {},
+		onDraw: function onDraw() {},
+		onResize: function onResize() {}
+	};
+	/**run the supplied callback function at the specified time in the Chart lifecycle
+ 	*@method
+ 	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
+ 	*@param {function} callback - function to run
+ */
+	table.on = function (event, callback) {
+		var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+		if (possible_events.indexOf(event) < 0) return;
+		if (callback) table.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+	};
+
+	return table;
 };
+'use strict';
 
+function tableLayout() {
+  d3.select(this.div).select('.loader').remove();
+  var table = this.wrap.append('table');
+  table.append('thead').append('tr').attr('class', 'headers');
+  this.table = table;
+  this.events.onLayout(this);
+}
+"use strict";
+
+webCharts.prototypes = {
+  chart: chartProto,
+  table: tableProto,
+  controls: controlsProto
+};
  return webCharts; }));
+//# sourceMappingURL=../maps/webcharts.js.map

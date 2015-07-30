@@ -38,11 +38,10 @@ export function draw(processed_data, raw_data){
   this.xScaleAxis(config.x.type, pseudo_width, this.x_dom);
   this.yScaleAxis(config.y.type, pseudo_height, this.y_dom);
 
-  let id = config.id || Math.random();
   if(config.resizable)
-    d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, function(){context.resize()});
+    d3.select(window).on('resize.'+context.element+context.id, function(){context.resize()});
   else
-    d3.select(window).on('resize.'+context.chart_type+"."+context.element+id, null);
+    d3.select(window).on('resize.'+context.element+context.id, null);
 
   this.events.onDraw(this);
   this.resize();

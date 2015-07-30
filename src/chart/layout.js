@@ -14,19 +14,7 @@ export function layout(){
   })
   .append("rect").attr({"x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black"});
 
-  // defs.append("style").attr("type", "text/css").html(
-  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
-  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: inherit;}"+
-  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
-  // );
-
-  let eid = typeof this.div === 'string' ? this.div.replace(/\./g, '') : d3.select(this.div).attr('class').replace(/\s/g, '') ;
-  let setting_string = typeof btoa !== 'undefined' ? btoa(JSON.stringify(this.config)) : String(Math.random()*100);
-  let rand = Math.floor( Math.random()*setting_string.length );
-  let setting_id = setting_string.slice( rand, rand+5);
-  this.clippath_id = 'plot-clip-'+eid+'-'+setting_id;
-
-  defs.append('clipPath').attr('id', this.clippath_id).append('rect').attr('class', 'plotting-area');
+  defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
 
   //y axis
   this.svg.append('g').attr('class', 'y axis')

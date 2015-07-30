@@ -76,7 +76,7 @@ export function resize(){
     let max = this.x.domain()[1];
     let reg_line_data = [{xs: [0, max], ys: [lr.intercept, (max * lr.slope) + lr.intercept ] }];
     let reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line')
-      .style('clip-path', 'url(#'+this.clippath_id+')').style('shape-rendering', 'auto');
+      .style('clip-path', 'url(#'+this.id+')').style('shape-rendering', 'auto');
     reg_line.select('title').text('slope: '+d3.format('.2f')(lr.slope)+'\n'+'intercept: '+d3.format('.2f')(lr.intercept)+'\n'+'r2: '+d3.format('.2f')(lr.r2));
   }
   else{

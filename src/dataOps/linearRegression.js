@@ -1,14 +1,14 @@
-webCharts.dataOps.linearRegression = function(x,y){
+export function linearRegression(x,y){
   //http://stackoverflow.com/questions/20507536/d3-js-linear-regression
-  var lr = {};
-  var n = y.length;
-  var sum_x = 0;
-  var sum_y = 0;
-  var sum_xy = 0;
-  var sum_xx = 0;
-  var sum_yy = 0;
+  let lr = {};
+  let n = y.length;
+  let sum_x = 0;
+  let sum_y = 0;
+  let sum_xy = 0;
+  let sum_xx = 0;
+  let sum_yy = 0;
 
-  for (var i = 0; i < n; i++) {
+  for (let i = 0; i < n; i++) {
     sum_x += x[i];
     sum_y += y[i];
     sum_xy += (x[i]*y[i]);
@@ -21,4 +21,5 @@ webCharts.dataOps.linearRegression = function(x,y){
   lr.r2 = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
 
   return lr;
-};
+
+}

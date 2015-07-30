@@ -13,7 +13,7 @@ export function init(data){
 
     this.setDefaults();
 
-    var startup = (data => {
+    let startup = (data => {
       if(this.controls){
           this.controls.targets.push(this);
           if(!this.controls.ready)

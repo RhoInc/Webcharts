@@ -2,4 +2,4 @@
 *@module webCharts
 *@version 0.2
 */
-webCharts = {version: "0.2"};
+var webCharts = {version: '0.2'};

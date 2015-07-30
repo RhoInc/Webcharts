@@ -1,43 +1,72 @@
-/**The base Chart object.
-	*@alias module:webCharts.Chart
-	*@constructor
+"use strict";
+
+var chartProto = {
+
+		checkRequired: checkRequired,
+		consolidateData: consolidateData,
+		draw: draw,
+		drawArea: drawArea,
+		drawBars: drawBars,
+		drawGridlines: drawGridlines,
+		drawLines: drawLines,
+		drawPoints: drawPoints,
+		drawRects: drawRects,
+		drawSimpleLines: drawSimpleLines,
+		init: init,
+		layout: layout,
+		makeLegend: makeLegend,
+		onDataError: onDataError,
+		resize: resize,
+		setColorScale: setColorScale,
+		setDefaults: setDefaults,
+		setMargins: setMargins,
+		textSize: textSize,
+		transformData: transformData,
+		updateDataMarks: updateDataMarks,
+		updateRefLines: updateRefLines,
+		updateRefRegions: updateRefRegions,
+		xScaleAxis: xScaleAxis,
+		yScaleAxis: yScaleAxis
+
+};
+'use strict';
+
+webCharts.chartCount = 0;
+
+/**The base chart object.
+	*@alias module:webCharts.chart
 	*@param {string} element - CSS selector identifying the element in which to create the chart.
 	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
 	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
 	*@param {Object} config.x - object with properties to define the x-axis.
 	*@param {Object} config.x.column - column from the supplied dataset to supply values for x-axis.
  	*@param {Object} config.y - object with properties to define the y-axis.
-	*@param {Controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
+	*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
 */
-'use strict';
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var Chart = function Chart(element, filepath, config, controls) {
+webCharts.chart = function (element, filepath, config, controls) {
 	if (element === undefined) element = 'body';
 	if (config === undefined) config = {};
 
-	_classCallCheck(this, Chart);
-
+	var chart = Object.create(chartProto);
 	/** @member {string} */
-	this.div = element;
+	chart.div = element;
 	/** @member {string} */
-	this.filepath = filepath;
+	chart.filepath = filepath;
 	/** @member {Object} */
-	this.config = config;
+	chart.config = Object.create(config);
 	/** @member {Controls} */
-	this.controls = controls;
+	chart.controls = controls;
 	/** @member {Array} */
-	this.filters = [];
+	chart.filters = [];
 	/** @member {Array} */
-	this.required_cols = [];
+	chart.required_cols = [];
 	/** @member {Array} */
-	this.marks = [];
+	chart.marks = [];
 	/** @member {d3.selection} */
-	this.wrap = d3.select(this.div).append('div');
+	chart.wrap = d3.select(chart.div).append('div');
 
 	/** @member {Object} */
-	this.events = {
+	chart.events = {
 		onLayout: function onLayout() {},
 		onDatatransform: function onDatatransform() {},
 		onDraw: function onDraw() {},
@@ -48,41 +77,17 @@ var Chart = function Chart(element, filepath, config, controls) {
  	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
  	*@param {function} callback - function to run
  */
-	this.on = function (event, callback) {
+	chart.on = function (event, callback) {
 		var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
 		if (possible_events.indexOf(event) < 0) return;
-		if (callback) this.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+		if (callback) chart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
 	};
 
-	this.checkRequired = checkRequired;
-	this.consolidateData = consolidateData;
-	this.draw = draw;
-	this.drawArea = drawArea;
-	this.drawBars = drawBars;
-	this.drawGridlines = drawGridlines;
-	this.drawLines = drawLines;
-	this.drawPoints = drawPoints;
-	this.drawRects = drawRects;
-	this.drawSimpleLines = drawSimpleLines;
-	this.init = init;
-	this.layout = layout;
-	this.makeLegend = makeLegend;
-	this.onDataError = onDataError;
-	this.resize = resize;
-	this.setColorScale = setColorScale;
-	this.setDefaults = setDefaults;
-	this.setMargins = setMargins;
-	this.textSize = textSize;
-	this.transformData = transformData;
-	this.updateDataMarks = updateDataMarks;
-	this.updateRefLines = updateRefLines;
-	this.updateRefRegions = updateRefRegions;
-	this.xScaleAxis = xScaleAxis;
-	this.yScaleAxis = yScaleAxis;
-};
-"use strict";
+	webCharts.chartCount++;
+	chart.id = webCharts.chartCount;
 
-webCharts.Chart = Chart;
+	return chart;
+};
 'use strict';
 
 function checkRequired() {
@@ -207,10 +212,9 @@ function draw(processed_data, raw_data) {
   this.xScaleAxis(config.x.type, pseudo_width, this.x_dom);
   this.yScaleAxis(config.y.type, pseudo_height, this.y_dom);
 
-  var id = config.id || Math.random();
-  if (config.resizable) d3.select(window).on("resize." + context.chart_type + "." + context.element + id, function () {
+  if (config.resizable) d3.select(window).on("resize." + context.element + context.id, function () {
     context.resize();
-  });else d3.select(window).on("resize." + context.chart_type + "." + context.element + id, null);
+  });else d3.select(window).on("resize." + context.element + context.id, null);
 
   this.events.onDraw(this);
   this.resize();
@@ -279,7 +283,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('y', this.y(0)).attr('height', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
+    }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -343,7 +347,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('x', this.x(0)).attr('width', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('x', this.x(0)).attr('width', 0);
+    }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -391,7 +395,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('y', this.y(0)).attr('height', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('y', this.y(0)).attr('height', 0);
+    }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0);
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -440,7 +444,7 @@ function drawBars(marks) {
     bars.exit().transition().attr('x', this.x(0)).attr('width', 0).remove();
     bars.enter().append('rect').attr('class', function (d) {
       return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.clippath_id + ')').attr('x', this.x(0)).attr('width', 0);
+    }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
 
     bars.attr('stroke', function (d) {
       return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -759,19 +763,7 @@ function layout() {
     "x": 0, "y": 0, "width": 3, "height": 8, "patternUnits": "userSpaceOnUse", "patternTransform": "rotate(30)"
   }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
 
-  // defs.append("style").attr("type", "text/css").html(
-  //   "@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,300,600,700);"+
-  //   "*{font-family: 'Open Sans' Helvetica Arial sans-serif; font-size: inherit;}"+
-  //   ".axis path.domain{fill: none; stroke: #ccc; shape-rendering: crispEdges; } .axis .tick line{stroke: #eee; shape-rendering: crispEdges; } .axis .tick text{font-size: .9em; }"
-  // );
-
-  var eid = typeof this.div === "string" ? this.div.replace(/\./g, "") : d3.select(this.div).attr("class").replace(/\s/g, "");
-  var setting_string = typeof btoa !== "undefined" ? btoa(JSON.stringify(this.config)) : String(Math.random() * 100);
-  var rand = Math.floor(Math.random() * setting_string.length);
-  var setting_id = setting_string.slice(rand, rand + 5);
-  this.clippath_id = "plot-clip-" + eid + "-" + setting_id;
-
-  defs.append("clipPath").attr("id", this.clippath_id).append("rect").attr("class", "plotting-area");
+  defs.append("clipPath").attr("id", this.id).append("rect").attr("class", "plotting-area");
 
   //y axis
   this.svg.append("g").attr("class", "y axis").append("text").attr("class", "axis-title").attr("transform", "rotate(-90)").attr("dy", ".75em").attr("text-anchor", "middle");
@@ -858,80 +850,6 @@ function makeLegend(scale, label, custom_data) {
 
   this.legend = legend;
 }
-"use strict";
-
-Chart.prototype.multiply = function (raw, split_by, constrain_domains, order) {
-  var context = this;
-  var config = this.config;
-  var wrap = context.wrap.classed("wc-layout wc-small-multiples", true).classed("wc-chart", false);
-  var master_legend = wrap.append("ul").attr("class", "legend");
-  var charts = [];
-  if (raw) {
-    context.raw_data = raw;
-    goAhead(raw);
-  } else {
-    d3.csv(context.filepath, function (error, csv) {
-      context.raw_data = csv;
-      context.onDataError(error);
-      context.checkRequired(csv);
-      goAhead(csv);
-    });
-  };
-
-  function goAhead(data) {
-    var split_vals = d3.set(data.map(function (m) {
-      return m[split_by];
-    })).values().filter(function (f) {
-      return f;
-    });
-    if (order) split_vals = split_vals.sort(function (a, b) {
-      return d3.ascending(order.indexOf(a), order.indexOf(b));
-    });
-
-    var master_chart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
-    master_chart.wrap.style("display", "none");
-
-    split_vals.forEach(function (e) {
-      var split_data = data.filter(function (f) {
-        return f[split_by] === e;
-      });
-      var mchart = new webCharts.Chart(context.wrap.node(), null, config, context.controls);
-      mchart.events = context.events;
-      mchart.legend = master_legend;
-      mchart.multiplied = { col: split_by, value: e };
-      if (constrain_domains) mchart.on("datatransform", matchDomains);
-      mchart.wrap.insert("span", "svg").attr("class", "wc-chart-title").text(e);
-      charts.push({ subchart: mchart, subdata: split_data });
-    });
-
-    charts.forEach(function (e) {
-      e.subchart.init(e.subdata);
-    });
-
-    function matchDomains(chart) {
-      var allx = [];
-      var ally = [];
-      charts.forEach(function (e) {
-        master_chart.transformData(e.subdata);
-        allx.push(master_chart.x_dom);
-        ally.push(master_chart.y_dom);
-      });
-
-      chart.config.color_dom = d3.set(data.map(function (m) {
-        return m[config.color_by];
-      })).values().filter(function (f) {
-        return f && f !== "undefined";
-      });
-      // var allx = d3.merge(charts.map(function(m){return m.x_dom}));
-      chart.x_dom = config.x_dom ? config.x_dom : config.x.type !== "ordinal" ? d3.extent(d3.merge(allx)) : d3.set(d3.merge(allx)).values();
-      chart.y_dom = config.y_com ? config.y_dom : config.y.type !== "ordinal" ? d3.extent(d3.merge(ally)) : d3.set(d3.merge(ally)).values();
-      // var ally = d3.merge(charts.map(function(m){return m.y_dom}));
-      // chart.y_dom = config.y.type !== "ordinal" ? d3.extent(ally) : d3.set(ally).values();
-    };
-  }; //goAhead
-
-  return this;
-};
 'use strict';
 
 function onDataError(error) {
@@ -1011,7 +929,7 @@ function resize() {
     var lr = webCharts.dataOps.linearRegression(all_x, all_y);
     var max = this.x.domain()[1];
     var reg_line_data = [{ xs: [0, max], ys: [lr.intercept, max * lr.slope + lr.intercept] }];
-    var reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line').style('clip-path', 'url(#' + this.clippath_id + ')').style('shape-rendering', 'auto');
+    var reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line').style('clip-path', 'url(#' + this.id + ')').style('shape-rendering', 'auto');
     reg_line.select('title').text('slope: ' + d3.format('.2f')(lr.slope) + '\n' + 'intercept: ' + d3.format('.2f')(lr.intercept) + '\n' + 'r2: ' + d3.format('.2f')(lr.r2));
   } else {
     this.drawSimpleLines([], null, 'regression-line');
@@ -1029,7 +947,8 @@ function resize() {
 
 function setColorScale() {
   var config = this.config;
-  var colordom = config.color_dom || d3.set(this.raw_data.map(function (m) {
+  var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
+  var colordom = config.color_dom || d3.set(data.map(function (m) {
     return m[config.color_by];
   })).values().filter(function (f) {
     return f && f !== 'undefined';
@@ -1039,7 +958,7 @@ function setColorScale() {
     return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
   });else colordom = colordom.sort(webCharts.dataOps.naturalSorter);
 
-  this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors ? config.colors : ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5', '#ffed6f']);
+  this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
 }
 'use strict';
 
@@ -1085,6 +1004,10 @@ function setDefaults() {
 	this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
 
 	this.config.aspect = this.config.aspect || 1.33;
+
+	this.config.colors = this.config.colors || ['rgb(102,194,165)', 'rgb(252,141,98)', 'rgb(141,160,203)', 'rgb(231,138,195)', 'rgb(166,216,84)', 'rgb(255,217,47)', 'rgb(229,196,148)', 'rgb(179,179,179)'];
+
+	this.config.no_text_size = this.config.no_text_size === undefined ? false : this.config.no_text_size;
 }
 'use strict';
 
@@ -1491,7 +1414,7 @@ function updateRefLines() {
     return { xs: !m.x && +m.x !== 0 ? [0, _this.plot_width, true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0, _this.plot_height, true] : [yy, yy], attributes: m.attributes };
   });
 
-  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#' + this.clippath_id + ')');
+  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#' + this.id + ')');
 }
 'use strict';
 
@@ -1511,7 +1434,7 @@ function updateRefRegions() {
     });else yy = _this.y_dom;
     return { xs: !xx ? [1, _this.plot_width] : xx, ys: !m.y ? [0, _this.plot_height - 1] : yy, attributes: m.attributes };
   });
-  this.drawRects(ref_region_data).style('clip-path', 'url(#' + this.clippath_id + ')');
+  this.drawRects(ref_region_data).style('clip-path', 'url(#' + this.id + ')');
 }
 'use strict';
 

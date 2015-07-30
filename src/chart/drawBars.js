@@ -30,7 +30,7 @@ export function drawBars(marks){
       .remove();
     bars.enter().append('rect')
       .attr('class', d => 'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.clippath_id+')')
+      .style('clip-path', 'url(#'+this.id+')')
       .attr('y', this.y(0))
       .attr('height', 0)
       .append('title');
@@ -109,7 +109,7 @@ export function drawBars(marks){
       .remove();
     bars.enter().append('rect')
       .attr('class', d => 'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.clippath_id+')')
+      .style('clip-path', 'url(#'+this.id+')')
       .attr('x', this.x(0))
       .attr('width', 0);
 
@@ -171,7 +171,7 @@ export function drawBars(marks){
       .remove();
     bars.enter().append('rect')
       .attr('class', d =>'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.clippath_id+')')
+      .style('clip-path', 'url(#'+this.id+')')
       .attr('y', this.y(0))
       .attr('height', 0);
 
@@ -221,7 +221,7 @@ export function drawBars(marks){
       .remove();
     bars.enter().append('rect')
       .attr('class', d => 'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.clippath_id+')')
+      .style('clip-path', 'url(#'+this.id+')')
       .attr('x', this.x(0))
       .attr('width', 0);
 

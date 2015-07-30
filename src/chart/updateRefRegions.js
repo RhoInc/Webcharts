@@ -16,5 +16,5 @@ export function updateRefRegions(){
         yy = this.y_dom;
     return {xs: !xx ? [1, this.plot_width] : xx, ys: !m.y ? [0, this.plot_height-1] : yy, attributes: m.attributes};
   });
-  this.drawRects(ref_region_data).style('clip-path', 'url(#'+this.clippath_id+')');
+  this.drawRects(ref_region_data).style('clip-path', 'url(#'+this.id+')');
 }

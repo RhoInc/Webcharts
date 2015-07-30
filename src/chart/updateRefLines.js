@@ -11,5 +11,5 @@ export function updateRefLines(){
     return {xs: !m.x && +m.x !== 0 ? [0, this.plot_width,true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0,this.plot_height,true] : [yy, yy], attributes: m.attributes};
   });
 
-  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#'+this.clippath_id+')');
+  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#'+this.id+')');
 }

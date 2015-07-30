@@ -1,17 +1,18 @@
-Controls.prototype.makeTextControl = function(control, control_wrap){
-    var changer = control_wrap.append("input").attr("type", "text").attr("class", "changer").datum(control);
-    context.targets.forEach(function(e){
-      if(e.config[control.option])
-        changer.property("value", e.config[control.option]);
+export function makeTextControl(control, control_wrap){
+  let changer = control_wrap.append('input')
+    .attr('type', 'text')
+    .attr('class', 'changer')
+    .datum(control)
+    .property('value', d => {
+      if(control.option.indexOf('.') !== -1)
+        return this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
+      else
+        return this.targets[0].config[control.option];
     });
-    
-    changer.on("change", function(d){
-    	var value = d3.select(this).property("value");
-      context.targets.forEach(function(e){
-        if(!e.config[d.option])
-          e.config[d.option] = {};
-        e.config[d.option] = value;
-        e.draw();
-      });
-    });
-  };
+
+  changer.on('change', d => {
+  	let value = changer.property('value');
+    this.changeOption(control.option, value);
+  });
+  
+}

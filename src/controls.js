@@ -1,205 +1,169 @@
-/**The base Controls object.
-	*@alias module:webCharts.Controls
-	*@constructor
-	*@param {string} element - CSS selector identifying the element in which to create the chart.
-	*@param {string} data - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
-*/
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var controlsProto = {
 
-var Controls = function Controls(element, data, config, defaults, callback) {
-	_classCallCheck(this, Controls);
+		checkRequired: controlCheckRequired,
+		controlUpdate: controlUpdate,
+		init: controlInit,
+		layout: controlLayout,
+		makeControlItem: makeControlItem,
+		makeBtnGroupControl: makeBtnGroupControl,
+		makeCheckboxControl: makeCheckboxControl,
+		makeDropdownControl: makeDropdownControl,
+		makeListControl: makeListControl,
+		makeNumberControl: makeNumberControl,
+		makeRadioControl: makeRadioControl,
+		makeSubsetterControl: makeSubsetterControl,
+		makeTextControl: makeTextControl
 
-	if (config.location === "top") this.div = d3.select(element).insert("div", ":first-child").attr("class", "wc-controls top");else this.div = d3.select(element).append("div").attr("class", "wc-controls " + config.location);
-	this.element = element;
-	this.data = data || [];
-	this.config = config;
-	this.config.controls = this.config.controls || [];
-	this.defaults = defaults ? defaults : { resizable: true, max_width: 800 };
-	this.callback = callback;
-	this.targets = [];
-
-	this.div.selectAll(".changer").each(function (e, i) {
-		if (e.links) {
-			var value = d3.select(this).attr("type") === "checkbox" ? !d3.select(this).property("checked") : d3.select(this).property("value");
-			toggleDisabled(value, e.links);
-		}
-	});
 };
-"use strict";
+'use strict';
 
-dataControls.controls = Controls;
-"use strict";
+function makeCheckboxControl(control, control_wrap) {
+  var targets = this.targets;
+  var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control);
 
-Controls.prototype.checkRequired = function (dataset) {
-  var context = this;
-  var colnames = d3.keys(dataset[0]);
-  var controls = context.config.controls;
-  console.log('line 5??');
-  if (!controls) return;
-  controls.forEach(function (e, i) {
-    if (controls.type === "subsetter" && colnames.indexOf(e.value_col) === -1) {
-      //d3.select(context.target.div).select(".loader").remove();
-      controls = controls.splice(controls[i], 1);
-      throw new Error("Error in settings object: the value '" + e.value_col + "' does not match any column in the provided dataset.");
-    }
+  targets.forEach(function (e) {
+    if (e.config[control.option]) changer.property('checked', e.config[control.option]);
   });
-};
-"use strict";
 
-Controls.prototype.controlUpdate = function () {
-   var control_div = this.div.select(".main-settings");
-   var advanced_div = this.div.select(".main-settings");
-   var context = this;
-
-   if (this.config.controls && this.config.controls.length && this.config.controls[0]) this.config.controls.forEach(function (e) {
-      context.makeControlItem(e, control_div, advanced_div);
-   });
-};
-"use strict";
-
-Controls.prototype.drawOptions = function (element, filt_data, option, variable) {
-  var div = d3.select(element);
-  div.selectAll(".filter-values").remove();
-  if (filt_data.type === "cat") {
-    var filt_values = div.selectAll(".filter-values").data(filt_data.values.sort());
-    if (variable && variable !== "None") {
-      var filt_buttons = filt_values.enter().append("label").attr("class", "filter-values");
-      filt_buttons.append("input").attr("type", "checkbox").property("checked", true).on("change", function (d) {
-        var chosen_filts = filt_values.filter(function (f) {
-          return d3.select(this).select("input").property("checked");
-        }).data();
-        var value = d3.select(this).property("value");
-        context.targets.forEach(function (target) {
-          target.config[option] = { col: variable, vals: chosen_filts };
-          target.draw();
-        });
-      });
-      filt_buttons.append("span").text(function (d) {
-        return d ? d : "N/A";
-      });
-    };
-  } else if (filt_data.type === "num") {
-    var missing_data = filt_data.values.indexOf("NA") !== -1;
-    filt_data.values = filt_data.values.filter(function (f) {
-      return f !== "NA";
+  changer.on('change', function (d) {
+    var value = changer.property('checked');
+    console.log(value);
+    targets.forEach(function (e) {
+      e.config[d.option] = value;
+      e.draw();
     });
-    var range_div = div.append("div").attr("class", "numeric filter-values").datum(filt_data);
-    range_div.append("span").attr("class", "slider-label min").text(d3.min(filt_data.values));
-    range_div.append("span").attr("class", "slider-label max pull-right").text(d3.max(filt_data.values));
-    var range_slider = range_div.append("div").attr("class", "range");
-    $(range_div.node()).find("div.range").slider({
-      range: true,
-      min: +d3.min(filt_data.values),
-      max: +d3.max(filt_data.values),
-      values: d3.extent(filt_data.values).map(function (m) {
-        return +m;
-      }),
-      slide: function slide(event, ui) {
-        //update the labels
-        $("span.min", range_div.node()).text(ui.values[0]);
-        $("span.max", range_div.node()).text(ui.values[1]);
-
-        //update the settings object
-        var chosen_filts = filt_data.values.filter(function (f) {
-          return +f >= ui.values[0] && +f <= ui.values[1];
-        });
-        context.targets.forEach(function (target) {
-          target.config[option] = { col: variable, vals: chosen_filts };
-          target.draw();
-        });
-      }
-    });
-  };
-};
+  });
+}
 "use strict";
 
-Controls.prototype.extraControlInfo = function () {
-			this.div.select(".control-section").selectAll(".control-group").each(function (e) {
-						if (e.require) {
-									d3.select(this).select(".control-label").append("span").attr("class", "label label-required").text("Required");
-						};
-						if (e.description) {
-									d3.select(this).insert("span", ".changer").attr("class", "span-description").text(e.description);
-						};
-			});
-};
-"use strict";
-
-Controls.prototype.getValType = function (variable) {
-   var var_vals = d3.set(context.data.map(function (m) {
-      return m[variable];
-   })).values();
-   var vals_numbers = var_vals.filter(function (f) {
-      return +f || f == "NA" || f == 0;
-   });
-   if (var_vals.length === vals_numbers.length && var_vals.length > 4) return { type: "num", values: var_vals, varname: variable };else return { type: "cat", values: var_vals, varname: variable };
-};
-"use strict";
-
-Controls.prototype.init = function (raw) {
+function controlInit(raw) {
   this.data = raw;
   if (!this.config.builder) this.checkRequired(this.data);
   this.layout();
   this.ready = true;
+}
+/**The base controls object.
+	*@alias module:webCharts.controls
+	*@param {string} element - CSS selector identifying the element in which to create the chart.
+	*@param {string} data - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
+*/
+'use strict';
+
+webCharts.controls = function () {
+	var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+	var data = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+	var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+	var defaults = arguments.length <= 3 || arguments[3] === undefined ? { resizable: true, max_width: 800 } : arguments[3];
+
+	var controls = Object.create(controlsProto);
+
+	controls.div = element;
+	controls.data = data;
+	controls.config = Object.create(config);
+	controls.config.inputs = controls.config.inputs || [];
+	controls.targets = [];
+
+	if (config.location === 'top') controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls top');else controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls ' + controls.config.location);
+
+	return controls;
 };
-"use strict";
+'use strict';
 
-Controls.prototype.layout = function () {
-    this.div.selectAll("*").remove();
-    this.div.append("div").attr("class", "main-settings");
-    this.div.append("div").attr("class", "advanced-settings");
-    this.controlUpdate();
-    if (this.callback) this.callback(this);
-};
-"use strict";
+function controlCheckRequired(dataset) {
+  var _this = this;
 
-Controls.prototype.makeBtnGroupControl = function (control, control_wrap) {
-    var partial = control.option.indexOf(".") !== -1;
-    var option_name = partial ? control.option.split(".")[0] : control.option;
-    var option_data = control.values ? control.values : d3.keys(context.data[0]).map(function (m) {
-        return { label: m, val: m };
+  var colnames = d3.keys(dataset[0]);
+  console.log('line 5??');
+  if (!this.config.inputs) return;
+  this.config.inputs.forEach(function (e, i) {
+    if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
+      _this.config.inputs = _this.config.inputs.splice(controls[i], 1);
+      throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
+    }
+  });
+}
+'use strict';
+
+function makeControlItem(control) {
+  var control_wrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
+  var ctrl_label = control_wrap.append('span').attr('class', 'control-label').text(control.label);
+  if (control.required) ctrl_label.append('span').attr('class', 'label label-required').text('Required');
+  control_wrap.append('span').attr('class', 'span-description').text(control.description);
+
+  if (control.type === 'text') this.makeTextControl(control, control_wrap);else if (control.type === 'number') this.makeNumberControl(control, control_wrap);else if (control.type === 'list') this.makeListControl(control, control_wrap);else if (control.type === 'dropdown') this.makeDropdownControl(control, control_wrap);else if (control.type === 'btngroup') this.makeBtnGroupControl(control, control_wrap);else if (control.type === 'checkbox') this.makeCheckboxControl(control, control_wrap);else if (control.type === 'radio') this.makeRadioControl(control, control_wrap);else if (control.type === 'subsetter') this.makeSubsetterControl(control, control_wrap);else throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
+}
+'use strict';
+
+function makeTextControl(control, control_wrap) {
+  var targets = this.targets;
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control);
+
+  targets.forEach(function (e) {
+    if (e.config[control.option]) changer.property('value', e.config[control.option]);
+  });
+
+  changer.on('change', function (d) {
+    var value = d3.select(this).property('value');
+    targets.forEach(function (e) {
+      if (!e.config[d.option]) e.config[d.option] = {};
+      e.config[d.option] = value;
+      e.draw();
     });
-    control_wrap = control_wrap.append("div").attr("class", "btn-group");
-    var changers = control_wrap.selectAll("button").data(option_data).enter().append("button").attr("class", "btn btn-default btn-sm").text(function (d) {
-        return d.label;
+  });
+}
+'use strict';
+
+function makeListControl(control, control_wrap) {
+  var targets = this.targets;
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control);
+
+  targets.forEach(function (e) {
+    if (e.config[control.option]) changer.property('value', e.config[control.option]);
+  });
+
+  changer.on('change', function (d) {
+    var value = d3.select(this).property('value') ? d3.select(this).property('value').split(',').map(function (m) {
+      return m.trim();
+    }) : null;
+    targets.forEach(function (e) {
+      if (!e.config[d.option]) e.config[d.option] = {};
+      e.config[d.option] = value;
+      e.draw();
     });
-    context.targets.forEach(function (e) {
-        changers.classed("btn-primary", function (d) {
-            return d.selected || e.config[option_name] && e.config[option_name] === d.val ? true : false;
-        });
+  });
+}
+'use strict';
+
+function makeNumberControl(control, control_wrap) {
+  var targets = this.targets;
+  var changer = control_wrap.append('input').attr('type', 'number').attr('min', '0').attr('step', control.step || 1).attr('class', 'changer').datum(control);
+
+  var partial = control.option.indexOf('.') !== -1;
+  var option_name = partial ? control.option.split('.')[0] : control.option;
+
+  targets.forEach(function (e) {
+    if (e.config[option_name]) changer.property('value', +e.config[option_name]);
+  });
+
+  changer.on('change', function (d) {
+    var value = +d3.select(this).property('value');
+    targets.forEach(function (e) {
+      if (!e.config[option_name]) e.config[option_name] = {};
+      if (partial) e.config[option_name][control.option.split('.')[1]] = value;else e.config[option_name] = value;
+      e.draw();
     });
+  });
+}
+'use strict';
 
-    changers.on("click", function (d) {
-        changers.classed("btn-primary", false);
-        d3.select(this).classed("btn-primary", true);
-        var value = d.val;
-        var datum = control_wrap.datum();
-        if (!context.target.config[datum.option]) context.target.config[datum.option] = {};
-        context.target.config[datum.option] = value;
-        context.target.draw();
-    });
-};
-"use strict";
-
-Controls.prototype.makeControlItem = function (control, div1, div2) {
-  var control_section = control.advanced ? div2 : div1;
-  var control_wrap = control_section.insert("div", ".adv-btn").attr("class", "control-group").classed("inline", control.inline).datum(control);
-  var ctrl_label = control_wrap.append("span").attr("class", "control-label").text(control.label);
-  if (control.required) ctrl_label.append("span").attr("class", "label label-required").text("Required");
-  control_wrap.append("span").attr("class", "span-description").text(control.description);
-
-  if (control.type === "text") this.makeTextControl(control, control_wrap);else if (control.type === "number") this.makeNumberControl(control, control_wrap);else if (control.type === "list") this.makeListControl(control, control_wrap);else if (control.type === "dropdown") this.makeDropdownControl(control, control_wrap);else if (control.type === "btngroup") this.makeBtnGroupControl(control, control_wrap);else if (control.type === "toggle") this.makeToggleControl(control, control_wrap);else if (control.type === "radio") this.makeRadioControl(control, control_wrap);else if (control.type === "set") this.makeSetControl(control, control_wrap);else if (control.type === "paired_list") this.makePairedListControl(control, control_wrap);else if (control.type === "subsetter") this.makeSubsetterControl(control, control_wrap);else if (control.type === "filter") this.makeFilterControl(control, control_wrap);else throw new Error("Each control must have a type! Choose from: 'text', 'number', 'list', 'dropdown', 'toggle', 'radio', 'set', 'subsetter', 'btngroup'");
-};
-"use strict";
-
-Controls.prototype.makeDropdownControl = function (control, control_wrap) {
-  var context = this;
-  var partial = control.option.indexOf(".") !== -1;
-  var option_name = partial ? control.option.split(".")[0] : control.option;
-  var changer = control_wrap.append("select").attr("class", "changer").attr("multiple", control.multiple ? true : null).datum(control);
+function makeDropdownControl(control, control_wrap) {
+  var targets = this.targets;
+  var partial = control.option.indexOf('.') !== -1;
+  var option_name = partial ? control.option.split('.')[0] : control.option;
+  var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
   var opt_values = control.values ? control.values instanceof Array ? control.values : d3.set(context.data.map(function (m) {
     return m[context.targets[0].config[control.values]];
@@ -211,311 +175,187 @@ Controls.prototype.makeDropdownControl = function (control, control_wrap) {
     return { label: m };
   });
 
-  if (!control.require || control.none) option_data.unshift({ label: "None" });
+  if (!control.require || control.none) option_data.unshift({ label: 'None' });
 
-  var options = changer.selectAll("option").data(option_data).enter().append("option").text(function (d) {
+  var options = changer.selectAll('option').data(option_data).enter().append('option').text(function (d) {
     return d.label;
   });
 
-  context.targets.forEach(function (e) {
-    if (e.config[option_name]) changer.property("value", partial ? e.config[option_name][control.option.split(".")[1]] : e.config[option_name]);else changer.property("value", control.require ? "" : "None");
+  targets.forEach(function (e) {
+    if (e.config[option_name]) changer.property('value', partial ? e.config[option_name][control.option.split('.')[1]] : e.config[option_name]);else changer.property('value', control.require ? '' : 'None');
   });
 
-  changer.on("change", function (d) {
-    var value = d3.select(this).property("value");
-    if (control.multiple) var values = options.filter(function (f) {
-      return d3.select(this).property("selected");
-    })[0].map(function (m) {
-      return d3.select(m).property("value");
-    }).filter(function (f) {
-      return f !== "None";
-    });
+  changer.on('change', function (d) {
+    var value = d3.select(this).property('value');
+    var values = undefined;
+    if (control.multiple) {
+      values = options.filter(function (f) {
+        return d3.select(this).property('selected');
+      })[0].map(function (m) {
+        return d3.select(m).property('value');
+      }).filter(function (f) {
+        return f !== 'None';
+      });
+    }
 
-    value = value === "None" ? null : value;
+    value = value === 'None' ? null : value;
 
-    context.targets.forEach(function (e) {
-      if (!e.config[option_name]) {
-        e.config[option_name] = control.multiple ? [] : {};
-      }
+    targets.forEach(function (e) {
+      if (!e.config[option_name]) e.config[option_name] = control.multiple ? [] : {};
       if (partial) {
-        if (control.multiple) {
-          if (control.labeler) {
-            e.config[option_name] = values.map(function (m, i) {
-              var existing = e.config[option_name].filter(function (f) {
-                return f[control.option.split(".")[1]] === m;
-              });
-              var obj = existing.length ? existing[0] : {};
-              obj[control.option.split(".")[1]] = m;
-              return obj;
-            });
-          } else e.config[option_name][control.option.split(".")[1]] = values;
-        } else e.config[option_name][control.option.split(".")[1]] = value;
+        if (control.multiple) e.config[option_name][control.option.split('.')[1]] = values;else e.config[option_name][control.option.split('.')[1]] = value;
       } else e.config[option_name] = control.multiple ? values : value;
-      if (control.labeler) {
-        var value_data = control.multiple ? values : value;
-        makeLabelerControl(control, control_wrap, value_data);
-      }
-
       e.draw();
     });
-
-    if (control.links) toggleDisabled(value, control.links);
   });
 
   return changer;
-};
-"use strict";
+}
+'use strict';
 
-Controls.prototype.makeFilterControl = function (control, control_wrap) {
-  var changer = makeDropdownControl(control, control_wrap);
-  changer.on("change", function (d) {
-    var value = d3.select(this).property("value");
-    context.targets.forEach(function (target) {
-      if (!target.config[d.option]) target.config[d.option] = {};
-      target.config[d.option].col = value;
+function makeBtnGroupControl(control, control_wrap) {
+  var targets = this.targets;
+  var partial = control.option.indexOf('.') !== -1;
+  var option_name = partial ? control.option.split('.')[0] : control.option;
+  var option_data = control.values ? control.values : d3.keys(context.data[0]).map(function (m) {
+    return { label: m, val: m };
+  });
+
+  var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
+
+  var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
+    return d.label;
+  });
+
+  targets.forEach(function (e) {
+    changers.classed('btn-primary', function (d) {
+      return d.selected || e.config[option_name] && e.config[option_name] === d.val ? true : false;
     });
-
-    var filt_data = getValType(value);
-    drawOptions(this.parentNode, filt_data, d.option, value);
-  });
-};
-"use strict";
-
-Controls.prototype.makeLabelerControl = function (control, control_wrap, data) {
-   var partial = control.option.indexOf(".") !== -1;
-   var option_name = partial ? control.option.split(".")[0] : control.option;
-
-   var labelers = control_wrap.selectAll("input.labeler").data(data, function (d) {
-      return d;
-   });
-   labelers.exit().remove();
-   labelers.enter().append("input").attr("type", "text").attr("class", "changer labeler");
-   labelers.attr("placeholder", function (d) {
-      return "label for " + d;
-   }).on("change", function (d) {
-      var value = d3.select(this).property("value");
-      context.targets.forEach(function (target) {
-         if (control.multiple) {
-            target.config[option_name].forEach(function (e) {
-               if (e[control.option.split(".")[1]] === d) e.label = value;
-            });
-         } else target.config[option_name].label = value;
-         target.draw();
-      });
-   });
-};
-"use strict";
-
-Controls.prototype.makeListControl = function (control, control_wrap) {
-  var changer = control_wrap.append("input").attr("type", "text").attr("class", "changer").datum(control);
-  context.targets.forEach(function (e) {
-    if (e.config[control.option]) changer.property("value", e.config[control.option]);
   });
 
-  changer.on("change", function (d) {
-    var value = d3.select(this).property("value") ? d3.select(this).property("value").split(",").map(function (m) {
-      return m.trim();
-    }) : null;
-    context.targets.forEach(function (e) {
-      if (!e.config[d.option]) e.config[d.option] = {};
-      e.config[d.option] = value;
+  changers.on('click', function (d) {
+    changers.classed('btn-primary', false);
+    d3.select(this).classed('btn-primary', true);
+    var value = d.val;
+    var datum = btn_wrap.datum();
+    targets.forEach(function (e) {
+      if (!e.config[datum.option]) e.config[datum.option] = {};
+      e.config[datum.option] = value;
       e.draw();
     });
   });
-};
+}
 "use strict";
+'use strict';
 
-Controls.prototype.makeNumberControl = function (control, control_wrap) {
-  var changer = control_wrap.append("input").attr("type", "number").attr("min", "0").attr("step", control.step || 1).attr("class", "changer").datum(control);
-  var partial = control.option.indexOf(".") !== -1;
-  var option_name = partial ? control.option.split(".")[0] : control.option;
-  context.targets.forEach(function (e) {
-    if (e.config[option_name]) changer.property("value", +e.config[option_name]);
-  });
-
-  changer.on("change", function (d) {
-    var value = +d3.select(this).property("value");
-    context.targets.forEach(function (e) {
-      if (!e.config[option_name]) e.config[option_name] = {};
-      if (partial) e.config[option_name][control.option.split(".")[1]] = value;else e.config[option_name] = value;
-      e.draw();
-    });
-  });
-};
-"use strict";
-
-Controls.prototype.makeRadioControl = function (control, control_wrap) {
-  var partial = control.option.indexOf(".") !== -1;
-  var option_name = partial ? control.option.split(".")[0] : control.option;
-  var changers = control_wrap.selectAll("label").data(control.values).enter().append("label").attr("class", "radio").text(function (d, i) {
+function makeRadioControl(control, control_wrap) {
+  var targets = this.targets;
+  var partial = control.option.indexOf('.') !== -1;
+  var option_name = partial ? control.option.split('.')[0] : control.option;
+  var changers = control_wrap.selectAll('label').data(control.values).enter().append('label').attr('class', 'radio').text(function (d, i) {
     return control.relabels ? control.relabels[i] : d;
-  }).append("input").attr("type", "radio").attr("class", "changer").attr("name", option_name + "-" + Math.random()).property("value", function (d) {
+  }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', option_name + '-' + Math.random()).property('value', function (d) {
     return d;
-  }).property("checked", function (d) {
-    if (partial) return context.targets[0].config[option_name] && context.targets[0].config[option_name][control.option.split(".")[1]] && context.targets[0].config[option_name][control.option.split(".")[1]] === d ? true : false;else return context.targets[0].config[option_name] && context.targets[0].config[option_name] === d ? true : false;
+  }).property('checked', function (d) {
+    if (partial) return targets[0].config[option_name] && targets[0].config[option_name][control.option.split('.')[1]] && targets[0].config[option_name][control.option.split('.')[1]] === d ? true : false;else return targets[0].config[option_name] && targets[0].config[option_name] === d ? true : false;
   });
-  //.datum(control);
 
-  context.targets.forEach(function (e) {
+  targets.forEach(function (e) {
     if (!e.config[option_name] && partial) e.config[option_name] = {};
   });
 
-  changers.on("change", function (d) {
+  changers.on('change', function (d) {
     var value = null;
     changers.each(function (c) {
-      if (d3.select(this).property("checked")) value = d3.select(this).property("value") === "none" ? null : c; //d3.select(this).property("value");
+      if (d3.select(this).property('checked')) value = d3.select(this).property('value') === 'none' ? null : c;
     });
-    context.targets.forEach(function (e) {
-      if (partial) e.config[option_name][control.option.split(".")[1]] = value;else e.config[option_name] = value;
+    targets.forEach(function (e) {
+      if (partial) e.config[option_name][control.option.split('.')[1]] = value;else e.config[option_name] = value;
       e.draw();
     });
   });
-};
-"use strict";
+}
+'use strict';
 
-Controls.prototype.makeSetControl = function (control, control_wrap) {
-  control.set.forEach(function (e) {
-    var changer = control_wrap.append("input").attr("type", "number").attr("class", "inline").attr("placeholder", e).datum(e);
-    if (context.target.config[control.option]) changer.property("value", context.target.config[control.option][e]);
-    changer.on("change", function (d) {
-      var value = d3.select(this).property("value");
-      context.target.config[control.option][d] = +value;
-      context.target.draw();
-    });
-  });
-};
-"use strict";
+function makeSubsetterControl(control, control_wrap) {
+  var targets = this.targets;
+  var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
-Controls.prototype.makeSubsetterControl = function (control, control_wrap) {
-  var context = this;
-  var changer = control_wrap.append("select").attr("class", "changer").attr("multiple", control.multiple ? true : null).datum(control);
-  var option_data = control.values ? control.values : d3.set(context.data.map(function (m) {
+  var option_data = control.values ? control.values : d3.set(this.data.map(function (m) {
     return m[control.value_col];
   }).filter(function (f) {
     return f;
   })).values();
   option_data.sort(d3.ascending);
+
   control.start = control.start ? control.start : control.loose ? option_data[0] : null;
-  if (!control.multiple && !control.start) option_data.unshift("All");
-  //option_data.sort();
+
+  if (!control.multiple && !control.start) option_data.unshift('All');
+
   control.loose = !control.loose && control.start ? true : control.loose;
-  var options = changer.selectAll("option").data(option_data).enter().append("option").text(function (d) {
+
+  var options = changer.selectAll('option').data(option_data).enter().append('option').text(function (d) {
     return d;
-  }).property("selected", function (d) {
+  }).property('selected', function (d) {
     return d === control.start;
   });
 
-  context.targets.forEach(function (e) {
+  targets.forEach(function (e) {
     var match = e.filters.slice().map(function (m) {
       return m.col === control.value_col;
     }).indexOf(true);
-    if (match > -1) e.filters[match] = { col: control.value_col, val: control.start ? control.start : "All", choices: option_data, loose: control.loose };else e.filters.push({ col: control.value_col, val: control.start ? control.start : "All", choices: option_data, loose: control.loose });
+    if (match > -1) e.filters[match] = { col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose };else e.filters.push({ col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose });
   });
 
-  if (control.chosen) {
-    //chosen plugin
-    $(changer.node()).chosen(control.chosen).change(function () {
-      var d = d3.select(this).datum();
-      doTheSubset(d, 0, 0, this);
-      $(this).trigger("chosen:updated");
-    });
-  } else changer.on("change", doTheSubset);
-
-  function doTheSubset(d, i, c, current_context) {
-    var this_subsetter = current_context || this;
-    if (control.multiple) {
-      var values = options.filter(function (f) {
-        return d3.select(this).property("selected");
-      })[0].map(function (m) {
-        return d3.select(m).property("value");
-      });
-
-      var new_filter = { col: control.value_col, val: values, choices: option_data, loose: control.loose };
-      context.targets.forEach(function (e) {
-        context.setSubsetter(e, new_filter);
-        e.draw();
-      });
-    } else {
-      var value = d3.select(this_subsetter).property("value");
-      var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
-      context.targets.forEach(function (e) {
-        context.setSubsetter(e, new_filter);
-        e.draw();
-      });
-    };
-    if (control.callback) {
-      context.targets.forEach(function (e) {
-        control.callback(e);
-      });
-    }
-  };
-
-  if (control.chosen) //chosen plugin
-    $(this).trigger("chosen:updated");
-};
-"use strict";
-
-Controls.prototype.makeTextControl = function (control, control_wrap) {
-  var changer = control_wrap.append("input").attr("type", "text").attr("class", "changer").datum(control);
-  context.targets.forEach(function (e) {
-    if (e.config[control.option]) changer.property("value", e.config[control.option]);
-  });
-
-  changer.on("change", function (d) {
-    var value = d3.select(this).property("value");
-    context.targets.forEach(function (e) {
-      if (!e.config[d.option]) e.config[d.option] = {};
-      e.config[d.option] = value;
-      e.draw();
-    });
-  });
-};
-"use strict";
-
-Controls.prototype.makeToggleControl = function (control, control_wrap) {
-  control_wrap.select(".control-label"); //.classed("inline", true);
-  var changer = control_wrap.append("input").attr("type", "checkbox").attr("class", "changer").datum(control);
-  context.targets.forEach(function (e) {
-    if (e.config[control.option]) changer.property("checked", e.config[control.option]);
-  });
-
-  changer.on("change", function (d) {
-    var value = d3.select(this).property("checked");
-    context.targets.forEach(function (e) {
-      if (!e.config[d.option]) e.config[d.option] = {};
-      e.config[d.option] = value;
-      e.draw();
-      if (control.links) toggleDisabled(!value, control.links);
-    });
-  });
-};
-"use strict";
-
-Controls.prototype.reset = function (new_file) {
-	this.div.selectAll("*").remove();
-
-	this.layout();
-	this.ready = true;
-	// context.target.wrap.selectAll("*").remove();
-	// context.target.config = context.defaults;
-	// context.target.filepath = new_file;
-	// context.target.init();
-};
-"use strict";
-
-Controls.prototype.setSubsetter = function (target, obj) {
-   var match = -1;
-   target.filters.forEach(function (e, i) {
+  function setSubsetter(target, obj) {
+    var match = -1;
+    target.filters.forEach(function (e, i) {
       if (e.col === obj.col) match = i;
-   });
-   if (match > -1) target.filters[match] = obj;
-};
+    });
+    if (match > -1) target.filters[match] = obj;
+  }
+
+  changer.on('change', function (d) {
+    var _this = this;
+
+    if (control.multiple) {
+      (function () {
+        var values = options.filter(function (f) {
+          return d3.select(this).property('selected');
+        })[0].map(function (m) {
+          return d3.select(m).property('value');
+        });
+
+        var new_filter = { col: control.value_col, val: values, choices: option_data, loose: control.loose };
+        targets.forEach(function (e) {
+          setSubsetter(e, new_filter);
+          e.draw();
+        });
+      })();
+    } else {
+      (function () {
+        var value = d3.select(_this).property('value');
+        var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
+        targets.forEach(function (e) {
+          setSubsetter(e, new_filter);
+          e.draw();
+        });
+      })();
+    }
+  });
+}
 "use strict";
 
-Controls.prototype.toggleDisabled = function (toggle, links) {
-  links.forEach(function (e) {
-    context.div.select(".control-section").selectAll(".changer").each(function (f) {
-      if (e.options.indexOf(f.option) !== -1) d3.select(this).attr("disabled", e.val === toggle ? true : null);
-    });
+function controlUpdate() {
+  var _this = this;
+
+  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) this.config.inputs.forEach(function (e) {
+    return _this.makeControlItem(e);
   });
-};
+}
+'use strict';
+
+function controlLayout() {
+    this.wrap.selectAll('*').remove();
+    this.controlUpdate();
+}
