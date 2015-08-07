@@ -1,3 +1,7 @@
+/** Sets up the SVG that serves as the chart "canvas" and its static child elements. Happens once immediately after {@link webCharts~chart.init chart.init}
+*@memberof webCharts.objects.chart
+*@method layout
+*/
 export function layout(){
   this.svg = this.wrap.append("svg")
     .attr({"class": "wc-svg",
@@ -30,12 +34,14 @@ export function layout(){
   //overlay
   this.svg.append('rect')
     .attr('class', 'overlay')
-    .attr('opacity', 0);
+    .attr('opacity', 0)
+    .attr('fill', 'none')
+    .style('pointer-events', 'all');
   //add legend
   this.wrap.append('ul').attr('class', 'legend')
     .append('span').attr('class', 'legend-title');
 
   d3.select(this.div).select('.loader').remove();
 
-  this.events.onLayout(this);
+  this.events.onLayout.call(this);
 }

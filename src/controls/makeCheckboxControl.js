@@ -1,3 +1,9 @@
+/** Renders a checkbox that toggles the value assigned to a given option
+*@memberof controls
+*@method makeCheckBoxControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 export function makeCheckboxControl(control, control_wrap){
   let changer = control_wrap.append('input')
     .attr('type', 'checkbox')

@@ -1,3 +1,11 @@
+/**
+*an alphanumeric sort function that can be passed to the native Array.sort() method
+*http://www.davekoelle.com/files/alphanum.js
+*@memberof webCharts.dataOps
+*@method naturalSorter
+*@param {String|Number} a the first of a couplet of items to compare
+*@param {String|Number} b the second of a couplet of items to compare
+*/
 export function naturalSorter(a, b){
   //http://www.davekoelle.com/files/alphanum.js
   function chunkify(t) {

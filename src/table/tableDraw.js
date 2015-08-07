@@ -1,3 +1,8 @@
+/** does some stuff
+*@memberof table
+*@method draw
+*@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
+*/
 export function tableDraw(processed_data, raw_data){
   // let this = this;
   let raw = raw_data ? raw_data : this.raw_data;

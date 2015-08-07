@@ -1,3 +1,9 @@
+/** Renders a <code>\<select\></code> element whose value is assigned to a given option
+*@memberof controls
+*@method makeDropdownControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 export function makeDropdownControl(control, control_wrap){
   let changer = control_wrap.append('select')
     .attr('class', 'changer')

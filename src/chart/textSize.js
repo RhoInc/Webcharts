@@ -1,9 +1,14 @@
-export function textSize(width,height){
+/** Automatically determines text size for the chart based on certain breakpoints
+*@memberof webCharts.objects.chart
+*@method textSize
+*@param {number} width width of the chart container
+*/
+export function textSize(width){
   let font_size = '14px';
   let point_size = 4;
   let stroke_width = 2;
 
-  if(this.config.no_text_size){
+  if(!this.config.scale_text){
     font_size = this.config.font_size;
     point_size = this.config.point_size || 4;
     stroke_width = this.config.stroke_width || 2;
@@ -32,5 +37,5 @@ export function textSize(width,height){
   this.wrap.style('font-size',font_size);
   this.config.flex_point_size = point_size;
   this.config.flex_stroke_width = stroke_width;
-  
+
 }

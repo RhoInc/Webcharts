@@ -1,5 +1,7 @@
-/**initialize Chart
-*@param {Array} [data=parsed data from file] - an array of objects representing the raw data to be passed to the chart
+/** Begins 
+*@memberof webCharts.objects.chart
+*@method init
+*@param {Array} [data] raw data to be used in the place of dataset parsed from {@link webCharts~chart.filepath filepath}
 */
 export function init(data){
     let config = this.config;
@@ -16,19 +18,13 @@ export function init(data){
     let startup = (data => {
       if(this.controls){
           this.controls.targets.push(this);
-          if(!this.controls.ready)
+          if(!this.controls.ready){
             this.controls.init(data);
-          else
+          }
+          else{
             this.controls.layout();
+          }
       }
-
-      let meta_map = config.meta_map ? config.meta_map :
-        (data && data.length) ? d3.keys(data[0]).map(function(m){ return {col: m, label: m}; }) :
-        [];
-
-      this.metaMap = d3.scale.ordinal()
-        .domain(meta_map.map(m => m.col))
-        .range(meta_map.map(m => m.label));
 
       this.raw_data = data;
 
@@ -50,7 +46,7 @@ export function init(data){
         this.layout();
         this.wrap.datum(this);
         this.draw();
-      };
+      }
     });
 
     if(this.filepath && !data){
@@ -61,8 +57,9 @@ export function init(data){
           startup(csv);
         });
       }
-    else
+    else{
       startup(data);
+    }
 
     return this;
 }

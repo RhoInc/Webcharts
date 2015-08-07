@@ -3,7 +3,6 @@
 
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
-var browserify = require('browserify');
 
 var scripts = [
   'src/version.js',
@@ -27,70 +26,72 @@ var buildScripts = [
   'src/prototypes.js'
 ];
 
-var wcWrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){\n<%= contents %>\n return webCharts; }));';
+var wcWrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){\n<%= contents %>\n return webCharts;\n }));';
 
-gulp.task('build', function() {
-  return gulp.src(buildScripts)
-    .pipe($.sourcemaps.init())
-    .pipe($.babel({
-      modules: 'ignore'
-    }))
-    .pipe($.concat('webcharts.js'))
-    .pipe($.wrap(wcWrapper))
-    .pipe($.sourcemaps.write('../maps'))
-    // .pipe($.uglify())
-    .pipe(gulp.dest('build'));
-});
-
-gulp.task('minify', function(){
+gulp.task('build', ['concat', 'document'], function() {
   return gulp.src('build/webcharts.js')
     .pipe($.rename('webcharts.min.js'))
     .pipe($.uglify())
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('wrapper', ['chart-bundle', 'controls-bundle', 'dataops-bundle'], function() {
-  return gulp.src(scripts)
+gulp.task('concat', function() {
+  return gulp.src(buildScripts)
     .pipe($.sourcemaps.init())
     .pipe($.concat('webcharts.js'))
+    .pipe($.babel({
+      modules: 'ignore'
+    }))
     .pipe($.wrap(wcWrapper))
     .pipe($.sourcemaps.write('../maps'))
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('dataops-bundle', function() {
-  return gulp.src(['src/dataOps/main.js','src/dataOps/*.js'])
-    // .pipe($.sourcemaps.init())
-    .pipe($.concat('dataOps.js'))
-    // .pipe($.sourcemaps.write('../maps'))
-    .pipe(gulp.dest('src'));
+gulp.task('minify', function(){ 
+  return gulp.src('build/webcharts.js')
+    .pipe($.rename('webcharts.min.js'))
+    .pipe($.uglify())
+    .pipe(gulp.dest('build'));
 });
 
-gulp.task('chart-bundle', function(){
-  return gulp.src(['src/chart/main.js', 'src/chart/*.js'])
-    // .pipe($.sourcemaps.init())
-    .pipe($.babel({
-      modules: 'ignore'
-    }))
-    .pipe($.concat('chart.js'))
-    // .pipe($.sourcemaps.write('../maps'))
-    .pipe(gulp.dest('src')) ;
-});
+gulp.task('document', $.shell.task( [
+  'jsdoc2md build/webcharts.js > doc.md'
+] ));
 
-gulp.task('controls-bundle', function(){
-  return gulp.src(['src/controls/main.js', 'src/controls/*.js'])
-    // .pipe($.sourcemaps.init())
-    .pipe($.babel({
-      modules: 'ignore'
-    }))
-    .pipe($.concat('controls.js'))
-    // .pipe($.sourcemaps.write('../maps'))
-    .pipe(gulp.dest('src')) ;
-});
+gulp.task('doc', $.shell.task( [
+  'jsdoc2md src/**/* > doc.md'
+] ));
 
+gulp.task('controls-doc', $.shell.task( [
+  'jsdoc2md src/controls/* > docs/controls.md'
+] ));
+gulp.task('table-doc', $.shell.task( [
+  'jsdoc2md src/table/* > docs/table.md'
+] ));
+
+gulp.task('strip', ['controls-doc', 'table-doc'], function(){
+  return gulp.src(['docs/*'])
+    .pipe($.replace(/\*\*Kind\*\*.*\n/g, ''))//strip out the lines that talk about **Kind** because that's stupid
+    .pipe($.replace(/^\*\s\[.*\n/m, '')) //remove first item in menu/list because it's redundant
+    .pipe($.replace(/(^\s+\*\s){1}/m, '\n'))
+    .pipe($.replace(/^\s+\*\s/gm, '<br>'))
+    .pipe(gulp.dest('docs/'));
+});
+//test.replace(new RegExp(/\*\*Kind\*\*.*\n/), '\n')
 gulp.task('watch', function(){
-  // gulp.watch(scripts, ['wrapper']);
-  gulp.watch('src/chart/*', ['wrapper']);
-  gulp.watch('src/controls/*', ['wrapper']);
-  // gulp.watch(['src/dc-version.js', 'src/controls.js', 'src/controls/*'], ['dc-wrapper']);
+  gulp.watch('src/controls/*', ['strip']);
+  gulp.watch('src/table/*', ['strip']);
 });
+
+gulp.task('watch-all', function(){
+  gulp.watch('src/**/*', ['build']);
+});
+
+gulp.task('watch-js2md', function(){
+  gulp.watch('src/**/*', ['doc']);
+});
+
+//use dox to get json descriptiong instead of full-blown html files
+// dox < build/webcharts.js > doc.json
+//or go straight to markdown
+// jsdoc2md build/webcharts.js > doc.md

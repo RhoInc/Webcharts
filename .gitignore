@@ -1,2 +1,4 @@
 *.sublime*
+.jshintrc
 node_modules
+maps

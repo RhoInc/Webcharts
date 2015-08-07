@@ -1,3 +1,9 @@
+/** Transforms raw data into an appropriately nested format for each mark
+*@memberof webCharts.objects.chart
+*@method transformData
+*@param {array} raw raw dataset to be transformed
+*@param {mark} mark object describing the set of marks
+*/
 export function transformData(raw, mark){
   let config = this.config;
   let x_behavior = config.x.behavior || 'raw';
@@ -7,10 +13,6 @@ export function transformData(raw, mark){
     null;
   let dateConvert = d3.time.format(config.date_format);
   let totalOrder;
-
-  //this functionality should go in a 'pre-data' callback
-  if(config.lengthen_columns)
-    raw = webCharts.dataOps.lengthenRaw(raw, config.lengthen_columns);
 
   raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]] ) : raw;
 
@@ -258,7 +260,8 @@ export function transformData(raw, mark){
     config.y.order = totalOrder;
 
   this.current_data = current_nested.nested;
-  // context.events.onDatatransform(context);
+
+  this.events.onDatatransform.call(this);
 
   return {data: current_nested.nested, x_dom: x_dom, y_dom: y_dom};
 }

@@ -1,12 +1,12 @@
-/**The base table object.
-	*@alias module:webCharts.table
-	*@param {string} element - CSS selector identifying the element in which to create the chart.
-	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
-	*@param {Object} config.x - object with properties to define the x-axis.
-	*@param {Object} config.x.column - column from the supplied dataset to supply values for x-axis.
- 	*@param {Object} config.y - object with properties to define the y-axis.
-	*@param {Controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
+/**
+*A factory to create table objects
+*@returns {webCharts.objects.table}
+*@method
+*@memberof webCharts
+*@param {string} element=body - CSS selector identifying the element in which to create the chart.
+*@param {string} filepath - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
+*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
 */
 webCharts.table = function(element = 'body', filepath, config = {}, controls){
     let table = Object.create(tableProto);

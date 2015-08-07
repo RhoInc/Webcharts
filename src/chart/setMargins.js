@@ -1,3 +1,7 @@
+/** Automatically determines margins for the chart based on axis ticks, labels, etc.
+*@memberof webCharts.objects.chart
+*@method setMargins
+*/
 export function setMargins(){
   let x_ticks = this.xAxis.tickFormat() ? this.x.domain().map(m => this.xAxis.tickFormat()(m)) : this.x.domain();
   let y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(m => this.yAxis.tickFormat()(m)) : this.y.domain();

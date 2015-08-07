@@ -1,3 +1,9 @@
+/** Maniuplates the config objects for each associated chart and calls their .draw() methods to trigger re-rendering
+*@memberof controls
+*@method changeOption
+*@param {string} option property of the config object to change
+*@param {*} value the new value to assign to the given option
+*/
 export function changeOption(option, value){
 
   this.targets.forEach(e => {

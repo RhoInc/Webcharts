@@ -1,15 +1,19 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){
-/**A charting library built on top of {@link https://github.com/mbostock/d3 D3.js} that offers a simple way to instantiate basic interactive chart with JavaScript. Bar charts, line charts, scatter plots, and timelines can be customized with a handful of settings and extended through callback functions. Controls can be specified for filtering chart data or manipulating the settings to change how the chart behaves.
-*@module webCharts
-*@version 0.2
+/**The webCharts object either exports itself as an AMD or CommonJS module or attaches itself to the global <code>window</code> namespace, depending on the context in which it is used.
+*@namespace webCharts
 */
 'use strict';
 
 var webCharts = { version: '0.2' };
-'use strict';
 
-webCharts.multiply = function (chart, split_by, constrain_domains, order) {
-  // let context = this;
+/** A shortcut for creating many charts at once. Given a {@link webCharts~chart chart} object and a variable from its dataset, a new chart is created for each unique value of that variable. Each new chart rendered using a filtered version of the original dataset.
+*@method multiply
+*@memberof webCharts
+*@param {Object} chart the chart object used as a template
+*@param {String} split_by a header from the chart's dataset, the values of which are used to panel the resulting charts
+*@param {Array} order an array of the values defined by split_by, the order of which defines the order of the charts
+*/
+webCharts.multiply = function (chart, split_by, order) {
   var config = chart.config;
   var wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
   var master_legend = wrap.append('ul').attr('class', 'legend');
@@ -45,19 +49,26 @@ webCharts.multiply = function (chart, split_by, constrain_domains, order) {
     });
   }
 };
-"use strict";
 
+/** An object containing several utility functions for working with data
+*@memberof webCharts
+*@type {object}
+*/
 webCharts.dataOps = {
-
   getValType: getValType,
   lengthenRaw: lengthenRaw,
-  linearRegression: linearRegression,
   naturalSorter: naturalSorter,
-  standardError: standardError,
   summarize: summarize
-
 };
-"use strict";
+
+/**
+*expands a dataset to include one record per each column in the given array of columns
+*@returns {array} a new, "longer" dataset
+*@memberof webCharts.dataOps
+*@method lengthenRaw
+*@param {array} data the dataset to be transformed, in the form of an array of object, such as the one returned by d3.csv
+*@param {array} columns an array of column names
+*/
 
 function lengthenRaw(data, columns) {
   var my_data = [];
@@ -74,33 +85,15 @@ function lengthenRaw(data, columns) {
 
   return my_data;
 }
-"use strict";
 
-function linearRegression(x, y) {
-  //http://stackoverflow.com/questions/20507536/d3-js-linear-regression
-  var lr = {};
-  var n = y.length;
-  var sum_x = 0;
-  var sum_y = 0;
-  var sum_xy = 0;
-  var sum_xx = 0;
-  var sum_yy = 0;
-
-  for (var i = 0; i < n; i++) {
-    sum_x += x[i];
-    sum_y += y[i];
-    sum_xy += x[i] * y[i];
-    sum_xx += x[i] * x[i];
-    sum_yy += y[i] * y[i];
-  }
-
-  lr.slope = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x * sum_x);
-  lr.intercept = (sum_y - lr.slope * sum_x) / n;
-  lr.r2 = Math.pow((n * sum_xy - sum_x * sum_y) / Math.sqrt((n * sum_xx - sum_x * sum_x) * (n * sum_yy - sum_y * sum_y)), 2);
-
-  return lr;
-}
-"use strict";
+/**
+*an alphanumeric sort function that can be passed to the native Array.sort() method
+*http://www.davekoelle.com/files/alphanum.js
+*@memberof webCharts.dataOps
+*@method naturalSorter
+*@param {String|Number} a the first of a couplet of items to compare
+*@param {String|Number} b the second of a couplet of items to compare
+*/
 
 function naturalSorter(a, b) {
   //http://www.davekoelle.com/files/alphanum.js
@@ -115,7 +108,7 @@ function naturalSorter(a, b) {
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
       var m = i == 46 || i >= 48 && i <= 57;
       if (m !== n) {
-        tz[++y] = "";
+        tz[++y] = '';
         n = m;
       }
       tz[y] += j;
@@ -138,28 +131,15 @@ function naturalSorter(a, b) {
 
   return aa.length - bb.length;
 }
-"use strict";
 
-function standardError(vals) {
-  if (!vals) return null;
-
-  var n = +vals.length;
-
-  if (n < 1) return NaN;
-  if (n === 1) return 0;
-
-  var mean = d3.sum(vals) / n;
-  var i = -1;
-  var s = 0;
-
-  while (++i < n) {
-    var v = vals[i] - mean;
-    s += v * v;
-  }
-
-  return Math.sqrt(s / (n - 1)) / Math.sqrt(n);
-}
-'use strict';
+/**
+*performs a mathematic operation on a set of values
+*@returns {number}
+*@memberof webCharts.dataOps
+*@method summarize
+*@param {array} vals the values to be evaluated
+*@param {string} operation=mean the type of evaluation to perform
+*/
 
 function summarize(vals, operation) {
   var nvals = vals.filter(function (f) {
@@ -175,7 +155,14 @@ function summarize(vals, operation) {
 
   return mathed;
 }
-'use strict';
+
+/** Determines what type of data is contained in a given column from a given dataset
+*@returns {string} <code>'continuous'</code> or <code>'categorical'</code>
+*@memberof webCharts.dataOps
+*@method getValType
+*@param {array} data a dataset to evaluate
+*@param {string} variable a column from the dataset
+*/
 
 function getValType(data, variable) {
   var var_vals = d3.set(data.map(function (m) {
@@ -185,125 +172,205 @@ function getValType(data, variable) {
     return +f || f === 0;
   });
 
-  if (var_vals.length === vals_numbers.length && var_vals.length > 4) return 'continuous';else return 'categorical';
+  if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
+    return 'continuous';
+  } else {
+    return 'categorical';
+  }
 }
 
-;
-"use strict";
-
+/**
+*The chart object represents a chart with conventional x- and y-axes that is rendered with SVG. Customizable configuration options determine the appearance and behavior of the chart, and these options can be manipulated indirectly through a set of {@link webCharts~controls controls}. The chart has several lifecycle methods used to instantiate the object, render necessary elements, and adjust the rendered elements as needed. The chart can therefore be updated dynamically by changing some {@link webCharts~chart.config config} options (or operating directly on the chart object's properties) or by feeding it new data and then calling its {@link webCharts~chart.draw draw} method to trigger an animated re-render.
+*@type {object}
+*@var chart
+*@memberof webCharts.objects
+*/
 var chartProto = {
-
-		checkRequired: checkRequired,
-		consolidateData: consolidateData,
-		draw: draw,
-		drawArea: drawArea,
-		drawBars: drawBars,
-		drawGridlines: drawGridlines,
-		drawLines: drawLines,
-		drawPoints: drawPoints,
-		drawRects: drawRects,
-		drawSimpleLines: drawSimpleLines,
-		init: init,
-		layout: layout,
-		makeLegend: makeLegend,
-		onDataError: onDataError,
-		resize: resize,
-		setColorScale: setColorScale,
-		setDefaults: setDefaults,
-		setMargins: setMargins,
-		textSize: textSize,
-		transformData: transformData,
-		updateDataMarks: updateDataMarks,
-		updateRefLines: updateRefLines,
-		updateRefRegions: updateRefRegions,
-		xScaleAxis: xScaleAxis,
-		yScaleAxis: yScaleAxis
-
+  /** 
+  *raw (unfiltered, untransformed) dataset stored by the chart
+  *@member {Array}
+  */
+  raw_data: [],
+  config: {}
 };
-'use strict';
+
+Object.defineProperties(chartProto, {
+  'adjustTicks': { value: adjustTicks },
+  'checkRequired': { value: checkRequired },
+  'consolidateData': { value: consolidateData },
+  'draw': { value: draw },
+  'drawArea': { value: drawArea },
+  'drawBars': { value: drawBars },
+  'drawGridlines': { value: drawGridlines },
+  'drawLines': { value: drawLines },
+  'drawPoints': { value: drawPoints },
+  'highlightMarks': { value: highlightMarks },
+  'init': { value: init },
+  'layout': { value: layout },
+  'makeLegend': { value: makeLegend },
+  'onDataError': { value: onDataError },
+  'resize': { value: resize },
+  'setColorScale': { value: setColorScale },
+  'setDefaults': { value: setDefaults },
+  'setMargins': { value: setMargins },
+  'textSize': { value: textSize },
+  'transformData': { value: transformData },
+  'updateDataMarks': { value: updateDataMarks },
+  'xScaleAxis': { value: xScaleAxis },
+  'yScaleAxis': { value: yScaleAxis }
+});
 
 webCharts.chartCount = 0;
 
-/**The base chart object.
-	*@alias module:webCharts.chart
-	*@param {string} element - CSS selector identifying the element in which to create the chart.
-	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
-	*@param {Object} config.x - object with properties to define the x-axis.
-	*@param {Object} config.x.column - column from the supplied dataset to supply values for x-axis.
- 	*@param {Object} config.y - object with properties to define the y-axis.
-	*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
+/**
+*A factory to create chart objects
+*@returns {webCharts.objects.chart}
+*@method
+*@memberof webCharts
+*@param {string} element=body - CSS selector identifying the element in which to create the chart.
+*@param {string} filepath - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
+*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
 */
-webCharts.chart = function (element, filepath, config, controls) {
-	if (element === undefined) element = 'body';
-	if (config === undefined) config = {};
+webCharts.chart = function () {
+  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+  var filepath = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var controls = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
-	var chart = Object.create(chartProto);
-	/** @member {string} */
-	chart.div = element;
-	/** @member {string} */
-	chart.filepath = filepath;
-	/** @member {Object} */
-	chart.config = Object.create(config);
-	/** @member {Controls} */
-	chart.controls = controls;
-	/** @member {Array} */
-	chart.filters = [];
-	/** @member {Array} */
-	chart.required_cols = [];
-	/** @member {Array} */
-	chart.marks = [];
-	/** @member {d3.selection} */
-	chart.wrap = d3.select(chart.div).append('div');
+  var chart = Object.create(chartProto);
+  /** CSS selector identifying the DOM element housing the rendered chart
+  *@memberof webCharts.objects.chart
+  *@member {string} div
+  */
+  chart.div = element;
+  /** The path to a data file (.csv) that provides the raw data to the chart
+  *@memberof webCharts.objects.chart
+  *@member {string} filepath
+  */
+  chart.filepath = filepath;
+  /** An object specifying chart settings
+  *@memberof webCharts.objects.chart
+  *@member {object} config
+  */
+  chart.config = Object.create(config);
+  /** A webCharts.controls~controls object associated with this chart
+  *@memberof webCharts.objects.chart
+  *@member {controls} webCharts~controls
+  */
+  chart.controls = controls;
+  /** Raw (unfiltered, untransformed) dataset stored by the chart. This dataset is either parsed from the file retreived from the provided {@link webCharts~chart.filepath filepath} or provided directly as an argument to {@link webCharts~chart.init chart.init}.
+  *@memberof webCharts.objects.chart
+  *@member {array} raw_data
+  */
+  chart.raw_data = [];
+  /** A list of objects describing the state of any data filters currently associated with the chart. This property is manipulated by controls with type='subsetter'.
+  *@memberof webCharts.objects.chart
+  @member {array} filters
+  */
+  chart.filters = [];
+  /** A list of objects describing each set of marks rendered by the chart. Maps to the 'marks' property of the configuration object, but with the mark-specfic transformed data attached
+  *@memberof webCharts.objects.chart
+  *@member {array} marks
+  */
+  chart.marks = [];
+  /** A d3 selection of a \<div\> appended within the DOM element specified by {@link webCharts~chart.div div}
+  *@memberof webCharts.objects.chart
+  *@member {d3.selection} wrap
+   	*/
+  chart.wrap = d3.select(chart.div).append('div');
 
-	/** @member {Object} */
-	chart.events = {
-		onLayout: function onLayout() {},
-		onDatatransform: function onDatatransform() {},
-		onDraw: function onDraw() {},
-		onResize: function onResize() {}
-	};
-	/**run the supplied callback function at the specified time in the Chart lifecycle
- 	*@method
- 	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
- 	*@param {function} callback - function to run
- */
-	chart.on = function (event, callback) {
-		var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
-		if (possible_events.indexOf(event) < 0) return;
-		if (callback) chart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
-	};
+  /** @member {object} */
+  chart.events = {
+    onLayout: function onLayout() {},
+    onDatatransform: function onDatatransform() {},
+    onDraw: function onDraw() {},
+    onResize: function onResize() {}
+  };
+  /**run the supplied callback function at the specified time in the Chart lifecycle
+  *@memberof webCharts.objects.chart
+  *@method on
+  *@param {string} event - point in Chart lifecycle at which to fire the associated callback
+  *@param {function} callback - function to run
+  */
+  chart.on = function (event, callback) {
+    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    if (possible_events.indexOf(event) < 0) {
+      return;
+    }
+    if (callback) {
+      chart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+    }
+  };
 
-	webCharts.chartCount++;
-	chart.id = webCharts.chartCount;
+  webCharts.chartCount++;
+  /** A unique identifier for this chart instance
+  *@memberof webCharts.objects.chart
+  *@member {number} id
+  */
+  chart.id = webCharts.chartCount;
 
-	return chart;
+  return chart;
 };
-'use strict';
+
+/** Checks raw dataset against the configuration object for the chart and throws errors if the configuration references values that are not present. Called once upon initialization of chart.
+*@memberof webCharts.objects.chart
+*@method checkRequired
+*/
 
 function checkRequired() {
-    var _this = this;
-
-    var colnames = d3.keys(this.raw_data[0]);
-    this.required_cols.forEach(function (e, i) {
-        if (colnames.indexOf(e) < 0) {
-            d3.select(_this.div).select('.loader').remove();
-            _this.wrap.append('div').attr('class', 'alert alert-error alert-danger').html('The value "' + e + '" for the <code>' + _this.required_vars[i] + '</code> setting does not match any column in the provided dataset.');
-            throw new Error('Error in settings object: The value "' + e + '" for the ' + _this.required_vars[i] + ' setting does not match any column in the provided dataset.');
-        }
-    });
-}
-'use strict';
-
-function consolidateData(raw) {
   var _this = this;
 
-  // var this = this;
+  var colnames = d3.keys(this.raw_data[0]);
+  var requiredVars = [];
+  var requiredCols = [];
+  if (this.config.x.column) {
+    requiredVars.push('this.config.x.column');
+    requiredCols.push(this.config.x.column);
+  }
+  if (this.config.y.column) {
+    requiredVars.push('this.config.y.column');
+    requiredCols.push(this.config.y.column);
+  }
+  if (this.config.color_by) {
+    requiredVars.push('this.config.color_by');
+    requiredCols.push(this.config.color_by);
+  }
+  this.config.marks.forEach(function (e, i) {
+    if (e.per && e.per.length) {
+      e.per.forEach(function (p, j) {
+        requiredVars.push('this.config.marks[' + i + '].per[' + j + ']');
+        requiredCols.push(p);
+      });
+    }
+    if (e.split) {
+      requiredVars.push('this.config.marks[' + i + '].split');
+      requiredCols.push(e.split);
+    }
+  });
+
+  requiredCols.forEach(function (e, i) {
+    if (colnames.indexOf(e) < 0) {
+      d3.select(_this.div).select('.loader').remove();
+      _this.wrap.append('div').style('color', 'red').html('The value "' + e + '" for the <code>' + requiredVars[i] + '</code> setting does not match any column in the provided dataset.');
+      throw new Error('Error in settings object: The value "' + e + '" for the ' + requiredVars[i] + ' setting does not match any column in the provided dataset.');
+    }
+  });
+}
+
+/** Pools data for each set of marks and determines comprehensive domains for x- and y-axes
+*@memberof webCharts.objects.chart
+*@method consolidateData
+*@param {Array} raw raw dataset to be transformed and then consolidated
+*/
+
+function consolidateData(raw) {
+  var _this2 = this;
+
   var config = this.config;
   var all_data = [];
   var all_x = [];
   var all_y = [];
-  // this.marks = [];
 
   this.setDefaults();
 
@@ -312,12 +379,12 @@ function consolidateData(raw) {
       e.arrange = null;
       e.split = null;
     }
-    var mark_info = e.per ? _this.transformData(raw, e) : { data: [], x_dom: [], y_dom: [] };
+    var mark_info = e.per ? _this2.transformData(raw, e) : { data: [], x_dom: [], y_dom: [] };
 
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
-    _this.marks[i] = { type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes };
+    _this2.marks[i] = { type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes };
   });
 
   if (config.x.type === 'ordinal') {
@@ -367,55 +434,59 @@ function consolidateData(raw) {
     } else this.y_dom = d3.set(d3.merge(all_y)).values();
   } else if (config.y.summary === 'percent') this.y_dom = [0, 1];else this.y_dom = d3.extent(d3.merge(all_y));
 }
-"use strict";
 
-function draw(processed_data, raw_data) {
+/** Parses config object, triggers data transformation and chart rendering methods
+*@memberof webCharts.objects.chart
+*@method draw
+*@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
+*/
+
+function draw(raw_data, processed_data) {
   var context = this;
   var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   var config = this.config;
   var aspect2 = 1 / config.aspect;
   var data = this.consolidateData(raw);
-  // config.padding = config.padding ? config.padding : config.tight ? .01 : .3;
-  // config.outer_pad = config.outer_pad ? config.outer_pad : config.tight ? .01 : .1;
-  // config.y_behavior = config.y_behavior || "flex";
-  // config.x_behavior = config.x_behavior || "flex";
+
   this.wrap.datum(data);
 
-  var div_width = parseInt(this.wrap.style("width"));
+  var div_width = parseInt(this.wrap.style('width'));
 
   this.setColorScale();
 
-  // config.resizable = config.resizable === false ? false : true;
   var max_width = config.max_width ? config.max_width : div_width;
-  this.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
-  this.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
+  this.raw_width = config.x.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
+  this.raw_height = config.y.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
 
-  var pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
-  var pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
+  var pseudo_width = this.svg.select('.overlay').attr('width') ? this.svg.select('.overlay').attr('width') : this.raw_width;
+  var pseudo_height = this.svg.select('.overlay').attr('height') ? this.svg.select('.overlay').attr('height') : this.raw_height;
 
-  var x_axis_label = this.svg.select(".x.axis").select(".axis-title").text(function () {
-    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
+  this.svg.select('.x.axis').select('.axis-title').text(function () {
+    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label(context) : null;
   });
-  var y_axis_label = this.svg.select(".y.axis").select(".axis-title").text(function () {
-    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
+  this.svg.select('.y.axis').select('.axis-title').text(function () {
+    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label(context) : null;
   });
 
-  this.xScaleAxis(config.x.type, pseudo_width, this.x_dom);
-  this.yScaleAxis(config.y.type, pseudo_height, this.y_dom);
+  this.xScaleAxis(pseudo_width);
+  this.yScaleAxis(pseudo_height);
 
-  if (config.resizable) d3.select(window).on("resize." + context.element + context.id, function () {
-    context.resize();
-  });else d3.select(window).on("resize." + context.element + context.id, null);
+  if (config.resizable) {
+    d3.select(window).on('resize.' + context.element + context.id, function () {
+      context.resize();
+    });
+  } else {
+    d3.select(window).on('resize.' + context.element + context.id, null);
+  }
 
-  this.events.onDraw(this);
+  this.events.onDraw.call(this);
   this.resize();
 }
-'use strict';
 
 function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_accessor) {
   if (class_match === undefined) class_match = 'chart-area';
 
-  var _this = this;
+  var _this3 = this;
 
   var attr_accessor = arguments.length <= 5 || arguments[5] === undefined ? function (d) {
     return d;
@@ -428,15 +499,20 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
   }).append('path');
   area_grps.select('path').datum(datum_accessor).attr('fill', function (d) {
     var d_attr = attr_accessor(d);
-    return d_attr ? _this.colorScale(d_attr[_this.config.color_by]) : null;
+    return d_attr ? _this3.colorScale(d_attr[_this3.config.color_by]) : null;
   }).attr('fill-opacity', this.config.fill_opacity || this.config.fill_opacity === 0 ? this.config.fill_opacity : 0.3).transition().attr('d', area_drawer);
 
   return area_grps;
 }
-'use strict';
+
+/** Function that handles drawing bars (<rect> elements) as defined by marks with type='bar'
+*@memberof webCharts.objects.chart
+*@method drawBars
+*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='bar'
+*/
 
 function drawBars(marks) {
-  var _this = this;
+  var _this4 = this;
 
   var rawData = this.raw_data;
   var config = this.config;
@@ -477,9 +553,9 @@ function drawBars(marks) {
     }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
 
     bars.attr('stroke', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill-opacity', config.fill_opacity || 0.8);
 
     bars.each(function (d) {
@@ -503,23 +579,23 @@ function drawBars(marks) {
 
     bars.transition().attr('x', function (d) {
       var position = undefined;
-      if (!d.arrange || d.arrange === 'stacked') return _this.x(d.values.x);else if (d.arrange === 'nested') {
+      if (!d.arrange || d.arrange === 'stacked') return _this4.x(d.values.x);else if (d.arrange === 'nested') {
         position = d.subcats.indexOf(d.key);
-        var offset = position ? _this.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this.x.rangeBand() / 2;
-        return _this.x(d.values.x) + _this.x.rangeBand() / 2 - offset;
+        var offset = position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this4.x.rangeBand() / 2;
+        return _this4.x(d.values.x) + _this4.x.rangeBand() / 2 - offset;
       } else {
         position = d.subcats.indexOf(d.key);
-        return _this.x(d.values.x) + _this.x.rangeBand() / d.subcats.length * position;
+        return _this4.x(d.values.x) + _this4.x.rangeBand() / d.subcats.length * position;
       }
     }).attr('y', function (d) {
-      if (d.arrange !== 'stacked') return _this.y(d.values.y);else return _this.y(d.values.start);
+      if (d.arrange !== 'stacked') return _this4.y(d.values.y);else return _this4.y(d.values.start);
     }).attr('width', function (d) {
-      if (d.arrange === 'stacked') return _this.x.rangeBand();else if (d.arrange === 'nested') {
+      if (d.arrange === 'stacked') return _this4.x.rangeBand();else if (d.arrange === 'nested') {
         var position = d.subcats.indexOf(d.key);
-        return position ? _this.x.rangeBand() / (d.subcats.length * position * 0.5) : _this.x.rangeBand();
-      } else return _this.x.rangeBand() / d.subcats.length;
+        return position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) : _this4.x.rangeBand();
+      } else return _this4.x.rangeBand() / d.subcats.length;
     }).attr('height', function (d) {
-      return _this.y(0) - _this.y(d.values.y);
+      return _this4.y(0) - _this4.y(d.values.y);
     });
   } else if (config.y.type === 'ordinal') {
     old_bar_groups.selectAll('.bar').transition().attr('x', this.x(0)).attr('width', 0);
@@ -541,9 +617,9 @@ function drawBars(marks) {
     }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
 
     bars.attr('stroke', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill-opacity', config.fill_opacity || 0.8);
 
     bars.each(function (d) {
@@ -555,19 +631,19 @@ function drawBars(marks) {
     });
 
     bars.transition().attr('x', function (d) {
-      if (d.arrange === 'stacked') return _this.x(d.values.start);else return _this.x(0);
+      if (d.arrange === 'stacked') return _this4.x(d.values.start);else return _this4.x(0);
     }).attr('y', function (d) {
-      if (d.arrange !== 'grouped') return _this.y(d.values.y);else {
+      if (d.arrange !== 'grouped') return _this4.y(d.values.y);else {
         var position = d.subcats.indexOf(d.key);
-        return _this.y(d.values.y) + _this.y.rangeBand() / d.subcats.length * position;
+        return _this4.y(d.values.y) + _this4.y.rangeBand() / d.subcats.length * position;
       }
     }).attr('width', function (d) {
-      return _this.x(d.values.x);
+      return _this4.x(d.values.x);
     }).attr('height', function (d) {
-      if (config.y.type === 'quantile') return 20;else if (d.arrange === 'stacked') return _this.y.rangeBand();else if (d.arrange === 'nested') {
+      if (config.y.type === 'quantile') return 20;else if (d.arrange === 'stacked') return _this4.y.rangeBand();else if (d.arrange === 'nested') {
         var position = d.subcats.indexOf(d.key);
-        return position ? _this.y.rangeBand() / (sibs.length * position * 0.75) : _this.y.rangeBand();
-      } else return _this.y.rangeBand() / d.subcats.length;
+        return position ? _this4.y.rangeBand() / (sibs.length * position * 0.75) : _this4.y.rangeBand();
+      } else return _this4.y.rangeBand() / d.subcats.length;
     });
   } else if (config.x.type === 'linear' && config.x.bin) {
     old_bar_groups.selectAll('.bar').transition().attr('y', this.y(0)).attr('height', 0);
@@ -589,9 +665,9 @@ function drawBars(marks) {
     }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0);
 
     bars.attr('stroke', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill-opacity', config.fill_opacity || 0.8);
 
     bars.each(function (d) {
@@ -610,13 +686,13 @@ function drawBars(marks) {
     });
 
     bars.transition().attr('x', function (d) {
-      return _this.x(d.rangeLow);
+      return _this4.x(d.rangeLow);
     }).attr('y', function (d) {
-      if (d.arrange !== 'stacked') return _this.y(d.values.y);else return _this.y(d.values.start);
+      if (d.arrange !== 'stacked') return _this4.y(d.values.y);else return _this4.y(d.values.start);
     }).attr('width', function (d) {
-      return _this.x(d.rangeHigh) - _this.x(d.rangeLow);
+      return _this4.x(d.rangeHigh) - _this4.x(d.rangeLow);
     }).attr('height', function (d) {
-      return _this.y(0) - _this.y(d.values.y);
+      return _this4.y(0) - _this4.y(d.values.y);
     });
   } else if (config.y.type === 'linear' && config.y.bin) {
     old_bar_groups.selectAll('.bar').transition().attr('x', this.x(0)).attr('width', 0);
@@ -638,9 +714,9 @@ function drawBars(marks) {
     }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
 
     bars.attr('stroke', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill', function (d) {
-      return _this.colorScale(d.values.raw[0][config.color_by]);
+      return _this4.colorScale(d.values.raw[0][config.color_by]);
     }).attr('fill-opacity', config.fill_opacity || 0.8);
 
     bars.each(function (d) {
@@ -658,15 +734,15 @@ function drawBars(marks) {
     });
 
     bars.transition().attr('x', function (d) {
-      if (d.arrange === 'stacked') return _this.x(d.values.start);else {
-        return _this.x(0);
+      if (d.arrange === 'stacked') return _this4.x(d.values.start);else {
+        return _this4.x(0);
       }
     }).attr('y', function (d) {
-      return _this.y(d.rangeHigh);
+      return _this4.y(d.rangeHigh);
     }).attr('width', function (d) {
-      return _this.x(d.values.x);
+      return _this4.x(d.values.x);
     }).attr('height', function (d) {
-      return _this.y(d.rangeLow) - _this.y(d.rangeHigh);
+      return _this4.y(d.rangeLow) - _this4.y(d.rangeHigh);
     });
   } else {
     old_bar_groups.selectAll('.bar').transition().attr('y', this.y(0)).attr('height', 0);
@@ -676,7 +752,11 @@ function drawBars(marks) {
 }
 
 ;
-'use strict';
+
+/** Draws gridlines at x and or y tick mark locations, as defined by the 'gridlines' property in the configuration object
+*@memberof webCharts.objects.chart
+*@method drawGridlines
+*/
 
 function drawGridlines() {
   this.wrap.classed('gridlines', this.config.gridlines);
@@ -692,16 +772,21 @@ function drawGridlines() {
 }
 
 ;
-'use strict';
+
+/** Function that handles drawing lines (<path> elements) as defined by marks with type='line'
+*@memberof webCharts.objects.chart
+*@method drawLines
+*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='line'
+*/
 
 function drawLines(marks) {
-  var _this = this;
+  var _this5 = this;
 
   var config = this.config;
   var line = d3.svg.line().interpolate(config.interpolate).x(function (d) {
-    return config.x.type === 'linear' ? _this.x(+d.values.x) : config.x.type === 'time' ? _this.x(new Date(d.values.x)) : _this.x(d.values.x) + _this.x.rangeBand() / 2;
+    return config.x.type === 'linear' ? _this5.x(+d.values.x) : config.x.type === 'time' ? _this5.x(new Date(d.values.x)) : _this5.x(d.values.x) + _this5.x.rangeBand() / 2;
   }).y(function (d) {
-    return config.y.type === 'linear' ? _this.y(+d.values.y) : config.y.type === 'time' ? _this.y(new Date(d.values.y)) : _this.y(d.values.y) + _this.y.rangeBand() / 2;
+    return config.y.type === 'linear' ? _this5.y(+d.values.y) : config.y.type === 'time' ? _this5.y(new Date(d.values.y)) : _this5.y(d.values.y) + _this5.y.rangeBand() / 2;
   });
 
   var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function (d) {
@@ -724,7 +809,7 @@ function drawLines(marks) {
   line_grps.select('path').attr('class', 'wc-data-mark').datum(function (d) {
     return d.values;
   }).attr('stroke', function (d) {
-    return _this.colorScale(d[0].values.raw[0][config.color_by]);
+    return _this5.colorScale(d[0].values.raw[0][config.color_by]);
   }).attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width).attr('stroke-linecap', 'round').attr('fill', 'none').transition().attr('d', line);
 
   line_grps.each(function (d) {
@@ -744,10 +829,15 @@ function drawLines(marks) {
 
   return line_grps;
 }
-'use strict';
+
+/** Function that handles drawing points (<circle> elements) as defined by marks with type='circle'
+*@memberof webCharts.objects.chart
+*@method drawPoints
+*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='circle'
+*/
 
 function drawPoints(marks) {
-  var _this = this;
+  var _this6 = this;
 
   var config = this.config;
 
@@ -772,15 +862,15 @@ function drawPoints(marks) {
   nupoints.append('circle').attr('class', 'wc-data-mark').attr('r', 0);
   nupoints.append('title');
   points.select('circle').attr('fill-opacity', config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : 0.6).attr('fill', function (d) {
-    return _this.colorScale(d.values.raw[0][config.color_by]);
+    return _this6.colorScale(d.values.raw[0][config.color_by]);
   }).attr('stroke', function (d) {
-    return _this.colorScale(d.values.raw[0][config.color_by]);
+    return _this6.colorScale(d.values.raw[0][config.color_by]);
   }).transition().attr('r', config.point_size ? config.point_size : config.flex_point_size).attr('cx', function (d) {
-    var x_pos = _this.x(d.values.x) || 0;
-    return _this.x.type === 'ordinal' ? x_pos + _this.x.rangeBand() / 2 : x_pos;
+    var x_pos = _this6.x(d.values.x) || 0;
+    return _this6.x.type === 'ordinal' ? x_pos + _this6.x.rangeBand() / 2 : x_pos;
   }).attr('cy', function (d) {
-    var y_pos = _this.y(d.values.y) || 0;
-    return config.y.type === 'ordinal' ? y_pos + _this.y.rangeBand() / 2 : y_pos;
+    var y_pos = _this6.y(d.values.y) || 0;
+    return config.y.type === 'ordinal' ? y_pos + _this6.y.rangeBand() / 2 : y_pos;
   });
 
   points.each(function (d) {
@@ -800,84 +890,15 @@ function drawPoints(marks) {
 
   return points;
 }
-'use strict';
 
-function drawRects(rect_data) {
-  var _this = this;
-
-  var container = arguments.length <= 1 || arguments[1] === undefined ? this.svg : arguments[1];
-  var class_match = arguments.length <= 2 || arguments[2] === undefined ? 'reference-region' : arguments[2];
-
-  container = container || this.svg;
-  var config = this.config;
-  var rects = container.selectAll('.' + class_match).data(rect_data);
-  rects.exit().remove();
-  rects.enter().append('rect').attr('class', class_match).append('title');
-  rects.attr({ 'stroke': 'none', 'shape-rendering': 'crispEdges' }).transition().attr('x', function (d) {
-    return config.x.type === 'ordinal' ? d.xs[0] : _this.x(d.xs[0]);
-  }).attr('y', function (d) {
-    return config.y.type === 'ordinal' ? d.ys[0] : _this.y(d.ys[1]);
-  }).attr('width', function (d) {
-    return config.x.type === 'ordinal' ? d.xs[1] - d.xs[0] : _this.x(d.xs[1]) - _this.x(d.xs[0]);
-  }).attr('height', function (d) {
-    return config.y.type === 'ordinal' ? Math.abs(d.ys[0] - d.ys[1]) : _this.y(d.ys[0]) - _this.y(d.ys[1]);
-  });
-
-  rects.each(function (e) {
-    e.attributes = e.attributes || {};
-    e.attributes['fill'] = e.attributes['fill'] || '#eee';
-    d3.select(this).attr(e.attributes);
-  });
-  return rects;
-}
-'use strict';
-
-function drawSimpleLines(line_data, container, class_match, bind_accessor) {
-  if (container === undefined) container = this.svg;
-
-  var _this = this;
-
-  if (class_match === undefined) class_match = 'reference-line';
-
-  container = container || this.svg;
-  var config = this.config;
-  var lines = container.selectAll('.' + class_match).data(line_data, bind_accessor);
-  lines.exit().remove();
-  lines.enter().append('line').attr('class', class_match).append('title');
-  lines.attr('shape-rendering', 'crispEdges').transition().attr('x1', function (d) {
-    var unscale = d.xs ? d.xs[2] : false;
-    var x1 = !d.xs ? 0 : _this.x(d.xs[0]);
-    return unscale ? d.xs[0] : config.x.type === 'ordinal' ? x1 + _this.x.rangeBand() / 2 : x1;
-  }).attr('x2', function (d) {
-    var unscale = d.xs ? d.xs[2] : false;
-    var x2 = !d.xs ? 0 : _this.x(d.xs[1]);
-    return unscale ? d.xs[1] : config.x.type === 'ordinal' ? x2 + _this.x.rangeBand() / 2 : x2;
-  }).attr('y1', function (d) {
-    var unscale = d.ys ? d.ys[2] : false;
-    var y1 = !d.ys ? 0 : _this.y(d.ys[0]);
-    return unscale ? d.ys[0] : config.y.type === 'ordinal' ? y1 + _this.y.rangeBand() / 2 : y1;
-  }).attr('y2', function (d) {
-    var unscale = d.ys ? d.ys[2] : false;
-    var y2 = !d.ys ? 0 : _this.y(d.ys[1]);
-    return unscale ? d.ys[1] : config.y.type === 'ordinal' ? y2 + _this.y.rangeBand() / 2 : y2;
-  });
-  lines.each(function (e) {
-    e.attributes = e.attributes || {};
-    e.attributes['stroke-opacity'] = e.attributes['stroke-opacity'] || config.stroke_opacity || 1;
-    e.attributes['stroke-width'] = e.attributes['stroke-width'] || config.stroke_width || 1;
-    e.attributes['stroke'] = e.attributes['stroke'] || 'black';
-    d3.select(this).attr(e.attributes);
-    d3.select(this).select('title').datum(e);
-  });
-  return lines;
-}
-/**initialize Chart
-*@param {Array} [data=parsed data from file] - an array of objects representing the raw data to be passed to the chart
+/** Begins 
+*@memberof webCharts.objects.chart
+*@method init
+*@param {Array} [data] raw data to be used in the place of dataset parsed from {@link webCharts~chart.filepath filepath}
 */
-'use strict';
 
 function init(data) {
-  var _this = this;
+  var _this7 = this;
 
   var config = this.config;
 
@@ -891,97 +912,102 @@ function init(data) {
   this.setDefaults();
 
   var startup = function startup(data) {
-    if (_this.controls) {
-      _this.controls.targets.push(_this);
-      if (!_this.controls.ready) _this.controls.init(data);else _this.controls.layout();
+    if (_this7.controls) {
+      _this7.controls.targets.push(_this7);
+      if (!_this7.controls.ready) {
+        _this7.controls.init(data);
+      } else {
+        _this7.controls.layout();
+      }
     }
 
-    var meta_map = config.meta_map ? config.meta_map : data && data.length ? d3.keys(data[0]).map(function (m) {
-      return { col: m, label: m };
-    }) : [];
-
-    _this.metaMap = d3.scale.ordinal().domain(meta_map.map(function (m) {
-      return m.col;
-    })).range(meta_map.map(function (m) {
-      return m.label;
-    }));
-
-    _this.raw_data = data;
+    _this7.raw_data = data;
 
     //redo this without jquery
-    var visible = window.$ ? $(_this.div).is(':visible') : true;
+    var visible = window.$ ? $(_this7.div).is(':visible') : true;
     if (!visible) {
       var onVisible = setInterval(function (i) {
-        var visible_now = $(_this.div).is(':visible');
+        var visible_now = $(_this7.div).is(':visible');
         if (visible_now) {
-          _this.layout();
-          _this.wrap.datum(_this);
-          var init_data = _this.transformData(data);
-          _this.draw(init_data);
+          _this7.layout();
+          _this7.wrap.datum(_this7);
+          var init_data = _this7.transformData(data);
+          _this7.draw(init_data);
           clearInterval(onVisible);
         }
       }, 500);
     } else {
-      _this.layout();
-      _this.wrap.datum(_this);
-      _this.draw();
-    };
+      _this7.layout();
+      _this7.wrap.datum(_this7);
+      _this7.draw();
+    }
   };
 
   if (this.filepath && !data) {
     d3.csv(this.filepath, function (error, csv) {
-      _this.raw_data = csv;
-      _this.onDataError(error);
-      _this.checkRequired(csv);
+      _this7.raw_data = csv;
+      _this7.onDataError(error);
+      _this7.checkRequired(csv);
       startup(csv);
     });
-  } else startup(data);
+  } else {
+    startup(data);
+  }
 
   return this;
 }
-"use strict";
+
+/** Sets up the SVG that serves as the chart "canvas" and its static child elements. Happens once immediately after {@link webCharts~chart.init chart.init}
+*@memberof webCharts.objects.chart
+*@method layout
+*/
 
 function layout() {
-  this.svg = this.wrap.append("svg").attr({ "class": "wc-svg",
-    "xmlns": "http://www.w3.org/2000/svg",
-    "version": "1.1",
-    "xlink": "http://www.w3.org/1999/xlink"
-  }).append("g");
+  this.svg = this.wrap.append('svg').attr({ 'class': 'wc-svg',
+    'xmlns': 'http://www.w3.org/2000/svg',
+    'version': '1.1',
+    'xlink': 'http://www.w3.org/1999/xlink'
+  }).append('g');
 
-  var defs = this.svg.append("defs");
-  defs.append("pattern").attr({
-    "id": "diagonal-stripes",
-    "x": 0, "y": 0, "width": 3, "height": 8, "patternUnits": "userSpaceOnUse", "patternTransform": "rotate(30)"
-  }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
+  var defs = this.svg.append('defs');
+  defs.append('pattern').attr({
+    'id': 'diagonal-stripes',
+    'x': 0, 'y': 0, 'width': 3, 'height': 8, 'patternUnits': 'userSpaceOnUse', 'patternTransform': 'rotate(30)'
+  }).append('rect').attr({ 'x': '0', 'y': '0', 'width': '2', 'height': '8', 'style': 'stroke:none; fill:black' });
 
-  defs.append("clipPath").attr("id", this.id).append("rect").attr("class", "plotting-area");
+  defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
 
   //y axis
-  this.svg.append("g").attr("class", "y axis").append("text").attr("class", "axis-title").attr("transform", "rotate(-90)").attr("dy", ".75em").attr("text-anchor", "middle");
+  this.svg.append('g').attr('class', 'y axis').append('text').attr('class', 'axis-title').attr('transform', 'rotate(-90)').attr('dy', '.75em').attr('text-anchor', 'middle');
   //x axis
-  this.svg.append("g").attr("class", "x axis").append("text").attr("class", "axis-title").attr("dy", "-.35em").attr("text-anchor", "middle");
+  this.svg.append('g').attr('class', 'x axis').append('text').attr('class', 'axis-title').attr('dy', '-.35em').attr('text-anchor', 'middle');
   //overlay
-  this.svg.append("rect").attr("class", "overlay").attr("opacity", 0);
+  this.svg.append('rect').attr('class', 'overlay').attr('opacity', 0).attr('fill', 'none').style('pointer-events', 'all');
   //add legend
-  this.wrap.append("ul").attr("class", "legend").append("span").attr("class", "legend-title");
+  this.wrap.append('ul').attr('class', 'legend').append('span').attr('class', 'legend-title');
 
-  d3.select(this.div).select(".loader").remove();
+  d3.select(this.div).select('.loader').remove();
 
-  this.events.onLayout(this);
+  this.events.onLayout.call(this);
 }
-'use strict';
 
-function makeLegend(scale, label, custom_data) {
-  if (scale === undefined) scale = this.colorScale;
+/** Draws legend for the chart
+*@memberof webCharts.objects.chart
+*@method makeLegend
+*@param {d3.scale} [scale=scale returned by {@link webCharts~chart~setColorScale chart.setColorScale}] color scale to use in the legend
+*@param {string} [label] label for the legend
+*/
 
-  var _this = this;
+function makeLegend() {
+  var scale = arguments.length <= 0 || arguments[0] === undefined ? this.colorScale : arguments[0];
+  var label = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+  var custom_data = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
-  var context = this;
   var config = this.config;
 
   config.legend.mark = config.legend.mark ? config.legend.mark : config.marks.length && config.marks[0].type === 'bar' ? 'square' : config.marks.length ? config.marks[0].type : 'square';
 
-  var legend_label = label ? label : typeof config.legend.label === 'string' ? config.legend.label : config.meta_map ? this.metaMap(config.color_by) : '';
+  var legend_label = label ? label : typeof config.legend.label === 'string' ? config.legend.label : '';
 
   var legend = this.legend || this.wrap.select('.legend');
 
@@ -1003,16 +1029,24 @@ function makeLegend(scale, label, custom_data) {
   new_parts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
     return scale(d.label);
   });
-  new_parts.append('svg').attr('class', 'legend-color-block');
+  new_parts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em');
 
-  if (config.legend.order) leg_parts.sort(function (a, b) {
-    return d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label));
-  });
+  if (config.legend.order) {
+    leg_parts.sort(function (a, b) {
+      return d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label));
+    });
+  }
 
   leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
   leg_parts.selectAll('.legend-color-block').each(function (e) {
     var svg = d3.select(this);
-    if (e.mark === 'circle') svg.append('circle').attr({ 'cx': '.5em', 'cy': '.45em', 'r': '.45em', 'class': 'legend-mark' });else if (e.mark === 'line') svg.append('line').attr({ 'x1': 0, 'y1': '.5em', 'x2': '1em', 'y2': '.5em', 'stroke-width': 2, 'shape-rendering': 'crispEdges', 'class': 'legend-mark' });else if (e.mark === 'square') svg.append('rect').attr({ 'height': '1em', 'width': '1em', 'class': 'legend-mark' });
+    if (e.mark === 'circle') {
+      svg.append('circle').attr({ 'cx': '.5em', 'cy': '.45em', 'r': '.45em', 'class': 'legend-mark' });
+    } else if (e.mark === 'line') {
+      svg.append('line').attr({ 'x1': 0, 'y1': '.5em', 'x2': '1em', 'y2': '.5em', 'stroke-width': 2, 'shape-rendering': 'crispEdges', 'class': 'legend-mark' });
+    } else if (e.mark === 'square') {
+      svg.append('rect').attr({ 'height': '1em', 'width': '1em', 'class': 'legend-mark' });
+    }
   });
   leg_parts.selectAll('.legend-color-block').select('.legend-mark').attr('fill', function (d) {
     return d.color || scale(d.label);
@@ -1023,39 +1057,49 @@ function makeLegend(scale, label, custom_data) {
   });
 
   new_parts.append('span').attr('class', 'legend-label').text(function (d) {
-    return _this.metaMap.domain().indexOf(d.label) > -1 ? _this.metaMap(d.label) : d.label;
+    return d.label;
   });
 
-  leg_parts.on('mouseover', function (d) {
-    if (!config.legend.highlight_on_hover) return;
-    var fill = d3.select(this).select('.legend-mark').attr('fill');
-    context.svg.selectAll('.wc-data-mark').attr('opacity', 0.1).filter(function (f) {
-      return d3.select(this).attr('fill') === fill || d3.select(this).attr('stroke') === fill;
-    }).attr('opacity', 1);
-  }).on('mouseout', function (d) {
-    if (!config.legend.highlight_on_hover) return;
-    _this.svg.selectAll('.wc-data-mark').attr('opacity', 1);
-  });
-
-  if (scale.domain().length > 1) legend.style('display', 'block');else legend.style('display', 'none');
+  if (scale.domain().length > 1) {
+    legend.style('display', 'block');
+  } else {
+    legend.style('display', 'none');
+  }
 
   this.legend = legend;
 }
-'use strict';
+
+function adjustTicks(axis, dx, dy, rotation, anchor) {
+  if (!axis) return;
+  this.svg.selectAll('.' + axis + '.axis .tick text').attr({
+    'transform': 'rotate(' + rotation + ')',
+    'dx': dx,
+    'dy': dy
+  }).style('text-anchor', anchor || 'start');
+}
+
+/** Throws an error and prints a message if the {@link webCharts~chart.filepath filepath} cannot be resolved to a valid file
+*@memberof webCharts.objects.chart
+*@method onDataError
+*/
 
 function onDataError(error) {
-  if (!error) return;
-
+  if (!error) {
+    return;
+  }
   d3.select(this.div).select('.loader').remove();
-  this.wrap.append('div').attr('class', 'alert alert-error alert-danger').text('Dataset could not be loaded.');
+  this.wrap.append('div').style('color', 'red').text('Dataset could not be loaded.');
   throw new Error('Dataset could not be loaded. Check provided path (' + this.filepath + ').');
 }
-'use strict';
+
+/** Handles final arrangement of all chart components. Determines final chart dimensions and triggers rendering of axes and marks
+*@memberof webCharts.objects.chart
+*@method resize
+*/
 
 function resize() {
-  var context = this;
   var config = this.config;
-  // config.aspect = config.aspect || 1.33;
+
   var aspect2 = 1 / config.aspect;
   var div_width = parseInt(this.wrap.style('width'));
   var max_width = config.max_width ? config.max_width : div_width;
@@ -1063,9 +1107,9 @@ function resize() {
 
   this.textSize(preWidth);
 
-  this.margin = context.setMargins();
+  this.margin = this.setMargins();
 
-  var svg_width = config.x.type === 'ordinal' && +config.range_band ? context.raw_width + context.margin.left + context.margin.right : !config.resizable ? context.raw_width : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
+  var svg_width = config.x.type === 'ordinal' && +config.range_band ? this.raw_width + this.margin.left + this.margin.right : !config.resizable ? this.raw_width : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
   this.plot_width = svg_width - this.margin.left - this.margin.right;
   var svg_height = config.y.type === 'ordinal' && +config.range_band ? this.raw_height + this.margin.top + this.margin.bottom : !config.resizable && config.height ? config.height : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
   this.plot_height = svg_height - this.margin.top - this.margin.bottom;
@@ -1076,65 +1120,37 @@ function resize() {
 
   this.svg.select('.plotting-area').attr('width', this.plot_width).attr('height', this.plot_height + 1).attr('transform', 'translate(0, -1)');
 
-  this.xScaleAxis(config.x.type, this.plot_width, this.x_dom);
-  this.yScaleAxis(config.y.type, this.plot_height, this.y_dom);
+  this.xScaleAxis();
+  this.yScaleAxis();
 
   var g_x_axis = this.svg.select('.x.axis');
   var g_y_axis = this.svg.select('.y.axis');
   var x_axis_label = g_x_axis.select('.axis-title');
   var y_axis_label = g_y_axis.select('.axis-title');
 
-  if (config.x_location !== 'top') g_x_axis.attr('transform', 'translate(0,' + this.plot_height + ')');
+  if (config.x_location !== 'top') {
+    g_x_axis.attr('transform', 'translate(0,' + this.plot_height + ')');
+  }
   g_x_axis.transition().call(this.xAxis);
   g_y_axis.transition().call(this.yAxis);
   x_axis_label.attr('transform', 'translate(' + this.plot_width / 2 + ',' + (this.margin.bottom - 2) + ')');
   y_axis_label.attr('x', -1 * this.plot_height / 2).attr('y', -1 * this.margin.left);
 
-  //relabel axis ticks if metaMap says so
-  this.svg.select('.x.axis.ordinal').selectAll('.tick text').text(function (d) {
-    return context.metaMap.domain().indexOf(d) > -1 ? context.metaMap(d) : d;
-  });
-  this.svg.select('.y.axis.ordinal').selectAll('.tick text').text(function (d) {
-    return context.metaMap.domain().indexOf(d) > -1 ? context.metaMap(d) : d;
-  });
-
   this.drawGridlines();
   //update legend - margins need to be set first
   this.makeLegend();
-
-  //update reference regions and reference lines
-  this.updateRefRegions();
-  this.updateRefLines();
-
-  //draw linear regression line
-  if (config.regression_line) {
-    var reg_data = this.current_data.slice(0).filter(function (f) {
-      return (+f.values.x || +f.values.x === 0) && (+f.values.y || +f.values.y === 0);
-    });
-    var all_x = reg_data.map(function (m) {
-      return m.values.x;
-    });
-    var all_y = reg_data.map(function (m) {
-      return m.values.y;
-    });
-    var lr = webCharts.dataOps.linearRegression(all_x, all_y);
-    var max = this.x.domain()[1];
-    var reg_line_data = [{ xs: [0, max], ys: [lr.intercept, max * lr.slope + lr.intercept] }];
-    var reg_line = this.drawSimpleLines(reg_line_data, null, 'regression-line').style('clip-path', 'url(#' + this.id + ')').style('shape-rendering', 'auto');
-    reg_line.select('title').text('slope: ' + d3.format('.2f')(lr.slope) + '\n' + 'intercept: ' + d3.format('.2f')(lr.intercept) + '\n' + 'r2: ' + d3.format('.2f')(lr.r2));
-  } else {
-    this.drawSimpleLines([], null, 'regression-line');
-  }
 
   //update the chart's specific marks
   this.updateDataMarks();
 
   //call .on("resize") function, if any
-  this.events.onResize(this);
+  this.events.onResize.call(this);
 }
 
-;
-'use strict';
+/** Sets up the color scale for the chart, which is an ordinal d3.scale with a domain based on unique values determined by config.color_by and a range determined by config.colors
+*@memberof webCharts.objects.chart
+*@method setColorScale
+*/
 
 function setColorScale() {
   var config = this.config;
@@ -1145,71 +1161,68 @@ function setColorScale() {
     return f && f !== 'undefined';
   });
 
-  if (config.legend.order) colordom = colordom.sort(function (a, b) {
-    return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
-  });else colordom = colordom.sort(webCharts.dataOps.naturalSorter);
+  if (config.legend.order) {
+    colordom = colordom.sort(function (a, b) {
+      return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
+    });
+  } else {
+    colordom = colordom.sort(webCharts.dataOps.naturalSorter);
+  }
 
   this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
 }
-'use strict';
+
+/** Fills in default values for {@link webCharts~chart.config config} object
+*@memberof webCharts.objects.chart
+*@method setDefaults
+*/
 
 function setDefaults() {
-	this.raw_data = this.raw_data || [];
 
-	this.config.x = this.config.x || {};
-	this.config.y = this.config.y || {};
+  this.config.x = this.config.x || {};
+  this.config.y = this.config.y || {};
 
-	//backwards compatibility with x/y settings -- is this needed?
-	if (this.config.x_type) this.config.x.type = this.config.x_type;
-	if (this.config.x_vals && this.config.x_vals.col) this.config.x.type = this.config.x_vals.col;
-	if (this.config.x_vals && this.config.x_vals.stat) this.config.x.summary = this.config.x_vals.stat;
-	if (this.config.x_behavior) this.config.x.behavior = this.config.x_behavior;
-	if (this.config.x_label) this.config.x.label = this.config.x_label;
-	if (this.config.y_type) this.config.y.type = this.config.y_type;
-	if (this.config.y_vals && this.config.y_vals.col) this.config.y.type = this.config.y_vals.col;
-	if (this.config.y_vals && this.config.y_vals.stat) this.config.y.summary = this.config.y_vals.stat;
-	if (this.config.y_behavior) this.config.y.behavior = this.config.y_behavior;
-	if (this.config.y_label) this.config.y.label = this.config.y_label;
+  this.config.x.label = this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
+  this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
 
-	this.config.x.label = this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
-	this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
+  this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
+  this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
 
-	this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
-	this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
+  this.config.x.type = this.config.x.type || 'linear';
+  this.config.y.type = this.config.y.type || 'linear';
 
-	this.config.x.type = this.config.x.type || 'linear';
-	this.config.y.type = this.config.y.type || 'linear';
+  this.config.margin = this.config.margin || {};
+  this.config.legend = this.config.legend || {};
+  this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
+  this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
 
-	this.config.margin = this.config.margin || {};
-	this.config.legend = this.config.legend || {};
-	this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
-	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
+  this.config.date_format = this.config.date_format || '%x';
 
-	this.config.reference_regions = this.config.reference_regions || [];
+  this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
+  this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
 
-	this.config.date_format = this.config.date_format || '%x';
+  this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
 
-	this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
-	this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
+  this.config.aspect = this.config.aspect || 1.33;
 
-	this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
+  this.config.colors = this.config.colors || ['rgb(102,194,165)', 'rgb(252,141,98)', 'rgb(141,160,203)', 'rgb(231,138,195)', 'rgb(166,216,84)', 'rgb(255,217,47)', 'rgb(229,196,148)', 'rgb(179,179,179)'];
 
-	this.config.aspect = this.config.aspect || 1.33;
-
-	this.config.colors = this.config.colors || ['rgb(102,194,165)', 'rgb(252,141,98)', 'rgb(141,160,203)', 'rgb(231,138,195)', 'rgb(166,216,84)', 'rgb(255,217,47)', 'rgb(229,196,148)', 'rgb(179,179,179)'];
-
-	this.config.no_text_size = this.config.no_text_size === undefined ? false : this.config.no_text_size;
+  this.config.scale_text = this.config.scale_text === undefined ? true : this.config.scale_text;
 }
-'use strict';
+
+/** Automatically determines margins for the chart based on axis ticks, labels, etc.
+*@memberof webCharts.objects.chart
+*@method setMargins
+*/
 
 function setMargins() {
-  var _this = this;
+  var _this8 = this;
 
   var x_ticks = this.xAxis.tickFormat() ? this.x.domain().map(function (m) {
-    return _this.xAxis.tickFormat()(m);
+    return _this8.xAxis.tickFormat()(m);
   }) : this.x.domain();
   var y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(function (m) {
-    return _this.yAxis.tickFormat()(m);
+    return _this8.yAxis.tickFormat()(m);
   }) : this.y.domain();
 
   var max_y_text_length = d3.max(y_ticks.map(function (m) {
@@ -1234,14 +1247,19 @@ function setMargins() {
     left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin
   };
 }
-'use strict';
 
-function textSize(width, height) {
+/** Automatically determines text size for the chart based on certain breakpoints
+*@memberof webCharts.objects.chart
+*@method textSize
+*@param {number} width width of the chart container
+*/
+
+function textSize(width) {
   var font_size = '14px';
   var point_size = 4;
   var stroke_width = 2;
 
-  if (this.config.no_text_size) {
+  if (!this.config.scale_text) {
     font_size = this.config.font_size;
     point_size = this.config.point_size || 4;
     stroke_width = this.config.stroke_width || 2;
@@ -1267,10 +1285,16 @@ function textSize(width, height) {
   this.config.flex_point_size = point_size;
   this.config.flex_stroke_width = stroke_width;
 }
-'use strict';
+
+/** Transforms raw data into an appropriately nested format for each mark
+*@memberof webCharts.objects.chart
+*@method transformData
+*@param {array} raw raw dataset to be transformed
+*@param {mark} mark object describing the set of marks
+*/
 
 function transformData(raw, mark) {
-  var _this = this;
+  var _this9 = this;
 
   var config = this.config;
   var x_behavior = config.x.behavior || 'raw';
@@ -1278,9 +1302,6 @@ function transformData(raw, mark) {
   var sublevel = mark.type === 'line' ? config.x.column : mark.type === 'bar' && mark.split ? mark.split : null;
   var dateConvert = d3.time.format(config.date_format);
   var totalOrder = undefined;
-
-  //this functionality should go in a 'pre-data' callback
-  if (config.lengthen_columns) raw = webCharts.dataOps.lengthenRaw(raw, config.lengthen_columns);
 
   raw = mark.per && mark.per.length ? raw.filter(function (f) {
     return f[mark.per[0]];
@@ -1515,7 +1536,7 @@ function transformData(raw, mark) {
         return f !== 'All';
       }).forEach(function (e) {
         var perfilter = raw.filter(function (f) {
-          return f[_this.filters[0].col] === e;
+          return f[_this9.filters[0].col] === e;
         });
         var filt_nested = makeNest(perfilter, sublevel);
         filt1_xs.push(filt_nested.dom_x);
@@ -1573,11 +1594,16 @@ function transformData(raw, mark) {
   if (config.y.type === 'ordinal') config.y.order = totalOrder;
 
   this.current_data = current_nested.nested;
-  // context.events.onDatatransform(context);
+
+  this.events.onDatatransform.call(this);
 
   return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
 }
-'use strict';
+
+/** Triages rendering functions for the chart's currently-defined marks
+*@memberof webCharts.objects.chart
+*@method updateDataMarks
+*/
 
 function updateDataMarks() {
   this.drawPoints(this.marks.filter(function (f) {
@@ -1590,54 +1616,45 @@ function updateDataMarks() {
     return f.type === 'bar';
   }));
 }
-'use strict';
 
-function updateRefLines() {
-  var _this = this;
+/** Sets up x-scale and x-axis functions
+*@memberof webCharts.objects.chart
+*@method xScaleAxis
+*@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the width of the chart's plotting area.
+*@param {array} [domain={@link webCharts~chart.x_dom}] Domain passed to the scale function
+*@param {string} [type={@link webCharts~chart.config.x.type}] Type of scale to define. Can be 'linear', 'log', 'ordinal' or 'time'.
+*/
 
-  //define/draw reference lines, if any
-  var config = this.config;
-  var ref_line_data = !config.reference_lines ? [] : config.reference_lines.map(function (m) {
-    var xx = m.x;
-    var yy = m.y;
-    if (config.x.type === 'time' && m.x) xx = d3.time.format(config.date_format).parse(m.x);
-    if (config.y.type === 'time' && m.y) yy = d3.time.format(config.date_format).parse(m.y);
-    return { xs: !m.x && +m.x !== 0 ? [0, _this.plot_width, true] : [xx, xx], ys: !m.y && +m.y !== 0 ? [0, _this.plot_height, true] : [yy, yy], attributes: m.attributes };
-  });
-
-  this.drawSimpleLines(ref_line_data).style('clip-path', 'url(#' + this.id + ')');
-}
-'use strict';
-
-function updateRefRegions() {
-  var _this = this;
-
-  //define/draw reference regions, if any
-  var config = this.config;
-  var ref_region_data = this.config.reference_regions.slice(0).map(function (m) {
-    var xx = m.x;
-    var yy = m.y;
-    if (config.x.type === 'time') if (m.x) xx = m.x.map(function (w) {
-      return d3.time.format(config.date_format).parse(w);
-    });else xx = _this.x_dom;
-    if (config.y.type === 'time') if (m.y) yy = m.y.map(function (w) {
-      return d3.time.format(config.date_format).parse(w);
-    });else yy = _this.y_dom;
-    return { xs: !xx ? [1, _this.plot_width] : xx, ys: !m.y ? [0, _this.plot_height - 1] : yy, attributes: m.attributes };
-  });
-  this.drawRects(ref_region_data).style('clip-path', 'url(#' + this.id + ')');
-}
-'use strict';
-
-function xScaleAxis(type, max_range, domain) {
+function xScaleAxis(max_range, domain, type) {
+  if (max_range === undefined) {
+    max_range = this.plot_width;
+  }
+  if (domain === undefined) {
+    domain = this.x_dom;
+  }
+  if (type === undefined) {
+    type = this.config.x.type;
+  }
   var config = this.config;
   var x = undefined;
 
-  if (type === 'log') x = d3.scale.log();else if (type === 'ordinal') x = d3.scale.ordinal();else if (type === 'time') x = d3.time.scale();else x = d3.scale.linear();
+  if (type === 'log') {
+    x = d3.scale.log();
+  } else if (type === 'ordinal') {
+    x = d3.scale.ordinal();
+  } else if (type === 'time') {
+    x = d3.time.scale();
+  } else {
+    x = d3.scale.linear();
+  }
 
   x.domain(domain);
 
-  if (type === 'ordinal') x.rangeBands([0, +max_range], config.padding, config.outer_pad);else x.range([0, +max_range]).clamp(Boolean(config.x_clamp));
+  if (type === 'ordinal') {
+    x.rangeBands([0, +max_range], config.padding, config.outer_pad);
+  } else {
+    x.range([0, +max_range]).clamp(Boolean(config.x.clamp));
+  }
 
   var format = config.x.format ? config.x.format : type === 'percent' ? '0%' : type === 'time' ? '%x' : '.0f';
   var tick_count = Math.max(2, Math.min(max_range / 80, 8));
@@ -1647,17 +1664,44 @@ function xScaleAxis(type, max_range, domain) {
   this.x = x;
   this.xAxis = xAxis;
 }
-'use strict';
 
-function yScaleAxis(type, max_range, domain) {
-  //domain = type === 'percent' ? [0,1] : domain;
+/** Sets up y-scale and y-axis functions
+*@memberof webCharts.objects.chart
+*@method yScaleAxis
+*@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the height of the chart's plotting area.
+*@param {array} [domain={@link webCharts~chart.y_dom}] Domain passed to the scale function
+*@param {string} [type={@link webCharts~chart.config.y.type}] Type of scale to define. Can be 'linear', 'log', 'ordinal' or 'time'.
+*/
+
+function yScaleAxis(max_range, domain, type) {
+  if (max_range === undefined) {
+    max_range = this.plot_height;
+  }
+  if (domain === undefined) {
+    domain = this.y_dom;
+  }
+  if (type === undefined) {
+    type = this.config.y.type;
+  }
   var config = this.config;
   var y = undefined;
-  if (type === 'log') y = d3.scale.log();else if (type === 'ordinal') y = d3.scale.ordinal();else if (type === 'time') y = d3.time.scale();else y = d3.scale.linear();
+  if (type === 'log') {
+    y = d3.scale.log();
+  } else if (type === 'ordinal') {
+    y = d3.scale.ordinal();
+  } else if (type === 'time') {
+    y = d3.time.scale();
+  } else {
+    y = d3.scale.linear();
+  }
 
   y.domain(domain);
 
-  if (type === 'ordinal') y.rangeBands([+max_range, 0], config.padding, config.outer_pad);else y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
+  if (type === 'ordinal') {
+    y.rangeBands([+max_range, 0], config.padding, config.outer_pad);
+  } else {
+    y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
+  }
 
   var y_format = config.y.format ? config.y.format : config.y.summary === 'percent' ? '0%' : '.0f';
   var tick_count = Math.max(2, Math.min(max_range / 80, 8));
@@ -1668,90 +1712,140 @@ function yScaleAxis(type, max_range, domain) {
   this.y = y;
   this.yAxis = yAxis;
 }
-"use strict";
 
+function highlightMarks() {
+  var _this10 = this;
+
+  var context = this;
+  var leg_parts = this.legend.selectAll('.legend-item');
+
+  leg_parts.on('mouseover', function (d) {
+    var fill = d3.select(this).select('.legend-mark').attr('fill');
+    context.svg.selectAll('.wc-data-mark').attr('opacity', 0.1).filter(function (f) {
+      return d3.select(this).attr('fill') === fill || d3.select(this).attr('stroke') === fill;
+    }).attr('opacity', 1);
+  }).on('mouseout', function (d) {
+    _this10.svg.selectAll('.wc-data-mark').attr('opacity', 1);
+  });
+}
+
+/** The controls object represents a set of inputs that are rendered with standard HTML <code>\<input\></code> and <code>\<select\></code> elements. These inputs manipulate any charts associated with this control object by either assigning new values to the charts' {@link webCharts~chart.config config} properties (to change the charts' appearance or behavior) or changing the objects in the charts' {@link webCharts~chart.filters filters} array (to subset the data that is visualized in the chart).
+*@type {object}
+*@var controls
+*/
 var controlsProto = {
-
-	changeOption: changeOption,
-	checkRequired: controlCheckRequired,
-	controlUpdate: controlUpdate,
-	init: controlInit,
-	layout: controlLayout,
-	makeControlItem: makeControlItem,
-	makeBtnGroupControl: makeBtnGroupControl,
-	makeCheckboxControl: makeCheckboxControl,
-	makeDropdownControl: makeDropdownControl,
-	makeListControl: makeListControl,
-	makeNumberControl: makeNumberControl,
-	makeRadioControl: makeRadioControl,
-	makeSubsetterControl: makeSubsetterControl,
-	makeTextControl: makeTextControl
-
+  changeOption: changeOption,
+  checkRequired: controlCheckRequired,
+  controlUpdate: controlUpdate,
+  init: controlInit,
+  layout: controlLayout,
+  makeControlItem: makeControlItem,
+  makeBtnGroupControl: makeBtnGroupControl,
+  makeCheckboxControl: makeCheckboxControl,
+  makeDropdownControl: makeDropdownControl,
+  makeListControl: makeListControl,
+  makeNumberControl: makeNumberControl,
+  makeRadioControl: makeRadioControl,
+  makeSubsetterControl: makeSubsetterControl,
+  makeTextControl: makeTextControl
 };
-'use strict';
+
+/** Renders a checkbox that toggles the value assigned to a given option
+*@memberof controls
+*@method makeCheckBoxControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeCheckboxControl(control, control_wrap) {
-  var _this = this;
+  var _this11 = this;
 
   var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+    if (control.option.indexOf('.') !== -1) return _this11.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this11.targets[0].config[control.option];
   });
 
   changer.on('change', function (d) {
     var value = changer.property('checked');
-    _this.changeOption(d.option, value);
+    _this11.changeOption(d.option, value);
   });
 }
-"use strict";
+
+/** Begins 
+*@memberof controls
+*@method init
+*@param {Array} [raw] raw data to be used to populate control inputs
+*/
 
 function controlInit(raw) {
   this.data = raw;
   if (!this.config.builder) this.checkRequired(this.data);
   this.layout();
-  this.ready = true;
 }
-/**The base controls object.
-	*@alias module:webCharts.controls
-	*@param {string} element - CSS selector identifying the element in which to create the chart.
-	*@param {string} data - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
+
+/**
+*A factory to create controls objects
+*@returns {controls}
+*@method
+*@memberof webCharts
+*@param {string} element=body - CSS selector identifying the element in which to create the chart.
+*@param {array} data - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
 */
-'use strict';
-
 webCharts.controls = function () {
-	var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
-	var data = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
-	var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-	var defaults = arguments.length <= 3 || arguments[3] === undefined ? { resizable: true, max_width: 800 } : arguments[3];
+  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+  var data = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var defaults = arguments.length <= 3 || arguments[3] === undefined ? { resizable: true, max_width: 800 } : arguments[3];
 
-	var controls = Object.create(controlsProto);
+  var controls = Object.create(controlsProto);
+  /** CSS selector identifying the DOM element housing the rendered controls
+  *@memberof controls
+  *@member {string} div
+  */
+  controls.div = element;
+  /** Raw (unfiltered, untransformed) dataset stored by the controls. This dataset is passed to the controls object from any associated chart object
+  *@memberof controls
+  *@member {array} data
+  */
+  controls.data = data;
+  /** An object specifying controls settings
+  *@memberof controls
+  *@member {object} config
+  */
+  controls.config = Object.create(config);
+  controls.config.inputs = controls.config.inputs || [];
+  /** A list of chart objects that the controls object can manipulate
+  *@memberof controls
+  *@member {array} targets
+  */
+  controls.targets = [];
 
-	controls.div = element;
-	controls.data = data;
-	controls.config = Object.create(config);
-	controls.config.inputs = controls.config.inputs || [];
-	controls.targets = [];
+  /** A d3 selection of a \<div\> appended within the DOM element specified by {@link webCharts~controls.div div}
+  *@memberof controls
+  *@member {d3.selection} wrap
+  */
+  if (config.location === 'bottom') {
+    controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+  } else {
+    controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+  }
 
-	if (config.location === 'top') controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls top');else controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls ' + controls.config.location);
-
-	return controls;
+  return controls;
 };
-'use strict';
 
 function controlCheckRequired(dataset) {
-  var _this = this;
+  var _this12 = this;
 
   var colnames = d3.keys(dataset[0]);
   console.log('line 5??');
   if (!this.config.inputs) return;
   this.config.inputs.forEach(function (e, i) {
     if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
-      _this.config.inputs = _this.config.inputs.splice(controls[i], 1);
+      _this12.config.inputs = _this12.config.inputs.splice(controls[i], 1);
       throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
     }
   });
 }
-'use strict';
 
 function makeControlItem(control) {
   var control_wrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
@@ -1761,59 +1855,76 @@ function makeControlItem(control) {
 
   if (control.type === 'text') this.makeTextControl(control, control_wrap);else if (control.type === 'number') this.makeNumberControl(control, control_wrap);else if (control.type === 'list') this.makeListControl(control, control_wrap);else if (control.type === 'dropdown') this.makeDropdownControl(control, control_wrap);else if (control.type === 'btngroup') this.makeBtnGroupControl(control, control_wrap);else if (control.type === 'checkbox') this.makeCheckboxControl(control, control_wrap);else if (control.type === 'radio') this.makeRadioControl(control, control_wrap);else if (control.type === 'subsetter') this.makeSubsetterControl(control, control_wrap);else throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
 }
-'use strict';
+
+/** Renders a <code>\<input type="text"\></code> element whose value is assigned to a given option
+*@memberof controls
+*@method makeTextControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeTextControl(control, control_wrap) {
-  var _this = this;
+  var _this13 = this;
 
   var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+    if (control.option.indexOf('.') !== -1) return _this13.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this13.targets[0].config[control.option];
   });
 
   changer.on('change', function (d) {
     var value = changer.property('value');
-    _this.changeOption(control.option, value);
+    _this13.changeOption(control.option, value);
   });
 }
-'use strict';
 
 function makeListControl(control, control_wrap) {
-  var _this = this;
+  var _this14 = this;
 
   var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+    if (control.option.indexOf('.') !== -1) return _this14.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this14.targets[0].config[control.option];
   });
 
   changer.on('change', function (d) {
     var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
       return m.trim();
     }) : null;
-    _this.changeOption(control.option, value);
+    _this14.changeOption(control.option, value);
   });
 }
-'use strict';
+
+/** Renders a <code>\<input type="number"\></code> element whose value is assigned to a given option
+*@memberof controls
+*@method makeNumberControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeNumberControl(control, control_wrap) {
-  var _this = this;
+  var _this15 = this;
 
   var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this.targets[0].config[control.option];
+    if (control.option.indexOf('.') !== -1) return _this15.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this15.targets[0].config[control.option];
   });
 
   changer.on('change', function (d) {
     var value = +changer.property('value');
-    _this.changeOption(control.option, value);
+    _this15.changeOption(control.option, value);
   });
 }
-'use strict';
+
+/** Renders a <code>\<select\></code> element whose value is assigned to a given option
+*@memberof controls
+*@method makeDropdownControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeDropdownControl(control, control_wrap) {
-  var _this = this;
+  var _this16 = this;
 
   var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
   var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
-    return m[_this.targets[0].config[control.values]];
+    return m[_this16.targets[0].config[control.values]];
   })).values() : d3.keys(this.data[0]);
 
   if (!control.require || control.none) opt_values.unshift('None');
@@ -1821,7 +1932,7 @@ function makeDropdownControl(control, control_wrap) {
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this.targets[0].config[control.option] === d;
+    if (control.option.indexOf('.') !== -1) return _this16.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this16.targets[0].config[control.option] === d;
   });
 
   changer.on('change', function (d) {
@@ -1837,15 +1948,21 @@ function makeDropdownControl(control, control_wrap) {
       });
     }
 
-    _this.changeOption(control.option, value);
+    _this16.changeOption(control.option, value);
   });
 
   return changer;
 }
-'use strict';
+
+/** Renders a set of buttons. The value represented by the highlighted button is assigned to the given option
+*@memberof controls
+*@method makeBtnGroupControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeBtnGroupControl(control, control_wrap) {
-  var _this = this;
+  var _this17 = this;
 
   var option_data = control.values ? control.values : d3.keys(this.data[0]);
 
@@ -1854,17 +1971,27 @@ function makeBtnGroupControl(control, control_wrap) {
   var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
     return d;
   }).classed('btn-primary', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this.targets[0].config[control.option] === d;
+    if (control.option.indexOf('.') !== -1) {
+      return _this17.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
+    } else {
+      return _this17.targets[0].config[control.option] === d;
+    }
   });
 
   changers.on('click', function (d) {
     changers.each(function (e) {
       d3.select(this).classed('btn-primary', e === d);
     });
-    _this.changeOption(control.option, d);
+    _this17.changeOption(control.option, d);
   });
 }
-'use strict';
+
+/** Maniuplates the config objects for each associated chart and calls their .draw() methods to trigger re-rendering
+*@memberof controls
+*@method changeOption
+*@param {string} option property of the config object to change
+*@param {*} value the new value to assign to the given option
+*/
 
 function changeOption(option, value) {
 
@@ -1873,17 +2000,23 @@ function changeOption(option, value) {
     e.draw();
   });
 }
-'use strict';
+
+/** Renders a set of radio buttons that toggles the value assigned to a given option
+*@memberof controls
+*@method makeRadioControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeRadioControl(control, control_wrap) {
-  var _this = this;
+  var _this18 = this;
 
   var changers = control_wrap.selectAll('label').data(control.values).enter().append('label').attr('class', 'radio').text(function (d, i) {
     return control.relabels ? control.relabels[i] : d;
   }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
     return d;
   }).property('checked', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this.targets[0].config[control.option] === d;
+    if (control.option.indexOf('.') !== -1) return _this18.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this18.targets[0].config[control.option] === d;
   });
 
   changers.on('change', function (d) {
@@ -1891,10 +2024,16 @@ function makeRadioControl(control, control_wrap) {
     changers.each(function (c) {
       if (d3.select(this).property('checked')) value = d3.select(this).property('value') === 'none' ? null : c;
     });
-    _this.changeOption(control.option, value);
+    _this18.changeOption(control.option, value);
   });
 }
-'use strict';
+
+/** Renders a <code>\<select\></code> element whose value is used to filter the data displayed in associated charts
+*@memberof controls
+*@method makeSubsetterControl
+*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
+*@param {d3.selection} control_wrap the selected element in which to append the rendered input
+*/
 
 function makeSubsetterControl(control, control_wrap) {
   var targets = this.targets;
@@ -1935,7 +2074,7 @@ function makeSubsetterControl(control, control_wrap) {
   }
 
   changer.on('change', function (d) {
-    var _this = this;
+    var _this19 = this;
 
     if (control.multiple) {
       (function () {
@@ -1953,7 +2092,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this).property('value');
+        var value = d3.select(_this19).property('value');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
@@ -1963,28 +2102,52 @@ function makeSubsetterControl(control, control_wrap) {
     }
   });
 }
-"use strict";
+
+/** Triggers rendering of each input as defined by the <code>inputs</code> array in {@link webCharts~controls.config config}
+*@memberof controls
+*@method controlUpdate
+*/
 
 function controlUpdate() {
-  var _this = this;
+  var _this20 = this;
 
-  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) this.config.inputs.forEach(function (e) {
-    return _this.makeControlItem(e);
-  });
+  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
+    this.config.inputs.forEach(function (e) {
+      return _this20.makeControlItem(e);
+    });
+  }
 }
-'use strict';
+
+/** Clears container div and triggers rendering of control inputs
+*@memberof controls
+*@method layout
+*/
 
 function controlLayout() {
-    this.wrap.selectAll('*').remove();
-    this.controlUpdate();
+  this.wrap.selectAll('*').remove();
+  this.ready = true;
+  this.controlUpdate();
 }
-"use strict";
 
+/**
+*The chart object represents a chart with conventional x- and y-axes that is rendered with SVG. Customizable configuration options determine the appearance and behavior of the chart, and these options can be manipulated indirectly through a set of {@link webCharts~controls controls}. The chart has several lifecycle methods used to instantiate the object, render necessary elements, and adjust the rendered elements as needed. The chart can therefore be updated dynamically by changing some {@link webCharts~chart.config config} options (or operating directly on the chart object's properties) or by feeding it new data and then calling its {@link webCharts~chart.draw draw} method to trigger an animated re-render.
+*@type {object}
+*@var table
+*/
 var tableProto = Object.create(chartProto);
-tableProto.layout = tableLayout;
-tableProto.transformData = tableTransformData;
-tableProto.draw = tableDraw;
-'use strict';
+// tableProto.layout = tableLayout;
+// tableProto.transformData = tableTransformData;
+// // tableProto.draw = tableDraw;
+Object.defineProperties(tableProto, {
+  'layout': { value: tableLayout },
+  'transformData': { value: tableTransformData },
+  'draw': { value: tableDraw }
+});
+/** does some stuff
+*@memberof table
+*@method draw
+*@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
+*/
 
 function tableDraw(processed_data, raw_data) {
   // let this = this;
@@ -2081,7 +2244,6 @@ function tableDraw(processed_data, raw_data) {
 
   this.events.onDraw(this);
 }
-'use strict';
 
 function tableTransformData(data) {
   if (!data) return;
@@ -2130,61 +2292,59 @@ function tableTransformData(data) {
 
   return this.current_data;
 }
-/**The base table object.
-	*@alias module:webCharts.table
-	*@param {string} element - CSS selector identifying the element in which to create the chart.
-	*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-	*@param {Object} config - the configuration object specifying all options for how the chart is to appear and behave.
-	*@param {Object} config.x - object with properties to define the x-axis.
-	*@param {Object} config.x.column - column from the supplied dataset to supply values for x-axis.
- 	*@param {Object} config.y - object with properties to define the y-axis.
-	*@param {Controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
+
+/**
+*A factory to create table objects
+*@returns {webCharts.objects.table}
+*@method
+*@memberof webCharts
+*@param {string} element=body - CSS selector identifying the element in which to create the chart.
+*@param {string} filepath - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
+*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
+*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
 */
-'use strict';
-
 webCharts.table = function (element, filepath, config, controls) {
-	if (element === undefined) element = 'body';
-	if (config === undefined) config = {};
+  if (element === undefined) element = 'body';
+  if (config === undefined) config = {};
 
-	var table = Object.create(webCharts.prototypes.table);
-	/** @member {string} */
-	table.div = element;
-	/** @member {string} */
-	table.filepath = filepath;
-	/** @member {Object} */
-	table.config = Object.create(config);
-	/** @member {Controls} */
-	table.controls = controls;
-	/** @member {Array} */
-	table.filters = [];
-	/** @member {Array} */
-	table.required_cols = [];
-	/** @member {Array} */
-	table.marks = [];
-	/** @member {d3.selection} */
-	table.wrap = d3.select(table.div).append('div');
+  var table = Object.create(tableProto);
+  /** @member {string} */
+  table.div = element;
+  /** @member {string} */
+  table.filepath = filepath;
+  /** @member {Object} */
+  table.config = Object.create(config);
+  /** @member {Controls} */
+  table.controls = controls;
+  /** @member {Array} */
+  table.filters = [];
+  /** @member {Array} */
+  table.required_cols = [];
+  /** @member {Array} */
+  table.marks = [];
+  /** @member {d3.selection} */
+  table.wrap = d3.select(table.div).append('div');
 
-	/** @member {Object} */
-	table.events = {
-		onLayout: function onLayout() {},
-		onDatatransform: function onDatatransform() {},
-		onDraw: function onDraw() {},
-		onResize: function onResize() {}
-	};
-	/**run the supplied callback function at the specified time in the Chart lifecycle
- 	*@method
- 	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
- 	*@param {function} callback - function to run
- */
-	table.on = function (event, callback) {
-		var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
-		if (possible_events.indexOf(event) < 0) return;
-		if (callback) table.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
-	};
+  /** @member {Object} */
+  table.events = {
+    onLayout: function onLayout() {},
+    onDatatransform: function onDatatransform() {},
+    onDraw: function onDraw() {},
+    onResize: function onResize() {}
+  };
+  /**run the supplied callback function at the specified time in the Chart lifecycle
+  	*@method
+  	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
+  	*@param {function} callback - function to run
+  */
+  table.on = function (event, callback) {
+    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    if (possible_events.indexOf(event) < 0) return;
+    if (callback) table.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+  };
 
-	return table;
+  return table;
 };
-'use strict';
 
 function tableLayout() {
   d3.select(this.div).select('.loader').remove();
@@ -2193,12 +2353,16 @@ function tableLayout() {
   this.table = table;
   this.events.onLayout(this);
 }
-"use strict";
 
-webCharts.prototypes = {
+/** An object containing prototypes for objects
+*@memberof webCharts
+*@type {object}
+*/
+webCharts.objects = {
   chart: chartProto,
   table: tableProto,
   controls: controlsProto
 };
- return webCharts; }));
+ return webCharts;
+ }));
 //# sourceMappingURL=../maps/webcharts.js.map

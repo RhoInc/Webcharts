@@ -1,10 +1,13 @@
+/** Pools data for each set of marks and determines comprehensive domains for x- and y-axes
+*@memberof webCharts.objects.chart
+*@method consolidateData
+*@param {Array} raw raw dataset to be transformed and then consolidated
+*/
 export function consolidateData(raw){
-  // var this = this;
   let config = this.config;
   let all_data = [];
   let all_x = [];
   let all_y = [];
-  // this.marks = [];
 
   this.setDefaults();
 

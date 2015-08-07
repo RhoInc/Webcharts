@@ -1,3 +1,8 @@
+/** Function that handles drawing bars (<rect> elements) as defined by marks with type='bar'
+*@memberof webCharts.objects.chart
+*@method drawBars
+*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='bar'
+*/
 export function drawBars(marks){
   let rawData = this.raw_data;
   let config = this.config;
