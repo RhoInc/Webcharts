@@ -8,7 +8,7 @@ export function draw(raw_data, processed_data){
   let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   let config = this.config;
   let aspect2 = 1/config.aspect;
-  let data = this.consolidateData(raw);
+  let data = processed_data || this.consolidateData(raw);
 
   this.wrap.datum(data);
 
