@@ -1,6 +1,6 @@
 /**
-*A factory to create table objects
-*@returns {webCharts.objects.table}
+*A factory to create {@link table.md table} objects
+*@returns {table}
 *@method
 *@memberof webCharts
 *@param {string} element=body - CSS selector identifying the element in which to create the chart.
@@ -8,7 +8,7 @@
 *@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
 *@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
 */
-webCharts.table = function(element = 'body', filepath, config = {}, controls){
+webCharts.table = function(element = 'body', filepath='', config = {}, controls=null){
     let table = Object.create(tableProto);
     /** @member {string} */
 		table.div = element;

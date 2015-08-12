@@ -1,5 +1,5 @@
 /** Function that handles drawing points (<circle> elements) as defined by marks with type='circle'
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method drawPoints
 *@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='circle'
 */

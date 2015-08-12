@@ -1,5 +1,5 @@
 /** Sets up the color scale for the chart, which is an ordinal d3.scale with a domain based on unique values determined by config.color_by and a range determined by config.colors
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method setColorScale
 */
 export function setColorScale(){

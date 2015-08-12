@@ -1,4 +1,4 @@
-/**The webCharts object either exports itself as an AMD or CommonJS module or attaches itself to the global <code>window</code> namespace, depending on the context in which it is used.
+/**Everything in this library is scoped under the webCharts namespace
 *@namespace webCharts
 */
 let webCharts = {version: '0.2'};

@@ -1,5 +1,5 @@
 /** Fills in default values for {@link webCharts~chart.config config} object
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method setDefaults
 */
 export function setDefaults(){

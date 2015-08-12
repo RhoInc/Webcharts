@@ -1,5 +1,5 @@
 /** Handles final arrangement of all chart components. Determines final chart dimensions and triggers rendering of axes and marks
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method resize
 */
 export function resize(){

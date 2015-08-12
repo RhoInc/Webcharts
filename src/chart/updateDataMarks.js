@@ -1,5 +1,5 @@
 /** Triages rendering functions for the chart's currently-defined marks
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method updateDataMarks
 */
 export function updateDataMarks(){

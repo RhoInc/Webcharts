@@ -1,5 +1,5 @@
 /** Begins 
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method init
 *@param {Array} [data] raw data to be used in the place of dataset parsed from {@link webCharts~chart.filepath filepath}
 */

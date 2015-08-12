@@ -1,5 +1,5 @@
 /** Throws an error and prints a message if the {@link webCharts~chart.filepath filepath} cannot be resolved to a valid file
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method onDataError
 */
 export function onDataError(error){

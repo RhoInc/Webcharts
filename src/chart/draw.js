@@ -1,5 +1,5 @@
 /** Parses config object, triggers data transformation and chart rendering methods
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method draw
 *@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
 */

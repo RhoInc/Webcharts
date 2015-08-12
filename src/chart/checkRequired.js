@@ -1,5 +1,5 @@
 /** Checks raw dataset against the configuration object for the chart and throws errors if the configuration references values that are not present. Called once upon initialization of chart.
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method checkRequired
 */
 export function checkRequired(){

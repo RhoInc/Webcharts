@@ -1,5 +1,5 @@
 /** Sets up x-scale and x-axis functions
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method xScaleAxis
 *@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the width of the chart's plotting area.
 *@param {array} [domain={@link webCharts~chart.x_dom}] Domain passed to the scale function

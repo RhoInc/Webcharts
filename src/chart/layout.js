@@ -1,5 +1,5 @@
 /** Sets up the SVG that serves as the chart "canvas" and its static child elements. Happens once immediately after {@link webCharts~chart.init chart.init}
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method layout
 */
 export function layout(){

@@ -1,5 +1,5 @@
 /** Transforms raw data into an appropriately nested format for each mark
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method transformData
 *@param {array} raw raw dataset to be transformed
 *@param {mark} mark object describing the set of marks

@@ -46,39 +46,6 @@ gulp.task('minify', function(){
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('document', $.shell.task( [
-  'jsdoc2md build/webcharts.js > doc.md'
-] ));
-
-//parse documentation comments for controls object
-gulp.task('controls-doc', $.shell.task( [
-  'jsdoc2md src/controls/* > ../webcharts.wiki/controls.md'
-] ));
-//parse documentation comments for table object
-gulp.task('table-doc', $.shell.task( [
-  'jsdoc2md src/table/* > ../webcharts.wiki/table.md'
-] ));
-
-//do some custom editing on .md files produced by jsdoc2md
-gulp.task('strip', ['controls-doc', 'table-doc'], function(){
-  return gulp.src(['../webcharts.wiki/*'])
-    .pipe($.replace(/\*\*Kind\*\*.*\n/g, ''))//strip out the lines that document **Kind** because that's stupid
-    .pipe($.replace(/^\*\s\[.*\n/m, '')) //remove first item in menu/list because it's redundant
-    .pipe($.replace(/(^\s+\*\s){1}/m, '\n')) //keep newline before table of contents
-    .pipe($.replace(/^\s+\*\s/gm, '<br>')) //swap bullets for line breaks
-    .pipe(gulp.dest('../webcharts.wiki/'));
-});
-
-gulp.task('watch', function(){
-  gulp.watch('src/controls/*', ['strip']);
-  gulp.watch('src/table/*', ['strip']);
-});
-
 gulp.task('watch-all', function(){
   gulp.watch('src/**/*', ['build']);
 });
-
-//use dox to get json instead of full-blown html files
-// dox < build/webcharts.js > doc.json
-//or go straight to markdown
-// jsdoc2md build/webcharts.js > doc.md

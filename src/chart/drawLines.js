@@ -1,5 +1,5 @@
 /** Function that handles drawing lines (<path> elements) as defined by marks with type='line'
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method drawLines
 *@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='line'
 */

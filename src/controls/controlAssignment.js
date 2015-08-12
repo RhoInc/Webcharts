@@ -1,5 +1,5 @@
 /**
-*A factory to create controls objects
+*A factory to create {@link controls.md controls} objects
 *@returns {controls}
 *@method
 *@memberof webCharts

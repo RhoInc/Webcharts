@@ -1,9 +1,9 @@
 /** A shortcut for creating many charts at once. Given a {@link webCharts~chart chart} object and a variable from its dataset, a new chart is created for each unique value of that variable. Each new chart rendered using a filtered version of the original dataset.
 *@method multiply
 *@memberof webCharts
-*@param {Object} chart the chart object used as a template
-*@param {String} split_by a header from the chart's dataset, the values of which are used to panel the resulting charts
-*@param {Array} order an array of the values defined by split_by, the order of which defines the order of the charts
+*@param {chart} chart the {@link chart.md chart} object used as a template
+*@param {string} split_by a header from the chart's dataset, the values of which are used to panel the resulting charts
+*@param {array} order an array of the values defined by split_by, the order of which defines the order of the charts
 */
 webCharts.multiply = function(chart, split_by, order){
   let config = chart.config;
@@ -27,12 +27,9 @@ webCharts.multiply = function(chart, split_by, order){
       var mchart = webCharts.chart(chart.wrap.node(), null, config, chart.controls);
       mchart.events = chart.events;
       mchart.legend = master_legend;
-      // mchart.multiplied = {col: split_by, value: e};
       mchart.filters.unshift({col: split_by, val: e, choices: split_vals});
       mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
       mchart.init(data);
-
     });
   }
-
 };

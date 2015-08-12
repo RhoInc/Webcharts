@@ -1,5 +1,5 @@
 /** Pools data for each set of marks and determines comprehensive domains for x- and y-axes
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method consolidateData
 *@param {Array} raw raw dataset to be transformed and then consolidated
 */

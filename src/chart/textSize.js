@@ -1,5 +1,5 @@
 /** Automatically determines text size for the chart based on certain breakpoints
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method textSize
 *@param {number} width width of the chart container
 */

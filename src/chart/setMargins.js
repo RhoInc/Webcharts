@@ -1,5 +1,5 @@
 /** Automatically determines margins for the chart based on axis ticks, labels, etc.
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method setMargins
 */
 export function setMargins(){
