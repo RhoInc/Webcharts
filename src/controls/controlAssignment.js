@@ -1,11 +1,11 @@
 /**
-*A factory to create {@link controls.md controls} objects
+*A factory to create {@link Controls controls} objects
 *@returns {controls}
 *@method
 *@memberof webCharts
-*@param {string} element=body - CSS selector identifying the element in which to create the chart.
-*@param {array} data - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
+*@param {string} element=body - CSS selector identifying the element in which to create the controls
+*@param {array} data - path to the file containing data for the chart. Expected to be a text file of comma-separated values
+*@param {object} config - configuration object describing the inputs to be rendered
 */
 webCharts.controls = function(element = 'body', data = [], config = {}, defaults = {resizable: true, max_width: 800}){
     let controls = Object.create(controlsProto);

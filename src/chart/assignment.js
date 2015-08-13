@@ -1,14 +1,14 @@
 webCharts.chartCount = 0;
 
 /**
-*A factory to create {@link chart.md chart} objects
+*A factory to create {@link Chart chart} objects
 *@returns {chart}
 *@method
 *@memberof webCharts
-*@param {string} element=body - CSS selector identifying the element in which to create the chart.
-*@param {string} filepath - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
-*@param {controls} controls - {@link controls.md controls} instance that will be linked to this chart instance.
+*@param {string} element=body - CSS selector identifying the element in which to create the chart
+*@param {string} filepath - path to the file containing data for the chart. Expected to be a text file of comma-separated values
+*@param {object} config - {@link Config config} object specifying all options for how the chart is to appear and behave
+*@param {controls} controls - {@link Controls controls} instance that will be linked to this chart instance
 */
 webCharts.chart = function(element = 'body', filepath = null, config = {}, controls = null){
 
@@ -23,12 +23,12 @@ webCharts.chart = function(element = 'body', filepath = null, config = {}, contr
 	*@member {string} filepath
 	*/
 	chart.filepath = filepath;
-	/** A reference to the config object that specifies chart settings
+	/** A reference to the {@link Config config} object that specifies chart settings
 	*@memberof chart
 	*@member {object} config
 	*/
 	chart.config = Object.create(config);
-	/** A webCharts.controls~controls object associated with this chart
+	/** A {@link Controls controls} object associated with this chart
 	*@memberof chart
 	*@member {controls} controls
 	*/
