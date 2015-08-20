@@ -1,9 +1,3 @@
-/** Renders a <code>\<select\></code> element whose value is used to filter the data displayed in associated charts
-*@memberof controls
-*@method makeSubsetterControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
 export function makeSubsetterControl(control, control_wrap){
   let targets = this.targets;
  	let changer = control_wrap.append('select')
@@ -17,8 +11,9 @@ export function makeSubsetterControl(control, control_wrap){
 
   control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
-  if(!control.multiple && !control.start)
+  if(!control.multiple && !control.start){
   	option_data.unshift('All');
+  }
 
   control.loose = !control.loose && control.start ? true : control.loose;
 
@@ -29,25 +24,29 @@ export function makeSubsetterControl(control, control_wrap){
 
   targets.forEach(e => {
     let match = e.filters.slice().map(m => m.col === control.value_col).indexOf(true);
-    if(match > -1)
-      e.filters[match] = {col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose}
-    else
+    if(match > -1){
+      e.filters[match] = {col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose};
+    }
+    else{
       e.filters.push({col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose});
+    }
   });
 
   function setSubsetter(target, obj){
     let match = -1;
     target.filters.forEach((e,i) => {
-      if(e.col === obj.col)
+      if(e.col === obj.col){
         match = i;
+      }
     });
-    if(match > -1)
+    if(match > -1){
       target.filters[match] = obj;
+    }
   }
 
   changer.on('change', function(d){
     if(control.multiple){
-      let values = options.filter(function(f){return d3.select(this).property('selected')})[0]
+      let values = options.filter(function(f){return d3.select(this).property('selected'); })[0]
         .map(m => d3.select(m).property('value'));
 
       let new_filter = {col: control.value_col, val: values, choices: option_data, loose: control.loose};

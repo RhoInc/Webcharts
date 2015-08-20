@@ -1,21 +1,18 @@
-/** Begins 
-*@memberof chart
-*@method init
-*@param {Array} [data] raw data to be used in the place of dataset parsed from {@link webCharts~chart.filepath filepath}
-*/
 export function init(data){
-    let config = this.config;
 
     if(d3.select(this.div).select('.loader').empty()){
-        d3.select(this.div).insert('div', ':first-child').attr('class', 'loader')
+        d3.select(this.div).insert('div', ':first-child')
+          .attr('class', 'loader')
           .selectAll('.blockG').data(d3.range(8))
-          .enter().append('div').attr('class', d => 'blockG rotate'+(d+1) );
+            .enter().append('div')
+            .attr('class', d => 'blockG rotate'+(d+1) );
     }
     this.wrap.attr('class', 'wc-chart');
 
     this.setDefaults();
 
     let startup = (data => {
+      //connect this chart and its controls, if any
       if(this.controls){
           this.controls.targets.push(this);
           if(!this.controls.ready){
@@ -28,16 +25,15 @@ export function init(data){
 
       this.raw_data = data;
 
-      //redo this without jquery
-      var visible = window.$ ? $(this.div).is(':visible') : true;
+      //make sure container is visible (has height and width) before trying to initialize
+      var visible = d3.select(this.div).property('offsetWidth') > 0 && d3.select(this.div).property('offsetHeight') > 0;
       if(!visible){
           var onVisible = setInterval(i => {
-              let visible_now = $(this.div).is(':visible');
+              let visible_now = d3.select(this.div).property('offsetWidth') > 0 && d3.select(this.div).property('offsetHeight') > 0;
               if(visible_now){
                 this.layout();
                 this.wrap.datum(this);
-                let init_data = this.transformData(data);
-                this.draw(init_data);
+                this.draw();
                 clearInterval(onVisible);
               }
          }, 500);
@@ -49,17 +45,8 @@ export function init(data){
       }
     });
 
-    if(this.filepath && !data){
-        d3.csv(this.filepath, (error, csv) => {
-          this.raw_data = csv;
-          this.onDataError(error);
-          this.checkRequired(csv);
-          startup(csv);
-        });
-      }
-    else{
-      startup(data);
-    }
+    
+    startup(data);
 
     return this;
 }

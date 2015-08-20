@@ -1,9 +1,3 @@
-/** Renders a set of buttons. The value represented by the highlighted button is assigned to the given option
-*@memberof controls
-*@method makeBtnGroupControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
 export function makeBtnGroupControl(control, control_wrap){
   let option_data = control.values ? control.values : d3.keys(this.data[0]);
 

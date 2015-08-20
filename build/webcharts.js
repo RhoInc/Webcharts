@@ -1,29 +1,10 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){
-/**The webCharts object either exports itself as an AMD or CommonJS module or attaches itself to the global <code>window</code> namespace, depending on the context in which it is used.
-*@namespace webCharts
-*/
-'use strict';
-
 var webCharts = { version: '0.2' };
 
-/** A shortcut for creating many charts at once. Given a {@link webCharts~chart chart} object and a variable from its dataset, a new chart is created for each unique value of that variable. Each new chart rendered using a filtered version of the original dataset.
-*@method multiply
-*@memberof webCharts
-*@param {Object} chart the chart object used as a template
-*@param {String} split_by a header from the chart's dataset, the values of which are used to panel the resulting charts
-*@param {Array} order an array of the values defined by split_by, the order of which defines the order of the charts
-*/
-webCharts.multiply = function (chart, split_by, order) {
+webCharts.multiply = function (chart, data, split_by, order) {
   var config = chart.config;
   var wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
   var master_legend = wrap.append('ul').attr('class', 'legend');
-
-  d3.csv(chart.filepath, function (error, csv) {
-    chart.raw_data = csv;
-    chart.onDataError(error);
-    chart.checkRequired(csv);
-    goAhead(csv);
-  });
 
   function goAhead(data) {
     var split_vals = d3.set(data.map(function (m) {
@@ -31,67 +12,31 @@ webCharts.multiply = function (chart, split_by, order) {
     })).values().filter(function (f) {
       return f;
     });
-    if (order) split_vals = split_vals.sort(function (a, b) {
-      return d3.ascending(order.indexOf(a), order.indexOf(b));
-    });
+    if (order) {
+      split_vals = split_vals.sort(function (a, b) {
+        return d3.ascending(order.indexOf(a), order.indexOf(b));
+      });
+    }
 
     split_vals.forEach(function (e) {
-      var split_data = data.filter(function (f) {
-        return f[split_by] === e;
-      });
-      var mchart = webCharts.chart(chart.wrap.node(), null, config, chart.controls);
+      var mchart = webCharts.chart(chart.wrap.node(), config, chart.controls);
       mchart.events = chart.events;
       mchart.legend = master_legend;
-      // mchart.multiplied = {col: split_by, value: e};
       mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
       mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
       mchart.init(data);
     });
   }
+
+  goAhead(data);
 };
 
-/** An object containing several utility functions for working with data
-*@memberof webCharts
-*@type {object}
-*/
 webCharts.dataOps = {
   getValType: getValType,
   lengthenRaw: lengthenRaw,
   naturalSorter: naturalSorter,
   summarize: summarize
 };
-
-/** Determines what type of data is contained in a given column from a given dataset
-*@returns {string} <code>'continuous'</code> or <code>'categorical'</code>
-*@memberof webCharts.dataOps
-*@method getValType
-*@param {array} data a dataset to evaluate
-*@param {string} variable a column from the dataset
-*/
-
-function getValType(data, variable) {
-  var var_vals = d3.set(data.map(function (m) {
-    return m[variable];
-  })).values();
-  var vals_numbers = var_vals.filter(function (f) {
-    return +f || f === 0;
-  });
-
-  if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
-    return 'continuous';
-  } else {
-    return 'categorical';
-  }
-}
-
-/**
-*expands a dataset to include one record per each column in the given array of columns
-*@returns {array} a new, "longer" dataset
-*@memberof webCharts.dataOps
-*@method lengthenRaw
-*@param {array} data the dataset to be transformed, in the form of an array of object, such as the one returned by d3.csv
-*@param {array} columns an array of column names
-*/
 
 function lengthenRaw(data, columns) {
   var my_data = [];
@@ -109,15 +54,6 @@ function lengthenRaw(data, columns) {
   return my_data;
 }
 
-/**
-*an alphanumeric sort function that can be passed to the native Array.sort() method
-*http://www.davekoelle.com/files/alphanum.js
-*@memberof webCharts.dataOps
-*@method naturalSorter
-*@param {String|Number} a the first of a couplet of items to compare
-*@param {String|Number} b the second of a couplet of items to compare
-*/
-
 function naturalSorter(a, b) {
   //http://www.davekoelle.com/files/alphanum.js
   function chunkify(t) {
@@ -131,7 +67,7 @@ function naturalSorter(a, b) {
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
       var m = i == 46 || i >= 48 && i <= 57;
       if (m !== n) {
-        tz[++y] = "";
+        tz[++y] = '';
         n = m;
       }
       tz[y] += j;
@@ -148,21 +84,14 @@ function naturalSorter(a, b) {
           d = Number(bb[x]);
       if (c == aa[x] && d == bb[x]) {
         return c - d;
-      } else return aa[x] > bb[x] ? 1 : -1;
+      } else {
+        return aa[x] > bb[x] ? 1 : -1;
+      }
     }
   }
 
   return aa.length - bb.length;
 }
-
-/**
-*performs a mathematic operation on a set of values
-*@returns {number}
-*@memberof webCharts.dataOps
-*@method summarize
-*@param {array} vals the values to be evaluated
-*@param {string} operation=mean the type of evaluation to perform
-*/
 
 function summarize(vals, operation) {
   var nvals = vals.filter(function (f) {
@@ -171,7 +100,9 @@ function summarize(vals, operation) {
     return +m;
   });
 
-  if (operation === 'cumulative') return null;
+  if (operation === 'cumulative') {
+    return null;
+  }
 
   var stat = operation || 'mean';
   var mathed = stat === 'count' ? vals.length : stat === 'percent' ? vals.length : d3[stat](nvals);
@@ -179,23 +110,27 @@ function summarize(vals, operation) {
   return mathed;
 }
 
-/**
-*The chart object represents a chart with conventional x- and y-axes that is rendered with SVG. Customizable configuration options determine the appearance and behavior of the chart, and these options can be manipulated indirectly through a set of {@link webCharts~controls controls}. The chart has several lifecycle methods used to instantiate the object, render necessary elements, and adjust the rendered elements as needed. The chart can therefore be updated dynamically by changing some {@link webCharts~chart.config config} options (or operating directly on the chart object's properties) or by feeding it new data and then calling its {@link webCharts~chart.draw draw} method to trigger an animated re-render.
-*@type {object}
-*@var chart
-*@memberof webCharts.objects
-*/
+function getValType(data, variable) {
+  var var_vals = d3.set(data.map(function (m) {
+    return m[variable];
+  })).values();
+  var vals_numbers = var_vals.filter(function (f) {
+    return +f || f === 0;
+  });
+
+  if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
+    return 'continuous';
+  } else {
+    return 'categorical';
+  }
+}
+
 var chartProto = {
-  /** 
-  *raw (unfiltered, untransformed) dataset stored by the chart
-  *@member {Array}
-  */
   raw_data: [],
   config: {}
 };
 
 Object.defineProperties(chartProto, {
-  'adjustTicks': { value: adjustTicks },
   'checkRequired': { value: checkRequired },
   'consolidateData': { value: consolidateData },
   'draw': { value: draw },
@@ -204,11 +139,9 @@ Object.defineProperties(chartProto, {
   'drawGridlines': { value: drawGridlines },
   'drawLines': { value: drawLines },
   'drawPoints': { value: drawPoints },
-  'highlightMarks': { value: highlightMarks },
   'init': { value: init },
   'layout': { value: layout },
   'makeLegend': { value: makeLegend },
-  'onDataError': { value: onDataError },
   'resize': { value: resize },
   'setColorScale': { value: setColorScale },
   'setDefaults': { value: setDefaults },
@@ -220,110 +153,8 @@ Object.defineProperties(chartProto, {
   'yScaleAxis': { value: yScaleAxis }
 });
 
-function adjustTicks(axis, dx, dy, rotation, anchor) {
-  if (!axis) return;
-  this.svg.selectAll("." + axis + ".axis .tick text").attr({
-    "transform": "rotate(" + rotation + ")",
-    "dx": dx,
-    "dy": dy
-  }).style("text-anchor", anchor || 'start');
-}
-
-webCharts.chartCount = 0;
-
-/**
-*A factory to create chart objects
-*@returns {webCharts.objects.chart}
-*@method
-*@memberof webCharts
-*@param {string} element=body - CSS selector identifying the element in which to create the chart.
-*@param {string} filepath - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
-*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
-*/
-webCharts.chart = function () {
-  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
-  var filepath = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-  var controls = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
-
-  var chart = Object.create(chartProto);
-  /** CSS selector identifying the DOM element housing the rendered chart
-  *@memberof webCharts.objects.chart
-  *@member {string} div
-  */
-  chart.div = element;
-  /** The path to a data file (.csv) that provides the raw data to the chart
-  *@memberof webCharts.objects.chart
-  *@member {string} filepath
-  */
-  chart.filepath = filepath;
-  /** An object specifying chart settings
-  *@memberof webCharts.objects.chart
-  *@member {object} config
-  */
-  chart.config = Object.create(config);
-  /** A webCharts.controls~controls object associated with this chart
-  *@memberof webCharts.objects.chart
-  *@member {controls} webCharts~controls
-  */
-  chart.controls = controls;
-  /** Raw (unfiltered, untransformed) dataset stored by the chart. This dataset is either parsed from the file retreived from the provided {@link webCharts~chart.filepath filepath} or provided directly as an argument to {@link webCharts~chart.init chart.init}.
-  *@memberof webCharts.objects.chart
-  *@member {array} raw_data
-  */
-  chart.raw_data = [];
-  /** A list of objects describing the state of any data filters currently associated with the chart. This property is manipulated by controls with type='subsetter'.
-  *@memberof webCharts.objects.chart
-  @member {array} filters
-  */
-  chart.filters = [];
-  /** A list of objects describing each set of marks rendered by the chart. Maps to the 'marks' property of the configuration object, but with the mark-specfic transformed data attached
-  *@memberof webCharts.objects.chart
-  *@member {array} marks
-  */
-  chart.marks = [];
-  /** A d3 selection of a \<div\> appended within the DOM element specified by {@link webCharts~chart.div div}
-  *@memberof webCharts.objects.chart
-  *@member {d3.selection} wrap
-   	*/
-  chart.wrap = d3.select(chart.div).append('div');
-
-  /** @member {object} */
-  chart.events = {
-    onLayout: function onLayout() {},
-    onDatatransform: function onDatatransform() {},
-    onDraw: function onDraw() {},
-    onResize: function onResize() {}
-  };
-  /**run the supplied callback function at the specified time in the Chart lifecycle
-  *@memberof webCharts.objects.chart
-  *@method on
-  *@param {string} event - point in Chart lifecycle at which to fire the associated callback
-  *@param {function} callback - function to run
-  */
-  chart.on = function (event, callback) {
-    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
-    if (possible_events.indexOf(event) < 0) {
-      return;
-    }
-    if (callback) {
-      chart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
-    }
-  };
-
-  webCharts.chartCount++;
-  /** A unique identifier for this chart instance
-  *@memberof webCharts.objects.chart
-  *@member {number} id
-  */
-  chart.id = webCharts.chartCount;
-
-  return chart;
-};
-
 /** Checks raw dataset against the configuration object for the chart and throws errors if the configuration references values that are not present. Called once upon initialization of chart.
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method checkRequired
 */
 
@@ -368,7 +199,7 @@ function checkRequired() {
 }
 
 /** Pools data for each set of marks and determines comprehensive domains for x- and y-axes
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method consolidateData
 *@param {Array} raw raw dataset to be transformed and then consolidated
 */
@@ -445,7 +276,7 @@ function consolidateData(raw) {
 }
 
 /** Parses config object, triggers data transformation and chart rendering methods
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method draw
 *@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
 */
@@ -464,17 +295,17 @@ function draw(raw_data, processed_data) {
   this.setColorScale();
 
   var max_width = config.max_width ? config.max_width : div_width;
-  this.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
-  this.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
+  this.raw_width = config.x.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
+  this.raw_height = config.y.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
 
-  var pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
-  var pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
+  var pseudo_width = this.svg.select('.overlay').attr('width') ? this.svg.select('.overlay').attr('width') : this.raw_width;
+  var pseudo_height = this.svg.select('.overlay').attr('height') ? this.svg.select('.overlay').attr('height') : this.raw_height;
 
-  this.svg.select(".x.axis").select(".axis-title").text(function () {
-    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
+  this.svg.select('.x.axis').select('.axis-title').text(function () {
+    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label(context) : null;
   });
-  this.svg.select(".y.axis").select(".axis-title").text(function () {
-    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
+  this.svg.select('.y.axis').select('.axis-title').text(function () {
+    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label(context) : null;
   });
 
   this.xScaleAxis(pseudo_width);
@@ -515,7 +346,7 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
 }
 
 /** Function that handles drawing bars (<rect> elements) as defined by marks with type='bar'
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method drawBars
 *@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='bar'
 */
@@ -551,7 +382,7 @@ function drawBars(marks) {
     });
     nu_bar_groups.append('title');
 
-    bars = bar_groups.selectAll("rect").data(function (d) {
+    bars = bar_groups.selectAll('rect').data(function (d) {
       return d.values instanceof Array ? d.values : [d];
     }, function (d) {
       return d.key;
@@ -763,7 +594,7 @@ function drawBars(marks) {
 ;
 
 /** Draws gridlines at x and or y tick mark locations, as defined by the 'gridlines' property in the configuration object
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method drawGridlines
 */
 
@@ -783,7 +614,7 @@ function drawGridlines() {
 ;
 
 /** Function that handles drawing lines (<path> elements) as defined by marks with type='line'
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method drawLines
 *@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='line'
 */
@@ -840,7 +671,7 @@ function drawLines(marks) {
 }
 
 /** Function that handles drawing points (<circle> elements) as defined by marks with type='circle'
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method drawPoints
 *@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='circle'
 */
@@ -900,32 +731,8 @@ function drawPoints(marks) {
   return points;
 }
 
-function highlightMarks() {
-  var _this7 = this;
-
-  var context = this;
-  var leg_parts = this.legend.selectAll('.legend-item');
-
-  leg_parts.on('mouseover', function (d) {
-    var fill = d3.select(this).select('.legend-mark').attr('fill');
-    context.svg.selectAll('.wc-data-mark').attr('opacity', 0.1).filter(function (f) {
-      return d3.select(this).attr('fill') === fill || d3.select(this).attr('stroke') === fill;
-    }).attr('opacity', 1);
-  }).on('mouseout', function (d) {
-    _this7.svg.selectAll('.wc-data-mark').attr('opacity', 1);
-  });
-}
-
-/** Begins 
-*@memberof webCharts.objects.chart
-*@method init
-*@param {Array} [data] raw data to be used in the place of dataset parsed from {@link webCharts~chart.filepath filepath}
-*/
-
 function init(data) {
-  var _this8 = this;
-
-  var config = this.config;
+  var _this7 = this;
 
   if (d3.select(this.div).select('.loader').empty()) {
     d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
@@ -937,68 +744,59 @@ function init(data) {
   this.setDefaults();
 
   var startup = function startup(data) {
-    if (_this8.controls) {
-      _this8.controls.targets.push(_this8);
-      if (!_this8.controls.ready) {
-        _this8.controls.init(data);
+    //connect this chart and its controls, if any
+    if (_this7.controls) {
+      _this7.controls.targets.push(_this7);
+      if (!_this7.controls.ready) {
+        _this7.controls.init(data);
       } else {
-        _this8.controls.layout();
+        _this7.controls.layout();
       }
     }
 
-    _this8.raw_data = data;
+    _this7.raw_data = data;
 
-    //redo this without jquery
-    var visible = window.$ ? $(_this8.div).is(':visible') : true;
+    //make sure container is visible (has height and width) before trying to initialize
+    var visible = d3.select(_this7.div).property('offsetWidth') > 0 && d3.select(_this7.div).property('offsetHeight') > 0;
     if (!visible) {
       var onVisible = setInterval(function (i) {
-        var visible_now = $(_this8.div).is(':visible');
+        var visible_now = d3.select(_this7.div).property('offsetWidth') > 0 && d3.select(_this7.div).property('offsetHeight') > 0;
         if (visible_now) {
-          _this8.layout();
-          _this8.wrap.datum(_this8);
-          var init_data = _this8.transformData(data);
-          _this8.draw(init_data);
+          _this7.layout();
+          _this7.wrap.datum(_this7);
+          _this7.draw();
           clearInterval(onVisible);
         }
       }, 500);
     } else {
-      _this8.layout();
-      _this8.wrap.datum(_this8);
-      _this8.draw();
+      _this7.layout();
+      _this7.wrap.datum(_this7);
+      _this7.draw();
     }
   };
 
-  if (this.filepath && !data) {
-    d3.csv(this.filepath, function (error, csv) {
-      _this8.raw_data = csv;
-      _this8.onDataError(error);
-      _this8.checkRequired(csv);
-      startup(csv);
-    });
-  } else {
-    startup(data);
-  }
+  startup(data);
 
   return this;
 }
 
 /** Sets up the SVG that serves as the chart "canvas" and its static child elements. Happens once immediately after {@link webCharts~chart.init chart.init}
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method layout
 */
 
 function layout() {
-  this.svg = this.wrap.append("svg").attr({ "class": "wc-svg",
-    "xmlns": "http://www.w3.org/2000/svg",
-    "version": "1.1",
-    "xlink": "http://www.w3.org/1999/xlink"
-  }).append("g");
+  this.svg = this.wrap.append('svg').attr({ 'class': 'wc-svg',
+    'xmlns': 'http://www.w3.org/2000/svg',
+    'version': '1.1',
+    'xlink': 'http://www.w3.org/1999/xlink'
+  }).append('g');
 
-  var defs = this.svg.append("defs");
-  defs.append("pattern").attr({
-    "id": "diagonal-stripes",
-    "x": 0, "y": 0, "width": 3, "height": 8, 'patternUnits': "userSpaceOnUse", 'patternTransform': "rotate(30)"
-  }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
+  var defs = this.svg.append('defs');
+  defs.append('pattern').attr({
+    'id': 'diagonal-stripes',
+    'x': 0, 'y': 0, 'width': 3, 'height': 8, 'patternUnits': 'userSpaceOnUse', 'patternTransform': 'rotate(30)'
+  }).append('rect').attr({ 'x': '0', 'y': '0', 'width': '2', 'height': '8', 'style': 'stroke:none; fill:black' });
 
   defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
 
@@ -1017,7 +815,7 @@ function layout() {
 }
 
 /** Draws legend for the chart
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method makeLegend
 *@param {d3.scale} [scale=scale returned by {@link webCharts~chart~setColorScale chart.setColorScale}] color scale to use in the legend
 *@param {string} [label] label for the legend
@@ -1094,22 +892,8 @@ function makeLegend() {
   this.legend = legend;
 }
 
-/** Throws an error and prints a message if the {@link webCharts~chart.filepath filepath} cannot be resolved to a valid file
-*@memberof webCharts.objects.chart
-*@method onDataError
-*/
-
-function onDataError(error) {
-  if (!error) {
-    return;
-  }
-  d3.select(this.div).select('.loader').remove();
-  this.wrap.append('div').style('color', 'red').text('Dataset could not be loaded.');
-  throw new Error('Dataset could not be loaded. Check provided path (' + this.filepath + ').');
-}
-
 /** Handles final arrangement of all chart components. Determines final chart dimensions and triggers rendering of axes and marks
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method resize
 */
 
@@ -1164,7 +948,7 @@ function resize() {
 }
 
 /** Sets up the color scale for the chart, which is an ordinal d3.scale with a domain based on unique values determined by config.color_by and a range determined by config.colors
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method setColorScale
 */
 
@@ -1187,11 +971,6 @@ function setColorScale() {
 
   this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
 }
-
-/** Fills in default values for {@link webCharts~chart.config config} object
-*@memberof webCharts.objects.chart
-*@method setDefaults
-*/
 
 function setDefaults() {
 
@@ -1227,18 +1006,18 @@ function setDefaults() {
 }
 
 /** Automatically determines margins for the chart based on axis ticks, labels, etc.
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method setMargins
 */
 
 function setMargins() {
-  var _this9 = this;
+  var _this8 = this;
 
   var x_ticks = this.xAxis.tickFormat() ? this.x.domain().map(function (m) {
-    return _this9.xAxis.tickFormat()(m);
+    return _this8.xAxis.tickFormat()(m);
   }) : this.x.domain();
   var y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(function (m) {
-    return _this9.yAxis.tickFormat()(m);
+    return _this8.yAxis.tickFormat()(m);
   }) : this.y.domain();
 
   var max_y_text_length = d3.max(y_ticks.map(function (m) {
@@ -1265,7 +1044,7 @@ function setMargins() {
 }
 
 /** Automatically determines text size for the chart based on certain breakpoints
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method textSize
 *@param {number} width width of the chart container
 */
@@ -1303,14 +1082,14 @@ function textSize(width) {
 }
 
 /** Transforms raw data into an appropriately nested format for each mark
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method transformData
 *@param {array} raw raw dataset to be transformed
 *@param {mark} mark object describing the set of marks
 */
 
 function transformData(raw, mark) {
-  var _this10 = this;
+  var _this9 = this;
 
   var config = this.config;
   var x_behavior = config.x.behavior || 'raw';
@@ -1552,7 +1331,7 @@ function transformData(raw, mark) {
         return f !== 'All';
       }).forEach(function (e) {
         var perfilter = raw.filter(function (f) {
-          return f[_this10.filters[0].col] === e;
+          return f[_this9.filters[0].col] === e;
         });
         var filt_nested = makeNest(perfilter, sublevel);
         filt1_xs.push(filt_nested.dom_x);
@@ -1595,9 +1374,9 @@ function transformData(raw, mark) {
     return m[config.x.column];
   })).values() : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
 
-  var y_dom = config.y_dom ? config.y_dom : config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+  var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
     return m[config.y.column];
-  })).values() : config.y.type === "ordinal" ? d3.set(raw.map(function (m) {
+  })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values() : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
 
@@ -1617,7 +1396,7 @@ function transformData(raw, mark) {
 }
 
 /** Triages rendering functions for the chart's currently-defined marks
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method updateDataMarks
 */
 
@@ -1634,7 +1413,7 @@ function updateDataMarks() {
 }
 
 /** Sets up x-scale and x-axis functions
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method xScaleAxis
 *@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the width of the chart's plotting area.
 *@param {array} [domain={@link webCharts~chart.x_dom}] Domain passed to the scale function
@@ -1682,7 +1461,7 @@ function xScaleAxis(max_range, domain, type) {
 }
 
 /** Sets up y-scale and y-axis functions
-*@memberof webCharts.objects.chart
+*@memberof chart
 *@method yScaleAxis
 *@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the height of the chart's plotting area.
 *@param {array} [domain={@link webCharts~chart.y_dom}] Domain passed to the scale function
@@ -1729,10 +1508,6 @@ function yScaleAxis(max_range, domain, type) {
   this.yAxis = yAxis;
 }
 
-/** The controls object represents a set of inputs that are rendered with standard HTML <code>\<input\></code> and <code>\<select\></code> elements. These inputs manipulate any charts associated with this control object by either assigning new values to the charts' {@link webCharts~chart.config config} properties (to change the charts' appearance or behavior) or changing the objects in the charts' {@link webCharts~chart.filters filters} array (to subset the data that is visualized in the chart).
-*@type {object}
-*@var controls
-*/
 var controlsProto = {
   changeOption: changeOption,
   checkRequired: controlCheckRequired,
@@ -1750,78 +1525,38 @@ var controlsProto = {
   makeTextControl: makeTextControl
 };
 
-/** Maniuplates the config objects for each associated chart and calls their .draw() methods to trigger re-rendering
-*@memberof controls
-*@method changeOption
-*@param {string} option property of the config object to change
-*@param {*} value the new value to assign to the given option
-*/
+function makeCheckboxControl(control, control_wrap) {
+  var _this10 = this;
 
-function changeOption(option, value) {
+  var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
+    if (control.option.indexOf('.') !== -1) {
+      return _this10.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
+    } else {
+      return _this10.targets[0].config[control.option];
+    }
+  });
 
-  this.targets.forEach(function (e) {
-    if (option.indexOf('.') !== -1) e.config[option.split('.')[0]][option.split('.')[1]] = value;else e.config[option] = value;
-    e.draw();
+  changer.on('change', function (d) {
+    var value = changer.property('checked');
+    _this10.changeOption(d.option, value);
   });
 }
 
-/**
-*A factory to create controls objects
-*@returns {controls}
-*@method
-*@memberof webCharts
-*@param {string} element=body - CSS selector identifying the element in which to create the chart.
-*@param {array} data - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
-*/
-webCharts.controls = function () {
-  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
-  var data = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
-  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-  var defaults = arguments.length <= 3 || arguments[3] === undefined ? { resizable: true, max_width: 800 } : arguments[3];
-
-  var controls = Object.create(controlsProto);
-  /** CSS selector identifying the DOM element housing the rendered controls
-  *@memberof controls
-  *@member {string} div
-  */
-  controls.div = element;
-  /** Raw (unfiltered, untransformed) dataset stored by the controls. This dataset is passed to the controls object from any associated chart object
-  *@memberof controls
-  *@member {array} data
-  */
-  controls.data = data;
-  /** An object specifying controls settings
-  *@memberof controls
-  *@member {object} config
-  */
-  controls.config = Object.create(config);
-  controls.config.inputs = controls.config.inputs || [];
-  /** A list of chart objects that the controls object can manipulate
-  *@memberof controls
-  *@member {array} targets
-  */
-  controls.targets = [];
-
-  /** A d3 selection of a \<div\> appended within the DOM element specified by {@link webCharts~controls.div div}
-  *@memberof controls
-  *@member {d3.selection} wrap
-  */
-  if (config.location === 'bottom') {
-    controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
-  } else {
-    controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+function controlInit(data) {
+  this.data = data;
+  if (!this.config.builder) {
+    this.checkRequired(this.data);
   }
-
-  return controls;
-};
+  this.layout();
+}
 
 function controlCheckRequired(dataset) {
   var _this11 = this;
 
   var colnames = d3.keys(dataset[0]);
-  console.log('line 5??');
-  if (!this.config.inputs) return;
+  if (!this.config.inputs) {
+    return;
+  }
   this.config.inputs.forEach(function (e, i) {
     if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
       _this11.config.inputs = _this11.config.inputs.splice(controls[i], 1);
@@ -1830,111 +1565,87 @@ function controlCheckRequired(dataset) {
   });
 }
 
-/** Begins 
-*@memberof controls
-*@method init
-*@param {Array} [raw] raw data to be used to populate control inputs
-*/
-
-function controlInit(raw) {
-  this.data = raw;
-  if (!this.config.builder) this.checkRequired(this.data);
-  this.layout();
-}
-
-/** Clears container div and triggers rendering of control inputs
-*@memberof controls
-*@method layout
-*/
-
-function controlLayout() {
-  this.wrap.selectAll('*').remove();
-  this.ready = true;
-  this.controlUpdate();
-}
-
-/** Triggers rendering of each input as defined by the <code>inputs</code> array in {@link webCharts~controls.config config}
-*@memberof controls
-*@method controlUpdate
-*/
-
-function controlUpdate() {
-  var _this12 = this;
-
-  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
-    this.config.inputs.forEach(function (e) {
-      return _this12.makeControlItem(e);
-    });
-  }
-}
-
-/** Renders a set of buttons. The value represented by the highlighted button is assigned to the given option
-*@memberof controls
-*@method makeBtnGroupControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
-
-function makeBtnGroupControl(control, control_wrap) {
-  var _this13 = this;
-
-  var option_data = control.values ? control.values : d3.keys(this.data[0]);
-
-  var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
-
-  var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
-    return d;
-  }).classed('btn-primary', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this13.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-    } else {
-      return _this13.targets[0].config[control.option] === d;
-    }
-  });
-
-  changers.on('click', function (d) {
-    changers.each(function (e) {
-      d3.select(this).classed('btn-primary', e === d);
-    });
-    _this13.changeOption(control.option, d);
-  });
-}
-
-/** Renders a checkbox that toggles the value assigned to a given option
-*@memberof controls
-*@method makeCheckBoxControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
-
-function makeCheckboxControl(control, control_wrap) {
-  var _this14 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this14.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this14.targets[0].config[control.option];
-  });
-
-  changer.on('change', function (d) {
-    var value = changer.property('checked');
-    _this14.changeOption(d.option, value);
-  });
-}
-
 function makeControlItem(control) {
   var control_wrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
   var ctrl_label = control_wrap.append('span').attr('class', 'control-label').text(control.label);
-  if (control.required) ctrl_label.append('span').attr('class', 'label label-required').text('Required');
+  if (control.required) {
+    ctrl_label.append('span').attr('class', 'label label-required').text('Required');
+  }
   control_wrap.append('span').attr('class', 'span-description').text(control.description);
 
-  if (control.type === 'text') this.makeTextControl(control, control_wrap);else if (control.type === 'number') this.makeNumberControl(control, control_wrap);else if (control.type === 'list') this.makeListControl(control, control_wrap);else if (control.type === 'dropdown') this.makeDropdownControl(control, control_wrap);else if (control.type === 'btngroup') this.makeBtnGroupControl(control, control_wrap);else if (control.type === 'checkbox') this.makeCheckboxControl(control, control_wrap);else if (control.type === 'radio') this.makeRadioControl(control, control_wrap);else if (control.type === 'subsetter') this.makeSubsetterControl(control, control_wrap);else throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
+  if (control.type === 'text') {
+    this.makeTextControl(control, control_wrap);
+  } else if (control.type === 'number') {
+    this.makeNumberControl(control, control_wrap);
+  } else if (control.type === 'list') {
+    this.makeListControl(control, control_wrap);
+  } else if (control.type === 'dropdown') {
+    this.makeDropdownControl(control, control_wrap);
+  } else if (control.type === 'btngroup') {
+    this.makeBtnGroupControl(control, control_wrap);
+  } else if (control.type === 'checkbox') {
+    this.makeCheckboxControl(control, control_wrap);
+  } else if (control.type === 'radio') {
+    this.makeRadioControl(control, control_wrap);
+  } else if (control.type === 'subsetter') {
+    this.makeSubsetterControl(control, control_wrap);
+  } else {
+    throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
+  }
 }
 
-/** Renders a <code>\<select\></code> element whose value is assigned to a given option
-*@memberof controls
-*@method makeDropdownControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
+function makeTextControl(control, control_wrap) {
+  var _this12 = this;
+
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+    if (control.option.indexOf('.') !== -1) {
+      return _this12.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
+    } else {
+      return _this12.targets[0].config[control.option];
+    }
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('value');
+    _this12.changeOption(control.option, value);
+  });
+}
+
+function makeListControl(control, control_wrap) {
+  var _this13 = this;
+
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+    if (control.option.indexOf('.') !== -1) {
+      return _this13.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
+    } else {
+      return _this13.targets[0].config[control.option];
+    }
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
+      return m.trim();
+    }) : null;
+    _this13.changeOption(control.option, value);
+  });
+}
+
+function makeNumberControl(control, control_wrap) {
+  var _this14 = this;
+
+  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
+    if (control.option.indexOf('.') !== -1) {
+      return _this14.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
+    } else {
+      return _this14.targets[0].config[control.option];
+    }
+  });
+
+  changer.on('change', function (d) {
+    var value = +changer.property('value');
+    _this14.changeOption(control.option, value);
+  });
+}
 
 function makeDropdownControl(control, control_wrap) {
   var _this15 = this;
@@ -1945,12 +1656,18 @@ function makeDropdownControl(control, control_wrap) {
     return m[_this15.targets[0].config[control.values]];
   })).values() : d3.keys(this.data[0]);
 
-  if (!control.require || control.none) opt_values.unshift('None');
+  if (!control.require || control.none) {
+    opt_values.unshift('None');
+  }
 
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this15.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this15.targets[0].config[control.option] === d;
+    if (control.option.indexOf('.') !== -1) {
+      return _this15.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
+    } else {
+      return _this15.targets[0].config[control.option] === d;
+    }
   });
 
   changer.on('change', function (d) {
@@ -1972,74 +1689,68 @@ function makeDropdownControl(control, control_wrap) {
   return changer;
 }
 
-function makeListControl(control, control_wrap) {
+function makeBtnGroupControl(control, control_wrap) {
   var _this16 = this;
 
-  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this16.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this16.targets[0].config[control.option];
+  var option_data = control.values ? control.values : d3.keys(this.data[0]);
+
+  var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
+
+  var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
+    return d;
+  }).classed('btn-primary', function (d) {
+    if (control.option.indexOf('.') !== -1) {
+      return _this16.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
+    } else {
+      return _this16.targets[0].config[control.option] === d;
+    }
   });
 
-  changer.on('change', function (d) {
-    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
-      return m.trim();
-    }) : null;
-    _this16.changeOption(control.option, value);
-  });
-}
-
-/** Renders a <code>\<input type="number"\></code> element whose value is assigned to a given option
-*@memberof controls
-*@method makeNumberControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
-
-function makeNumberControl(control, control_wrap) {
-  var _this17 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this17.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this17.targets[0].config[control.option];
-  });
-
-  changer.on('change', function (d) {
-    var value = +changer.property('value');
-    _this17.changeOption(control.option, value);
+  changers.on('click', function (d) {
+    changers.each(function (e) {
+      d3.select(this).classed('btn-primary', e === d);
+    });
+    _this16.changeOption(control.option, d);
   });
 }
 
-/** Renders a set of radio buttons that toggles the value assigned to a given option
-*@memberof controls
-*@method makeRadioControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
+function changeOption(option, value) {
+
+  this.targets.forEach(function (e) {
+    if (option.indexOf('.') !== -1) {
+      e.config[option.split('.')[0]][option.split('.')[1]] = value;
+    } else {
+      e.config[option] = value;
+    }
+    e.draw();
+  });
+}
 
 function makeRadioControl(control, control_wrap) {
-  var _this18 = this;
+  var _this17 = this;
 
-  var changers = control_wrap.selectAll('label').data(control.values).enter().append('label').attr('class', 'radio').text(function (d, i) {
+  var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
     return control.relabels ? control.relabels[i] : d;
   }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
     return d;
   }).property('checked', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this18.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;else return _this18.targets[0].config[control.option] === d;
+    if (control.option.indexOf('.') !== -1) {
+      return _this17.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
+    } else {
+      return _this17.targets[0].config[control.option] === d;
+    }
   });
 
   changers.on('change', function (d) {
     var value = null;
     changers.each(function (c) {
-      if (d3.select(this).property('checked')) value = d3.select(this).property('value') === 'none' ? null : c;
+      if (d3.select(this).property('checked')) {
+        value = d3.select(this).property('value') === 'none' ? null : c;
+      }
     });
-    _this18.changeOption(control.option, value);
+    _this17.changeOption(control.option, value);
   });
 }
-
-/** Renders a <code>\<select\></code> element whose value is used to filter the data displayed in associated charts
-*@memberof controls
-*@method makeSubsetterControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
 
 function makeSubsetterControl(control, control_wrap) {
   var targets = this.targets;
@@ -2054,7 +1765,9 @@ function makeSubsetterControl(control, control_wrap) {
 
   control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
-  if (!control.multiple && !control.start) option_data.unshift('All');
+  if (!control.multiple && !control.start) {
+    option_data.unshift('All');
+  }
 
   control.loose = !control.loose && control.start ? true : control.loose;
 
@@ -2068,19 +1781,27 @@ function makeSubsetterControl(control, control_wrap) {
     var match = e.filters.slice().map(function (m) {
       return m.col === control.value_col;
     }).indexOf(true);
-    if (match > -1) e.filters[match] = { col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose };else e.filters.push({ col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose });
+    if (match > -1) {
+      e.filters[match] = { col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose };
+    } else {
+      e.filters.push({ col: control.value_col, val: control.start ? control.start : 'All', choices: option_data, loose: control.loose });
+    }
   });
 
   function setSubsetter(target, obj) {
     var match = -1;
     target.filters.forEach(function (e, i) {
-      if (e.col === obj.col) match = i;
+      if (e.col === obj.col) {
+        match = i;
+      }
     });
-    if (match > -1) target.filters[match] = obj;
+    if (match > -1) {
+      target.filters[match] = obj;
+    }
   }
 
   changer.on('change', function (d) {
-    var _this19 = this;
+    var _this18 = this;
 
     if (control.multiple) {
       (function () {
@@ -2098,7 +1819,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this19).property('value');
+        var value = d3.select(_this18).property('value');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
@@ -2109,101 +1830,31 @@ function makeSubsetterControl(control, control_wrap) {
   });
 }
 
-/** Renders a <code>\<input type="text"\></code> element whose value is assigned to a given option
-*@memberof controls
-*@method makeTextControl
-*@param {object} control an object describing the input from the <code>inputs</code> array from the config object
-*@param {d3.selection} control_wrap the selected element in which to append the rendered input
-*/
+function controlUpdate() {
+  var _this19 = this;
 
-function makeTextControl(control, control_wrap) {
-  var _this20 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) return _this20.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];else return _this20.targets[0].config[control.option];
-  });
-
-  changer.on('change', function (d) {
-    var value = changer.property('value');
-    _this20.changeOption(control.option, value);
-  });
+  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
+    this.config.inputs.forEach(function (e) {
+      return _this19.makeControlItem(e);
+    });
+  }
 }
 
-/**
-*The chart object represents a chart with conventional x- and y-axes that is rendered with SVG. Customizable configuration options determine the appearance and behavior of the chart, and these options can be manipulated indirectly through a set of {@link webCharts~controls controls}. The chart has several lifecycle methods used to instantiate the object, render necessary elements, and adjust the rendered elements as needed. The chart can therefore be updated dynamically by changing some {@link webCharts~chart.config config} options (or operating directly on the chart object's properties) or by feeding it new data and then calling its {@link webCharts~chart.draw draw} method to trigger an animated re-render.
-*@type {object}
-*@var table
-*/
+function controlLayout() {
+  this.wrap.selectAll('*').remove();
+  this.ready = true;
+  this.controlUpdate();
+}
+
 var tableProto = Object.create(chartProto);
-// tableProto.layout = tableLayout;
-// tableProto.transformData = tableTransformData;
-// // tableProto.draw = tableDraw;
+
 Object.defineProperties(tableProto, {
   'layout': { value: tableLayout },
   'transformData': { value: tableTransformData },
   'draw': { value: tableDraw }
 });
-/**
-*A factory to create table objects
-*@returns {webCharts.objects.table}
-*@method
-*@memberof webCharts
-*@param {string} element=body - CSS selector identifying the element in which to create the chart.
-*@param {string} filepath - Path to the file containing data for the chart. Expected to be a text file of comma-separated values.
-*@param {object} config - Configuration object specifying all options for how the chart is to appear and behave.
-*@param {controls} controls - {@link module-webCharts.Controls.html Controls} instance that will be linked to this chart instance.
-*/
-webCharts.table = function (element, filepath, config, controls) {
-  if (element === undefined) element = 'body';
-  if (config === undefined) config = {};
-
-  var table = Object.create(tableProto);
-  /** @member {string} */
-  table.div = element;
-  /** @member {string} */
-  table.filepath = filepath;
-  /** @member {Object} */
-  table.config = Object.create(config);
-  /** @member {Controls} */
-  table.controls = controls;
-  /** @member {Array} */
-  table.filters = [];
-  /** @member {Array} */
-  table.required_cols = [];
-  /** @member {Array} */
-  table.marks = [];
-  /** @member {d3.selection} */
-  table.wrap = d3.select(table.div).append('div');
-
-  /** @member {Object} */
-  table.events = {
-    onLayout: function onLayout() {},
-    onDatatransform: function onDatatransform() {},
-    onDraw: function onDraw() {},
-    onResize: function onResize() {}
-  };
-  /**run the supplied callback function at the specified time in the Chart lifecycle
-  	*@method
-  	*@param {string} event - point in Chart lifecycle at which to fire the associated callback
-  	*@param {function} callback - function to run
-  */
-  table.on = function (event, callback) {
-    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
-    if (possible_events.indexOf(event) < 0) return;
-    if (callback) table.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
-  };
-
-  return table;
-};
-
-/** does some stuff
-*@memberof table
-*@method draw
-*@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
-*/
 
 function tableDraw(processed_data, raw_data) {
-  // let this = this;
   var raw = raw_data ? raw_data : this.raw_data;
   var config = this.config;
   var data = processed_data || this.transformData(raw);
@@ -2212,8 +1863,12 @@ function tableDraw(processed_data, raw_data) {
 
   var col_list = config.cols.length ? config.cols : data.length ? d3.keys(data[0].values[0].raw) : [];
 
-  if (config.bootstrap) table.classed('table', true);else table.classed('table', false);
-  //make a header
+  if (config.bootstrap) {
+    table.classed('table', true);
+  } else {
+    table.classed('table', false);
+  }
+
   var header_data = !data.length ? [] : config.headers && config.headers.length ? config.headers : col_list;
   var headerRow = table.select('thead').select('tr.headers');
   var ths = headerRow.selectAll('th').data(header_data);
@@ -2223,13 +1878,12 @@ function tableDraw(processed_data, raw_data) {
     return d;
   });
 
-  //add table rows (1 per svg row)
   var tbodies = table.selectAll('tbody').data(data, function (d) {
     return d.key;
   });
   tbodies.exit().remove();
   tbodies.enter().append('tbody');
-  //sort tbodies by row_per
+
   if (config.row_per) {
     var rev_order = config.row_per.slice(0).reverse();
     rev_order.forEach(function (e) {
@@ -2237,16 +1891,16 @@ function tableDraw(processed_data, raw_data) {
         return a.values[0].raw[e] - b.values[0].raw[e];
       });
     });
-  };
+  }
   var rows = tbodies.selectAll('tr').data(function (d) {
     return d.values;
   });
   rows.exit().remove();
   rows.enter().append('tr');
-  //sort rows by criteria in sort_rows
+
   if (config.sort_rows) {
     (function () {
-      var row_order = config.sort_rows.slice(0); //.reverse();
+      var row_order = config.sort_rows.slice(0);
       row_order.unshift('0');
 
       rows.sort(function (a, b) {
@@ -2254,14 +1908,17 @@ function tableDraw(processed_data, raw_data) {
         while (i < row_order.length && a.raw[row_order[i]] == b.raw[row_order[i]]) {
           i++;
         }
-        if (a.raw[row_order[i]] < b.raw[row_order[i]]) return -1;
-        if (a.raw[row_order[i]] > b.raw[row_order[i]]) return 1;
+        if (a.raw[row_order[i]] < b.raw[row_order[i]]) {
+          return -1;
+        }
+        if (a.raw[row_order[i]] > b.raw[row_order[i]]) {
+          return 1;
+        }
         return 0;
       });
     })();
   }
 
-  //add columns (once per row)
   var tds = rows.selectAll('td').data(function (d) {
     return d.cells.filter(function (f) {
       return col_list.indexOf(f.col) > -1;
@@ -2272,17 +1929,23 @@ function tableDraw(processed_data, raw_data) {
   tds.attr('class', function (d) {
     return d.col;
   });
-  if (config.as_html) tds.html(function (d) {
-    return d.text;
-  });else tds.text(function (d) {
-    return d.text;
-  });
+  if (config.as_html) {
+    tds.html(function (d) {
+      return d.text;
+    });
+  } else {
+    tds.text(function (d) {
+      return d.text;
+    });
+  }
 
-  if (config.row_per) rows.filter(function (f, i) {
-    return i > 0;
-  }).selectAll('td').filter(function (f) {
-    return config.row_per.indexOf(f.col) > -1;
-  }).text('');
+  if (config.row_per) {
+    rows.filter(function (f, i) {
+      return i > 0;
+    }).selectAll('td').filter(function (f) {
+      return config.row_per.indexOf(f.col) > -1;
+    }).text('');
+  }
 
   if (config.data_tables) {
     if (jQuery() && jQuery().dataTable) {
@@ -2292,29 +1955,27 @@ function tableDraw(processed_data, raw_data) {
       var print_btn = $('.print-btn', wrap.node());
       print_btn.addClass('pull-right');
       $('.dataTables_wrapper').prepend(print_btn);
-    } else throw new Error('dataTables jQuery plugin not available');
+    } else {
+      throw new Error('dataTables jQuery plugin not available');
+    }
   }
 
   this.events.onDraw(this);
 }
 
-function tableLayout() {
-  d3.select(this.div).select('.loader').remove();
-  var table = this.wrap.append('table');
-  table.append('thead').append('tr').attr('class', 'headers');
-  this.table = table;
-  this.events.onLayout(this);
-}
-
 function tableTransformData(data) {
-  if (!data) return;
+  if (!data) {
+    return;
+  }
   var config = this.config;
   var colList = config.cols || d3.keys(data[0]);
   if (config.keep) {
     config.keep.forEach(function (e) {
-      if (colList.indexOf(e) === -1) colList.unshift(e);
+      if (colList.indexOf(e) === -1) {
+        colList.unshift(e);
+      }
     });
-  };
+  }
   this.config.cols = colList;
 
   var filtered = data;
@@ -2323,17 +1984,27 @@ function tableTransformData(data) {
     this.filters.forEach(function (e) {
       var is_array = e.val instanceof Array;
       filtered = filtered.filter(function (d) {
-        if (is_array) return e.val.indexOf(d[e.col]) !== -1;else return e.val !== 'All' ? d[e.col] === e.val : d;
+        if (is_array) {
+          return e.val.indexOf(d[e.col]) !== -1;
+        } else {
+          return e.val !== 'All' ? d[e.col] === e.val : d;
+        }
       });
     });
   }
 
   var slimmed = d3.nest().key(function (d) {
-    if (config.row_per) return config.row_per.map(function (m) {
-      return d[m];
-    }).join(' ');else return d;
+    if (config.row_per) {
+      return config.row_per.map(function (m) {
+        return d[m];
+      }).join(' ');
+    } else {
+      return d;
+    }
   }).rollup(function (r) {
-    if (config.dataManipulate) r = config.dataManipulate(r);
+    if (config.dataManipulate) {
+      r = config.dataManipulate(r);
+    }
     var nuarr = r.map(function (m) {
       var arr = [];
       for (var x in m) {
@@ -2354,14 +2025,129 @@ function tableTransformData(data) {
   return this.current_data;
 }
 
-/** An object containing prototypes for objects
-*@memberof webCharts
-*@type {object}
-*/
+function tableLayout() {
+  d3.select(this.div).select('.loader').remove();
+  var table = this.wrap.append('table');
+  table.append('thead').append('tr').attr('class', 'headers');
+  this.table = table;
+  this.events.onLayout(this);
+}
+
 webCharts.objects = {
   chart: chartProto,
   table: tableProto,
   controls: controlsProto
+};
+
+webCharts.chartCount = 0;
+
+webCharts.chart = function () {
+  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+  var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var controls = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+  var chart = Object.create(webCharts.objects.chart);
+
+  chart.div = element;
+
+  chart.config = Object.create(config);
+
+  chart.controls = controls;
+
+  chart.raw_data = [];
+
+  chart.filters = [];
+
+  chart.marks = [];
+
+  chart.wrap = d3.select(chart.div).append('div');
+
+  chart.events = {
+    onLayout: function onLayout() {},
+    onDatatransform: function onDatatransform() {},
+    onDraw: function onDraw() {},
+    onResize: function onResize() {}
+  };
+
+  chart.on = function (event, callback) {
+    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    if (possible_events.indexOf(event) < 0) {
+      return;
+    }
+    if (callback) {
+      chart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+    }
+  };
+
+  //increment chart count to get unique chart id
+  webCharts.chartCount++;
+
+  chart.id = webCharts.chartCount;
+
+  return chart;
+};
+
+webCharts.controls = function () {
+  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+  var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  var controls = Object.create(webCharts.objects.controls);
+
+  controls.div = element;
+
+  controls.config = Object.create(config);
+  controls.config.inputs = controls.config.inputs || [];
+
+  controls.targets = [];
+
+  if (config.location === 'bottom') {
+    controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+  } else {
+    controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+  }
+
+  return controls;
+};
+
+webCharts.table = function () {
+  var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
+  var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var controls = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+  var table = Object.create(webCharts.objects.table);
+
+  table.div = element;
+
+  table.config = Object.create(config);
+
+  table.controls = controls;
+
+  table.filters = [];
+
+  table.required_cols = [];
+
+  table.marks = [];
+
+  table.wrap = d3.select(table.div).append('div');
+
+  table.events = {
+    onLayout: function onLayout() {},
+    onDatatransform: function onDatatransform() {},
+    onDraw: function onDraw() {},
+    onResize: function onResize() {}
+  };
+
+  table.on = function (event, callback) {
+    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    if (possible_events.indexOf(event) < 0) {
+      return;
+    }
+    if (callback) {
+      table.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+    }
+  };
+
+  return table;
 };
  return webCharts;
  }));

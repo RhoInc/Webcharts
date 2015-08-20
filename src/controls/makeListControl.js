@@ -4,10 +4,12 @@ export function makeListControl(control, control_wrap){
     .attr('class', 'changer')
     .datum(control)
     .property('value', d => {
-      if(control.option.indexOf('.') !== -1)
+      if(control.option.indexOf('.') !== -1){
         return this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
-      else
+      }
+      else{
         return this.targets[0].config[control.option];
+      }
     });
 
   changer.on('change', d => {

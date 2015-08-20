@@ -15,12 +15,15 @@ var buildScripts = [
   'src/controls/*',
   'src/table/tableMain.js',
   'src/table/*',
-  'src/prototypes.js'
+  'src/prototypes.js',
+  'src/chart.js',
+  'src/controls.js',
+  'src/table.js'
 ];
 
 var wcWrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){\n<%= contents %>\n return webCharts;\n }));';
 
-gulp.task('build', ['concat', 'document'], function() {
+gulp.task('build', ['concat'], function() {
   return gulp.src('build/webcharts.js')
     .pipe($.rename('webcharts.min.js'))
     .pipe($.uglify())
@@ -32,7 +35,8 @@ gulp.task('concat', function() {
     .pipe($.sourcemaps.init())
     .pipe($.concat('webcharts.js'))
     .pipe($.babel({
-      modules: 'ignore'
+      modules: 'ignore',
+      blacklist: ['useStrict']
     }))
     .pipe($.wrap(wcWrapper))
     .pipe($.sourcemaps.write('../maps'))
@@ -44,6 +48,10 @@ gulp.task('minify', function(){
     .pipe($.rename('webcharts.min.js'))
     .pipe($.uglify())
     .pipe(gulp.dest('build'));
+});
+
+gulp.task('watch', function(){
+  gulp.watch('src/**/*', ['concat']);
 });
 
 gulp.task('watch-all', function(){

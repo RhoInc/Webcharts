@@ -1,14 +1,16 @@
 export function tableTransformData(data){
-  if(!data)
-      return;
+  if(!data){
+    return;
+  }
   let config = this.config;
   let colList = config.cols || d3.keys(data[0]);
   if(config.keep){
     config.keep.forEach(e => {
-        if(colList.indexOf(e) === -1)
+        if(colList.indexOf(e) === -1){
           colList.unshift(e);
+        }
     });
-  };
+  }
   this.config.cols = colList;
 
   let filtered = data;
@@ -17,24 +19,29 @@ export function tableTransformData(data){
     this.filters.forEach(e => {
       let is_array = e.val instanceof Array;
       filtered = filtered.filter(d => {
-          if(is_array)
-              return e.val.indexOf(d[e.col]) !== -1;
-          else
-              return e.val !== 'All' ? d[e.col] === e.val : d;
+          if(is_array){
+            return e.val.indexOf(d[e.col]) !== -1;
+          }
+          else{
+            return e.val !== 'All' ? d[e.col] === e.val : d;
+          }
       });
     });
   }
 
   let slimmed = d3.nest()
     .key(d => {
-        if(config.row_per)
+        if(config.row_per){
           return config.row_per.map(m => d[m]).join(' ');
-        else
+        }
+        else{
           return d;
+        }
     })
     .rollup(r => {
-        if(config.dataManipulate)
+        if(config.dataManipulate){
           r = config.dataManipulate(r);
+        }
         let nuarr = r.map(m => {
           let arr = [];
           for(let x in m){
