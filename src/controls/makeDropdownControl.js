@@ -16,12 +16,7 @@ export function makeDropdownControl(control, control_wrap){
     .enter().append('option')
     .text(d => d)
     .property('selected', d => {
-      if(control.option.indexOf('.') !== -1){
-        return this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-      }
-      else{
-        return this.targets[0].config[control.option] === d;
-      }
+      return this.stringAccessor(this.targets[0].config, control.option) === d;
     });
 
   changer.on('change', d => {

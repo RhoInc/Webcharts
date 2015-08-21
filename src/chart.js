@@ -1,6 +1,6 @@
 webCharts.chartCount = 0;
 
-webCharts.chart = function(element = 'body', config = {}, controls = null){
+webCharts.createChart = function(element = 'body', config = {}, controls = null){
 
     let chart = Object.create(webCharts.objects.chart);
 

@@ -12,5 +12,6 @@ let controlsProto = {
 	makeNumberControl: makeNumberControl,
 	makeRadioControl: makeRadioControl,
 	makeSubsetterControl: makeSubsetterControl,
-	makeTextControl: makeTextControl
+	makeTextControl: makeTextControl,
+	stringAccessor: stringAccessor
 };

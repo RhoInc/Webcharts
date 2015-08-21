@@ -19,7 +19,7 @@ webCharts.multiply = function (chart, data, split_by, order) {
     }
 
     split_vals.forEach(function (e) {
-      var mchart = webCharts.chart(chart.wrap.node(), config, chart.controls);
+      var mchart = webCharts.createChart(chart.wrap.node(), config, chart.controls);
       mchart.events = chart.events;
       mchart.legend = master_legend;
       mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
@@ -37,6 +37,21 @@ webCharts.dataOps = {
   naturalSorter: naturalSorter,
   summarize: summarize
 };
+
+function getValType(data, variable) {
+  var var_vals = d3.set(data.map(function (m) {
+    return m[variable];
+  })).values();
+  var vals_numbers = var_vals.filter(function (f) {
+    return +f || f === 0;
+  });
+
+  if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
+    return 'continuous';
+  } else {
+    return 'categorical';
+  }
+}
 
 function lengthenRaw(data, columns) {
   var my_data = [];
@@ -67,7 +82,7 @@ function naturalSorter(a, b) {
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
       var m = i == 46 || i >= 48 && i <= 57;
       if (m !== n) {
-        tz[++y] = '';
+        tz[++y] = "";
         n = m;
       }
       tz[y] += j;
@@ -108,21 +123,6 @@ function summarize(vals, operation) {
   var mathed = stat === 'count' ? vals.length : stat === 'percent' ? vals.length : d3[stat](nvals);
 
   return mathed;
-}
-
-function getValType(data, variable) {
-  var var_vals = d3.set(data.map(function (m) {
-    return m[variable];
-  })).values();
-  var vals_numbers = var_vals.filter(function (f) {
-    return +f || f === 0;
-  });
-
-  if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
-    return 'continuous';
-  } else {
-    return 'categorical';
-  }
 }
 
 var chartProto = {
@@ -198,12 +198,6 @@ function checkRequired() {
   });
 }
 
-/** Pools data for each set of marks and determines comprehensive domains for x- and y-axes
-*@memberof chart
-*@method consolidateData
-*@param {Array} raw raw dataset to be transformed and then consolidated
-*/
-
 function consolidateData(raw) {
   var _this2 = this;
 
@@ -224,7 +218,7 @@ function consolidateData(raw) {
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
-    _this2.marks[i] = { type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes };
+    _this2.marks[i] = { type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, summarizeX: e.summarizeX, summarizeY: e.summarizeY, tooltip: e.tooltip, attributes: e.attributes };
   });
 
   if (config.x.type === 'ordinal') {
@@ -248,7 +242,10 @@ function consolidateData(raw) {
         return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
       });
     } else if (!config.x.sort || config.x.sort === 'alphabetical-descending') this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);else this.x_dom = d3.set(d3.merge(all_x)).values();
-  } else this.x_dom = d3.extent(d3.merge(all_x));
+  } else if (config.marks.map(function (m) {
+    return m.summarizeX === 'percent';
+  }).indexOf(true) > -1) this.x_dom = [0, 1];else this.x_dom = d3.extent(d3.merge(all_x));
+
   if (config.y.type === 'ordinal') {
     if (config.y.sort && config.y.sort === 'alphabetical-ascending') this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);else if (config.x.type === 'time' && config.y.sort === 'earliest') {
       var dateFormat = d3.time.format(config.date_format);
@@ -272,14 +269,10 @@ function consolidateData(raw) {
     } else if (!config.y.sort || config.y.sort === 'alphabetical-descending') {
       this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
     } else this.y_dom = d3.set(d3.merge(all_y)).values();
-  } else if (config.y.summary === 'percent') this.y_dom = [0, 1];else this.y_dom = d3.extent(d3.merge(all_y));
+  } else if (config.marks.map(function (m) {
+    return m.summarizeY === 'percent';
+  }).indexOf(true) > -1) this.y_dom = [0, 1];else this.y_dom = d3.extent(d3.merge(all_y));
 }
-
-/** Parses config object, triggers data transformation and chart rendering methods
-*@memberof chart
-*@method draw
-*@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
-*/
 
 function draw(raw_data, processed_data) {
   var context = this;
@@ -295,17 +288,17 @@ function draw(raw_data, processed_data) {
   this.setColorScale();
 
   var max_width = config.max_width ? config.max_width : div_width;
-  this.raw_width = config.x.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
-  this.raw_height = config.y.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
+  this.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
+  this.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
 
-  var pseudo_width = this.svg.select('.overlay').attr('width') ? this.svg.select('.overlay').attr('width') : this.raw_width;
-  var pseudo_height = this.svg.select('.overlay').attr('height') ? this.svg.select('.overlay').attr('height') : this.raw_height;
+  var pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
+  var pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
 
-  this.svg.select('.x.axis').select('.axis-title').text(function () {
-    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label(context) : null;
+  this.svg.select(".x.axis").select(".axis-title").text(function () {
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
   });
-  this.svg.select('.y.axis').select('.axis-title').text(function () {
-    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label(context) : null;
+  this.svg.select(".y.axis").select(".axis-title").text(function () {
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
   });
 
   this.xScaleAxis(pseudo_width);
@@ -345,12 +338,6 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
   return area_grps;
 }
 
-/** Function that handles drawing bars (<rect> elements) as defined by marks with type='bar'
-*@memberof chart
-*@method drawBars
-*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='bar'
-*/
-
 function drawBars(marks) {
   var _this4 = this;
 
@@ -374,216 +361,270 @@ function drawBars(marks) {
   var bars = undefined;
 
   if (config.x.type === 'ordinal') {
-    old_bar_groups.selectAll('.bar').transition().attr('y', this.y(0)).attr('height', 0);
-    old_bar_groups.transition().remove();
+    (function () {
+      old_bar_groups.selectAll('.bar').transition().attr('y', _this4.y(0)).attr('height', 0);
+      old_bar_groups.transition().remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
-      return 'bar-group ' + d.key;
-    });
-    nu_bar_groups.append('title');
-
-    bars = bar_groups.selectAll('rect').data(function (d) {
-      return d.values instanceof Array ? d.values : [d];
-    }, function (d) {
-      return d.key;
-    });
-    bars.exit().transition().attr('y', this.y(0)).attr('height', 0).remove();
-    bars.enter().append('rect').attr('class', function (d) {
-      return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
-
-    bars.attr('stroke', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill-opacity', config.fill_opacity || 0.8);
-
-    bars.each(function (d) {
-      var mark = d3.select(this.parentNode.parentNode).datum();
-      d.tooltip = mark.tooltip;
-      d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(function (m) {
-        return m[mark.split];
-      })).values();
-      d3.select(this).attr(mark.attributes);
-    });
-
-    bars.select('title').text(function (d) {
-      var tt = d.tooltip || '';
-      var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
-      var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
-      return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
-        return d.values.raw[0][orig];
+      nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
+        return 'bar-group ' + d.key;
       });
-    });
+      nu_bar_groups.append('title');
 
-    bars.transition().attr('x', function (d) {
-      var position = undefined;
-      if (!d.arrange || d.arrange === 'stacked') return _this4.x(d.values.x);else if (d.arrange === 'nested') {
-        position = d.subcats.indexOf(d.key);
-        var offset = position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this4.x.rangeBand() / 2;
-        return _this4.x(d.values.x) + _this4.x.rangeBand() / 2 - offset;
-      } else {
-        position = d.subcats.indexOf(d.key);
-        return _this4.x(d.values.x) + _this4.x.rangeBand() / d.subcats.length * position;
-      }
-    }).attr('y', function (d) {
-      if (d.arrange !== 'stacked') return _this4.y(d.values.y);else return _this4.y(d.values.start);
-    }).attr('width', function (d) {
-      if (d.arrange === 'stacked') return _this4.x.rangeBand();else if (d.arrange === 'nested') {
-        var position = d.subcats.indexOf(d.key);
-        return position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) : _this4.x.rangeBand();
-      } else return _this4.x.rangeBand() / d.subcats.length;
-    }).attr('height', function (d) {
-      return _this4.y(0) - _this4.y(d.values.y);
-    });
+      bars = bar_groups.selectAll("rect").data(function (d) {
+        return d.values instanceof Array ? d.values : [d];
+      }, function (d) {
+        return d.key;
+      });
+      bars.exit().transition().attr('y', _this4.y(0)).attr('height', 0).remove();
+      bars.enter().append('rect').attr('class', function (d) {
+        return 'wc-data-mark bar ' + d.key;
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('y', _this4.y(0)).attr('height', 0).append('title');
+
+      bars.attr('stroke', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill-opacity', config.fill_opacity || 0.8);
+
+      bars.each(function (d) {
+        var mark = d3.select(this.parentNode.parentNode).datum();
+        d.tooltip = mark.tooltip;
+        d.arrange = mark.split ? mark.arrange : null;
+        d.subcats = d3.set(rawData.map(function (m) {
+          return m[mark.split];
+        })).values();
+        d3.select(this).attr(mark.attributes);
+      });
+
+      var xformat = config.marks.map(function (m) {
+        return m.summarizeX === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+      var yformat = config.marks.map(function (m) {
+        return m.summarizeY === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+      bars.select('title').text(function (d) {
+        var tt = d.tooltip || '';
+        return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
+          return d.values.raw[0][orig];
+        });
+      });
+
+      bars.transition().attr('x', function (d) {
+        var position = undefined;
+        if (!d.arrange || d.arrange === 'stacked') return _this4.x(d.values.x);else if (d.arrange === 'nested') {
+          position = d.subcats.indexOf(d.key);
+          var offset = position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this4.x.rangeBand() / 2;
+          return _this4.x(d.values.x) + _this4.x.rangeBand() / 2 - offset;
+        } else {
+          position = d.subcats.indexOf(d.key);
+          return _this4.x(d.values.x) + _this4.x.rangeBand() / d.subcats.length * position;
+        }
+      }).attr('y', function (d) {
+        if (d.arrange !== 'stacked') return _this4.y(d.values.y);else return _this4.y(d.values.start);
+      }).attr('width', function (d) {
+        if (d.arrange === 'stacked') return _this4.x.rangeBand();else if (d.arrange === 'nested') {
+          var position = d.subcats.indexOf(d.key);
+          return position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) : _this4.x.rangeBand();
+        } else return _this4.x.rangeBand() / d.subcats.length;
+      }).attr('height', function (d) {
+        return _this4.y(0) - _this4.y(d.values.y);
+      });
+    })();
   } else if (config.y.type === 'ordinal') {
-    old_bar_groups.selectAll('.bar').transition().attr('x', this.x(0)).attr('width', 0);
-    old_bar_groups.transition().remove();
+    (function () {
+      old_bar_groups.selectAll('.bar').transition().attr('x', _this4.x(0)).attr('width', 0);
+      old_bar_groups.transition().remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
-      return 'bar-group ' + d.key;
-    });
-    nu_bar_groups.append('title');
+      nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
+        return 'bar-group ' + d.key;
+      });
+      nu_bar_groups.append('title');
 
-    bars = bar_groups.selectAll('rect').data(function (d) {
-      return d.values instanceof Array ? d.values : [d];
-    }, function (d) {
-      return d.key;
-    });
-    bars.exit().transition().attr('x', this.x(0)).attr('width', 0).remove();
-    bars.enter().append('rect').attr('class', function (d) {
-      return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
+      bars = bar_groups.selectAll('rect').data(function (d) {
+        return d.values instanceof Array ? d.values : [d];
+      }, function (d) {
+        return d.key;
+      });
+      bars.exit().transition().attr('x', _this4.x(0)).attr('width', 0).remove();
+      bars.enter().append('rect').attr('class', function (d) {
+        return 'wc-data-mark bar ' + d.key;
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('x', _this4.x(0)).attr('width', 0).append('title');
 
-    bars.attr('stroke', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill-opacity', config.fill_opacity || 0.8);
+      bars.attr('stroke', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill-opacity', config.fill_opacity || 0.8);
 
-    bars.each(function (d) {
-      var mark = d3.select(this.parentNode.parentNode).datum();
-      d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(function (m) {
-        return m[mark.split];
-      })).values();
-    });
+      bars.each(function (d) {
+        var mark = d3.select(this.parentNode.parentNode).datum();
+        d.arrange = mark.split ? mark.arrange : null;
+        d.subcats = d3.set(rawData.map(function (m) {
+          return m[mark.split];
+        })).values();
+        d.tooltip = mark.tooltip;
+      });
 
-    bars.transition().attr('x', function (d) {
-      if (d.arrange === 'stacked') return _this4.x(d.values.start);else return _this4.x(0);
-    }).attr('y', function (d) {
-      if (d.arrange !== 'grouped') return _this4.y(d.values.y);else {
-        var position = d.subcats.indexOf(d.key);
-        return _this4.y(d.values.y) + _this4.y.rangeBand() / d.subcats.length * position;
-      }
-    }).attr('width', function (d) {
-      return _this4.x(d.values.x);
-    }).attr('height', function (d) {
-      if (config.y.type === 'quantile') return 20;else if (d.arrange === 'stacked') return _this4.y.rangeBand();else if (d.arrange === 'nested') {
-        var position = d.subcats.indexOf(d.key);
-        return position ? _this4.y.rangeBand() / (sibs.length * position * 0.75) : _this4.y.rangeBand();
-      } else return _this4.y.rangeBand() / d.subcats.length;
-    });
+      var xformat = config.marks.map(function (m) {
+        return m.summarizeX === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+      var yformat = config.marks.map(function (m) {
+        return m.summarizeY === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+      bars.select('title').text(function (d) {
+        var tt = d.tooltip || '';
+        return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
+          return d.values.raw[0][orig];
+        });
+      });
+
+      bars.transition().attr('x', function (d) {
+        if (d.arrange === 'stacked') return _this4.x(d.values.start);else return _this4.x(0);
+      }).attr('y', function (d) {
+        if (d.arrange !== 'grouped') return _this4.y(d.values.y);else {
+          var position = d.subcats.indexOf(d.key);
+          return _this4.y(d.values.y) + _this4.y.rangeBand() / d.subcats.length * position;
+        }
+      }).attr('width', function (d) {
+        return _this4.x(d.values.x);
+      }).attr('height', function (d) {
+        if (config.y.type === 'quantile') return 20;else if (d.arrange === 'stacked') return _this4.y.rangeBand();else if (d.arrange === 'nested') {
+          var position = d.subcats.indexOf(d.key);
+          return position ? _this4.y.rangeBand() / (sibs.length * position * 0.75) : _this4.y.rangeBand();
+        } else return _this4.y.rangeBand() / d.subcats.length;
+      });
+    })();
   } else if (config.x.type === 'linear' && config.x.bin) {
-    old_bar_groups.selectAll('.bar').transition().attr('y', this.y(0)).attr('height', 0);
-    old_bar_groups.transition().remove();
+    (function () {
+      old_bar_groups.selectAll('.bar').transition().attr('y', _this4.y(0)).attr('height', 0);
+      old_bar_groups.transition().remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
-      return 'bar-group ' + d.key;
-    });
-    nu_bar_groups.append('title');
-
-    bars = bar_groups.selectAll('rect').data(function (d) {
-      return d.values instanceof Array ? d.values : [d];
-    }, function (d) {
-      return d.key;
-    });
-    bars.exit().transition().attr('y', this.y(0)).attr('height', 0).remove();
-    bars.enter().append('rect').attr('class', function (d) {
-      return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0);
-
-    bars.attr('stroke', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill-opacity', config.fill_opacity || 0.8);
-
-    bars.each(function (d) {
-      var mark = d3.select(this.parentNode.parentNode).datum();
-      d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(function (m) {
-        return m[mark.split];
-      })).values();
-      d3.select(this).attr(mark.attributes);
-      var parent = d3.select(this.parentNode).datum();
-      var rangeSet = parent.key.split(',').map(function (m) {
-        return +m;
+      nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
+        return 'bar-group ' + d.key;
       });
-      d.rangeLow = d3.min(rangeSet);
-      d.rangeHigh = d3.max(rangeSet);
-    });
+      nu_bar_groups.append('title');
 
-    bars.transition().attr('x', function (d) {
-      return _this4.x(d.rangeLow);
-    }).attr('y', function (d) {
-      if (d.arrange !== 'stacked') return _this4.y(d.values.y);else return _this4.y(d.values.start);
-    }).attr('width', function (d) {
-      return _this4.x(d.rangeHigh) - _this4.x(d.rangeLow);
-    }).attr('height', function (d) {
-      return _this4.y(0) - _this4.y(d.values.y);
-    });
+      bars = bar_groups.selectAll('rect').data(function (d) {
+        return d.values instanceof Array ? d.values : [d];
+      }, function (d) {
+        return d.key;
+      });
+      bars.exit().transition().attr('y', _this4.y(0)).attr('height', 0).remove();
+      bars.enter().append('rect').attr('class', function (d) {
+        return 'wc-data-mark bar ' + d.key;
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('y', _this4.y(0)).attr('height', 0).append('title');
+
+      bars.attr('stroke', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill-opacity', config.fill_opacity || 0.8);
+
+      bars.each(function (d) {
+        var mark = d3.select(this.parentNode.parentNode).datum();
+        d.arrange = mark.split ? mark.arrange : null;
+        d.subcats = d3.set(rawData.map(function (m) {
+          return m[mark.split];
+        })).values();
+        d3.select(this).attr(mark.attributes);
+        var parent = d3.select(this.parentNode).datum();
+        var rangeSet = parent.key.split(',').map(function (m) {
+          return +m;
+        });
+        d.rangeLow = d3.min(rangeSet);
+        d.rangeHigh = d3.max(rangeSet);
+        d.tooltip = mark.tooltip;
+      });
+
+      var xformat = config.marks.map(function (m) {
+        return m.summarizeX === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+      var yformat = config.marks.map(function (m) {
+        return m.summarizeY === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+      bars.select('title').text(function (d) {
+        var tt = d.tooltip || '';
+        return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
+          return d.values.raw[0][orig];
+        });
+      });
+
+      bars.transition().attr('x', function (d) {
+        return _this4.x(d.rangeLow);
+      }).attr('y', function (d) {
+        if (d.arrange !== 'stacked') return _this4.y(d.values.y);else return _this4.y(d.values.start);
+      }).attr('width', function (d) {
+        return _this4.x(d.rangeHigh) - _this4.x(d.rangeLow);
+      }).attr('height', function (d) {
+        return _this4.y(0) - _this4.y(d.values.y);
+      });
+    })();
   } else if (config.y.type === 'linear' && config.y.bin) {
-    old_bar_groups.selectAll('.bar').transition().attr('x', this.x(0)).attr('width', 0);
-    old_bar_groups.transition().remove();
+    (function () {
+      old_bar_groups.selectAll('.bar').transition().attr('x', _this4.x(0)).attr('width', 0);
+      old_bar_groups.transition().remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
-      return 'bar-group ' + d.key;
-    });
-    nu_bar_groups.append('title');
-
-    bars = bar_groups.selectAll('rect').data(function (d) {
-      return d.values instanceof Array ? d.values : [d];
-    }, function (d) {
-      return d.key;
-    });
-    bars.exit().transition().attr('x', this.x(0)).attr('width', 0).remove();
-    bars.enter().append('rect').attr('class', function (d) {
-      return 'wc-data-mark bar ' + d.key;
-    }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0);
-
-    bars.attr('stroke', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill', function (d) {
-      return _this4.colorScale(d.values.raw[0][config.color_by]);
-    }).attr('fill-opacity', config.fill_opacity || 0.8);
-
-    bars.each(function (d) {
-      var mark = d3.select(this.parentNode.parentNode).datum();
-      d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(function (m) {
-        return m[mark.split];
-      })).values();
-      var parent = d3.select(this.parentNode).datum();
-      var rangeSet = parent.key.split(',').map(function (m) {
-        return +m;
+      nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
+        return 'bar-group ' + d.key;
       });
-      d.rangeLow = d3.min(rangeSet);
-      d.rangeHigh = d3.max(rangeSet);
-    });
+      nu_bar_groups.append('title');
 
-    bars.transition().attr('x', function (d) {
-      if (d.arrange === 'stacked') return _this4.x(d.values.start);else {
-        return _this4.x(0);
-      }
-    }).attr('y', function (d) {
-      return _this4.y(d.rangeHigh);
-    }).attr('width', function (d) {
-      return _this4.x(d.values.x);
-    }).attr('height', function (d) {
-      return _this4.y(d.rangeLow) - _this4.y(d.rangeHigh);
-    });
+      bars = bar_groups.selectAll('rect').data(function (d) {
+        return d.values instanceof Array ? d.values : [d];
+      }, function (d) {
+        return d.key;
+      });
+      bars.exit().transition().attr('x', _this4.x(0)).attr('width', 0).remove();
+      bars.enter().append('rect').attr('class', function (d) {
+        return 'wc-data-mark bar ' + d.key;
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('x', _this4.x(0)).attr('width', 0).append('title');
+
+      bars.attr('stroke', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill', function (d) {
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
+      }).attr('fill-opacity', config.fill_opacity || 0.8);
+
+      bars.each(function (d) {
+        var mark = d3.select(this.parentNode.parentNode).datum();
+        d.arrange = mark.split ? mark.arrange : null;
+        d.subcats = d3.set(rawData.map(function (m) {
+          return m[mark.split];
+        })).values();
+        var parent = d3.select(this.parentNode).datum();
+        var rangeSet = parent.key.split(',').map(function (m) {
+          return +m;
+        });
+        d.rangeLow = d3.min(rangeSet);
+        d.rangeHigh = d3.max(rangeSet);
+        d.tooltip = mark.tooltip;
+      });
+
+      var xformat = config.marks.map(function (m) {
+        return m.summarizeX === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+      var yformat = config.marks.map(function (m) {
+        return m.summarizeY === 'percent';
+      }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+      bars.select('title').text(function (d) {
+        var tt = d.tooltip || '';
+        return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
+          return d.values.raw[0][orig];
+        });
+      });
+
+      bars.transition().attr('x', function (d) {
+        if (d.arrange === 'stacked') return _this4.x(d.values.start);else {
+          return _this4.x(0);
+        }
+      }).attr('y', function (d) {
+        return _this4.y(d.rangeHigh);
+      }).attr('width', function (d) {
+        return _this4.x(d.values.x);
+      }).attr('height', function (d) {
+        return _this4.y(d.rangeLow) - _this4.y(d.rangeHigh);
+      });
+    })();
   } else {
     old_bar_groups.selectAll('.bar').transition().attr('y', this.y(0)).attr('height', 0);
     old_bar_groups.transition().remove();
@@ -786,17 +827,17 @@ function init(data) {
 */
 
 function layout() {
-  this.svg = this.wrap.append('svg').attr({ 'class': 'wc-svg',
-    'xmlns': 'http://www.w3.org/2000/svg',
-    'version': '1.1',
-    'xlink': 'http://www.w3.org/1999/xlink'
-  }).append('g');
+  this.svg = this.wrap.append("svg").attr({ "class": "wc-svg",
+    "xmlns": "http://www.w3.org/2000/svg",
+    "version": "1.1",
+    "xlink": "http://www.w3.org/1999/xlink"
+  }).append("g");
 
-  var defs = this.svg.append('defs');
-  defs.append('pattern').attr({
-    'id': 'diagonal-stripes',
-    'x': 0, 'y': 0, 'width': 3, 'height': 8, 'patternUnits': 'userSpaceOnUse', 'patternTransform': 'rotate(30)'
-  }).append('rect').attr({ 'x': '0', 'y': '0', 'width': '2', 'height': '8', 'style': 'stroke:none; fill:black' });
+  var defs = this.svg.append("defs");
+  defs.append("pattern").attr({
+    "id": "diagonal-stripes",
+    "x": 0, "y": 0, "width": 3, "height": 8, 'patternUnits': "userSpaceOnUse", 'patternTransform': "rotate(30)"
+  }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
 
   defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
 
@@ -1081,13 +1122,6 @@ function textSize(width) {
   this.config.flex_stroke_width = stroke_width;
 }
 
-/** Transforms raw data into an appropriately nested format for each mark
-*@memberof chart
-*@method transformData
-*@param {array} raw raw dataset to be transformed
-*@param {mark} mark object describing the set of marks
-*/
-
 function transformData(raw, mark) {
   var _this9 = this;
 
@@ -1134,19 +1168,19 @@ function transformData(raw, mark) {
 
   if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
     raw = raw.filter(function (f) {
-      return config.x.summary !== 'count' && config.x.summary !== 'percent' ? +f[config.x.column] || +f[config.x.column] === 0 : f;
+      return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent' ? +f[config.x.column] || +f[config.x.column] === 0 : f;
     });
   };
   if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
     raw = raw.filter(function (f) {
-      return config.y.summary !== 'count' && config.y.summary !== 'percent' ? +f[config.y.column] || +f[config.y.column] === 0 : f;
+      return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent' ? +f[config.y.column] || +f[config.y.column] === 0 : f;
     });
   };
 
   var raw_nest = undefined;
-  if (mark.type === 'bar') raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);else if (config.x.summary === 'count' || config.y.summary === 'count') raw_nest = makeNest(raw);
+  if (mark.type === 'bar') raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') raw_nest = makeNest(raw);
 
-  var raw_dom_x = config.x.summary === 'cumulative' ? [0, raw.length] : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
+  var raw_dom_x = mark.summarizeX === 'cumulative' ? [0, raw.length] : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.x.column];
   })).values().filter(function (f) {
     return f;
@@ -1154,7 +1188,7 @@ function transformData(raw, mark) {
     return m.values.map(function (p) {
       return p.values.raw.length;
     });
-  }))) : config.x.summary === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
+  }))) : mark.summarizeX === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
     return m.values.raw.length;
   })) : d3.extent(raw.map(function (m) {
     return +m[config.x.column];
@@ -1162,7 +1196,7 @@ function transformData(raw, mark) {
     return +f;
   }));
 
-  var raw_dom_y = config.y.summary === 'cumulative' ? [0, raw.length] : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
+  var raw_dom_y = mark.summarizeY === 'cumulative' ? [0, raw.length] : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values().filter(function (f) {
     return f;
@@ -1170,7 +1204,7 @@ function transformData(raw, mark) {
     return m.values.map(function (p) {
       return p.values.raw.length;
     });
-  }))) : config.y.summary === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
+  }))) : mark.summarizeY === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
     return m.values.raw.length;
   })) : d3.extent(raw.map(function (m) {
     return +m[config.y.column];
@@ -1222,8 +1256,8 @@ function transformData(raw, mark) {
       var x_vals = r.map(function (m) {
         return m[config.x.column];
       }).sort(d3.ascending);
-      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, config.x.summary);
-      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, config.y.summary);
+      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, mark.summarizeX);
+      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, mark.summarizeY);
 
       obj.x_q25 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.25) : obj.x;
       obj.x_q75 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.75) : obj.x;
@@ -1232,7 +1266,7 @@ function transformData(raw, mark) {
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
 
-      if (config.y.summary === 'cumulative') {
+      if (mark.summarizeY === 'cumulative') {
         var interm = entries.filter(function (f) {
           return config.x.type === 'time' ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) : +f[config.x.column] <= +r[0][config.x.column];
         });
@@ -1246,7 +1280,7 @@ function transformData(raw, mark) {
         dom_ys.push([cumul]);
         obj.y = cumul;
       };
-      if (config.x.summary === 'cumulative') {
+      if (mark.summarizeX === 'cumulative') {
         var interm = entries.filter(function (f) {
           return config.y.type === 'time' ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) : +f[config.y.column] <= +r[0][config.y.column];
         });
@@ -1274,7 +1308,7 @@ function transformData(raw, mark) {
         return m.total;
       }));
     }
-    // else if(sublevel && config.y.summary === 'percent'){
+    // else if(sublevel && mark.summarizeY === 'percent'){
     //   test.forEach(calcPercents);
     // }
 
@@ -1306,11 +1340,11 @@ function transformData(raw, mark) {
     var counter = 0;
     e.values.forEach(function (v, i) {
       if (config.x.type === 'ordinal' || config.x.type === 'linear' && config.x.bin) {
-        v.values.y = config.y.summary === 'percent' ? v.values.y / e.total : v.values.y || 0;
+        v.values.y = mark.summarizeY === 'percent' ? v.values.y / e.total : v.values.y || 0;
         counter += +v.values.y;
         v.values.start = e.values[i - 1] ? counter : v.values.y;
       } else {
-        v.values.x = config.x.summary === 'percent' ? v.values.x / e.total : v.values.x || 0;
+        v.values.x = mark.summarizeX === 'percent' ? v.values.x / e.total : v.values.x || 0;
         v.values.start = counter;
         counter += +v.values.x;
       }
@@ -1347,17 +1381,11 @@ function transformData(raw, mark) {
 
   var current_nested = makeNest(filtered, sublevel);
 
-  //extent of current data
-  // if(mark.type === 'bar' && mark.arrange === 'stacked'){
-  //   let flex_dom_x = makeNest(filtered).dom_x;
-  //   let flex_dom_y = makeNest(filtered).dom_y;
-  // }
-  // else{
   var flex_dom_x = current_nested.dom_x;
   var flex_dom_y = current_nested.dom_y;
 
   if (mark.type === 'bar') {
-    if (config.y.type === 'ordinal' && config.x.summary === 'count') config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null];else if (config.x.type === 'ordinal' && config.y.summary === 'count') config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
+    if (config.y.type === 'ordinal' && mark.summarizeX === 'count') config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null];else if (config.x.type === 'ordinal' && mark.summarizeY === 'count') config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
   }
 
   //several criteria must be met in order to use the 'firstfilter' domain
@@ -1374,9 +1402,9 @@ function transformData(raw, mark) {
     return m[config.x.column];
   })).values() : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
 
-  var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+  var y_dom = config.y_dom ? config.y_dom : config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
     return m[config.y.column];
-  })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
+  })).values() : config.y.type === "ordinal" ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values() : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
 
@@ -1412,14 +1440,6 @@ function updateDataMarks() {
   }));
 }
 
-/** Sets up x-scale and x-axis functions
-*@memberof chart
-*@method xScaleAxis
-*@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the width of the chart's plotting area.
-*@param {array} [domain={@link webCharts~chart.x_dom}] Domain passed to the scale function
-*@param {string} [type={@link webCharts~chart.config.x.type}] Type of scale to define. Can be 'linear', 'log', 'ordinal' or 'time'.
-*/
-
 function xScaleAxis(max_range, domain, type) {
   if (max_range === undefined) {
     max_range = this.plot_width;
@@ -1451,7 +1471,9 @@ function xScaleAxis(max_range, domain, type) {
     x.range([0, +max_range]).clamp(Boolean(config.x.clamp));
   }
 
-  var format = config.x.format ? config.x.format : type === 'percent' ? '0%' : type === 'time' ? '%x' : '.0f';
+  var format = config.x.format ? config.x.format : config.marks.map(function (m) {
+    return m.summarizeX === 'percent';
+  }).indexOf(true) > -1 ? '0%' : type === 'time' ? '%x' : '.0f';
   var tick_count = Math.max(2, Math.min(max_range / 80, 8));
   var xAxis = d3.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(format) : d3.format(format)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
 
@@ -1459,14 +1481,6 @@ function xScaleAxis(max_range, domain, type) {
   this.x = x;
   this.xAxis = xAxis;
 }
-
-/** Sets up y-scale and y-axis functions
-*@memberof chart
-*@method yScaleAxis
-*@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the height of the chart's plotting area.
-*@param {array} [domain={@link webCharts~chart.y_dom}] Domain passed to the scale function
-*@param {string} [type={@link webCharts~chart.config.y.type}] Type of scale to define. Can be 'linear', 'log', 'ordinal' or 'time'.
-*/
 
 function yScaleAxis(max_range, domain, type) {
   if (max_range === undefined) {
@@ -1498,7 +1512,9 @@ function yScaleAxis(max_range, domain, type) {
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
   }
 
-  var y_format = config.y.format ? config.y.format : config.y.summary === 'percent' ? '0%' : '.0f';
+  var y_format = config.y.format ? config.y.format : config.marks.map(function (m) {
+    return m.summarizeY === 'percent';
+  }).indexOf(true) > -1 ? '0%' : '.0f';
   var tick_count = Math.max(2, Math.min(max_range / 80, 8));
   var yAxis = d3.svg.axis().scale(y).orient('left').ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(y_format) : d3.format(y_format)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
 
@@ -1522,32 +1538,17 @@ var controlsProto = {
   makeNumberControl: makeNumberControl,
   makeRadioControl: makeRadioControl,
   makeSubsetterControl: makeSubsetterControl,
-  makeTextControl: makeTextControl
+  makeTextControl: makeTextControl,
+  stringAccessor: stringAccessor
 };
 
-function makeCheckboxControl(control, control_wrap) {
+function changeOption(option, value) {
   var _this10 = this;
 
-  var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this10.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
-    } else {
-      return _this10.targets[0].config[control.option];
-    }
+  this.targets.forEach(function (e) {
+    _this10.stringAccessor(e.config, option, value);
+    e.draw();
   });
-
-  changer.on('change', function (d) {
-    var value = changer.property('checked');
-    _this10.changeOption(d.option, value);
-  });
-}
-
-function controlInit(data) {
-  this.data = data;
-  if (!this.config.builder) {
-    this.checkRequired(this.data);
-  }
-  this.layout();
 }
 
 function controlCheckRequired(dataset) {
@@ -1562,6 +1563,64 @@ function controlCheckRequired(dataset) {
       _this11.config.inputs = _this11.config.inputs.splice(controls[i], 1);
       throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
     }
+  });
+}
+
+function controlInit(data) {
+  this.data = data;
+  if (!this.config.builder) {
+    this.checkRequired(this.data);
+  }
+  this.layout();
+}
+
+function controlLayout() {
+  this.wrap.selectAll('*').remove();
+  this.ready = true;
+  this.controlUpdate();
+}
+
+function controlUpdate() {
+  var _this12 = this;
+
+  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
+    this.config.inputs.forEach(function (e) {
+      return _this12.makeControlItem(e);
+    });
+  }
+}
+
+function makeBtnGroupControl(control, control_wrap) {
+  var _this13 = this;
+
+  var option_data = control.values ? control.values : d3.keys(this.data[0]);
+
+  var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
+
+  var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
+    return d;
+  }).classed('btn-primary', function (d) {
+    return _this13.stringAccessor(_this13.targets[0].config, control.option) === d;
+  });
+
+  changers.on('click', function (d) {
+    changers.each(function (e) {
+      d3.select(this).classed('btn-primary', e === d);
+    });
+    _this13.changeOption(control.option, d);
+  });
+}
+
+function makeCheckboxControl(control, control_wrap) {
+  var _this14 = this;
+
+  var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
+    return _this14.stringAccessor(_this14.targets[0].config, control.option);
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('checked');
+    _this14.changeOption(d.option, value);
   });
 }
 
@@ -1594,59 +1653,6 @@ function makeControlItem(control) {
   }
 }
 
-function makeTextControl(control, control_wrap) {
-  var _this12 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this12.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
-    } else {
-      return _this12.targets[0].config[control.option];
-    }
-  });
-
-  changer.on('change', function (d) {
-    var value = changer.property('value');
-    _this12.changeOption(control.option, value);
-  });
-}
-
-function makeListControl(control, control_wrap) {
-  var _this13 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this13.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
-    } else {
-      return _this13.targets[0].config[control.option];
-    }
-  });
-
-  changer.on('change', function (d) {
-    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
-      return m.trim();
-    }) : null;
-    _this13.changeOption(control.option, value);
-  });
-}
-
-function makeNumberControl(control, control_wrap) {
-  var _this14 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this14.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]];
-    } else {
-      return _this14.targets[0].config[control.option];
-    }
-  });
-
-  changer.on('change', function (d) {
-    var value = +changer.property('value');
-    _this14.changeOption(control.option, value);
-  });
-}
-
 function makeDropdownControl(control, control_wrap) {
   var _this15 = this;
 
@@ -1663,11 +1669,7 @@ function makeDropdownControl(control, control_wrap) {
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this15.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-    } else {
-      return _this15.targets[0].config[control.option] === d;
-    }
+    return _this15.stringAccessor(_this15.targets[0].config, control.option) === d;
   });
 
   changer.on('change', function (d) {
@@ -1689,56 +1691,43 @@ function makeDropdownControl(control, control_wrap) {
   return changer;
 }
 
-function makeBtnGroupControl(control, control_wrap) {
+function makeListControl(control, control_wrap) {
   var _this16 = this;
 
-  var option_data = control.values ? control.values : d3.keys(this.data[0]);
-
-  var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
-
-  var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
-    return d;
-  }).classed('btn-primary', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this16.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-    } else {
-      return _this16.targets[0].config[control.option] === d;
-    }
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+    return _this16.stringAccessor(_this16.targets[0].config, control.option);
   });
 
-  changers.on('click', function (d) {
-    changers.each(function (e) {
-      d3.select(this).classed('btn-primary', e === d);
-    });
-    _this16.changeOption(control.option, d);
+  changer.on('change', function (d) {
+    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
+      return m.trim();
+    }) : null;
+    _this16.changeOption(control.option, value);
   });
 }
 
-function changeOption(option, value) {
+function makeNumberControl(control, control_wrap) {
+  var _this17 = this;
 
-  this.targets.forEach(function (e) {
-    if (option.indexOf('.') !== -1) {
-      e.config[option.split('.')[0]][option.split('.')[1]] = value;
-    } else {
-      e.config[option] = value;
-    }
-    e.draw();
+  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
+    return _this17.stringAccessor(_this17.targets[0].config, control.option);
+  });
+
+  changer.on('change', function (d) {
+    var value = +changer.property('value');
+    _this17.changeOption(control.option, value);
   });
 }
 
 function makeRadioControl(control, control_wrap) {
-  var _this17 = this;
+  var _this18 = this;
 
   var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
     return control.relabels ? control.relabels[i] : d;
   }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
     return d;
   }).property('checked', function (d) {
-    if (control.option.indexOf('.') !== -1) {
-      return _this17.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-    } else {
-      return _this17.targets[0].config[control.option] === d;
-    }
+    return _this18.stringAccessor(_this18.targets[0].config, control.option) === d;
   });
 
   changers.on('change', function (d) {
@@ -1748,7 +1737,7 @@ function makeRadioControl(control, control_wrap) {
         value = d3.select(this).property('value') === 'none' ? null : c;
       }
     });
-    _this17.changeOption(control.option, value);
+    _this18.changeOption(control.option, value);
   });
 }
 
@@ -1801,7 +1790,7 @@ function makeSubsetterControl(control, control_wrap) {
   }
 
   changer.on('change', function (d) {
-    var _this18 = this;
+    var _this19 = this;
 
     if (control.multiple) {
       (function () {
@@ -1819,7 +1808,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this18).property('value');
+        var value = d3.select(_this19).property('value');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
@@ -1830,20 +1819,34 @@ function makeSubsetterControl(control, control_wrap) {
   });
 }
 
-function controlUpdate() {
-  var _this19 = this;
+function makeTextControl(control, control_wrap) {
+  var _this20 = this;
 
-  if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
-    this.config.inputs.forEach(function (e) {
-      return _this19.makeControlItem(e);
-    });
-  }
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+    return _this20.stringAccessor(_this20.targets[0].config, control.option);
+  });
+
+  changer.on('change', function (d) {
+    var value = changer.property('value');
+    _this20.changeOption(control.option, value);
+  });
 }
 
-function controlLayout() {
-  this.wrap.selectAll('*').remove();
-  this.ready = true;
-  this.controlUpdate();
+function stringAccessor(o, s, v) {
+  //adapted from http://jsfiddle.net/alnitak/hEsys/
+  s = s.replace(/\[(\w+)\]/g, '.$1');
+  s = s.replace(/^\./, '');
+  var a = s.split('.');
+  for (var i = 0, n = a.length; i < n; ++i) {
+    var k = a[i];
+    if (k in o) {
+      if (i == n - 1 && v !== undefined) o[k] = v;
+      o = o[k];
+    } else {
+      return;
+    }
+  }
+  return o;
 }
 
 var tableProto = Object.create(chartProto);
@@ -1854,7 +1857,7 @@ Object.defineProperties(tableProto, {
   'draw': { value: tableDraw }
 });
 
-function tableDraw(processed_data, raw_data) {
+function tableDraw(raw_data, processed_data) {
   var raw = raw_data ? raw_data : this.raw_data;
   var config = this.config;
   var data = processed_data || this.transformData(raw);
@@ -1963,6 +1966,14 @@ function tableDraw(processed_data, raw_data) {
   this.events.onDraw(this);
 }
 
+function tableLayout() {
+  d3.select(this.div).select('.loader').remove();
+  var table = this.wrap.append('table');
+  table.append('thead').append('tr').attr('class', 'headers');
+  this.table = table;
+  this.events.onLayout(this);
+}
+
 function tableTransformData(data) {
   if (!data) {
     return;
@@ -2025,14 +2036,6 @@ function tableTransformData(data) {
   return this.current_data;
 }
 
-function tableLayout() {
-  d3.select(this.div).select('.loader').remove();
-  var table = this.wrap.append('table');
-  table.append('thead').append('tr').attr('class', 'headers');
-  this.table = table;
-  this.events.onLayout(this);
-}
-
 webCharts.objects = {
   chart: chartProto,
   table: tableProto,
@@ -2041,7 +2044,7 @@ webCharts.objects = {
 
 webCharts.chartCount = 0;
 
-webCharts.chart = function () {
+webCharts.createChart = function () {
   var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
   var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
   var controls = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
@@ -2087,7 +2090,7 @@ webCharts.chart = function () {
   return chart;
 };
 
-webCharts.controls = function () {
+webCharts.createControls = function () {
   var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
   var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -2109,7 +2112,7 @@ webCharts.controls = function () {
   return controls;
 };
 
-webCharts.table = function () {
+webCharts.createTable = function () {
   var element = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
   var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
   var controls = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];

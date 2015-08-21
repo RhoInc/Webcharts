@@ -9,12 +9,7 @@ export function makeBtnGroupControl(control, control_wrap){
       .attr('class', 'btn btn-default btn-sm')
       .text(d => d)
       .classed('btn-primary', d => {
-        if(control.option.indexOf('.') !== -1){
-          return this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-        }
-        else{
-          return this.targets[0].config[control.option] === d;
-        }
+        return this.stringAccessor(this.targets[0].config, control.option) === d;
       });
 
   changers.on('click', d => {

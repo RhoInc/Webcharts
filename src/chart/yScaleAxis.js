@@ -1,10 +1,3 @@
-/** Sets up y-scale and y-axis functions
-*@memberof chart
-*@method yScaleAxis
-*@param {number} max_range Maximum SVG x-coordinate that can be used. Typically set to the height of the chart's plotting area.
-*@param {array} [domain={@link webCharts~chart.y_dom}] Domain passed to the scale function
-*@param {string} [type={@link webCharts~chart.config.y.type}] Type of scale to define. Can be 'linear', 'log', 'ordinal' or 'time'.
-*/
 export function yScaleAxis(max_range, domain, type){
   if(max_range === undefined){
     max_range = this.plot_height;
@@ -39,7 +32,7 @@ export function yScaleAxis(max_range, domain, type){
     y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
   }
 
-  let y_format = config.y.format ? config.y.format : config.y.summary === 'percent' ? '0%' : '.0f';
+  let y_format = config.y.format ? config.y.format : config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? '0%' : '.0f';
   let tick_count = Math.max(2, Math.min(max_range/80,8));
   let yAxis = d3.svg.axis()
     .scale(y)

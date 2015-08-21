@@ -1,4 +1,4 @@
-webCharts.controls = function(element = 'body', config = {}){
+webCharts.createControls = function(element = 'body', config = {}){
     let controls = Object.create(webCharts.objects.controls);
     
     controls.div = element;

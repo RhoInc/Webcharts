@@ -1,4 +1,4 @@
-webCharts.table = function(element = 'body', config = {}, controls=null){
+webCharts.createTable = function(element = 'body', config = {}, controls=null){
     let table = Object.create(webCharts.objects.table);
     
 	table.div = element;

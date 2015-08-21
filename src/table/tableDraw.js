@@ -1,4 +1,4 @@
-export function tableDraw(processed_data, raw_data){
+export function tableDraw(raw_data, processed_data){
   let raw = raw_data ? raw_data : this.raw_data;
   let config = this.config;
   let data = processed_data || this.transformData(raw);

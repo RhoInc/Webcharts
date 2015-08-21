@@ -10,7 +10,7 @@ webCharts.multiply = function(chart, data, split_by, order){
     }
 
     split_vals.forEach(e => {
-      var mchart = webCharts.chart(chart.wrap.node(), config, chart.controls);
+      var mchart = webCharts.createChart(chart.wrap.node(), config, chart.controls);
       mchart.events = chart.events;
       mchart.legend = master_legend;
       mchart.filters.unshift({col: split_by, val: e, choices: split_vals});

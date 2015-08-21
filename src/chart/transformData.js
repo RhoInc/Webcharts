@@ -1,9 +1,3 @@
-/** Transforms raw data into an appropriately nested format for each mark
-*@memberof chart
-*@method transformData
-*@param {array} raw raw dataset to be transformed
-*@param {mark} mark object describing the set of marks
-*/
 export function transformData(raw, mark){
   let config = this.config;
   let x_behavior = config.x.behavior || 'raw';
@@ -37,31 +31,31 @@ export function transformData(raw, mark){
 
   if( (config.x.type === 'linear' || config.x.type === 'log') && config.x.column){
     raw = raw.filter(f => {
-      return (config.x.summary !== 'count' && config.x.summary !== 'percent') ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
+      return (mark.summarizeX !== 'count' && mark.summarizeX !== 'percent') ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
     });
   };
   if( (config.y.type === 'linear' || config.y.type === 'log') && config.y.column){
     raw = raw.filter(f => {
-      return (config.y.summary !== 'count' && config.y.summary !== 'percent')  ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
+      return (mark.summarizeY !== 'count' && mark.summarizeY !== 'percent')  ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
     });
   };
 
   let raw_nest;
   if(mark.type === 'bar')
     raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw)
-  else if(config.x.summary === 'count' || config.y.summary === 'count')
+  else if(mark.summarizeX === 'count' || mark.summarizeY === 'count')
     raw_nest = makeNest(raw);
 
-  let raw_dom_x = config.x.summary === 'cumulative' ? [0, raw.length] :
+  let raw_dom_x = mark.summarizeX === 'cumulative' ? [0, raw.length] :
     config.x.type === 'ordinal' ? d3.set( raw.map(m => m[config.x.column]) ).values().filter(f => f) :
     mark.split && mark.arrange !== 'stacked' ? d3.extent( d3.merge( raw_nest.nested.map(m => m.values.map(p => p.values.raw.length) ) ) ) :
-    config.x.summary === 'count' ? d3.extent( raw_nest.nested.map(m => m.values.raw.length) ) :
+    mark.summarizeX === 'count' ? d3.extent( raw_nest.nested.map(m => m.values.raw.length) ) :
     d3.extent( raw.map(m => +m[config.x.column]).filter(f => +f) );
 
-  let raw_dom_y = config.y.summary === 'cumulative' ? [0, raw.length] :
+  let raw_dom_y = mark.summarizeY === 'cumulative' ? [0, raw.length] :
     config.y.type === 'ordinal' ? d3.set( raw.map(m => m[config.y.column]) ).values().filter(f => f) :
     mark.split && mark.arrange !== 'stacked' ? d3.extent( d3.merge( raw_nest.nested.map(m => m.values.map(p => p.values.raw.length) ) ) ) :
-    config.y.summary === 'count' ? d3.extent( raw_nest.nested.map(m => m.values.raw.length) ) :
+    mark.summarizeY === 'count' ? d3.extent( raw_nest.nested.map(m => m.values.raw.length) ) :
     d3.extent( raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0) );
 
   let filtered = raw;
@@ -98,8 +92,8 @@ export function transformData(raw, mark){
       let obj = {raw: r};
       let y_vals = r.map(m => m[config.y.column]).sort(d3.ascending);
       let x_vals = r.map(m => m[config.x.column]).sort(d3.ascending);
-      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, config.x.summary);
-      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, config.y.summary);
+      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, mark.summarizeX);
+      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, mark.summarizeY);
 
       obj.x_q25 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.25) : obj.x;
       obj.x_q75 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.75) : obj.x;
@@ -108,7 +102,7 @@ export function transformData(raw, mark){
       dom_xs.push([obj.x_q25, obj.x_q75, obj.x ]);
       dom_ys.push([obj.y_q25, obj.y_q75, obj.y ]);
 
-      if(config.y.summary === 'cumulative'){
+      if(mark.summarizeY === 'cumulative'){
         let interm = entries.filter(f => {
             return config.x.type === 'time' ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) :
               +f[config.x.column] <= +r[0][config.x.column];
@@ -121,7 +115,7 @@ export function transformData(raw, mark){
         dom_ys.push([cumul]);
         obj.y = cumul;
       };
-      if(config.x.summary === 'cumulative'){
+      if(mark.summarizeX === 'cumulative'){
         let interm = entries.filter(f => {
             return config.y.type === 'time' ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) :
               +f[config.y.column] <= +r[0][config.y.column];
@@ -147,7 +141,7 @@ export function transformData(raw, mark){
       if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin))
         dom_x = d3.extent( test.map(m => m.total) );
     }
-    // else if(sublevel && config.y.summary === 'percent'){
+    // else if(sublevel && mark.summarizeY === 'percent'){
     //   test.forEach(calcPercents);
     // }
 
@@ -172,12 +166,12 @@ export function transformData(raw, mark){
     let counter = 0;
     e.values.forEach((v,i) => {
       if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
-        v.values.y = config.y.summary === 'percent' ? v.values.y/e.total : v.values.y || 0;
+        v.values.y = mark.summarizeY === 'percent' ? v.values.y/e.total : v.values.y || 0;
         counter += +v.values.y;
         v.values.start = e.values[i-1] ? counter : v.values.y;
       }
       else{
-        v.values.x = config.x.summary === 'percent' ? v.values.x/e.total : v.values.x || 0;
+        v.values.x = mark.summarizeX === 'percent' ? v.values.x/e.total : v.values.x || 0;
         v.values.start = counter;
         counter += +v.values.x;
       }
@@ -210,19 +204,13 @@ export function transformData(raw, mark){
 
   let current_nested = makeNest(filtered, sublevel);
 
-  //extent of current data
-  // if(mark.type === 'bar' && mark.arrange === 'stacked'){
-  //   let flex_dom_x = makeNest(filtered).dom_x;
-  //   let flex_dom_y = makeNest(filtered).dom_y;
-  // }
-  // else{
   let flex_dom_x = current_nested.dom_x;
   let flex_dom_y = current_nested.dom_y;
 
   if(mark.type === 'bar'){
-    if(config.y.type === 'ordinal' && config.x.summary === 'count')
+    if(config.y.type === 'ordinal' && mark.summarizeX === 'count')
       config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null]
-    else if(config.x.type === 'ordinal' && config.y.summary === 'count')
+    else if(config.x.type === 'ordinal' && mark.summarizeY === 'count')
       config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
   }
 

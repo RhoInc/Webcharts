@@ -1,8 +1,3 @@
-/** Pools data for each set of marks and determines comprehensive domains for x- and y-axes
-*@memberof chart
-*@method consolidateData
-*@param {Array} raw raw dataset to be transformed and then consolidated
-*/
 export function consolidateData(raw){
   let config = this.config;
   let all_data = [];
@@ -21,7 +16,7 @@ export function consolidateData(raw){
     all_data.push(mark_info.data);
     all_x.push(mark_info.x_dom);
     all_y.push(mark_info.y_dom);
-    this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, tooltip: e.tooltip, attributes: e.attributes};
+    this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, summarizeX: e.summarizeX, summarizeY: e.summarizeY, tooltip: e.tooltip, attributes: e.attributes};
   });
 
   if(config.x.type === 'ordinal'){
@@ -47,8 +42,11 @@ export function consolidateData(raw){
     else
       this.x_dom = d3.set(d3.merge(all_x)).values();
   }
+  else if(config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1)
+    this.x_dom = [0,1];
   else
     this.x_dom = d3.extent(d3.merge(all_x));
+
   if(config.y.type === 'ordinal'){
     if( config.y.sort && config.y.sort === 'alphabetical-ascending' )
       this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
@@ -73,7 +71,7 @@ export function consolidateData(raw){
     else
       this.y_dom = d3.set(d3.merge(all_y)).values();
   }
-  else if(config.y.summary === 'percent')
+  else if(config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1)
     this.y_dom = [0,1];
   else
     this.y_dom = d3.extent(d3.merge(all_y));

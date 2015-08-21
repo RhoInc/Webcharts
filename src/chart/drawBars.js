@@ -1,8 +1,3 @@
-/** Function that handles drawing bars (<rect> elements) as defined by marks with type='bar'
-*@memberof chart
-*@method drawBars
-*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='bar'
-*/
 export function drawBars(marks){
   let rawData = this.raw_data;
   let config = this.config;
@@ -53,10 +48,10 @@ export function drawBars(marks){
       d3.select(this).attr(mark.attributes);
     });
 
+    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
     bars.select('title').text(d => {
       let tt = d.tooltip || '';
-      let xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
-      let yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
       return tt.replace(/\$x/g, xformat(d.values.x))
         .replace(/\$y/g, yformat(d.values.y))
         .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
@@ -116,7 +111,8 @@ export function drawBars(marks){
       .attr('class', d => 'wc-data-mark bar '+d.key )
       .style('clip-path', 'url(#'+this.id+')')
       .attr('x', this.x(0))
-      .attr('width', 0);
+      .attr('width', 0)
+      .append('title');
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
@@ -127,6 +123,16 @@ export function drawBars(marks){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split ? mark.arrange : null;
       d.subcats = d3.set(rawData.map(m => m[mark.split])).values();
+      d.tooltip = mark.tooltip;
+    });
+
+    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+    bars.select('title').text(d => {
+      let tt = d.tooltip || '';
+      return tt.replace(/\$x/g, xformat(d.values.x))
+        .replace(/\$y/g, yformat(d.values.y))
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
     bars.transition()
@@ -178,7 +184,8 @@ export function drawBars(marks){
       .attr('class', d =>'wc-data-mark bar '+d.key )
       .style('clip-path', 'url(#'+this.id+')')
       .attr('y', this.y(0))
-      .attr('height', 0);
+      .attr('height', 0)
+      .append('title');
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
@@ -194,6 +201,16 @@ export function drawBars(marks){
       let rangeSet = parent.key.split(',').map(m => +m);
       d.rangeLow = d3.min(rangeSet);
       d.rangeHigh = d3.max(rangeSet);
+      d.tooltip = mark.tooltip;
+    });
+
+    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+    bars.select('title').text(d => {
+      let tt = d.tooltip || '';
+      return tt.replace(/\$x/g, xformat(d.values.x))
+        .replace(/\$y/g, yformat(d.values.y))
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
     bars.transition()
@@ -228,7 +245,8 @@ export function drawBars(marks){
       .attr('class', d => 'wc-data-mark bar '+d.key )
       .style('clip-path', 'url(#'+this.id+')')
       .attr('x', this.x(0))
-      .attr('width', 0);
+      .attr('width', 0)
+      .append('title');
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
@@ -243,6 +261,16 @@ export function drawBars(marks){
       let rangeSet = parent.key.split(',').map(m => +m);
       d.rangeLow = d3.min(rangeSet);
       d.rangeHigh = d3.max(rangeSet);
+      d.tooltip = mark.tooltip;
+    });
+
+    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+    bars.select('title').text(d => {
+      let tt = d.tooltip || '';
+      return tt.replace(/\$x/g, xformat(d.values.x))
+        .replace(/\$y/g, yformat(d.values.y))
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
     bars.transition()
@@ -265,4 +293,5 @@ export function drawBars(marks){
     old_bar_groups.transition().remove();
     bar_supergroups.remove();
   }
+
 };

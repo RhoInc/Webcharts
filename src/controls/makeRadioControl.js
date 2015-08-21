@@ -10,12 +10,7 @@ export function makeRadioControl(control, control_wrap){
     	.attr('name', control.option.replace('.', '-')+'-'+this.targets[0].id)
       .property('value', d => d)
       .property('checked', d => {
-        if(control.option.indexOf('.') !== -1){
-          return this.targets[0].config[control.option.split('.')[0]][control.option.split('.')[1]] === d;
-        }
-        else{
-          return this.targets[0].config[control.option] === d;
-        }
+        return this.stringAccessor(this.targets[0].config, control.option) === d;
       });
 
   changers.on('change', d => {

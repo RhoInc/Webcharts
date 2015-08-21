@@ -1,8 +1,3 @@
-/** Parses config object, triggers data transformation and chart rendering methods
-*@memberof chart
-*@method draw
-*@param {Array} [raw_data={@link webCharts~chart.raw_data}] raw data to be consumed by later chart functions
-*/
 export function draw(raw_data, processed_data){
   var context = this;
   let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
