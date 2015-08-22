@@ -24,7 +24,7 @@ Then, use it in your modules:
 	var webCharts = require('webCharts');
 
 # Making a Chart
-Let's get right to it. A chart is created with a call to [webCharts.chart](Webcharts#webCharts.chart), a function that, passed a few arguments, returns an object that represents a chart:
+Let's get right to it. A chart is created with a call to [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts#webchartscreatechartelement-config-controls), a function that, passed a few arguments, returns an object that represents a chart:
 
 	
 	var settings = {
@@ -49,16 +49,15 @@ Let's get right to it. A chart is created with a call to [webCharts.chart](Webch
       "aspect":"1",
       "gridlines":"xy"
     };
+    d3.csv('calories.csv',function(error,csv){
+    	webCharts.createChart('body', settings).init(csv);
+    })
     
-	webCharts.chart('body', 'calories.csv', settings, null).init();
-
 The first argument, <code>"body"</code>, tells the function where to draw the chart. This is a simple CSS selector, so it may reference a DOM element name (like in this example) or target and id or class attribute, like <code>".chart-wrapper"</code>.
 
-The second argument, <code>"calories.csv"</code> is a path to a file containing some data. The file should contain comma-delimited values (and is therefore typically a .csv).
+The second argument is a JavaScript object that sets a number of options for the chart. All of these possible options are described [here](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration). The config object in this example sets some basic options like what dataset fields should be mapped to the <code>x</code> and <code>y</code> axes, what type of <code>marks</code> should be drawn, how wide the chart can get (<code>max_width</code>, its <code>aspect</code> ratio, and where <code>gridlines</code> should be drawn.
 
-The third argument is a JavaScript object that sets a number of options for the chart. All of these possible options are described [here](Config). The config object in this example sets some basic options like what dataset fields should be mapped to the <code>x</code> and <code>y</code> axes, what type of <code>marks</code> should be drawn, how wide the chart can get (<code>max_width</code>, its <code>aspect</code> ratio, and where <code>gridlines</code> should be drawn.
-
-The chart object returned by <code>webCharts.chart()</code> can then be initialized by calling its <code>init()</code> method, which triggers a set of other methods which parse the data from the data file, set up the components of the chart, and then render the chart as an SVG based on the given data and settings from the <code>config</code> object.
+The chart object returned by [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts#webchartscreatechartelement-config-controls) can then be initialized passing data to the chart via its <code>init()</code> method. The <code>init</code> method triggers a set of other methods which bind the data to the chart, set up the components of the chart, and then render the chart as an SVG based on the given data and settings from the <code>config</code> object.
 
 Behold! The code above will produce a chart like this:
 
@@ -69,7 +68,9 @@ To see the real thing and look more closely at the code, [check out this gist]()
 # Documentation
 API documentation can be found right over <a href="https://github.com/RhoInc/Webcharts/wiki/Webcharts">here</a>.
 
-# Examples
-[Lab Results Over Time with Interactive Normal Ranges](http://graphics.rhoworld.com/tools/labnormals)
+## Basic Examples
+Coming soon
 
+## Advanced Examples
+[Lab Results Over Time with Interactive Normal Ranges](http://graphics.rhoworld.com/tools/labnormals)
 [Immunologic Outcomes Explorer](http://graphics.rhoworld.com/studies/leap/figure3)
