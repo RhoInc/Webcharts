@@ -60,8 +60,9 @@ export function drawBars(marks){
     bars.transition()
       .attr('x', d => {
         let position;
-        if(!d.arrange || d.arrange === 'stacked')
+        if(!d.arrange || d.arrange === 'stacked'){
           return this.x(d.values.x);
+        }
         else if(d.arrange === 'nested'){
           position = d.subcats.indexOf(d.key);
           let offset = position ? this.x.rangeBand()/(d.subcats.length*(position)*0.5)/2 : this.x.rangeBand()/2;
@@ -73,20 +74,24 @@ export function drawBars(marks){
         }
       })
       .attr('y', d => {
-        if(d.arrange !== 'stacked')
+        if(d.arrange !== 'stacked'){
           return this.y(d.values.y);
-        else
+        }
+        else{
           return this.y(d.values.start);
+        }
       })
       .attr('width', d => {
-        if(d.arrange === 'stacked')
+        if(d.arrange === 'stacked'){
           return this.x.rangeBand();
+        }
         else if(d.arrange === 'nested'){
           let position = d.subcats.indexOf(d.key);
           return position ? this.x.rangeBand()/(d.subcats.length*(position)*0.5) : this.x.rangeBand();
         }
-        else
+        else{
           return this.x.rangeBand()/d.subcats.length;
+        }
       })
       .attr('height', d => this.y(0) - this.y(d.values.y) );
 
@@ -137,31 +142,38 @@ export function drawBars(marks){
 
     bars.transition()
       .attr('x', d => {
-        if(d.arrange === 'stacked')
-          return this.x(d.values.start);
-        else
-          return this.x(0);
+        if(d.arrange === 'stacked' || !d.arrange){
+          return d.values.start !== undefined ? this.x(d.values.start) : this.x(0);
+        }
+        else{
+          return this.x(d.values.x);
+        }
       })
       .attr('y', d => {
-        if(d.arrange !== 'grouped')
+        if(d.arrange !== 'grouped'){
           return this.y(d.values.y);
+        }
         else{
           let position = d.subcats.indexOf(d.key);
           return this.y(d.values.y) + this.y.rangeBand()/d.subcats.length * position;
         }
       })
-      .attr('width', d => this.x(d.values.x) )
+      // .attr('width', d => this.x(d.values.x) )
+      .attr('width', d => this.x(d.values.x) - this.x(0) )
       .attr('height', d => {
-        if(config.y.type === 'quantile')
+        if(config.y.type === 'quantile'){
           return 20;
-        else if(d.arrange === 'stacked')
+        }
+        else if(d.arrange === 'stacked'){
           return this.y.rangeBand();
+        }
         else if(d.arrange === 'nested'){
           let position = d.subcats.indexOf(d.key);
           return position ? this.y.rangeBand()/(sibs.length*(position)*0.75) : this.y.rangeBand();
         }
-        else
+        else{
           return this.y.rangeBand()/d.subcats.length;
+        }
       });
   }
   else if(config.x.type === 'linear' && config.x.bin){
@@ -216,10 +228,12 @@ export function drawBars(marks){
     bars.transition()
       .attr('x', d => this.x(d.rangeLow) )
       .attr('y', d => {
-        if(d.arrange !== 'stacked')
+        if(d.arrange !== 'stacked'){
           return this.y(d.values.y);
-        else
+        }
+        else{
           return this.y(d.values.start);
+        }
       })
       .attr('width', d => this.x(d.rangeHigh) - this.x(d.rangeLow) )
       .attr('height', d => this.y(0) - this.y(d.values.y) );
@@ -275,8 +289,9 @@ export function drawBars(marks){
 
     bars.transition()
       .attr('x', d => {
-        if(d.arrange === 'stacked')
+        if(d.arrange === 'stacked'){
           return this.x(d.values.start);
+        }
         else{
           return this.x(0);
         }
@@ -294,4 +309,4 @@ export function drawBars(marks){
     bar_supergroups.remove();
   }
 
-};
+}

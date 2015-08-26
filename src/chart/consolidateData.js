@@ -20,10 +20,10 @@ export function consolidateData(raw){
   });
 
   if(config.x.type === 'ordinal'){
-    if( config.x.sort && config.x.sort === 'alphabetical-descending' )
+    if( config.x.sort && config.x.sort === 'alphabetical-descending' ){
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    }
     else if(config.y.type === 'time' && config.x.sort === 'earliest' ){
-      var dateFormat = d3.time.format(config.date_format);
       this.x_dom = d3.nest()
         .key(d => d[config.x.column] )
         .rollup(d =>{
@@ -37,21 +37,25 @@ export function consolidateData(raw){
       this.x_dom = d3.set(d3.merge(all_x)).values()
         .sort((a,b) => d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) );
     }
-    else if( !config.x.sort || config.x.sort === 'alphabetical-descending' )
+    else if( !config.x.sort || config.x.sort === 'alphabetical-descending' ){
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
-    else
+    }
+    else{
       this.x_dom = d3.set(d3.merge(all_x)).values();
+    }
   }
-  else if(config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1)
+  else if(config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1){
     this.x_dom = [0,1];
-  else
+  }
+  else{
     this.x_dom = d3.extent(d3.merge(all_x));
+  }
 
   if(config.y.type === 'ordinal'){
-    if( config.y.sort && config.y.sort === 'alphabetical-ascending' )
+    if( config.y.sort && config.y.sort === 'alphabetical-ascending' ){
       this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+    }
     else if( config.x.type === 'time' && config.y.sort === 'earliest' ){
-      var dateFormat = d3.time.format(config.date_format);
       this.y_dom = d3.nest()
         .key(d => d[config.y.column] )
         .rollup(d => {
@@ -68,12 +72,15 @@ export function consolidateData(raw){
     else if( !config.y.sort || config.y.sort === 'alphabetical-descending' ){
       this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
     }
-    else
+    else{
       this.y_dom = d3.set(d3.merge(all_y)).values();
+    }
   }
-  else if(config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1)
+  else if(config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1){
     this.y_dom = [0,1];
-  else
+  }
+  else{
     this.y_dom = d3.extent(d3.merge(all_y));
+  }
 
 }

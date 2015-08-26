@@ -8,49 +8,72 @@ export function transformData(raw, mark){
   let dateConvert = d3.time.format(config.date_format);
   let totalOrder;
 
+  function calcStartTotal(e){
+    let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x';
+    e.total = d3.sum(e.values.map(m => +m.values[axis]));
+    let counter = 0;
+    e.values.forEach((v,i) => {
+      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
+        v.values.y = mark.summarizeY === 'percent' ? v.values.y/e.total : v.values.y || 0;
+        counter += +v.values.y;
+        v.values.start = e.values[i-1] ? counter : v.values.y;
+      }
+      else{
+        v.values.x = mark.summarizeX === 'percent' ? v.values.x/e.total : v.values.x || 0;
+        v.values.start = counter;
+        counter += +v.values.x;
+      }
+    });
+  }
+
   raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]] ) : raw;
 
   //run initial filter if specified
-  if(config.initial_filter)
+  if(config.initial_filter){
     raw = raw.filter(f => config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1 );
+  }
 
   //make sure data has x and y values
-  if(config.x.column)
+  if(config.x.column){
     raw = raw.filter(f => f[config.x.column] );
-  if(config.y.column)
+  }
+  if(config.y.column){
     raw = raw.filter(f => f[config.y.column] );
+  }
 
   if(config.x.type === 'time'){
     raw = raw.filter(f => f[config.x.column] instanceof Date ? f[config.x.column] : dateConvert.parse(f[config.x.column]) );
     raw.forEach(e => e[config.x.column] = e[config.x.column] instanceof Date ? e[config.x.column] : dateConvert.parse(e[config.x.column]) );
-  };
+  }
   if(config.y.type === 'time'){
     raw = raw.filter(f => f[config.y.column] instanceof Date ? f[config.y.column] : dateConvert.parse(f[config.y.column]) );
     raw.forEach(e => e[config.y.column] = e[config.y.column] instanceof Date ? e[config.y.column] : dateConvert.parse(e[config.y.column]) );
-  };
+  }
 
   if( (config.x.type === 'linear' || config.x.type === 'log') && config.x.column){
     raw = raw.filter(f => {
       return (mark.summarizeX !== 'count' && mark.summarizeX !== 'percent') ? (+f[config.x.column] || +f[config.x.column] === 0) : f;
     });
-  };
+  }
   if( (config.y.type === 'linear' || config.y.type === 'log') && config.y.column){
     raw = raw.filter(f => {
       return (mark.summarizeY !== 'count' && mark.summarizeY !== 'percent')  ? (+f[config.y.column] || +f[config.y.column] === 0) : f;
     });
-  };
+  }
 
   let raw_nest;
-  if(mark.type === 'bar')
-    raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw)
-  else if(mark.summarizeX === 'count' || mark.summarizeY === 'count')
+  if(mark.type === 'bar'){
+    raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
+  }
+  else if(mark.summarizeX === 'count' || mark.summarizeY === 'count'){
     raw_nest = makeNest(raw);
+  }
 
   let raw_dom_x = mark.summarizeX === 'cumulative' ? [0, raw.length] :
     config.x.type === 'ordinal' ? d3.set( raw.map(m => m[config.x.column]) ).values().filter(f => f) :
     mark.split && mark.arrange !== 'stacked' ? d3.extent( d3.merge( raw_nest.nested.map(m => m.values.map(p => p.values.raw.length) ) ) ) :
     mark.summarizeX === 'count' ? d3.extent( raw_nest.nested.map(m => m.values.raw.length) ) :
-    d3.extent( raw.map(m => +m[config.x.column]).filter(f => +f) );
+    d3.extent( raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0) );
 
   let raw_dom_y = mark.summarizeY === 'cumulative' ? [0, raw.length] :
     config.y.type === 'ordinal' ? d3.set( raw.map(m => m[config.y.column]) ).values().filter(f => f) :
@@ -71,22 +94,23 @@ export function transformData(raw, mark){
         .domain(d3.extent(entries.map(m => +m[config[xy].column]) ) )
         .range(d3.range(+config[xy].bin));
 
-      entries.forEach(e => e['wc_bin'] = quant(e[config[xy].column]) );
+      entries.forEach(e => e.wc_bin = quant(e[config[xy].column]) );
 
-      this_nest.key(d => quant.invertExtent(d['wc_bin']) );
+      this_nest.key(d => quant.invertExtent(d.wc_bin) );
     }
-    else
+    else{
       this_nest.key(d => mark.per.map(m => d[m]).join(' ') );
+    }
 
     if(sublevel){
-      this_nest.key(function(d){return d[sublevel]})
+      this_nest.key(d => d[sublevel]);
       this_nest.sortKeys((a,b) => {
         return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) :
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
           sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === 'ordinal' || config.y.type === 'ordinal' ? webCharts.dataOps.naturalSorter(a,b) :
           d3.ascending(+a, +b);
-      })
+      });
     }
     this_nest.rollup(r => {
       let obj = {raw: r};
@@ -107,24 +131,26 @@ export function transformData(raw, mark){
             return config.x.type === 'time' ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column]) :
               +f[config.x.column] <= +r[0][config.x.column];
           });
-        if(mark.per.length)
+        if(mark.per.length){
           interm = interm.filter(f => f[mark.per[0]] === r[0][mark.per[0]] );
+        }
 
         let cumul = config.x.type === 'time' ? interm.length :
           d3.sum( interm.map(m => +m[config.y.column] || +m[config.y.column] === 0 ? +m[config.y.column] : 1) );
         dom_ys.push([cumul]);
         obj.y = cumul;
-      };
+      }
       if(mark.summarizeX === 'cumulative'){
         let interm = entries.filter(f => {
             return config.y.type === 'time' ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column]) :
               +f[config.y.column] <= +r[0][config.y.column];
           });
-        if(mark.per.length)
+        if(mark.per.length){
           interm = interm.filter(f => f[mark.per[0]] === r[0][mark.per[0]] );
+        }
         dom_xs.push([interm.length]);
         obj.x = interm.length;
-      };
+      }
 
       return obj;
     });
@@ -136,46 +162,26 @@ export function transformData(raw, mark){
 
     if(sublevel && mark.type === 'bar' && mark.arrange === 'stacked'){
       test.forEach(calcStartTotal);
-      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin))
+      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
         dom_y = d3.extent( test.map(m => m.total) );
-      if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin))
+      }
+      if(config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin)){
         dom_x = d3.extent( test.map(m => m.total) );
+      }
     }
-    // else if(sublevel && mark.summarizeY === 'percent'){
-    //   test.forEach(calcPercents);
-    // }
+    else{
+      let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x';
+      test.forEach(e => e.total = e.values[axis]);
+    }
 
-    if(config.x.sort === 'total-ascending' || config.y.sort === 'total-ascending')
+    if( (config.x.sort === 'total-ascending' && config.x.type == 'ordinal') || (config.y.sort === 'total-descending' && config.y.type == 'ordinal') ){
       totalOrder = test.sort((a,b) => d3.ascending(a.total, b.total) ).map(m => m.key);
-    else if(config.x.sort === 'total-descending' || config.y.sort === 'total-descending')
-      totalOrder = test.sort((a,b) => d3.ascending(a.total, b.total) ).map(m => m.key).reverse();
+    }
+    else if( (config.x.sort === 'total-descending' && config.x.type == 'ordinal') || (config.y.sort === 'total-ascending' && config.y.type == 'ordinal') ){
+      totalOrder = test.sort((a,b) => d3.descending(+a.total, +b.total) ).map(m => m.key);
+    }
 
     return {nested: test, dom_x: dom_x, dom_y: dom_y};
-  };
-
-  // function calcPercents(e){
-  //   let max = d3.sum(e.values.map(function(m){return +m.values.y}));
-  //   e.values.forEach(function(v){
-  //     v.values.y = v.values.y/max
-  //   });
-  // };
-
-  function calcStartTotal(e){
-    let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin) ? 'y' : 'x';
-    e.total = d3.sum(e.values.map(m => +m.values[axis]));
-    let counter = 0;
-    e.values.forEach((v,i) => {
-      if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
-        v.values.y = mark.summarizeY === 'percent' ? v.values.y/e.total : v.values.y || 0;
-        counter += +v.values.y;
-        v.values.start = e.values[i-1] ? counter : v.values.y;
-      }
-      else{
-        v.values.x = mark.summarizeX === 'percent' ? v.values.x/e.total : v.values.x || 0;
-        v.values.start = counter;
-        counter += +v.values.x;
-      }
-    });
   }
 
   let filt1_xs = [];
@@ -184,7 +190,7 @@ export function transformData(raw, mark){
     this.filters.forEach(e => {
       filtered = filtered.filter(d => {
         return e.val === 'All' ? d : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
-      })
+      });
     });
     //get domain for all non-All values of first filter
     if(config.x.behavior === 'firstfilter' || config.y.behavior === 'firstfilter'){
@@ -208,10 +214,12 @@ export function transformData(raw, mark){
   let flex_dom_y = current_nested.dom_y;
 
   if(mark.type === 'bar'){
-    if(config.y.type === 'ordinal' && mark.summarizeX === 'count')
-      config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null]
-    else if(config.x.type === 'ordinal' && mark.summarizeY === 'count')
+    if(config.y.type === 'ordinal' && mark.summarizeX === 'count'){
+      config.x.domain = config.x.domain ? [0, config.x.domain[1]] : [0, null];
+    }
+    else if(config.x.type === 'ordinal' && mark.summarizeY === 'count'){
       config.y.domain = config.y.domain ? [0, config.y.domain[1]] : [0, null];
+    }
   }
 
   //several criteria must be met in order to use the 'firstfilter' domain
@@ -233,19 +241,25 @@ export function transformData(raw, mark){
     config.y_from0 ? [0, d3.max(pre_y_dom)] :
     pre_y_dom;
 
-  if(config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0) )
+  if(config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0) ){
     x_dom[0] = config.x.domain[0];
-  if(config.x.domain && (config.x.domain[1] || config.x.domain[1] === 0) )
+  }
+  if(config.x.domain && (config.x.domain[1] || config.x.domain[1] === 0) ){
     x_dom[1] = config.x.domain[1];
-  if(config.y.domain && (config.y.domain[0] || config.y.domain[0] === 0) )
+  }
+  if(config.y.domain && (config.y.domain[0] || config.y.domain[0] === 0) ){
     y_dom[0] = config.y.domain[0];
-  if(config.y.domain && (config.y.domain[1] || config.y.domain[1] === 0) )
+  }
+  if(config.y.domain && (config.y.domain[1] || config.y.domain[1] === 0) ){
     y_dom[1] = config.y.domain[1];
+  }
 
-  if(config.x.type === 'ordinal')
+  if(config.x.type === 'ordinal'){
     config.x.order = totalOrder;
-  if(config.y.type === 'ordinal')
+  }
+  if(config.y.type === 'ordinal'){
     config.y.order = totalOrder;
+  }
 
   this.current_data = current_nested.nested;
 
