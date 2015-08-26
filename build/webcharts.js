@@ -462,7 +462,7 @@ function drawBars(marks) {
 
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
-        d.arrange = mark.split ? mark.arrange : null;
+        d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
         d.subcats = d3.set(rawData.map(function (m) {
           return m[mark.split];
         })).values();
@@ -486,29 +486,31 @@ function drawBars(marks) {
         if (d.arrange === 'stacked' || !d.arrange) {
           return d.values.start !== undefined ? _this3.x(d.values.start) : _this3.x(0);
         } else {
-          return _this3.x(d.values.x);
+          return _this3.x(0);
         }
       }).attr('y', function (d) {
-        if (d.arrange !== 'grouped') {
-          return _this3.y(d.values.y);
-        } else {
+        if (d.arrange === 'nested') {
+          var position = d.subcats.indexOf(d.key);
+          var offset = position ? _this3.y.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this3.y.rangeBand() / 2;
+          return _this3.y(d.values.y) + _this3.y.rangeBand() / 2 - offset;
+        } else if (d.arrange === 'grouped') {
           var position = d.subcats.indexOf(d.key);
           return _this3.y(d.values.y) + _this3.y.rangeBand() / d.subcats.length * position;
+        } else {
+          return _this3.y(d.values.y);
         }
-      })
-      // .attr('width', d => this.x(d.values.x) )
-      .attr('width', function (d) {
+      }).attr('width', function (d) {
         return _this3.x(d.values.x) - _this3.x(0);
       }).attr('height', function (d) {
         if (config.y.type === 'quantile') {
           return 20;
-        } else if (d.arrange === 'stacked') {
-          return _this3.y.rangeBand();
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          return position ? _this3.y.rangeBand() / (sibs.length * position * 0.75) : _this3.y.rangeBand();
-        } else {
+          return position ? _this3.y.rangeBand() / (d.subcats.length * position * 0.75) : _this3.y.rangeBand();
+        } else if (d.arrange === 'grouped') {
           return _this3.y.rangeBand() / d.subcats.length;
+        } else {
+          return _this3.y.rangeBand();
         }
       });
     })();

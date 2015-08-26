@@ -113,7 +113,7 @@ export function drawBars(marks){
       .attr('width', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => 'wc-data-mark bar '+d.key )
+      .attr('class', d => 'wc-data-mark bar '+d.key ) 
       .style('clip-path', 'url(#'+this.id+')')
       .attr('x', this.x(0))
       .attr('width', 0)
@@ -126,7 +126,7 @@ export function drawBars(marks){
 
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
-      d.arrange = mark.split ? mark.arrange : null;
+      d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
       d.subcats = d3.set(rawData.map(m => m[mark.split])).values();
       d.tooltip = mark.tooltip;
     });
@@ -146,33 +146,37 @@ export function drawBars(marks){
           return d.values.start !== undefined ? this.x(d.values.start) : this.x(0);
         }
         else{
-          return this.x(d.values.x);
+          return this.x(0);
         }
       })
       .attr('y', d => {
-        if(d.arrange !== 'grouped'){
-          return this.y(d.values.y);
+        if(d.arrange === 'nested'){
+          let position = d.subcats.indexOf(d.key);
+          let offset = position ? this.y.rangeBand()/(d.subcats.length*(position)*0.5)/2 : this.y.rangeBand()/2;
+          return this.y(d.values.y) + this.y.rangeBand()/2 - offset;
         }
-        else{
+        else if(d.arrange === 'grouped'){
           let position = d.subcats.indexOf(d.key);
           return this.y(d.values.y) + this.y.rangeBand()/d.subcats.length * position;
         }
+        else{
+          return this.y(d.values.y);
+        }
       })
-      // .attr('width', d => this.x(d.values.x) )
       .attr('width', d => this.x(d.values.x) - this.x(0) )
       .attr('height', d => {
         if(config.y.type === 'quantile'){
           return 20;
         }
-        else if(d.arrange === 'stacked'){
-          return this.y.rangeBand();
-        }
         else if(d.arrange === 'nested'){
           let position = d.subcats.indexOf(d.key);
-          return position ? this.y.rangeBand()/(sibs.length*(position)*0.75) : this.y.rangeBand();
+          return position ? this.y.rangeBand()/(d.subcats.length*(position)*0.75) : this.y.rangeBand();
+        }
+        else if(d.arrange === 'grouped'){
+          return this.y.rangeBand()/d.subcats.length;
         }
         else{
-          return this.y.rangeBand()/d.subcats.length;
+          return this.y.rangeBand();
         }
       });
   }
