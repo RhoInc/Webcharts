@@ -160,7 +160,10 @@ export function transformData(raw, mark){
     let dom_x = d3.extent( d3.merge(dom_xs) );
     let dom_y = d3.extent( d3.merge(dom_ys) );
 
-    if(sublevel && mark.type === 'bar' && mark.arrange === 'stacked'){
+    if(sublevel && mark.type === 'bar' && mark.split){
+      test.forEach(calcStartTotal);
+    }
+    else if(sublevel && mark.type === 'bar' && mark.arrange === 'stacked'){
       test.forEach(calcStartTotal);
       if(config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)){
         dom_y = d3.extent( test.map(m => m.total) );
