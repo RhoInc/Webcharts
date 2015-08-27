@@ -1829,7 +1829,7 @@ function makeSubsetterControl(control, control_wrap) {
   }).filter(function (f) {
     return f;
   })).values();
-  option_data.sort(d3.ascending);
+  option_data.sort(webCharts.dataOps.naturalSorter);
 
   control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 

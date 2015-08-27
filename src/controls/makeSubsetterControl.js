@@ -7,7 +7,7 @@ export function makeSubsetterControl(control, control_wrap){
 
   let option_data = control.values ? control.values :
   	d3.set(this.data.map(m => m[control.value_col]).filter(f => f) ).values();
-  option_data.sort(d3.ascending);
+  option_data.sort(webCharts.dataOps.naturalSorter);
 
   control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
