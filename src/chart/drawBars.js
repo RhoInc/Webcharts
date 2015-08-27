@@ -37,8 +37,7 @@ export function drawBars(marks){
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill-opacity', config.fill_opacity || 0.8);
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
@@ -121,8 +120,7 @@ export function drawBars(marks){
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill-opacity', config.fill_opacity || 0.8);
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
@@ -152,8 +150,8 @@ export function drawBars(marks){
       .attr('y', d => {
         if(d.arrange === 'nested'){
           let position = d.subcats.indexOf(d.key);
-          let offset = position ? this.y.rangeBand()/(d.subcats.length*(position)*0.5)/2 : this.y.rangeBand()/2;
-          return this.y(d.values.y) + this.y.rangeBand()/2 - offset;
+          let offset = position ? this.y.rangeBand()/(d.subcats.length*0.75)/(position) : this.y.rangeBand();
+          return this.y(d.values.y) + (this.y.rangeBand() - offset)/2;
         }
         else if(d.arrange === 'grouped'){
           let position = d.subcats.indexOf(d.key);
@@ -170,7 +168,7 @@ export function drawBars(marks){
         }
         else if(d.arrange === 'nested'){
           let position = d.subcats.indexOf(d.key);
-          return position ? this.y.rangeBand()/(d.subcats.length*(position)*0.75) : this.y.rangeBand();
+          return position ? this.y.rangeBand()/(d.subcats.length*0.75)/(position) : this.y.rangeBand();
         }
         else if(d.arrange === 'grouped'){
           return this.y.rangeBand()/d.subcats.length;
@@ -205,8 +203,7 @@ export function drawBars(marks){
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill-opacity', config.fill_opacity || 0.8);
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
@@ -268,8 +265,7 @@ export function drawBars(marks){
 
     bars
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill-opacity', config.fill_opacity || 0.8);
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();

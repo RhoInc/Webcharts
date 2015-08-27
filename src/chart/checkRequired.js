@@ -1,9 +1,5 @@
-/** Checks raw dataset against the configuration object for the chart and throws errors if the configuration references values that are not present. Called once upon initialization of chart.
-*@memberof chart
-*@method checkRequired
-*/
-export function checkRequired(){
-    let colnames = d3.keys(this.raw_data[0]);
+export function checkRequired(data){
+    let colnames = d3.keys(data[0]);
     let requiredVars = [];
     let requiredCols = [];
     if(this.config.x.column){

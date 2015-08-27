@@ -245,15 +245,10 @@ function consolidateData(raw) {
   }
 }
 
-/** Checks raw dataset against the configuration object for the chart and throws errors if the configuration references values that are not present. Called once upon initialization of chart.
-*@memberof chart
-*@method checkRequired
-*/
-
-function checkRequired() {
+function checkRequired(data) {
   var _this2 = this;
 
-  var colnames = d3.keys(this.raw_data[0]);
+  var colnames = d3.keys(data[0]);
   var requiredVars = [];
   var requiredCols = [];
   if (this.config.x.column) {
@@ -378,7 +373,7 @@ function drawBars(marks) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
-      }).attr('fill-opacity', config.fill_opacity || 0.8);
+      });
 
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
@@ -458,7 +453,7 @@ function drawBars(marks) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
-      }).attr('fill-opacity', config.fill_opacity || 0.8);
+      });
 
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
@@ -491,8 +486,8 @@ function drawBars(marks) {
       }).attr('y', function (d) {
         if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          var offset = position ? _this3.y.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this3.y.rangeBand() / 2;
-          return _this3.y(d.values.y) + _this3.y.rangeBand() / 2 - offset;
+          var offset = position ? _this3.y.rangeBand() / (d.subcats.length * 0.75) / position : _this3.y.rangeBand();
+          return _this3.y(d.values.y) + (_this3.y.rangeBand() - offset) / 2;
         } else if (d.arrange === 'grouped') {
           var position = d.subcats.indexOf(d.key);
           return _this3.y(d.values.y) + _this3.y.rangeBand() / d.subcats.length * position;
@@ -506,7 +501,7 @@ function drawBars(marks) {
           return 20;
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          return position ? _this3.y.rangeBand() / (d.subcats.length * position * 0.75) : _this3.y.rangeBand();
+          return position ? _this3.y.rangeBand() / (d.subcats.length * 0.75) / position : _this3.y.rangeBand();
         } else if (d.arrange === 'grouped') {
           return _this3.y.rangeBand() / d.subcats.length;
         } else {
@@ -538,7 +533,7 @@ function drawBars(marks) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
-      }).attr('fill-opacity', config.fill_opacity || 0.8);
+      });
 
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
@@ -607,7 +602,7 @@ function drawBars(marks) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
         return _this3.colorScale(d.values.raw[0][config.color_by]);
-      }).attr('fill-opacity', config.fill_opacity || 0.8);
+      });
 
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
@@ -1040,12 +1035,6 @@ function drawGridlines() {
 
 ;
 
-/** Function that handles drawing lines (<path> elements) as defined by marks with type='line'
-*@memberof chart
-*@method drawLines
-*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='line'
-*/
-
 function drawLines(marks) {
   var _this6 = this;
 
@@ -1056,8 +1045,8 @@ function drawLines(marks) {
     return config.y.type === 'linear' ? _this6.y(+d.values.y) : config.y.type === 'time' ? _this6.y(new Date(d.values.y)) : _this6.y(d.values.y) + _this6.y.rangeBand() / 2;
   });
 
-  var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function (d) {
-    return d.per.join('-');
+  var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function (d, i) {
+    return i + '-' + d.per.join('-');
   });
   line_supergroups.enter().append('g').attr('class', 'line-supergroup');
   line_supergroups.exit().remove();
@@ -1286,6 +1275,7 @@ function init(data) {
     }
   };
 
+  this.checkRequired(data);
   startup(data);
 
   return this;
@@ -1586,11 +1576,6 @@ function textSize(width) {
   this.config.flex_point_size = point_size;
   this.config.flex_stroke_width = stroke_width;
 }
-
-/** Triages rendering functions for the chart's currently-defined marks
-*@memberof chart
-*@method updateDataMarks
-*/
 
 function updateDataMarks() {
   this.drawPoints(this.marks.filter(function (f) {

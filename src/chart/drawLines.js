@@ -1,8 +1,3 @@
-/** Function that handles drawing lines (<path> elements) as defined by marks with type='line'
-*@memberof chart
-*@method drawLines
-*@param {array} marks the members of {@link webCharts~chart.marks chart.marks} with type='line'
-*/
 export function drawLines(marks){
   let config = this.config;
   let line = d3.svg.line()
@@ -18,7 +13,7 @@ export function drawLines(marks){
         this.y(d.values.y) + this.y.rangeBand()/2;
     });
 
-  let line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, d => d.per.join('-'));
+  let line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, (d,i) => i+'-'+d.per.join('-'));
   line_supergroups.enter().append('g').attr('class', 'line-supergroup');
   line_supergroups.exit().remove();
 

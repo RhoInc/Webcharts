@@ -45,7 +45,7 @@ export function init(data){
       }
     });
 
-    
+    this.checkRequired(data);
     startup(data);
 
     return this;
