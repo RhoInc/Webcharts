@@ -2,7 +2,7 @@ export function drawBars(marks){
   let rawData = this.raw_data;
   let config = this.config;
 
-  let bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, d => d.per.join('-'));
+  let bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, (d,i) => i+'-'+d.per.join('-'));
   bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
   bar_supergroups.exit().remove();
 
