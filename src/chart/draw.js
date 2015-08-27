@@ -24,11 +24,11 @@ export function draw(raw_data, processed_data){
   let pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
   let pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
 
-  this.svg.select(".x.axis").select(".axis-title").text(function(){
-    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label(context) : null;
+  this.svg.select(".x.axis").select(".axis-title").text(d => {
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label.call(this) : null;
   });
-  this.svg.select(".y.axis").select(".axis-title").text(function(){
-    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label(context) : null;
+  this.svg.select(".y.axis").select(".axis-title").text(d => {
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label.call(this) : null;
   });
 
   this.xScaleAxis(pseudo_width);

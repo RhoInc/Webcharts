@@ -286,6 +286,8 @@ function checkRequired(data) {
 }
 
 function draw(raw_data, processed_data) {
+  var _this3 = this;
+
   var context = this;
   var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   var config = this.config;
@@ -305,11 +307,11 @@ function draw(raw_data, processed_data) {
   var pseudo_width = this.svg.select('.overlay').attr('width') ? this.svg.select('.overlay').attr('width') : this.raw_width;
   var pseudo_height = this.svg.select('.overlay').attr('height') ? this.svg.select('.overlay').attr('height') : this.raw_height;
 
-  this.svg.select('.x.axis').select('.axis-title').text(function () {
-    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label(context) : null;
+  this.svg.select('.x.axis').select('.axis-title').text(function (d) {
+    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label.call(_this3) : null;
   });
-  this.svg.select('.y.axis').select('.axis-title').text(function () {
-    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label(context) : null;
+  this.svg.select('.y.axis').select('.axis-title').text(function (d) {
+    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label.call(_this3) : null;
   });
 
   this.xScaleAxis(pseudo_width);
@@ -328,7 +330,7 @@ function draw(raw_data, processed_data) {
 }
 
 function drawBars(marks) {
-  var _this3 = this;
+  var _this4 = this;
 
   var rawData = this.raw_data;
   var config = this.config;
@@ -351,7 +353,7 @@ function drawBars(marks) {
 
   if (config.x.type === 'ordinal') {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('y', _this3.y(0)).attr('height', 0);
+      old_bar_groups.selectAll('.bar').transition().attr('y', _this4.y(0)).attr('height', 0);
       old_bar_groups.transition().remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
@@ -364,15 +366,15 @@ function drawBars(marks) {
       }, function (d) {
         return d.key;
       });
-      bars.exit().transition().attr('y', _this3.y(0)).attr('height', 0).remove();
+      bars.exit().transition().attr('y', _this4.y(0)).attr('height', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
-      }).style('clip-path', 'url(#' + _this3.id + ')').attr('y', _this3.y(0)).attr('height', 0).append('title');
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('y', _this4.y(0)).attr('height', 0).append('title');
 
       bars.attr('stroke', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       });
 
       bars.each(function (d) {
@@ -401,37 +403,37 @@ function drawBars(marks) {
       bars.transition().attr('x', function (d) {
         var position = undefined;
         if (!d.arrange || d.arrange === 'stacked') {
-          return _this3.x(d.values.x);
+          return _this4.x(d.values.x);
         } else if (d.arrange === 'nested') {
           position = d.subcats.indexOf(d.key);
-          var offset = position ? _this3.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this3.x.rangeBand() / 2;
-          return _this3.x(d.values.x) + _this3.x.rangeBand() / 2 - offset;
+          var offset = position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this4.x.rangeBand() / 2;
+          return _this4.x(d.values.x) + _this4.x.rangeBand() / 2 - offset;
         } else {
           position = d.subcats.indexOf(d.key);
-          return _this3.x(d.values.x) + _this3.x.rangeBand() / d.subcats.length * position;
+          return _this4.x(d.values.x) + _this4.x.rangeBand() / d.subcats.length * position;
         }
       }).attr('y', function (d) {
         if (d.arrange !== 'stacked') {
-          return _this3.y(d.values.y);
+          return _this4.y(d.values.y);
         } else {
-          return _this3.y(d.values.start);
+          return _this4.y(d.values.start);
         }
       }).attr('width', function (d) {
         if (d.arrange === 'stacked') {
-          return _this3.x.rangeBand();
+          return _this4.x.rangeBand();
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          return position ? _this3.x.rangeBand() / (d.subcats.length * position * 0.5) : _this3.x.rangeBand();
+          return position ? _this4.x.rangeBand() / (d.subcats.length * position * 0.5) : _this4.x.rangeBand();
         } else {
-          return _this3.x.rangeBand() / d.subcats.length;
+          return _this4.x.rangeBand() / d.subcats.length;
         }
       }).attr('height', function (d) {
-        return _this3.y(0) - _this3.y(d.values.y);
+        return _this4.y(0) - _this4.y(d.values.y);
       });
     })();
   } else if (config.y.type === 'ordinal') {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('x', _this3.x(0)).attr('width', 0);
+      old_bar_groups.selectAll('.bar').transition().attr('x', _this4.x(0)).attr('width', 0);
       old_bar_groups.transition().remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
@@ -444,15 +446,15 @@ function drawBars(marks) {
       }, function (d) {
         return d.key;
       });
-      bars.exit().transition().attr('x', _this3.x(0)).attr('width', 0).remove();
+      bars.exit().transition().attr('x', _this4.x(0)).attr('width', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
-      }).style('clip-path', 'url(#' + _this3.id + ')').attr('x', _this3.x(0)).attr('width', 0).append('title');
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('x', _this4.x(0)).attr('width', 0).append('title');
 
       bars.attr('stroke', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       });
 
       bars.each(function (d) {
@@ -479,39 +481,39 @@ function drawBars(marks) {
 
       bars.transition().attr('x', function (d) {
         if (d.arrange === 'stacked' || !d.arrange) {
-          return d.values.start !== undefined ? _this3.x(d.values.start) : _this3.x(0);
+          return d.values.start !== undefined ? _this4.x(d.values.start) : _this4.x(0);
         } else {
-          return _this3.x(0);
+          return _this4.x(0);
         }
       }).attr('y', function (d) {
         if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          var offset = position ? _this3.y.rangeBand() / (d.subcats.length * 0.75) / position : _this3.y.rangeBand();
-          return _this3.y(d.values.y) + (_this3.y.rangeBand() - offset) / 2;
+          var offset = position ? _this4.y.rangeBand() / (d.subcats.length * 0.75) / position : _this4.y.rangeBand();
+          return _this4.y(d.values.y) + (_this4.y.rangeBand() - offset) / 2;
         } else if (d.arrange === 'grouped') {
           var position = d.subcats.indexOf(d.key);
-          return _this3.y(d.values.y) + _this3.y.rangeBand() / d.subcats.length * position;
+          return _this4.y(d.values.y) + _this4.y.rangeBand() / d.subcats.length * position;
         } else {
-          return _this3.y(d.values.y);
+          return _this4.y(d.values.y);
         }
       }).attr('width', function (d) {
-        return _this3.x(d.values.x) - _this3.x(0);
+        return _this4.x(d.values.x) - _this4.x(0);
       }).attr('height', function (d) {
         if (config.y.type === 'quantile') {
           return 20;
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          return position ? _this3.y.rangeBand() / (d.subcats.length * 0.75) / position : _this3.y.rangeBand();
+          return position ? _this4.y.rangeBand() / (d.subcats.length * 0.75) / position : _this4.y.rangeBand();
         } else if (d.arrange === 'grouped') {
-          return _this3.y.rangeBand() / d.subcats.length;
+          return _this4.y.rangeBand() / d.subcats.length;
         } else {
-          return _this3.y.rangeBand();
+          return _this4.y.rangeBand();
         }
       });
     })();
   } else if (config.x.type === 'linear' && config.x.bin) {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('y', _this3.y(0)).attr('height', 0);
+      old_bar_groups.selectAll('.bar').transition().attr('y', _this4.y(0)).attr('height', 0);
       old_bar_groups.transition().remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
@@ -524,15 +526,15 @@ function drawBars(marks) {
       }, function (d) {
         return d.key;
       });
-      bars.exit().transition().attr('y', _this3.y(0)).attr('height', 0).remove();
+      bars.exit().transition().attr('y', _this4.y(0)).attr('height', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
-      }).style('clip-path', 'url(#' + _this3.id + ')').attr('y', _this3.y(0)).attr('height', 0).append('title');
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('y', _this4.y(0)).attr('height', 0).append('title');
 
       bars.attr('stroke', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       });
 
       bars.each(function (d) {
@@ -565,22 +567,22 @@ function drawBars(marks) {
       });
 
       bars.transition().attr('x', function (d) {
-        return _this3.x(d.rangeLow);
+        return _this4.x(d.rangeLow);
       }).attr('y', function (d) {
         if (d.arrange !== 'stacked') {
-          return _this3.y(d.values.y);
+          return _this4.y(d.values.y);
         } else {
-          return _this3.y(d.values.start);
+          return _this4.y(d.values.start);
         }
       }).attr('width', function (d) {
-        return _this3.x(d.rangeHigh) - _this3.x(d.rangeLow);
+        return _this4.x(d.rangeHigh) - _this4.x(d.rangeLow);
       }).attr('height', function (d) {
-        return _this3.y(0) - _this3.y(d.values.y);
+        return _this4.y(0) - _this4.y(d.values.y);
       });
     })();
   } else if (config.y.type === 'linear' && config.y.bin) {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('x', _this3.x(0)).attr('width', 0);
+      old_bar_groups.selectAll('.bar').transition().attr('x', _this4.x(0)).attr('width', 0);
       old_bar_groups.transition().remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
@@ -593,15 +595,15 @@ function drawBars(marks) {
       }, function (d) {
         return d.key;
       });
-      bars.exit().transition().attr('x', _this3.x(0)).attr('width', 0).remove();
+      bars.exit().transition().attr('x', _this4.x(0)).attr('width', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
-      }).style('clip-path', 'url(#' + _this3.id + ')').attr('x', _this3.x(0)).attr('width', 0).append('title');
+      }).style('clip-path', 'url(#' + _this4.id + ')').attr('x', _this4.x(0)).attr('width', 0).append('title');
 
       bars.attr('stroke', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       }).attr('fill', function (d) {
-        return _this3.colorScale(d.values.raw[0][config.color_by]);
+        return _this4.colorScale(d.values.raw[0][config.color_by]);
       });
 
       bars.each(function (d) {
@@ -634,16 +636,16 @@ function drawBars(marks) {
 
       bars.transition().attr('x', function (d) {
         if (d.arrange === 'stacked') {
-          return _this3.x(d.values.start);
+          return _this4.x(d.values.start);
         } else {
-          return _this3.x(0);
+          return _this4.x(0);
         }
       }).attr('y', function (d) {
-        return _this3.y(d.rangeHigh);
+        return _this4.y(d.rangeHigh);
       }).attr('width', function (d) {
-        return _this3.x(d.values.x);
+        return _this4.x(d.values.x);
       }).attr('height', function (d) {
-        return _this3.y(d.rangeLow) - _this3.y(d.rangeHigh);
+        return _this4.y(d.rangeLow) - _this4.y(d.rangeHigh);
       });
     })();
   } else {
@@ -656,7 +658,7 @@ function drawBars(marks) {
 function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_accessor) {
   if (class_match === undefined) class_match = 'chart-area';
 
-  var _this4 = this;
+  var _this5 = this;
 
   var attr_accessor = arguments.length <= 5 || arguments[5] === undefined ? function (d) {
     return d;
@@ -669,14 +671,14 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
   }).append('path');
   area_grps.select('path').datum(datum_accessor).attr('fill', function (d) {
     var d_attr = attr_accessor(d);
-    return d_attr ? _this4.colorScale(d_attr[_this4.config.color_by]) : null;
+    return d_attr ? _this5.colorScale(d_attr[_this5.config.color_by]) : null;
   }).attr('fill-opacity', this.config.fill_opacity || this.config.fill_opacity === 0 ? this.config.fill_opacity : 0.3).transition().attr('d', area_drawer);
 
   return area_grps;
 }
 
 function transformData(raw, mark) {
-  var _this5 = this;
+  var _this6 = this;
 
   var config = this.config;
   var x_behavior = config.x.behavior || 'raw';
@@ -941,7 +943,7 @@ function transformData(raw, mark) {
         return f !== 'All';
       }).forEach(function (e) {
         var perfilter = raw.filter(function (f) {
-          return f[_this5.filters[0].col] === e;
+          return f[_this6.filters[0].col] === e;
         });
         var filt_nested = makeNest(perfilter, sublevel);
         filt1_xs.push(filt_nested.dom_x);
@@ -1036,13 +1038,13 @@ function drawGridlines() {
 ;
 
 function drawLines(marks) {
-  var _this6 = this;
+  var _this7 = this;
 
   var config = this.config;
   var line = d3.svg.line().interpolate(config.interpolate).x(function (d) {
-    return config.x.type === 'linear' ? _this6.x(+d.values.x) : config.x.type === 'time' ? _this6.x(new Date(d.values.x)) : _this6.x(d.values.x) + _this6.x.rangeBand() / 2;
+    return config.x.type === 'linear' ? _this7.x(+d.values.x) : config.x.type === 'time' ? _this7.x(new Date(d.values.x)) : _this7.x(d.values.x) + _this7.x.rangeBand() / 2;
   }).y(function (d) {
-    return config.y.type === 'linear' ? _this6.y(+d.values.y) : config.y.type === 'time' ? _this6.y(new Date(d.values.y)) : _this6.y(d.values.y) + _this6.y.rangeBand() / 2;
+    return config.y.type === 'linear' ? _this7.y(+d.values.y) : config.y.type === 'time' ? _this7.y(new Date(d.values.y)) : _this7.y(d.values.y) + _this7.y.rangeBand() / 2;
   });
 
   var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function (d, i) {
@@ -1065,7 +1067,7 @@ function drawLines(marks) {
   line_grps.select('path').attr('class', 'wc-data-mark').datum(function (d) {
     return d.values;
   }).attr('stroke', function (d) {
-    return _this6.colorScale(d[0].values.raw[0][config.color_by]);
+    return _this7.colorScale(d[0].values.raw[0][config.color_by]);
   }).attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width).attr('stroke-linecap', 'round').attr('fill', 'none').transition().attr('d', line);
 
   line_grps.each(function (d) {
@@ -1093,7 +1095,7 @@ function drawLines(marks) {
 */
 
 function drawPoints(marks) {
-  var _this7 = this;
+  var _this8 = this;
 
   var config = this.config;
 
@@ -1118,15 +1120,15 @@ function drawPoints(marks) {
   nupoints.append('circle').attr('class', 'wc-data-mark').attr('r', 0);
   nupoints.append('title');
   points.select('circle').attr('fill-opacity', config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : 0.6).attr('fill', function (d) {
-    return _this7.colorScale(d.values.raw[0][config.color_by]);
+    return _this8.colorScale(d.values.raw[0][config.color_by]);
   }).attr('stroke', function (d) {
-    return _this7.colorScale(d.values.raw[0][config.color_by]);
+    return _this8.colorScale(d.values.raw[0][config.color_by]);
   }).transition().attr('r', config.point_size ? config.point_size : config.flex_point_size).attr('cx', function (d) {
-    var x_pos = _this7.x(d.values.x) || 0;
-    return _this7.x.type === 'ordinal' ? x_pos + _this7.x.rangeBand() / 2 : x_pos;
+    var x_pos = _this8.x(d.values.x) || 0;
+    return _this8.x.type === 'ordinal' ? x_pos + _this8.x.rangeBand() / 2 : x_pos;
   }).attr('cy', function (d) {
-    var y_pos = _this7.y(d.values.y) || 0;
-    return config.y.type === 'ordinal' ? y_pos + _this7.y.rangeBand() / 2 : y_pos;
+    var y_pos = _this8.y(d.values.y) || 0;
+    return config.y.type === 'ordinal' ? y_pos + _this8.y.rangeBand() / 2 : y_pos;
   });
 
   points.each(function (d) {
@@ -1232,7 +1234,7 @@ function yScaleAxis(max_range, domain, type) {
 }
 
 function init(data) {
-  var _this8 = this;
+  var _this9 = this;
 
   if (d3.select(this.div).select('.loader').empty()) {
     d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
@@ -1245,33 +1247,33 @@ function init(data) {
 
   var startup = function startup(data) {
     //connect this chart and its controls, if any
-    if (_this8.controls) {
-      _this8.controls.targets.push(_this8);
-      if (!_this8.controls.ready) {
-        _this8.controls.init(data);
+    if (_this9.controls) {
+      _this9.controls.targets.push(_this9);
+      if (!_this9.controls.ready) {
+        _this9.controls.init(data);
       } else {
-        _this8.controls.layout();
+        _this9.controls.layout();
       }
     }
 
-    _this8.raw_data = data;
+    _this9.raw_data = data;
 
     //make sure container is visible (has height and width) before trying to initialize
-    var visible = d3.select(_this8.div).property('offsetWidth') > 0 && d3.select(_this8.div).property('offsetHeight') > 0;
+    var visible = d3.select(_this9.div).property('offsetWidth') > 0 && d3.select(_this9.div).property('offsetHeight') > 0;
     if (!visible) {
       var onVisible = setInterval(function (i) {
-        var visible_now = d3.select(_this8.div).property('offsetWidth') > 0 && d3.select(_this8.div).property('offsetHeight') > 0;
+        var visible_now = d3.select(_this9.div).property('offsetWidth') > 0 && d3.select(_this9.div).property('offsetHeight') > 0;
         if (visible_now) {
-          _this8.layout();
-          _this8.wrap.datum(_this8);
-          _this8.draw();
+          _this9.layout();
+          _this9.wrap.datum(_this9);
+          _this9.draw();
           clearInterval(onVisible);
         }
       }, 500);
     } else {
-      _this8.layout();
-      _this8.wrap.datum(_this8);
-      _this8.draw();
+      _this9.layout();
+      _this9.wrap.datum(_this9);
+      _this9.draw();
     }
   };
 
@@ -1388,11 +1390,6 @@ function makeLegend() {
   this.legend = legend;
 }
 
-/** Handles final arrangement of all chart components. Determines final chart dimensions and triggers rendering of axes and marks
-*@memberof chart
-*@method resize
-*/
-
 function resize() {
   var config = this.config;
 
@@ -1507,13 +1504,13 @@ function setDefaults() {
 */
 
 function setMargins() {
-  var _this9 = this;
+  var _this10 = this;
 
   var x_ticks = this.xAxis.tickFormat() ? this.x.domain().map(function (m) {
-    return _this9.xAxis.tickFormat()(m);
+    return _this10.xAxis.tickFormat()(m);
   }) : this.x.domain();
   var y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(function (m) {
-    return _this9.yAxis.tickFormat()(m);
+    return _this10.yAxis.tickFormat()(m);
   }) : this.y.domain();
 
   var max_y_text_length = d3.max(y_ticks.map(function (m) {
@@ -1608,24 +1605,24 @@ var controlsProto = {
 };
 
 function changeOption(option, value) {
-  var _this10 = this;
+  var _this11 = this;
 
   this.targets.forEach(function (e) {
-    _this10.stringAccessor(e.config, option, value);
+    _this11.stringAccessor(e.config, option, value);
     e.draw();
   });
 }
 
 function makeCheckboxControl(control, control_wrap) {
-  var _this11 = this;
+  var _this12 = this;
 
   var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
-    return _this11.stringAccessor(_this11.targets[0].config, control.option);
+    return _this12.stringAccessor(_this12.targets[0].config, control.option);
   });
 
   changer.on('change', function (d) {
     var value = changer.property('checked');
-    _this11.changeOption(d.option, value);
+    _this12.changeOption(d.option, value);
   });
 }
 
@@ -1638,7 +1635,7 @@ function controlInit(data) {
 }
 
 function makeBtnGroupControl(control, control_wrap) {
-  var _this12 = this;
+  var _this13 = this;
 
   var option_data = control.values ? control.values : d3.keys(this.data[0]);
 
@@ -1647,19 +1644,19 @@ function makeBtnGroupControl(control, control_wrap) {
   var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
     return d;
   }).classed('btn-primary', function (d) {
-    return _this12.stringAccessor(_this12.targets[0].config, control.option) === d;
+    return _this13.stringAccessor(_this13.targets[0].config, control.option) === d;
   });
 
   changers.on('click', function (d) {
     changers.each(function (e) {
       d3.select(this).classed('btn-primary', e === d);
     });
-    _this12.changeOption(control.option, d);
+    _this13.changeOption(control.option, d);
   });
 }
 
 function controlCheckRequired(dataset) {
-  var _this13 = this;
+  var _this14 = this;
 
   var colnames = d3.keys(dataset[0]);
   if (!this.config.inputs) {
@@ -1667,7 +1664,7 @@ function controlCheckRequired(dataset) {
   }
   this.config.inputs.forEach(function (e, i) {
     if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
-      _this13.config.inputs = _this13.config.inputs.splice(controls[i], 1);
+      _this14.config.inputs = _this14.config.inputs.splice(controls[i], 1);
       throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
     }
   });
@@ -1703,19 +1700,6 @@ function makeControlItem(control) {
 }
 
 function makeTextControl(control, control_wrap) {
-  var _this14 = this;
-
-  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    return _this14.stringAccessor(_this14.targets[0].config, control.option);
-  });
-
-  changer.on('change', function (d) {
-    var value = changer.property('value');
-    _this14.changeOption(control.option, value);
-  });
-}
-
-function makeListControl(control, control_wrap) {
   var _this15 = this;
 
   var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
@@ -1723,33 +1707,46 @@ function makeListControl(control, control_wrap) {
   });
 
   changer.on('change', function (d) {
-    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
-      return m.trim();
-    }) : null;
+    var value = changer.property('value');
     _this15.changeOption(control.option, value);
   });
 }
 
-function makeNumberControl(control, control_wrap) {
+function makeListControl(control, control_wrap) {
   var _this16 = this;
 
-  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
+  var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
     return _this16.stringAccessor(_this16.targets[0].config, control.option);
   });
 
   changer.on('change', function (d) {
-    var value = +changer.property('value');
+    var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
+      return m.trim();
+    }) : null;
     _this16.changeOption(control.option, value);
   });
 }
 
-function makeDropdownControl(control, control_wrap) {
+function makeNumberControl(control, control_wrap) {
   var _this17 = this;
+
+  var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
+    return _this17.stringAccessor(_this17.targets[0].config, control.option);
+  });
+
+  changer.on('change', function (d) {
+    var value = +changer.property('value');
+    _this17.changeOption(control.option, value);
+  });
+}
+
+function makeDropdownControl(control, control_wrap) {
+  var _this18 = this;
 
   var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
   var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
-    return m[_this17.targets[0].config[control.values]];
+    return m[_this18.targets[0].config[control.values]];
   })).values() : d3.keys(this.data[0]);
 
   if (!control.require || control.none) {
@@ -1759,7 +1756,7 @@ function makeDropdownControl(control, control_wrap) {
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    return _this17.stringAccessor(_this17.targets[0].config, control.option) === d;
+    return _this18.stringAccessor(_this18.targets[0].config, control.option) === d;
   });
 
   changer.on('change', function (d) {
@@ -1775,21 +1772,21 @@ function makeDropdownControl(control, control_wrap) {
       });
     }
 
-    _this17.changeOption(control.option, value);
+    _this18.changeOption(control.option, value);
   });
 
   return changer;
 }
 
 function makeRadioControl(control, control_wrap) {
-  var _this18 = this;
+  var _this19 = this;
 
   var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
     return control.relabels ? control.relabels[i] : d;
   }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
     return d;
   }).property('checked', function (d) {
-    return _this18.stringAccessor(_this18.targets[0].config, control.option) === d;
+    return _this19.stringAccessor(_this19.targets[0].config, control.option) === d;
   });
 
   changers.on('change', function (d) {
@@ -1799,7 +1796,7 @@ function makeRadioControl(control, control_wrap) {
         value = d3.select(this).property('value') === 'none' ? null : c;
       }
     });
-    _this18.changeOption(control.option, value);
+    _this19.changeOption(control.option, value);
   });
 }
 
@@ -1869,7 +1866,7 @@ function makeSubsetterControl(control, control_wrap) {
   }
 
   changer.on('change', function (d) {
-    var _this19 = this;
+    var _this20 = this;
 
     if (control.multiple) {
       (function () {
@@ -1887,7 +1884,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this19).property('value');
+        var value = d3.select(_this20).property('value');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
@@ -1899,11 +1896,11 @@ function makeSubsetterControl(control, control_wrap) {
 }
 
 function controlUpdate() {
-  var _this20 = this;
+  var _this21 = this;
 
   if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
     this.config.inputs.forEach(function (e) {
-      return _this20.makeControlItem(e);
+      return _this21.makeControlItem(e);
     });
   }
 }

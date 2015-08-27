@@ -1,7 +1,3 @@
-/** Handles final arrangement of all chart components. Determines final chart dimensions and triggers rendering of axes and marks
-*@memberof chart
-*@method resize
-*/
 export function resize(){
   let config = this.config;
 
