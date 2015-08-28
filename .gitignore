@@ -1,2 +1,8 @@
 *.sublime*
+<<<<<<< HEAD
 node_modules
+=======
+.jshintrc
+node_modules
+maps
+>>>>>>> inthehole

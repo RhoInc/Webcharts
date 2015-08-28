@@ -1,0 +1,38 @@
+{
+  "name": "Webcharts",
+  "description": "A library for creating flexible, interactive charts",
+  "version": "1.0.0",
+  "keywords": [
+    "charts",
+    "javascript",
+    "interactive",
+    "data visualization"
+  ],
+  "homepage": "https://github.com/RhoInc/Webcharts",
+  "main": "build/webcharts.js",
+  "dependencies": {
+    "d3": ">= 3.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhoinc/webcharts.git"
+  },
+  "author": "Nathan Bryant",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rhoinc/webcharts/issues"
+  },
+  "devDependencies": {
+    "gulp": "~3.9.0",
+    "gulp-babel": "~5.1.0",
+    "gulp-concat": "^2.5.2",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-wrap": "^0.11.0"
+  }
+}

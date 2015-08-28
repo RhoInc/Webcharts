@@ -20,11 +20,6 @@ div.wc-layout.wc-small-multiples::after {
   display: none;
 }
 
-/*.wc-basicTable, */
-div[class*="wc-"] .record-note{
-	font-size: .75em;
-}
-
 .wc-webtable table:not(.table){
 	font-size: .9em;
 }
@@ -40,18 +35,6 @@ div[class*="wc-"] .record-note{
 .wc-chart{
 	position: relative;
 	font-family: 'Open Sans', Helvetica, Arial, sans-serif;
-}
-
-.wc-chart > .chart-label{
-	display: block;
-	text-align: right;
-	font-size: 1.1em;
-	color: #555;
-}
-
-.wc-chart .overlay {
-  fill: none;
-  pointer-events: all;
 }
 
 .wc-chart rect,
@@ -87,16 +70,11 @@ div[class*="wc-"] .record-note{
 
 .wc-chart .axis .tick text{
 	font-size: .9em;
-	/*font-weight: lighter;*/
 }
 
 .wc-chart .axis .axis-title{
 	fill: #555;
 }
-
-/*.wc-chart.gridlines .axis .tick line{
-	stroke: #eee;arf
-}*/
 
 *[class*="wc-"] .legend{
 	font-size: .9em;
@@ -119,16 +97,10 @@ div[class*="wc-"] .record-note{
 	top: .2em;
 	right: .25em;
 	display: inline-block;
-	height: 1.1em;
-	width: 1.1em;
 }
 *[class*="wc-"] .legend .legend-item .legend-mark-text{
 	font-weight: bold;
 	margin-right: .5em;
-}
-
-.wc-chart.wc-scatterplot .overlay.zoomable{
-	cursor: all-scroll;
 }
 
 .wc-chart .ordinal.axis .tick line,
@@ -140,62 +112,10 @@ div[class*="wc-"] .record-note{
 	display: block;
 }
 
-.wc-chart.wc-barchart .bar{
-	shape-rendering: crispEdges;
-}
-
-
-.wc-chart.wc-linechart .axis .hover-tick line{
-	/*stroke-width: 2;*/
-	shape-rendering: crispEdges;
-}
-
-.wc-chart .axis.major path,
-.wc-chart .axis.major .tick line{
-	display: none;
-}
-
-.wc-chart .axis.major .tick text{
-	text-anchor: start !important;
-	fill: gray;
-}
-
-.wc-accrualchart .hover-tick text{
-	font-size: .8em;
-}	
-
-.wc-linechart .data-line, .legend-line{
-	fill: none;
-	stroke-width: 2;
-}
-
-.wc-linechart .line-group.highlight path,
-.wc-linechart .line-group.highlight circle{
-	stroke-width: 2px;
-	fill-opacity: 1;
-}
-
-.wc-shift-plot .wc-data{
-	clear: both;
-	display: inline-block;
-	width: 100%;
-}
-
-.wc-outlier-explorer .table-div{
-	margin-top: 2em;
-}
-.wc-outlier-explorer .table-data-for{
-	font-size: 1.2em;
-	font-weight: bold;
-}
-.wc-outlier-explorer .trans-table{
-	clear: both;
-}
-
-
 /***CONTROLS***/
 .wc-controls{
 	display: block;
+	font-family: 'Open Sans', Helvetica, Arial, sans-serif;
 	font-size: .9em;
 	margin-bottom: 10px;
 }
@@ -211,7 +131,7 @@ div[class*="wc-"] .record-note{
 .wc-controls .control-group{
 	display: inline-table;
 	max-width: 100%;
-	margin: 0px 10px 10px 0;
+	margin: 0px 1em 1em 0;
 }
 .wc-controls.bottom .control-group{
 	display: inline-table;
