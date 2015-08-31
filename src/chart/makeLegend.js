@@ -1,9 +1,3 @@
-/** Draws legend for the chart
-*@memberof chart
-*@method makeLegend
-*@param {d3.scale} [scale=scale returned by {@link webCharts~chart~setColorScale chart.setColorScale}] color scale to use in the legend
-*@param {string} [label] label for the legend
-*/
 export function makeLegend(scale = this.colorScale, label='', custom_data=null){
   let config = this.config;
 

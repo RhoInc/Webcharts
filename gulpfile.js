@@ -23,7 +23,7 @@ var buildScripts = [
 
 var wcWrapper = '(function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){\n<%= contents %>\n return webCharts;\n }));';
 
-gulp.task('build', ['concat'], function() {
+gulp.task('build', ['concat', 'css'], function() {
   return gulp.src('build/webcharts.js')
     .pipe($.rename('webcharts.min.js'))
     .pipe($.uglify())
@@ -41,6 +41,13 @@ gulp.task('concat', function() {
     .pipe($.wrap(wcWrapper))
     .pipe($.sourcemaps.write('../maps'))
     .pipe(gulp.dest('build'));
+});
+
+gulp.task('css', function(){
+  return gulp.src('css/webcharts.css')
+    .pipe($.rename('webcharts.min.css'))
+    .pipe($.minifyCss())
+    .pipe(gulp.dest('css'));
 });
 
 gulp.task('minify', function(){ 

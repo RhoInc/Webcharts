@@ -1,7 +1,3 @@
-/** Draws gridlines at x and or y tick mark locations, as defined by the 'gridlines' property in the configuration object
-*@memberof chart
-*@method drawGridlines
-*/
 export function drawGridlines(){
   this.wrap.classed('gridlines', this.config.gridlines);
   if(this.config.gridlines){

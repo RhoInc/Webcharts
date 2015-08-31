@@ -1,5 +1,5 @@
 export function naturalSorter(a, b){
-  //http://www.davekoelle.com/files/alphanum.js
+  //adapted from http://www.davekoelle.com/files/alphanum.js
   function chunkify(t) {
     let tz = [];
     let x = 0, y = -1, n = 0, i, j;

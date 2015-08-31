@@ -1,8 +1,3 @@
-/** Automatically determines text size for the chart based on certain breakpoints
-*@memberof chart
-*@method textSize
-*@param {number} width width of the chart container
-*/
 export function textSize(width){
   let font_size = '14px';
   let point_size = 4;

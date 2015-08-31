@@ -1,7 +1,3 @@
-/** Sets up the color scale for the chart, which is an ordinal d3.scale with a domain based on unique values determined by config.color_by and a range determined by config.colors
-*@memberof chart
-*@method setColorScale
-*/
 export function setColorScale(){
   let config = this.config;
   let data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
