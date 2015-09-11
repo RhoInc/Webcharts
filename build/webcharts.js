@@ -43,7 +43,7 @@ function getValType(data, variable) {
     return m[variable];
   })).values();
   var vals_numbers = var_vals.filter(function (f) {
-    return +f || f == 0;
+    return +f || +f === 0;
   });
 
   if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
