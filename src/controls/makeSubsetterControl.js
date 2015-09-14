@@ -47,7 +47,7 @@ export function makeSubsetterControl(control, control_wrap){
   changer.on('change', function(d){
     if(control.multiple){
       let values = options.filter(function(f){return d3.select(this).property('selected'); })[0]
-        .map(m => d3.select(m).property('value'));
+        .map(m => d3.select(m).property('text'));
 
       let new_filter = {col: control.value_col, val: values, choices: option_data, loose: control.loose};
       targets.forEach(e => {
@@ -56,7 +56,7 @@ export function makeSubsetterControl(control, control_wrap){
       });
     }
     else{
-      let value = d3.select(this).property('value');
+      let value = d3.select(this).select("option:checked").property('text');
       let new_filter = {col: control.value_col, val: value, choices: option_data, loose: control.loose};
       targets.forEach(e => {
         setSubsetter(e, new_filter);

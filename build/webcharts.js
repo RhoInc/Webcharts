@@ -1,5 +1,5 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){
-var webCharts = { version: '1.0.1' };
+var webCharts = { version: '1.0.2' };
 
 webCharts.multiply = function (chart, data, split_by, order) {
   var config = chart.config;
@@ -1831,7 +1831,7 @@ function makeSubsetterControl(control, control_wrap) {
         var values = options.filter(function (f) {
           return d3.select(this).property('selected');
         })[0].map(function (m) {
-          return d3.select(m).property('value');
+          return d3.select(m).property('text');
         });
 
         var new_filter = { col: control.value_col, val: values, choices: option_data, loose: control.loose };
@@ -1842,7 +1842,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this20).property('value');
+        var value = d3.select(_this20).select("option:checked").property('text');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
