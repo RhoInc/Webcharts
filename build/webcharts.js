@@ -1593,7 +1593,13 @@ function changeOption(option, value) {
   var _this11 = this;
 
   this.targets.forEach(function (e) {
-    _this11.stringAccessor(e.config, option, value);
+    if (option instanceof Array) {
+      option.forEach(function (o) {
+        return _this11.stringAccessor(e.config, o, value);
+      });
+    } else {
+      _this11.stringAccessor(e.config, option, value);
+    }
     e.draw();
   });
 }
@@ -1703,6 +1709,7 @@ function makeControlItem(control) {
 function makeDropdownControl(control, control_wrap) {
   var _this16 = this;
 
+  var mainOption = control.option || control.options[0];
   var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
   var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
@@ -1716,7 +1723,7 @@ function makeDropdownControl(control, control_wrap) {
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    return _this16.stringAccessor(_this16.targets[0].config, control.option) === d;
+    return _this16.stringAccessor(_this16.targets[0].config, mainOption) === d;
   });
 
   changer.on('change', function (d) {
@@ -1732,7 +1739,11 @@ function makeDropdownControl(control, control_wrap) {
       });
     }
 
-    _this16.changeOption(control.option, value);
+    if (control.options) {
+      _this16.changeOption(control.options, value);
+    } else {
+      _this16.changeOption(control.option, value);
+    }
   });
 
   return changer;

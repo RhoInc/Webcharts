@@ -1,4 +1,5 @@
 export function makeDropdownControl(control, control_wrap){
+  let mainOption = control.option || control.options[0];
   let changer = control_wrap.append('select')
     .attr('class', 'changer')
   	.attr('multiple', control.multiple ? true : null)
@@ -16,7 +17,7 @@ export function makeDropdownControl(control, control_wrap){
     .enter().append('option')
     .text(d => d)
     .property('selected', d => {
-      return this.stringAccessor(this.targets[0].config, control.option) === d;
+      return this.stringAccessor(this.targets[0].config, mainOption) === d;
     });
 
   changer.on('change', d => {
@@ -28,7 +29,12 @@ export function makeDropdownControl(control, control_wrap){
         .filter(f => f !== 'None');
     }
 
-    this.changeOption(control.option, value);
+    if(control.options){
+      this.changeOption(control.options, value);
+    }
+    else{
+      this.changeOption(control.option, value);
+    }
 
   });
 
