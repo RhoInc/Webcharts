@@ -1165,12 +1165,12 @@ function transformData(raw, mark) {
   //make sure data has x and y values
   if (config.x.column) {
     raw = raw.filter(function (f) {
-      return f[config.x.column];
+      return f[config.x.column] !== undefined;
     });
   }
   if (config.y.column) {
     raw = raw.filter(function (f) {
-      return f[config.y.column];
+      return f[config.y.column] !== undefined;
     });
   }
 
