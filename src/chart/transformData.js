@@ -206,6 +206,15 @@ export function transformData(raw, mark){
     }
   }
 
+  //filter on mark-specific instructions
+  if(mark.where){
+    for(let a in mark.where){
+      filtered = filtered.filter(f =>{
+        return mark.where[a].indexOf(f[a]) > -1;
+      });
+    }
+  }
+
   let filt1_dom_x = d3.extent( d3.merge(filt1_xs) );
   let filt1_dom_y = d3.extent( d3.merge(filt1_ys) );
 

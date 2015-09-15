@@ -43,7 +43,7 @@ function getValType(data, variable) {
     return m[variable];
   })).values();
   var vals_numbers = var_vals.filter(function (f) {
-    return +f || f === 0;
+    return +f || f == 0;
   });
 
   if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
@@ -219,8 +219,8 @@ function consolidateData(raw) {
   });
 
   if (config.x.type === 'ordinal') {
-    if (config.x.sort && config.x.sort === 'alphabetical-descending') {
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     } else if (config.y.type === 'time' && config.x.sort === 'earliest') {
       this.x_dom = d3.nest().key(function (d) {
         return d[config.x.column];
@@ -1397,6 +1397,19 @@ function transformData(raw, mark) {
     }
   }
 
+  //filter on mark-specific instructions
+  if (mark.where) {
+    var _loop = function (a) {
+      filtered = filtered.filter(function (f) {
+        return mark.where[a].indexOf(f[a]) > -1;
+      });
+    };
+
+    for (var a in mark.where) {
+      _loop(a);
+    }
+  }
+
   var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
   var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
 
@@ -1997,7 +2010,7 @@ function tableDraw(raw_data, processed_data) {
     }
   }
 
-  this.events.onDraw(this);
+  this.events.onDraw.call(this);
 }
 
 function tableLayout() {
@@ -2005,7 +2018,7 @@ function tableLayout() {
   var table = this.wrap.append('table');
   table.append('thead').append('tr').attr('class', 'headers');
   this.table = table;
-  this.events.onLayout(this);
+  this.events.onLayout.call(this);
 }
 
 function tableTransformData(data) {
@@ -2065,7 +2078,7 @@ function tableTransformData(data) {
 
   this.current_data = slimmed;
 
-  this.events.onDatatransform(this);
+  this.events.onDatatransform.call(this);
 
   return this.current_data;
 }

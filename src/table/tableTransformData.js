@@ -56,7 +56,7 @@ export function tableTransformData(data){
 
   this.current_data = slimmed;
 
-  this.events.onDatatransform(this);
+  this.events.onDatatransform.call(this);
 
   return this.current_data;
 }
