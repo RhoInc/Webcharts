@@ -813,7 +813,9 @@ function init(data) {
       return 'blockG rotate' + (d + 1);
     });
   }
+
   this.wrap.attr('class', 'wc-chart');
+  this.events.onInit(this);
 
   this.setDefaults();
 
@@ -2100,6 +2102,7 @@ webCharts.createChart = function () {
   chart.wrap = d3.select(chart.div).append('div');
 
   chart.events = {
+    onInit: function onInit() {},
     onLayout: function onLayout() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
@@ -2107,7 +2110,7 @@ webCharts.createChart = function () {
   };
 
   chart.on = function (event, callback) {
-    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }

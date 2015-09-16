@@ -19,6 +19,7 @@ webCharts.createChart = function(element = 'body', config = {}, controls = null)
 	chart.wrap = d3.select(chart.div).append('div');
 
 	chart.events = {
+		onInit(){},
 		onLayout(){},
 		onDatatransform(){},
 		onDraw(){},
@@ -26,7 +27,7 @@ webCharts.createChart = function(element = 'body', config = {}, controls = null)
 	};
 	
 	chart.on = function(event, callback){
-		let possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}

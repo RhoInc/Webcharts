@@ -7,7 +7,9 @@ export function init(data){
             .enter().append('div')
             .attr('class', d => 'blockG rotate'+(d+1) );
     }
+
     this.wrap.attr('class', 'wc-chart');
+    this.events.onInit(this);
 
     this.setDefaults();
 
