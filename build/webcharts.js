@@ -219,8 +219,8 @@ function consolidateData(raw) {
   });
 
   if (config.x.type === 'ordinal') {
-    if (config.x.sort && config.x.sort === 'alphabetical-descending') {
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     } else if (config.y.type === 'time' && config.x.sort === 'earliest') {
       this.x_dom = d3.nest().key(function (d) {
         return d[config.x.column];
@@ -1165,12 +1165,12 @@ function transformData(raw, mark) {
   //make sure data has x and y values
   if (config.x.column) {
     raw = raw.filter(function (f) {
-      return f[config.x.column];
+      return f[config.x.column] !== undefined;
     });
   }
   if (config.y.column) {
     raw = raw.filter(function (f) {
-      return f[config.y.column];
+      return f[config.y.column] !== undefined;
     });
   }
 
@@ -1397,6 +1397,19 @@ function transformData(raw, mark) {
     }
   }
 
+  //filter on mark-specific instructions
+  if (mark.where) {
+    var _loop = function (a) {
+      filtered = filtered.filter(function (f) {
+        return mark.where[a].indexOf(f[a]) > -1;
+      });
+    };
+
+    for (var a in mark.where) {
+      _loop(a);
+    }
+  }
+
   var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
   var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
 
@@ -1580,7 +1593,13 @@ function changeOption(option, value) {
   var _this11 = this;
 
   this.targets.forEach(function (e) {
-    _this11.stringAccessor(e.config, option, value);
+    if (option instanceof Array) {
+      option.forEach(function (o) {
+        return _this11.stringAccessor(e.config, o, value);
+      });
+    } else {
+      _this11.stringAccessor(e.config, option, value);
+    }
     e.draw();
   });
 }
@@ -1690,6 +1709,7 @@ function makeControlItem(control) {
 function makeDropdownControl(control, control_wrap) {
   var _this16 = this;
 
+  var mainOption = control.option || control.options[0];
   var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
   var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
@@ -1703,7 +1723,7 @@ function makeDropdownControl(control, control_wrap) {
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    return _this16.stringAccessor(_this16.targets[0].config, control.option) === d;
+    return _this16.stringAccessor(_this16.targets[0].config, mainOption) === d;
   });
 
   changer.on('change', function (d) {
@@ -1719,7 +1739,11 @@ function makeDropdownControl(control, control_wrap) {
       });
     }
 
-    _this16.changeOption(control.option, value);
+    if (control.options) {
+      _this16.changeOption(control.options, value);
+    } else {
+      _this16.changeOption(control.option, value);
+    }
   });
 
   return changer;
@@ -1997,7 +2021,7 @@ function tableDraw(raw_data, processed_data) {
     }
   }
 
-  this.events.onDraw(this);
+  this.events.onDraw.call(this);
 }
 
 function tableLayout() {
@@ -2005,7 +2029,7 @@ function tableLayout() {
   var table = this.wrap.append('table');
   table.append('thead').append('tr').attr('class', 'headers');
   this.table = table;
-  this.events.onLayout(this);
+  this.events.onLayout.call(this);
 }
 
 function tableTransformData(data) {
@@ -2065,7 +2089,7 @@ function tableTransformData(data) {
 
   this.current_data = slimmed;
 
-  this.events.onDatatransform(this);
+  this.events.onDatatransform.call(this);
 
   return this.current_data;
 }

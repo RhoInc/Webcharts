@@ -83,5 +83,5 @@ export function tableDraw(raw_data, processed_data){
     }
   }
 
-  this.events.onDraw(this);
+  this.events.onDraw.call(this);
 }

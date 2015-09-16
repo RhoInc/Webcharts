@@ -1,7 +1,7 @@
 {
-  "name": "Webcharts",
+  "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "keywords": [
     "charts",
     "javascript",
@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/rhoinc/webcharts.git"
   },
-  "author": "Nathan Bryant",
+  "author": "Rho, Inc.",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/rhoinc/webcharts/issues"

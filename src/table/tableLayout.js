@@ -3,5 +3,5 @@ export function tableLayout(){
   let table = this.wrap.append('table');
   table.append('thead').append('tr').attr('class', 'headers');
   this.table = table;
-  this.events.onLayout(this);
+  this.events.onLayout.call(this);
 }

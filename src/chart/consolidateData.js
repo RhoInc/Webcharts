@@ -22,8 +22,8 @@ export function consolidateData(raw){
   });
 
   if(config.x.type === 'ordinal'){
-    if( config.x.sort && config.x.sort === 'alphabetical-descending' ){
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+    if( config.x.sort && config.x.sort === 'alphabetical-ascending' ){
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     }
     else if(config.y.type === 'time' && config.x.sort === 'earliest' ){
       this.x_dom = d3.nest()
