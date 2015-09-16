@@ -847,8 +847,7 @@ function init(data) {
       _this8.draw();
     }
   };
-
-  this.events.onInit(this);
+  this.events.onInit.call(this);
   this.checkRequired(this.raw_data);
   startup(this.raw_data);
 
