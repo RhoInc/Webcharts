@@ -9,10 +9,9 @@ export function init(data){
     }
 
     this.wrap.attr('class', 'wc-chart');
-    this.events.onInit(this);
 
     this.setDefaults();
-
+    this.raw_data = data;
     let startup = (data => {
       //connect this chart and its controls, if any
       if(this.controls){
@@ -25,7 +24,7 @@ export function init(data){
           }
       }
 
-      this.raw_data = data;
+      
 
       //make sure container is visible (has height and width) before trying to initialize
       var visible = d3.select(this.div).property('offsetWidth') > 0 && d3.select(this.div).property('offsetHeight') > 0;
@@ -47,8 +46,9 @@ export function init(data){
       }
     });
 
-    this.checkRequired(data);
-    startup(data);
+    this.events.onInit(this);
+    this.checkRequired(this.raw_data);
+    startup(this.raw_data);
 
     return this;
 }
