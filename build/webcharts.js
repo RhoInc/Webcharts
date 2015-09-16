@@ -2168,6 +2168,7 @@ webCharts.createTable = function () {
   table.wrap = d3.select(table.div).append('div');
 
   table.events = {
+    onInit: function onInit() {},
     onLayout: function onLayout() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
@@ -2175,7 +2176,7 @@ webCharts.createTable = function () {
   };
 
   table.on = function (event, callback) {
-    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
