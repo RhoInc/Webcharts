@@ -28,11 +28,6 @@ export function transformData(raw, mark){
 
   raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]] ) : raw;
 
-  //run initial filter if specified
-  if(config.initial_filter){
-    raw = raw.filter(f => config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1 );
-  }
-
   //make sure data has x and y values
   if(config.x.column){
     raw = raw.filter(f => f[config.x.column] !== undefined );
@@ -207,10 +202,10 @@ export function transformData(raw, mark){
   }
 
   //filter on mark-specific instructions
-  if(mark.where){
-    for(let a in mark.where){
+  if(mark.values){
+    for(let a in mark.values){
       filtered = filtered.filter(f =>{
-        return mark.where[a].indexOf(f[a]) > -1;
+        return mark.values[a].indexOf(f[a]) > -1;
       });
     }
   }

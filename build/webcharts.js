@@ -1155,13 +1155,6 @@ function transformData(raw, mark) {
     return f[mark.per[0]];
   }) : raw;
 
-  //run initial filter if specified
-  if (config.initial_filter) {
-    raw = raw.filter(function (f) {
-      return config.initial_filter.vals.indexOf(f[config.initial_filter.col]) !== -1;
-    });
-  }
-
   //make sure data has x and y values
   if (config.x.column) {
     raw = raw.filter(function (f) {
@@ -1398,14 +1391,14 @@ function transformData(raw, mark) {
   }
 
   //filter on mark-specific instructions
-  if (mark.where) {
+  if (mark.values) {
     var _loop = function (a) {
       filtered = filtered.filter(function (f) {
-        return mark.where[a].indexOf(f[a]) > -1;
+        return mark.values[a].indexOf(f[a]) > -1;
       });
     };
 
-    for (var a in mark.where) {
+    for (var a in mark.values) {
       _loop(a);
     }
   }
