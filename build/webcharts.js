@@ -808,6 +808,7 @@ function drawPoints(marks) {
 function init(data) {
   var _this8 = this;
 
+  this.data = data;
   if (d3.select(this.div).select('.loader').empty()) {
     d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
       return 'blockG rotate' + (d + 1);

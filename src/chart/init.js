@@ -1,5 +1,5 @@
 export function init(data){
-
+    this.data = data;
     if(d3.select(this.div).select('.loader').empty()){
         d3.select(this.div).insert('div', ':first-child')
           .attr('class', 'loader')
