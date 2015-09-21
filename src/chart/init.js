@@ -1,5 +1,4 @@
 export function init(data){
-
     if(d3.select(this.div).select('.loader').empty()){
         d3.select(this.div).insert('div', ':first-child')
           .attr('class', 'loader')
@@ -7,9 +6,12 @@ export function init(data){
             .enter().append('div')
             .attr('class', d => 'blockG rotate'+(d+1) );
     }
+
     this.wrap.attr('class', 'wc-chart');
 
     this.setDefaults();
+
+    this.raw_data = data;
 
     let startup = (data => {
       //connect this chart and its controls, if any
@@ -22,8 +24,6 @@ export function init(data){
             this.controls.layout();
           }
       }
-
-      this.raw_data = data;
 
       //make sure container is visible (has height and width) before trying to initialize
       var visible = d3.select(this.div).property('offsetWidth') > 0 && d3.select(this.div).property('offsetHeight') > 0;
@@ -45,6 +45,7 @@ export function init(data){
       }
     });
 
+    this.events.onInit.call(this);
     if(data.length){
       this.checkRequired(data);
     }

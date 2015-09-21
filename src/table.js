@@ -16,6 +16,7 @@ webCharts.createTable = function(element = 'body', config = {}, controls=null){
 	table.wrap = d3.select(table.div).append('div');
     
 	table.events = {
+		onInit(){},
 		onLayout(){},
 		onDatatransform(){},
 		onDraw(){},
@@ -23,7 +24,7 @@ webCharts.createTable = function(element = 'body', config = {}, controls=null){
 	};
 	
 	table.on = function(event, callback){
-		let possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}

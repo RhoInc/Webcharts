@@ -813,9 +813,12 @@ function init(data) {
       return 'blockG rotate' + (d + 1);
     });
   }
+
   this.wrap.attr('class', 'wc-chart');
 
   this.setDefaults();
+
+  this.raw_data = data;
 
   var startup = function startup(data) {
     //connect this chart and its controls, if any
@@ -827,8 +830,6 @@ function init(data) {
         _this8.controls.layout();
       }
     }
-
-    _this8.raw_data = data;
 
     //make sure container is visible (has height and width) before trying to initialize
     var visible = d3.select(_this8.div).property('offsetWidth') > 0 && d3.select(_this8.div).property('offsetHeight') > 0;
@@ -849,6 +850,7 @@ function init(data) {
     }
   };
 
+  this.events.onInit.call(this);
   if (data.length) {
     this.checkRequired(data);
   }
@@ -2119,6 +2121,7 @@ webCharts.createChart = function () {
   chart.wrap = d3.select(chart.div).append('div');
 
   chart.events = {
+    onInit: function onInit() {},
     onLayout: function onLayout() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
@@ -2126,7 +2129,7 @@ webCharts.createChart = function () {
   };
 
   chart.on = function (event, callback) {
-    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
@@ -2187,6 +2190,7 @@ webCharts.createTable = function () {
   table.wrap = d3.select(table.div).append('div');
 
   table.events = {
+    onInit: function onInit() {},
     onLayout: function onLayout() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
@@ -2194,7 +2198,7 @@ webCharts.createTable = function () {
   };
 
   table.on = function (event, callback) {
-    var possible_events = ['layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
