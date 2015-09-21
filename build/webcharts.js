@@ -1,5 +1,5 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){
-var webCharts = { version: '1.0.2' };
+var webCharts = { version: '1.1.0' };
 
 webCharts.multiply = function (chart, data, split_by, order) {
   var config = chart.config;
@@ -849,7 +849,9 @@ function init(data) {
     }
   };
 
-  this.checkRequired(data);
+  if (this.data.length) {
+    this.checkRequired(data);
+  }
   startup(data);
 
   return this;

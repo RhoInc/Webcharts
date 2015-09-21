@@ -45,7 +45,9 @@ export function init(data){
       }
     });
 
-    this.checkRequired(data);
+    if(this.data.length){
+      this.checkRequired(data);
+    }
     startup(data);
 
     return this;
