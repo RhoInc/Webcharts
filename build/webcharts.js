@@ -1,5 +1,5 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){
-var webCharts = { version: '1.1.0' };
+var webCharts = { version: '1.1.1' };
 
 webCharts.multiply = function (chart, data, split_by, order) {
   var config = chart.config;
@@ -82,7 +82,7 @@ function naturalSorter(a, b) {
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
       var m = i == 46 || i >= 48 && i <= 57;
       if (m !== n) {
-        tz[++y] = '';
+        tz[++y] = "";
         n = m;
       }
       tz[y] += j;
@@ -303,17 +303,17 @@ function draw(raw_data, processed_data) {
   this.setColorScale();
 
   var max_width = config.max_width ? config.max_width : div_width;
-  this.raw_width = config.x.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
-  this.raw_height = config.y.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
+  this.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
+  this.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
 
-  var pseudo_width = this.svg.select('.overlay').attr('width') ? this.svg.select('.overlay').attr('width') : this.raw_width;
-  var pseudo_height = this.svg.select('.overlay').attr('height') ? this.svg.select('.overlay').attr('height') : this.raw_height;
+  var pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
+  var pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
 
-  this.svg.select('.x.axis').select('.axis-title').text(function (d) {
-    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label.call(_this3) : null;
+  this.svg.select(".x.axis").select(".axis-title").text(function (d) {
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label.call(_this3) : null;
   });
-  this.svg.select('.y.axis').select('.axis-title').text(function (d) {
-    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label.call(_this3) : null;
+  this.svg.select(".y.axis").select(".axis-title").text(function (d) {
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label.call(_this3) : null;
   });
 
   this.xScaleAxis(pseudo_width);
@@ -385,7 +385,7 @@ function drawBars(marks) {
       });
       nu_bar_groups.append('title');
 
-      bars = bar_groups.selectAll('rect').data(function (d) {
+      bars = bar_groups.selectAll("rect").data(function (d) {
         return d.values instanceof Array ? d.values : [d];
       }, function (d) {
         return d.key;
@@ -825,7 +825,7 @@ function init(data) {
     if (_this8.controls) {
       _this8.controls.targets.push(_this8);
       if (!_this8.controls.ready) {
-        _this8.controls.init(data);
+        _this8.controls.init(_this8.raw_data);
       } else {
         _this8.controls.layout();
       }
@@ -851,8 +851,8 @@ function init(data) {
   };
 
   this.events.onInit.call(this);
-  if (data.length) {
-    this.checkRequired(data);
+  if (this.raw_data.length) {
+    this.checkRequired(this.raw_data);
   }
   startup(data);
 
@@ -860,17 +860,17 @@ function init(data) {
 }
 
 function layout() {
-  this.svg = this.wrap.append('svg').attr({ 'class': 'wc-svg',
-    'xmlns': 'http://www.w3.org/2000/svg',
-    'version': '1.1',
-    'xlink': 'http://www.w3.org/1999/xlink'
-  }).append('g');
+  this.svg = this.wrap.append("svg").attr({ "class": "wc-svg",
+    "xmlns": "http://www.w3.org/2000/svg",
+    "version": "1.1",
+    "xlink": "http://www.w3.org/1999/xlink"
+  }).append("g");
 
-  var defs = this.svg.append('defs');
-  defs.append('pattern').attr({
-    'id': 'diagonal-stripes',
-    'x': 0, 'y': 0, 'width': 3, 'height': 8, 'patternUnits': 'userSpaceOnUse', 'patternTransform': 'rotate(30)'
-  }).append('rect').attr({ 'x': '0', 'y': '0', 'width': '2', 'height': '8', 'style': 'stroke:none; fill:black' });
+  var defs = this.svg.append("defs");
+  defs.append("pattern").attr({
+    "id": "diagonal-stripes",
+    "x": 0, "y": 0, "width": 3, "height": 8, 'patternUnits': "userSpaceOnUse", 'patternTransform': "rotate(30)"
+  }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
 
   defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
 
@@ -1439,9 +1439,9 @@ function transformData(raw, mark) {
     return m[config.x.column];
   })).values() : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
 
-  var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+  var y_dom = config.y_dom ? config.y_dom : config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
     return m[config.y.column];
-  })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
+  })).values() : config.y.type === "ordinal" ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values() : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
 
@@ -1863,7 +1863,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this20).select('option:checked').property('text');
+        var value = d3.select(_this20).select("option:checked").property('text');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
