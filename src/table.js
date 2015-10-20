@@ -1,5 +1,7 @@
-webCharts.createTable = function(element = 'body', config = {}, controls=null){
-    let table = Object.create(webCharts.objects.table);
+import {objects} from './objects';
+
+export function createTable(element = 'body', config = {}, controls=null){
+    let table = Object.create(objects.table);
     
 	table.div = element;
 	
@@ -34,4 +36,4 @@ webCharts.createTable = function(element = 'body', config = {}, controls=null){
 	};
 
     return table;
-};
+}

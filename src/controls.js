@@ -1,5 +1,7 @@
-webCharts.createControls = function(element = 'body', config = {}){
-    let controls = Object.create(webCharts.objects.controls);
+import {objects} from './objects';
+
+export function createControls(element = 'body', config = {}){
+    let controls = Object.create(objects.controls);
     
     controls.div = element;
 
@@ -16,4 +18,4 @@ webCharts.createControls = function(element = 'body', config = {}){
     }
 
     return controls;
-};
+}

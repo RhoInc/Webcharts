@@ -1,8 +1,10 @@
-webCharts.chartCount = 0;
+import {objects} from './objects';
 
-webCharts.createChart = function(element = 'body', config = {}, controls = null){
+export var chartCount = 0;
 
-    let chart = Object.create(webCharts.objects.chart);
+export function createChart(element = 'body', config = {}, controls = null){
+
+    let chart = Object.create(objects.chart);
 
 	chart.div = element;
 
@@ -37,9 +39,9 @@ webCharts.createChart = function(element = 'body', config = {}, controls = null)
 	};
 
 	//increment chart count to get unique chart id
-    webCharts.chartCount++;
+    chartCount++;
 
-    chart.id = webCharts.chartCount;
+    chart.id = chartCount;
 
     return chart;
-};
+}
