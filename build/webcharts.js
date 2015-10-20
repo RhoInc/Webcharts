@@ -900,6 +900,7 @@ function makeLegend() {
   var legend_label = label ? label : typeof config.legend.label === 'string' ? config.legend.label : '';
 
   var legend = this.legend || this.wrap.select('.legend');
+  legend.style('padding', 0);
 
   var legend_data = custom_data || scale.domain().slice(0).filter(function (f) {
     return f !== undefined && f !== null;
@@ -907,7 +908,7 @@ function makeLegend() {
     return { label: m, mark: config.legend.mark };
   });
 
-  legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none');
+  legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none').style('margin-right', '1em');
 
   var leg_parts = legend.selectAll('.legend-item').data(legend_data, function (d) {
     return d.label + d.mark;
@@ -915,11 +916,15 @@ function makeLegend() {
 
   leg_parts.exit().remove();
 
-  var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item');
+  var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item').style({ 'list-style-type': 'none', 'display': 'inline-block', 'margin-right': '1em' });
   new_parts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
     return scale(d.label);
   });
-  new_parts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em');
+  new_parts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em').style({
+    'position': 'relative',
+    'top': '0.2em',
+    'right': '0.25em'
+  });
 
   if (config.legend.order) {
     leg_parts.sort(function (a, b) {
@@ -997,6 +1002,9 @@ function resize() {
   g_y_axis.transition().call(this.yAxis);
   x_axis_label.attr('transform', 'translate(' + this.plot_width / 2 + ',' + (this.margin.bottom - 2) + ')');
   y_axis_label.attr('x', -1 * this.plot_height / 2).attr('y', -1 * this.margin.left);
+
+  this.svg.selectAll('.axis .domain').attr({ 'fill': 'none', 'stroke': '#ccc', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
+  this.svg.selectAll('.axis .tick line').attr({ 'stroke': '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
 
   this.drawGridlines();
   //update legend - margins need to be set first

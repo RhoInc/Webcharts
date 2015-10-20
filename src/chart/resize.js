@@ -56,6 +56,9 @@ export function resize(){
     .attr('x', -1*this.plot_height / 2)
     .attr('y', -1*this.margin.left);
 
+  this.svg.selectAll('.axis .domain').attr({'fill': 'none', 'stroke': '#ccc', 'stroke-width': 1, 'shape-rendering': 'crispEdges'});
+  this.svg.selectAll('.axis .tick line').attr({'stroke': '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges'});
+
   this.drawGridlines();
   //update legend - margins need to be set first
   this.makeLegend();

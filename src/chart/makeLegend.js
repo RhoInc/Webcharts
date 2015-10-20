@@ -10,12 +10,13 @@ export function makeLegend(scale = this.colorScale, label='', custom_data=null){
    typeof config.legend.label === 'string' ? config.legend.label : '';
 
   let legend = this.legend || this.wrap.select('.legend');
+  legend.style('padding', 0);
 
   let legend_data = custom_data || scale.domain().slice(0).filter(f => f !== undefined && f !== null).map(m => {
     return {label: m,  mark: config.legend.mark};
   });
 
-  legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none');
+  legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none').style('margin-right', '1em');
 
   let leg_parts = legend.selectAll('.legend-item')
       .data(legend_data, d => d.label + d.mark);
@@ -23,14 +24,20 @@ export function makeLegend(scale = this.colorScale, label='', custom_data=null){
   leg_parts.exit().remove();
 
   let new_parts = leg_parts.enter().append('li')
-      .attr('class', 'legend-item');
+    .attr('class', 'legend-item')
+    .style({'list-style-type': 'none', 'display': 'inline-block', 'margin-right': '1em'});
   new_parts.append('span')
     .attr('class', 'legend-mark-text')
     .style('color', d => scale(d.label) );
   new_parts.append('svg')
     .attr('class', 'legend-color-block')
     .attr('width', '1.1em')
-    .attr('height', '1.1em');
+    .attr('height', '1.1em')
+    .style({
+      'position': 'relative',
+      'top': '0.2em',
+      'right': '0.25em'
+    });
 
   if(config.legend.order){
     leg_parts.sort((a,b) => d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label)) );
