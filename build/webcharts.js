@@ -1,5 +1,5 @@
 (function (root, factory) {  if(typeof define === "function" && define.amd) {    define(["d3"], factory);  } else if(typeof module === "object" && module.exports) {    module.exports = factory(require("d3"));  } else {    root.webCharts = factory(root.d3);  }}(this, function(d3){
-var webCharts = { version: '1.1.0' };
+var webCharts = { version: '1.1.1' };
 
 webCharts.multiply = function (chart, data, split_by, order) {
   var config = chart.config;
@@ -825,7 +825,7 @@ function init(data) {
     if (_this8.controls) {
       _this8.controls.targets.push(_this8);
       if (!_this8.controls.ready) {
-        _this8.controls.init(data);
+        _this8.controls.init(_this8.raw_data);
       } else {
         _this8.controls.layout();
       }
@@ -851,8 +851,8 @@ function init(data) {
   };
 
   this.events.onInit.call(this);
-  if (data.length) {
-    this.checkRequired(data);
+  if (this.raw_data.length) {
+    this.checkRequired(this.raw_data);
   }
   startup(data);
 

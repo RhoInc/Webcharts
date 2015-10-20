@@ -1,1 +1,1 @@
-let webCharts = {version: '1.1.0'};
+let webCharts = {version: '1.1.1'};

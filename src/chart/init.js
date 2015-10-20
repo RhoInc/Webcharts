@@ -18,7 +18,7 @@ export function init(data){
       if(this.controls){
           this.controls.targets.push(this);
           if(!this.controls.ready){
-            this.controls.init(data);
+            this.controls.init(this.raw_data);
           }
           else{
             this.controls.layout();
@@ -46,8 +46,8 @@ export function init(data){
     });
 
     this.events.onInit.call(this);
-    if(data.length){
-      this.checkRequired(data);
+    if(this.raw_data.length){
+      this.checkRequired(this.raw_data);
     }
     startup(data);
 
