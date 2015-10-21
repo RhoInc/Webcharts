@@ -1,4 +1,4 @@
-export function setDefaults(){
+export default function (){
 
 	this.config.x = this.config.x || {};
 	this.config.y = this.config.y || {};

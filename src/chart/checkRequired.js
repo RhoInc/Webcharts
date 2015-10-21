@@ -1,4 +1,4 @@
-export function checkRequired(data){
+export default function (data){
     let colnames = d3.keys(data[0]);
     let requiredVars = [];
     let requiredCols = [];

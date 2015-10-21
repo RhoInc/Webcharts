@@ -14,7 +14,7 @@ import makeSubsetterControl from './makeSubsetterControl';
 import makeTextControl from './makeTextControl';
 import stringAccessor from './stringAccessor';
 
-export var controlsProto = {
+export default {
 	changeOption: changeOption,
 	checkRequired: checkRequired,
 	controlUpdate: controlUpdate,

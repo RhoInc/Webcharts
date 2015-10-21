@@ -1,9 +1,9 @@
-import {chartProto} from './chart/';
-import {tableProto} from './table/';
-import {controlsProto} from './controls/';
+import chart from './chart/';
+import table from './table/';
+import controls from './controls/';
 
-export var objects = {
-  chart: chartProto,
-  table: tableProto,
-  controls: controlsProto
+export default {
+  chart: chart,
+  table: table,
+  controls: controls
 };

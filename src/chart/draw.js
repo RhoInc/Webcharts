@@ -1,4 +1,4 @@
-export function draw(raw_data, processed_data){
+export default function (raw_data, processed_data){
   var context = this;
   let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   let config = this.config;

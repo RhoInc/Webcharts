@@ -1,4 +1,4 @@
-export function setMargins(){
+export default function (){
   let y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(m => this.yAxis.tickFormat()(m)) : this.y.domain();
 
   let max_y_text_length = d3.max( y_ticks.map(m => String(m).length) );

@@ -1,4 +1,4 @@
-export function makeBtnGroupControl(control, control_wrap){
+export default function(control, control_wrap){
   let option_data = control.values ? control.values : d3.keys(this.data[0]);
 
   let btn_wrap = control_wrap.append('div').attr('class', 'btn-group');

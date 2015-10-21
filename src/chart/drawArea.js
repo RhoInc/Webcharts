@@ -1,4 +1,4 @@
-export function drawArea(area_drawer, area_data, datum_accessor, class_match = 'chart-area', bind_accessor, attr_accessor = function(d){return d}){
+export default function (area_drawer, area_data, datum_accessor, class_match = 'chart-area', bind_accessor, attr_accessor = function(d){return d}){
   var area_grps = this.svg.selectAll('.'+class_match)
     .data(area_data, bind_accessor);
   area_grps.exit().remove();

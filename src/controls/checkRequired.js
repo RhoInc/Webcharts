@@ -1,4 +1,4 @@
-export function controlCheckRequired(dataset){
+export default function(dataset){
    	let colnames = d3.keys(dataset[0]);
     if(!this.config.inputs){
       return;

@@ -19,12 +19,12 @@ import updateDataMarks from './updateDataMarks';
 import xScaleAxis from './xScaleAxis';
 import yScaleAxis from './yScaleAxis';
 
-export var chartProto = {
+var chartProto = {
 	raw_data: [],
 	config: {}
 };
 
-Object.defineProperties(chartProto, {
+export default Object.create(chartProto, {
 	'checkRequired': {value: checkRequired},
 	'consolidateData': {value: consolidateData},
 	'draw': {value: draw},
@@ -46,7 +46,6 @@ Object.defineProperties(chartProto, {
 	'xScaleAxis': {value: xScaleAxis},
 	'yScaleAxis': {value: yScaleAxis}
 });
-
 
 
 

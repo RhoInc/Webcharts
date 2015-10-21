@@ -1,4 +1,4 @@
-export function setColorScale(){
+export default function (){
   let config = this.config;
   let data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
   let colordom = config.color_dom || d3.set(data.map(m => m[config.color_by] )).values()

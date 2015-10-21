@@ -1,4 +1,4 @@
-export function makeTextControl(control, control_wrap){
+export default function (control, control_wrap){
   let changer = control_wrap.append('input')
     .attr('type', 'text')
     .attr('class', 'changer')

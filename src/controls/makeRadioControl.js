@@ -1,4 +1,4 @@
-export function makeRadioControl(control, control_wrap){
+export default function (control, control_wrap){
   let changers = control_wrap.selectAll('label')
   	.data(control.values ||  d3.keys(this.data[0]))
   	.enter().append('label')

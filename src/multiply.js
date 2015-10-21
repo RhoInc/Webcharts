@@ -1,4 +1,4 @@
-export function multiply(chart, data, split_by, order){
+export default function (chart, data, split_by, order){
   let config = chart.config;
   let wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
   let master_legend = wrap.append('ul').attr('class', 'legend');

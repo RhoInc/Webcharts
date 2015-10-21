@@ -1,4 +1,4 @@
-export function consolidateData(raw){
+export default function (raw){
   let config = this.config;
   let all_data = [];
   let all_x = [];

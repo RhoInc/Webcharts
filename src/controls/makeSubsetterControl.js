@@ -1,4 +1,4 @@
-export function makeSubsetterControl(control, control_wrap){
+export default function (control, control_wrap){
   let targets = this.targets;
  	let changer = control_wrap.append('select')
     .attr('class', 'changer')

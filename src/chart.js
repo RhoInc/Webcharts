@@ -1,10 +1,10 @@
-import {objects} from './objects';
+import {chart} from './objects';
 
 export var chartCount = 0;
 
 export function createChart(element = 'body', config = {}, controls = null){
 
-    let chart = Object.create(objects.chart);
+    let chart = Object.create(chart);
 
 	chart.div = element;
 

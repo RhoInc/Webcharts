@@ -1,4 +1,4 @@
-export function drawLines(marks){
+export default function (marks){
   let config = this.config;
   let line = d3.svg.line()
     .interpolate(config.interpolate)

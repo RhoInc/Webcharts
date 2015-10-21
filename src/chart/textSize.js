@@ -1,4 +1,4 @@
-export function textSize(width){
+export default function (width){
   let font_size = '14px';
   let point_size = 4;
   let stroke_width = 2;

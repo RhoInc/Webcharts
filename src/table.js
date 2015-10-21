@@ -1,7 +1,7 @@
-import {objects} from './objects';
+import {table} from './objects';
 
 export function createTable(element = 'body', config = {}, controls=null){
-    let table = Object.create(objects.table);
+    let table = Object.create(table);
     
 	table.div = element;
 	

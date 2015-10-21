@@ -1,4 +1,4 @@
-export function makeDropdownControl(control, control_wrap){
+export default function(control, control_wrap){
   let mainOption = control.option || control.options[0];
   let changer = control_wrap.append('select')
     .attr('class', 'changer')

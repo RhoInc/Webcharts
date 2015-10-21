@@ -1,4 +1,4 @@
-export function drawBars(marks){
+export default function (marks){
   let rawData = this.raw_data;
   let config = this.config;
 

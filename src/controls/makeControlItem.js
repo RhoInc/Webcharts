@@ -1,4 +1,4 @@
-export function makeControlItem(control){
+export default function(control){
     let control_wrap = this.wrap.append('div')
       .attr('class', 'control-group')
       .classed('inline', control.inline)

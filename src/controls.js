@@ -1,7 +1,7 @@
-import {objects} from './objects';
+import {controls} from './objects';
 
 export function createControls(element = 'body', config = {}){
-    let controls = Object.create(objects.controls);
+    let controls = Object.create(controls);
     
     controls.div = element;
 

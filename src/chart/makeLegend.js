@@ -1,4 +1,4 @@
-export function makeLegend(scale = this.colorScale, label='', custom_data=null){
+export default function (scale = this.colorScale, label='', custom_data=null){
   let config = this.config;
 
   config.legend.mark = config.legend.mark ? config.legend.mark :

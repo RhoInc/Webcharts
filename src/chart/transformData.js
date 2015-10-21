@@ -1,4 +1,4 @@
-export function transformData(raw, mark){
+export default function (raw, mark){
   let config = this.config;
   let x_behavior = config.x.behavior || 'raw';
   let y_behavior = config.y.behavior || 'raw';
