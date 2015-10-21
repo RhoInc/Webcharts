@@ -5,7 +5,7 @@ import createControls from './controls';
 import createTable from './table';
 import multiply from './multiply';
 
-export const webCharts = {
+export default {
 	version: version,
 	objects: objects,
 	createChart: createChart,
