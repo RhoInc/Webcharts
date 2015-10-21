@@ -1,4 +1,4 @@
-export function summarize(vals, operation){
+export default function (vals, operation){
   let nvals = vals.filter(f => +f || +f === 0)
     .map(m => +m);
 

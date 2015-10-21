@@ -1,3 +1,5 @@
+import naturalSorter from '../dataOps/naturalSorter';
+
 export default function (){
   let config = this.config;
   let data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
@@ -8,7 +10,7 @@ export default function (){
     colordom = colordom.sort((a,b) => d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) );
   }
   else{
-  	colordom = colordom.sort(webCharts.dataOps.naturalSorter);
+  	colordom = colordom.sort(naturalSorter);
   }
 
   this.colorScale = d3.scale.ordinal()

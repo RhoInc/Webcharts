@@ -39,9 +39,9 @@ export function createChart(element = 'body', config = {}, controls = null){
 	};
 
 	//increment thisChart count to get unique thisChart id
-    thisChartCount++;
+    chartCount++;
 
-    thisChart.id = thisChartCount;
+    thisChart.id = chartCount;
 
     return thisChart;
 }

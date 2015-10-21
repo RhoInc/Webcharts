@@ -1,3 +1,5 @@
+import naturalSorter from '../dataOps/naturalSorter';
+
 export default function (raw){
   let config = this.config;
   let all_data = [];
@@ -23,7 +25,7 @@ export default function (raw){
 
   if(config.x.type === 'ordinal'){
     if( config.x.sort && config.x.sort === 'alphabetical-ascending' ){
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     }
     else if(config.y.type === 'time' && config.x.sort === 'earliest' ){
       this.x_dom = d3.nest()
@@ -40,7 +42,7 @@ export default function (raw){
         .sort((a,b) => d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) );
     }
     else if( !config.x.sort || config.x.sort === 'alphabetical-descending' ){
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     }
     else{
       this.x_dom = d3.set(d3.merge(all_x)).values();
@@ -55,7 +57,7 @@ export default function (raw){
 
   if(config.y.type === 'ordinal'){
     if( config.y.sort && config.y.sort === 'alphabetical-ascending' ){
-      this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter);
     }
     else if( config.x.type === 'time' && config.y.sort === 'earliest' ){
       this.y_dom = d3.nest()
@@ -72,7 +74,7 @@ export default function (raw){
         .sort((a,b) => d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b)) );
     }
     else if( !config.y.sort || config.y.sort === 'alphabetical-descending' ){
-      this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter).reverse();
     }
     else{
       this.y_dom = d3.set(d3.merge(all_y)).values();

@@ -1,3 +1,6 @@
+import naturalSorter from '../dataOps/naturalSorter';
+import summarize from '../dataOps/summarize';
+
 export default function (raw, mark){
   let config = this.config;
   let x_behavior = config.x.behavior || 'raw';
@@ -103,7 +106,7 @@ export default function (raw, mark){
         return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) :
           config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
           sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
-          config.x.type === 'ordinal' || config.y.type === 'ordinal' ? webCharts.dataOps.naturalSorter(a,b) :
+          config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a,b) :
           d3.ascending(+a, +b);
       });
     }
@@ -111,8 +114,8 @@ export default function (raw, mark){
       let obj = {raw: r};
       let y_vals = r.map(m => m[config.y.column]).sort(d3.ascending);
       let x_vals = r.map(m => m[config.x.column]).sort(d3.ascending);
-      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : webCharts.dataOps.summarize(x_vals, mark.summarizeX);
-      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : webCharts.dataOps.summarize(y_vals, mark.summarizeY);
+      obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : summarize(x_vals, mark.summarizeX);
+      obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : summarize(y_vals, mark.summarizeY);
 
       obj.x_q25 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.25) : obj.x;
       obj.x_q75 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.75) : obj.x;

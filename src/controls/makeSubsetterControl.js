@@ -1,3 +1,5 @@
+import naturalSorter from '../dataOps/naturalSorter';
+
 export default function (control, control_wrap){
   let targets = this.targets;
  	let changer = control_wrap.append('select')
@@ -7,7 +9,7 @@ export default function (control, control_wrap){
 
   let option_data = control.values ? control.values :
   	d3.set(this.data.map(m => m[control.value_col]).filter(f => f) ).values();
-  option_data.sort(webCharts.dataOps.naturalSorter);
+  option_data.sort(naturalSorter);
 
   control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
