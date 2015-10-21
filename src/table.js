@@ -1,23 +1,23 @@
 import {table} from './objects';
 
 export function createTable(element = 'body', config = {}, controls=null){
-    let table = Object.create(table);
+    let thisTable = Object.create(table);
     
-	table.div = element;
+	thisTable.div = element;
 	
-	table.config = Object.create(config);
+	thisTable.config = Object.create(config);
 	
-	table.controls = controls;
+	thisTable.controls = controls;
 	
-	table.filters = [];
+	thisTable.filters = [];
 	
-	table.required_cols = [];
+	thisTable.required_cols = [];
 	
-	table.marks = [];
+	thisTable.marks = [];
 	
-	table.wrap = d3.select(table.div).append('div');
+	thisTable.wrap = d3.select(thisTable.div).append('div');
     
-	table.events = {
+	thisTable.events = {
 		onInit(){},
 		onLayout(){},
 		onDatatransform(){},
@@ -25,15 +25,15 @@ export function createTable(element = 'body', config = {}, controls=null){
 		onResize(){}
 	};
 	
-	table.on = function(event, callback){
+	thisTable.on = function(event, callback){
 		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}
 		if(callback){
-			table.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+			thisTable.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
 		}
 	};
 
-    return table;
+    return thisTable;
 }

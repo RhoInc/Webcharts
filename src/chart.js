@@ -4,23 +4,23 @@ export var chartCount = 0;
 
 export function createChart(element = 'body', config = {}, controls = null){
 
-    let chart = Object.create(chart);
+    let thisChart = Object.create(chart);
 
-	chart.div = element;
+	thisChart.div = element;
 
-	chart.config = Object.create(config);
+	thisChart.config = Object.create(config);
 
-	chart.controls = controls;
+	thisChart.controls = controls;
 
-	chart.raw_data = [];
+	thisChart.raw_data = [];
 
-	chart.filters = [];
+	thisChart.filters = [];
 
-	chart.marks = [];
+	thisChart.marks = [];
 
-	chart.wrap = d3.select(chart.div).append('div');
+	thisChart.wrap = d3.select(thisChart.div).append('div');
 
-	chart.events = {
+	thisChart.events = {
 		onInit(){},
 		onLayout(){},
 		onDatatransform(){},
@@ -28,20 +28,20 @@ export function createChart(element = 'body', config = {}, controls = null){
 		onResize(){}
 	};
 	
-	chart.on = function(event, callback){
+	thisChart.on = function(event, callback){
 		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}
 		if(callback){
-			chart.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+			thisChart.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
 		}
 	};
 
-	//increment chart count to get unique chart id
-    chartCount++;
+	//increment thisChart count to get unique thisChart id
+    thisChartCount++;
 
-    chart.id = chartCount;
+    thisChart.id = thisChartCount;
 
-    return chart;
+    return thisChart;
 }
