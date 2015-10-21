@@ -9,12 +9,12 @@
     "data visualization"
   ],
   "homepage": "https://github.com/RhoInc/Webcharts",
-  "main": "build/webcharts.js",
+  "main": "common/index.js",
   "dependencies": {
     "d3": ">= 3.0.0"
   },
   "scripts": {
-    "start": "gulp build",
+    "preinstall": "babel src -d common",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,14 +27,6 @@
     "url": "https://github.com/rhoinc/webcharts/issues"
   },
   "devDependencies": {
-    "gulp": "~3.9.0",
-    "gulp-babel": "~5.1.0",
-    "gulp-concat": "^2.5.2",
-    "gulp-load-plugins": "^0.10.0",
-    "gulp-minify-css": "^1.2.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.5.2",
-    "gulp-uglify": "^1.2.0",
-    "gulp-wrap": "^0.11.0"
+    "babel": "^5.8.23"
   }
 }

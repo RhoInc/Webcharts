@@ -1,5 +1,6 @@
 *.sublime*
 .jshintrc
 node_modules
+common
 maps
 .DS_Store
