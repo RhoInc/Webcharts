@@ -4,14 +4,14 @@ import {createChart} from './chart';
 import {createControls} from './controls';
 import {createTable} from './table';
 import multiply from './multiply';
+import dataOps from './dataOps/index';
 
-export var webCharts = {
+export default {
 	version: version,
+	dataOps: dataOps,
 	objects: objects,
 	createChart: createChart,
 	createControls: createControls,
 	createTable: createTable,
 	multiply: multiply
 };
-
-console.log(webCharts);

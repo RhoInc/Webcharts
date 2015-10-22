@@ -1,6 +1,6 @@
-import chart from './chart/';
-import table from './table/';
-import controls from './controls/';
+import chart from './chart/index';
+import table from './table/index';
+import controls from './controls/index';
 
 export default {
   chart: chart,

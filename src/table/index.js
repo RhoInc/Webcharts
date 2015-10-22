@@ -1,4 +1,4 @@
-import chart from '../chart/';
+import chart from '../chart/index';
 import layout from './layout';
 import transformData from './transformData';
 import draw from './draw';

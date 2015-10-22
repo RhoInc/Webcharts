@@ -14,7 +14,11 @@
     "d3": ">= 3.0.0"
   },
   "scripts": {
-    "preinstall": "babel src -d common",
+    "clean": "rm -r common/*",
+    "preinstall": "npm run clean && babel src -d common",
+    "webpack": "webpack common/index.js test.js",
+    "concat": "cat open.js test.js close.js > cat.js",
+    "build": "npm run preinstall && npm run webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +31,7 @@
     "url": "https://github.com/rhoinc/webcharts/issues"
   },
   "devDependencies": {
-    "babel": "^5.8.23"
+    "babel": "^5.8.23",
+    "webpack": "^1.12.2"
   }
 }
