@@ -18,7 +18,7 @@
     "preinstall": "npm run common",
     "build": "npm run common && npm run amd && npm run es5 && npm run es6",
     "es6": "rollup -g d3 src/index.js > build/webcharts.es6.js",
-    "es5": "rollup src/index.js -g d3 | babel --modules ignore | cat open.js - close.js > build/webcharts.js",
+    "es5": "rollup src/index.js -g d3 | babel --modules ignore | cat build/open.js - build/close.js > build/webcharts.js",
     "common": "rollup src/index.js -g d3 | babel > build/webcharts.common.js",
     "amd": "rollup src/index.js -f amd -g d3 | babel > build/webcharts.amd.js",
     "uglify": "uglifyjs build/webcharts.js"

@@ -1,7 +1,10 @@
-var webCharts = (function () {  
-	
-
 'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+require('d3');
 
 function yScaleAxis(max_range, domain, type) {
   if (max_range === undefined) {
@@ -2228,5 +2231,6 @@ var index = {
   multiply: multiply
 };
 
-return index;
-})();
+exports['default'] = index;
+module.exports = exports['default'];
+
