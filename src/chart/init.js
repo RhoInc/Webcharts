@@ -26,10 +26,10 @@ export default function (data){
       }
 
       //make sure container is visible (has height and width) before trying to initialize
-      var visible = d3.select(this.div).property('offsetWidth') > 0 && d3.select(this.div).property('offsetHeight') > 0;
+      var visible = d3.select(this.div).property('offsetWidth') > 0;
       if(!visible){
           var onVisible = setInterval(i => {
-              let visible_now = d3.select(this.div).property('offsetWidth') > 0 && d3.select(this.div).property('offsetHeight') > 0;
+              let visible_now = d3.select(this.div).property('offsetWidth') > 0;
               if(visible_now){
                 this.layout();
                 this.wrap.datum(this);

@@ -1,5 +1,5 @@
 export default function (data){
-    let colnames = d3.keys(data[0]);
+    let colnames = Object.keys(data[0]);
     let requiredVars = [];
     let requiredCols = [];
     if(this.config.x.column){

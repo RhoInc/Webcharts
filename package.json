@@ -10,16 +10,18 @@
   ],
   "homepage": "https://github.com/RhoInc/Webcharts",
   "main": "common/index.js",
+  "jsnext:main": "src/index.js",
   "dependencies": {
     "d3": ">= 3.0.0"
   },
   "scripts": {
-    "clean": "rm -r common/*",
-    "preinstall": "npm run clean && babel src -d common",
-    "webpack": "webpack common/index.js test.js",
-    "concat": "cat open.js test.js close.js > cat.js",
-    "build": "npm run preinstall && npm run webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "preinstall": "npm run common",
+    "build": "npm run common && npm run amd && npm run es5 && npm run es6",
+    "es6": "rollup -g d3 src/index.js > build/webcharts.es6.js",
+    "es5": "rollup src/index.js -g d3 | babel --modules ignore | cat open.js - close.js > build/webcharts.js",
+    "common": "rollup src/index.js -g d3 | babel > build/webcharts.common.js",
+    "amd": "rollup src/index.js -f amd -g d3 | babel > build/webcharts.amd.js",
+    "uglify": "uglifyjs build/webcharts.js"
   },
   "repository": {
     "type": "git",
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "babel": "^5.8.23",
-    "webpack": "^1.12.2"
+    "rollup": "^0.19.2",
+    "uglify-js": "^2.5.0"
   }
 }

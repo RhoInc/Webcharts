@@ -1,4 +1,4 @@
-import {table} from './objects';
+import table from './table/index';
 
 export function createTable(element = 'body', config = {}, controls=null){
     let thisTable = Object.create(table);

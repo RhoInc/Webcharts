@@ -1,4 +1,4 @@
-import {controls} from './objects';
+import controls from './controls/index';
 
 export function createControls(element = 'body', config = {}){
     let thisControls = Object.create(controls);

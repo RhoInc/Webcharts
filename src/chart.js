@@ -1,4 +1,4 @@
-import {chart} from './objects';
+import chart from './chart/index';
 
 export var chartCount = 0;
 
