@@ -10,8 +10,6 @@ var settings = {
   "color_by":"group.mock","gridlines":"xy","colors":["#fc8d59","#ffffbf","#91bfdb"]
 };
 var myChart = webCharts.createChart('.graphic-wrapper', settings);
-console.log(myChart)
 d3.csv(dataPath, function(e,d){
-  console.log(d)
   myChart.init(d);
 });
