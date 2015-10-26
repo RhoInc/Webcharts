@@ -9,7 +9,7 @@
     "data visualization"
   ],
   "homepage": "https://github.com/RhoInc/Webcharts",
-  "main": "common/index.js",
+  "main": "build/webcharts.common.js",
   "jsnext:main": "src/index.js",
   "dependencies": {
     "d3": ">= 3.0.0"
