@@ -82,7 +82,7 @@ function naturalSorter(a, b) {
     while (i = (j = t.charAt(x++)).charCodeAt(0)) {
       var m = i == 46 || i >= 48 && i <= 57;
       if (m !== n) {
-        tz[++y] = '';
+        tz[++y] = "";
         n = m;
       }
       tz[y] += j;
@@ -303,17 +303,17 @@ function draw(raw_data, processed_data) {
   this.setColorScale();
 
   var max_width = config.max_width ? config.max_width : div_width;
-  this.raw_width = config.x.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
-  this.raw_height = config.y.type === 'ordinal' && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
+  this.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length : config.resizable ? max_width : config.width ? config.width : div_width;
+  this.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length : config.resizable ? max_width * aspect2 : config.height ? config.height : div_width * aspect2;
 
-  var pseudo_width = this.svg.select('.overlay').attr('width') ? this.svg.select('.overlay').attr('width') : this.raw_width;
-  var pseudo_height = this.svg.select('.overlay').attr('height') ? this.svg.select('.overlay').attr('height') : this.raw_height;
+  var pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
+  var pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
 
-  this.svg.select('.x.axis').select('.axis-title').text(function (d) {
-    return typeof config.x.label === 'string' ? config.x.label : typeof config.x.label === 'function' ? config.x.label.call(_this3) : null;
+  this.svg.select(".x.axis").select(".axis-title").text(function (d) {
+    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label.call(_this3) : null;
   });
-  this.svg.select('.y.axis').select('.axis-title').text(function (d) {
-    return typeof config.y.label === 'string' ? config.y.label : typeof config.y.label === 'function' ? config.y.label.call(_this3) : null;
+  this.svg.select(".y.axis").select(".axis-title").text(function (d) {
+    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label.call(_this3) : null;
   });
 
   this.xScaleAxis(pseudo_width);
@@ -385,7 +385,7 @@ function drawBars(marks) {
       });
       nu_bar_groups.append('title');
 
-      bars = bar_groups.selectAll('rect').data(function (d) {
+      bars = bar_groups.selectAll("rect").data(function (d) {
         return d.values instanceof Array ? d.values : [d];
       }, function (d) {
         return d.key;
@@ -860,17 +860,17 @@ function init(data) {
 }
 
 function layout() {
-  this.svg = this.wrap.append('svg').attr({ 'class': 'wc-svg',
-    'xmlns': 'http://www.w3.org/2000/svg',
-    'version': '1.1',
-    'xlink': 'http://www.w3.org/1999/xlink'
-  }).append('g');
+  this.svg = this.wrap.append("svg").attr({ "class": "wc-svg",
+    "xmlns": "http://www.w3.org/2000/svg",
+    "version": "1.1",
+    "xlink": "http://www.w3.org/1999/xlink"
+  }).append("g");
 
-  var defs = this.svg.append('defs');
-  defs.append('pattern').attr({
-    'id': 'diagonal-stripes',
-    'x': 0, 'y': 0, 'width': 3, 'height': 8, 'patternUnits': 'userSpaceOnUse', 'patternTransform': 'rotate(30)'
-  }).append('rect').attr({ 'x': '0', 'y': '0', 'width': '2', 'height': '8', 'style': 'stroke:none; fill:black' });
+  var defs = this.svg.append("defs");
+  defs.append("pattern").attr({
+    "id": "diagonal-stripes",
+    "x": 0, "y": 0, "width": 3, "height": 8, 'patternUnits': "userSpaceOnUse", 'patternTransform': "rotate(30)"
+  }).append("rect").attr({ "x": "0", "y": "0", "width": "2", "height": "8", "style": "stroke:none; fill:black" });
 
   defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
 
@@ -1447,9 +1447,9 @@ function transformData(raw, mark) {
     return m[config.x.column];
   })).values() : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
 
-  var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+  var y_dom = config.y_dom ? config.y_dom : config.y.type === "ordinal" && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
     return m[config.y.column];
-  })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
+  })).values() : config.y.type === "ordinal" ? d3.set(raw.map(function (m) {
     return m[config.y.column];
   })).values() : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
 
@@ -1610,15 +1610,15 @@ function changeOption(option, value) {
 }
 
 function controlCheckRequired(dataset) {
-  var _this12 = this;
-
+  if (!dataset[0]) {
+    return;
+  }
   var colnames = d3.keys(dataset[0]);
   if (!this.config.inputs) {
     return;
   }
   this.config.inputs.forEach(function (e, i) {
     if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
-      _this12.config.inputs = _this12.config.inputs.splice(controls[i], 1);
       throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
     }
   });
@@ -1639,17 +1639,17 @@ function controlLayout() {
 }
 
 function controlUpdate() {
-  var _this13 = this;
+  var _this12 = this;
 
   if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
     this.config.inputs.forEach(function (e) {
-      return _this13.makeControlItem(e);
+      return _this12.makeControlItem(e);
     });
   }
 }
 
 function makeBtnGroupControl(control, control_wrap) {
-  var _this14 = this;
+  var _this13 = this;
 
   var option_data = control.values ? control.values : d3.keys(this.data[0]);
 
@@ -1658,27 +1658,27 @@ function makeBtnGroupControl(control, control_wrap) {
   var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
     return d;
   }).classed('btn-primary', function (d) {
-    return _this14.stringAccessor(_this14.targets[0].config, control.option) === d;
+    return _this13.stringAccessor(_this13.targets[0].config, control.option) === d;
   });
 
   changers.on('click', function (d) {
     changers.each(function (e) {
       d3.select(this).classed('btn-primary', e === d);
     });
-    _this14.changeOption(control.option, d);
+    _this13.changeOption(control.option, d);
   });
 }
 
 function makeCheckboxControl(control, control_wrap) {
-  var _this15 = this;
+  var _this14 = this;
 
   var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
-    return _this15.stringAccessor(_this15.targets[0].config, control.option);
+    return _this14.stringAccessor(_this14.targets[0].config, control.option);
   });
 
   changer.on('change', function (d) {
     var value = changer.property('checked');
-    _this15.changeOption(d.option, value);
+    _this14.changeOption(d.option, value);
   });
 }
 
@@ -1712,13 +1712,13 @@ function makeControlItem(control) {
 }
 
 function makeDropdownControl(control, control_wrap) {
-  var _this16 = this;
+  var _this15 = this;
 
   var mainOption = control.option || control.options[0];
   var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
   var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
-    return m[_this16.targets[0].config[control.values]];
+    return m[_this15.targets[0].config[control.values]];
   })).values() : d3.keys(this.data[0]);
 
   if (!control.require || control.none) {
@@ -1728,7 +1728,7 @@ function makeDropdownControl(control, control_wrap) {
   var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
     return d;
   }).property('selected', function (d) {
-    return _this16.stringAccessor(_this16.targets[0].config, mainOption) === d;
+    return _this15.stringAccessor(_this15.targets[0].config, mainOption) === d;
   });
 
   changer.on('change', function (d) {
@@ -1745,9 +1745,9 @@ function makeDropdownControl(control, control_wrap) {
     }
 
     if (control.options) {
-      _this16.changeOption(control.options, value);
+      _this15.changeOption(control.options, value);
     } else {
-      _this16.changeOption(control.option, value);
+      _this15.changeOption(control.option, value);
     }
   });
 
@@ -1755,42 +1755,42 @@ function makeDropdownControl(control, control_wrap) {
 }
 
 function makeListControl(control, control_wrap) {
-  var _this17 = this;
+  var _this16 = this;
 
   var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    return _this17.stringAccessor(_this17.targets[0].config, control.option);
+    return _this16.stringAccessor(_this16.targets[0].config, control.option);
   });
 
   changer.on('change', function (d) {
     var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
       return m.trim();
     }) : null;
-    _this17.changeOption(control.option, value);
+    _this16.changeOption(control.option, value);
   });
 }
 
 function makeNumberControl(control, control_wrap) {
-  var _this18 = this;
+  var _this17 = this;
 
   var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
-    return _this18.stringAccessor(_this18.targets[0].config, control.option);
+    return _this17.stringAccessor(_this17.targets[0].config, control.option);
   });
 
   changer.on('change', function (d) {
     var value = +changer.property('value');
-    _this18.changeOption(control.option, value);
+    _this17.changeOption(control.option, value);
   });
 }
 
 function makeRadioControl(control, control_wrap) {
-  var _this19 = this;
+  var _this18 = this;
 
   var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
     return control.relabels ? control.relabels[i] : d;
   }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
     return d;
   }).property('checked', function (d) {
-    return _this19.stringAccessor(_this19.targets[0].config, control.option) === d;
+    return _this18.stringAccessor(_this18.targets[0].config, control.option) === d;
   });
 
   changers.on('change', function (d) {
@@ -1800,7 +1800,7 @@ function makeRadioControl(control, control_wrap) {
         value = d3.select(this).property('value') === 'none' ? null : c;
       }
     });
-    _this19.changeOption(control.option, value);
+    _this18.changeOption(control.option, value);
   });
 }
 
@@ -1853,7 +1853,7 @@ function makeSubsetterControl(control, control_wrap) {
   }
 
   changer.on('change', function (d) {
-    var _this20 = this;
+    var _this19 = this;
 
     if (control.multiple) {
       (function () {
@@ -1871,7 +1871,7 @@ function makeSubsetterControl(control, control_wrap) {
       })();
     } else {
       (function () {
-        var value = d3.select(_this20).select('option:checked').property('text');
+        var value = d3.select(_this19).select("option:checked").property('text');
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
@@ -1883,15 +1883,15 @@ function makeSubsetterControl(control, control_wrap) {
 }
 
 function makeTextControl(control, control_wrap) {
-  var _this21 = this;
+  var _this20 = this;
 
   var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-    return _this21.stringAccessor(_this21.targets[0].config, control.option);
+    return _this20.stringAccessor(_this20.targets[0].config, control.option);
   });
 
   changer.on('change', function (d) {
     var value = changer.property('value');
-    _this21.changeOption(control.option, value);
+    _this20.changeOption(control.option, value);
   });
 }
 
