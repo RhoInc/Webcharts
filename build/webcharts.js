@@ -219,7 +219,11 @@ function consolidateData(raw) {
   });
 
   if (config.x.type === 'ordinal') {
-    if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
+    if (config.x.order) {
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(function (a, b) {
+        return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
+      });
+    } else if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     } else if (config.y.type === 'time' && config.x.sort === 'earliest') {
       this.x_dom = d3.nest().key(function (d) {
@@ -235,10 +239,6 @@ function consolidateData(raw) {
       }).map(function (m) {
         return m.key;
       });
-    } else if (config.x.order) {
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(function (a, b) {
-        return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
-      });
     } else if (!config.x.sort || config.x.sort === 'alphabetical-descending') {
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
     } else {
@@ -253,7 +253,11 @@ function consolidateData(raw) {
   }
 
   if (config.y.type === 'ordinal') {
-    if (config.y.sort && config.y.sort === 'alphabetical-ascending') {
+    if (config.y.order) {
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(function (a, b) {
+        return d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
+      });
+    } else if (config.y.sort && config.y.sort === 'alphabetical-ascending') {
       this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
     } else if (config.x.type === 'time' && config.y.sort === 'earliest') {
       this.y_dom = d3.nest().key(function (d) {
@@ -268,10 +272,6 @@ function consolidateData(raw) {
         return d3.min(b.values) - d3.min(a.values);
       }).map(function (m) {
         return m.key;
-      });
-    } else if (config.y.order) {
-      this.y_dom = d3.set(d3.merge(all_y)).values().sort(function (a, b) {
-        return d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
       });
     } else if (!config.y.sort || config.y.sort === 'alphabetical-descending') {
       this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
