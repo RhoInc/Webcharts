@@ -261,10 +261,10 @@ export function transformData(raw, mark){
     y_dom[1] = config.y.domain[1];
   }
 
-  if(config.x.type === 'ordinal'){
+  if(config.x.type === 'ordinal' && !config.x.order){
     config.x.order = totalOrder;
   }
-  if(config.y.type === 'ordinal'){
+  if(config.y.type === 'ordinal' && !config.y.order){
     config.y.order = totalOrder;
   }
 
