@@ -65,7 +65,7 @@ export function makeLegend(scale = this.colorScale, label='', custom_data=null){
     .attr('class', 'legend-label')
     .text(d => d.label);
 
-  if(scale.domain().length > 1){
+  if(scale.domain().length > 1 || config.legend.alwaysVisible){
     legend.style('display', 'block');
   }
   else{

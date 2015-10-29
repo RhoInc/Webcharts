@@ -18,9 +18,11 @@ require(["webCharts"], function(webCharts) {
 });
 ```
 
-Webcharts also exports itself as a CommonJS module for compatibility with Node. First, install Webcharts with npm:
-```bash
-npm install webCharts
+Webcharts also exports itself as a CommonJS module for compatibility with Node. Include it in your project's package.json like this:
+```json
+"dependencies": {
+    "Webcharts": "git://github.com/RhoInc/Webcharts.git"
+}
 ```
 	
 Then, use it in your modules:
@@ -29,7 +31,7 @@ var webCharts = require('webCharts');
 ```
 
 # Making a Chart
-Let's get right to it. A chart is created with a call to [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts#webchartscreatechartelement-config-controls), a function that, passed a few arguments, returns an object that represents a chart:
+Let's get right to it. A chart is created with a call to [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API#webchartscreatechartelement-config-controls), a function that, passed a few arguments, returns an object that represents a chart:
 
 ```javascript	
 var settings = {
@@ -61,9 +63,9 @@ d3.csv('calories.csv',function(error,csv){
     
 The first argument, <code>"body"</code>, tells the function where to draw the chart. This is a simple CSS selector, so it may reference a DOM element name (like in this example) or target and id or class attribute, like <code>".chart-wrapper"</code>.
 
-The second argument is a JavaScript object that sets a number of options for the chart. All of the possible configuration options are described [here](Chart-Configuration). The config object in this example sets some basic options like what dataset fields should be mapped to the <code>x</code> and <code>y</code> axes, what type of <code>marks</code> should be drawn, how wide the chart can get (<code>max_width</code>), its <code>aspect</code> ratio, and where <code>gridlines</code> should be drawn.
+The second argument is a JavaScript object that sets a number of options for the chart. All of the possible configuration options are described [here](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration). The config object in this example sets some basic options like what dataset fields should be mapped to the <code>x</code> and <code>y</code> axes, what type of <code>marks</code> should be drawn, how wide the chart can get (<code>max_width</code>), its <code>aspect</code> ratio, and where <code>gridlines</code> should be drawn.
 
-The chart object returned by [webCharts.createChart](Webcharts#webchartscreatechartelement-config-controls) can then be initialized passing data to the chart via its <code>init()</code> method. The <code>init</code> method triggers a set of other methods which bind the data to the chart, set up the components of the chart, and then render the chart as an SVG based on the given data and settings from the <code>config</code> object.
+The chart object returned by [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API#webchartscreatechartelement-config-controls) can then be initialized passing data to the chart via its <code>init()</code> method. The <code>init</code> method triggers a set of other methods which bind the data to the chart, set up the components of the chart, and then render the chart as an SVG based on the given data and settings from the <code>config</code> object.
 
 Behold! The code above will produce a chart like this:
 
@@ -71,5 +73,11 @@ Behold! The code above will produce a chart like this:
 
 To see the real thing and look more closely at the code, [check out this gist](http://bl.ocks.org/nbryant/aeaf8d734d7600ca3afa). There are plenty more examples below.
 
-# Documentation
-API documentation can be found <a href="https://github.com/RhoInc/Webcharts/wiki/Webcharts-API">here</a>.  Related libraries and a gallery of examples are [here](https://github.com/RhoInc/Webcharts/wiki/Gallery). 
+# More Information
+API documentation can be found <a href="https://github.com/RhoInc/Webcharts/wiki/Webcharts-API">here</a>.  
+
+Examples are [here](https://github.com/RhoInc/Webcharts/wiki/Examples). 
+
+Related Libraries:
+* [webcharts-templates](https://github.com/RhoInc/Webcharts-templates) - webcharts-templates extends webcharts library to include webcharts.createTemplatedChart(), a convenience function used facilitate re-use of common charts.
+* webcharts-helpers - _Coming Soon_
