@@ -2,4 +2,5 @@
 .jshintrc
 node_modules
 maps
+test
 .DS_Store
