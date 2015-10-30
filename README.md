@@ -18,11 +18,9 @@ require(["webCharts"], function(webCharts) {
 });
 ```
 
-Webcharts also exports itself as a CommonJS module for compatibility with Node. Include it in your project's package.json like this:
-```json
-"dependencies": {
-    "Webcharts": "git://github.com/RhoInc/Webcharts.git"
-}
+Webcharts also exports itself as a CommonJS module for compatibility with Node. Install the package via npm:
+```bash
+npm install --save webcharts
 ```
 	
 Then, use it in your modules:
