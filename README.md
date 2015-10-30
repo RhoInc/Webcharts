@@ -71,7 +71,7 @@ Behold! The code above will produce a chart like this:
 
 ![Example](https://github.com/RhoInc/Webcharts/wiki/example.png)
 
-To see the real thing and look more closely at the code, [check out this gist](http://bl.ocks.org/nbryant/aeaf8d734d7600ca3afa). There are plenty more examples below.
+To see the real thing and look more closely at the code, [check out this gist](http://bl.ocks.org/nbryant/aeaf8d734d7600ca3afa). 
 
 # More Information
 API documentation can be found <a href="https://github.com/RhoInc/Webcharts/wiki/Webcharts-API">here</a>.  
