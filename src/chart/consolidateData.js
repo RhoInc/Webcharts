@@ -22,6 +22,9 @@ export function consolidateData(raw){
   });
 
   if(config.x.type === 'ordinal'){
+    if(config.x.domain){
+      this.x_dom = config.x.domain;
+    }
     if( config.x.order ){
       this.x_dom = d3.set(d3.merge(all_x)).values()
         .sort((a,b) => d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) );
@@ -54,6 +57,9 @@ export function consolidateData(raw){
   }
 
   if(config.y.type === 'ordinal'){
+    if(config.y.domain){
+      this.y_dom = config.y.domain;
+    }
     if( config.y.order ){
       this.y_dom = d3.set(d3.merge(all_y)).values()
         .sort((a,b) => d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b)) );
