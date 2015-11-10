@@ -35,8 +35,7 @@ export default function (scale = this.colorScale, label='', custom_data=null){
     .attr('height', '1.1em')
     .style({
       'position': 'relative',
-      'top': '0.2em',
-      'right': '0.25em'
+      'top': '0.2em'
     });
 
   if(config.legend.order){
@@ -53,7 +52,7 @@ export default function (scale = this.colorScale, label='', custom_data=null){
       svg.append('line').attr({'x1': 0, 'y1': '.5em', 'x2': '1em', 'y2': '.5em', 'stroke-width': 2, 'shape-rendering': 'crispEdges', 'class': 'legend-mark'});
     }
     else if(e.mark === 'square'){
-      svg.append('rect').attr({'height': '1em', 'width': '1em', 'class': 'legend-mark'});
+      svg.append('rect').attr({'height': '1em', 'width': '1em', 'class': 'legend-mark', 'shape-rendering': 'crispEdges'});
     }
   });
   leg_parts.selectAll('.legend-color-block').select('.legend-mark')
@@ -63,6 +62,7 @@ export default function (scale = this.colorScale, label='', custom_data=null){
 
   new_parts.append('span')
     .attr('class', 'legend-label')
+    .style('margin-left', '0.25em')
     .text(d => d.label);
 
   if(scale.domain().length > 1){
