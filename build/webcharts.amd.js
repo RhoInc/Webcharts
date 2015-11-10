@@ -705,8 +705,7 @@ define(['d3'], function (d3$1) {
     });
     new_parts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em').style({
       'position': 'relative',
-      'top': '0.2em',
-      'right': '0.25em'
+      'top': '0.2em'
     });
 
     if (config.legend.order) {
@@ -723,7 +722,7 @@ define(['d3'], function (d3$1) {
       } else if (e.mark === 'line') {
         svg.append('line').attr({ 'x1': 0, 'y1': '.5em', 'x2': '1em', 'y2': '.5em', 'stroke-width': 2, 'shape-rendering': 'crispEdges', 'class': 'legend-mark' });
       } else if (e.mark === 'square') {
-        svg.append('rect').attr({ 'height': '1em', 'width': '1em', 'class': 'legend-mark' });
+        svg.append('rect').attr({ 'height': '1em', 'width': '1em', 'class': 'legend-mark', 'shape-rendering': 'crispEdges' });
       }
     });
     leg_parts.selectAll('.legend-color-block').select('.legend-mark').attr('fill', function (d) {
@@ -734,7 +733,7 @@ define(['d3'], function (d3$1) {
       d3.select(this).attr(e.attributes);
     });
 
-    new_parts.append('span').attr('class', 'legend-label').text(function (d) {
+    new_parts.append('span').attr('class', 'legend-label').style('margin-left', '0.25em').text(function (d) {
       return d.label;
     });
 
@@ -996,7 +995,7 @@ define(['d3'], function (d3$1) {
           return 'wc-data-mark bar ' + d.key;
         }).style('clip-path', 'url(#' + _this6.id + ')').attr('y', _this6.y(0)).attr('height', 0).append('title');
 
-        bars.attr('stroke', function (d) {
+        bars.attr('shape-rendering', 'crispEdges').attr('stroke', function (d) {
           return _this6.colorScale(d.values.raw[0][config.color_by]);
         }).attr('fill', function (d) {
           return _this6.colorScale(d.values.raw[0][config.color_by]);

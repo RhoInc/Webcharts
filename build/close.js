@@ -1,2 +1,5 @@
-return index;
-})();
+var webCharts = index;
+
+return webCharts;
+
+}));
