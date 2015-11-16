@@ -1,6 +1,6 @@
 *.sublime*
 .jshintrc
 node_modules
-common
+test
 maps
 .DS_Store
