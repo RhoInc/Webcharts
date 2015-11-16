@@ -1,4 +1,4 @@
-export function xScaleAxis(max_range, domain, type){
+export default function (max_range, domain, type){
   if(max_range === undefined){
     max_range = this.plot_width;
   }

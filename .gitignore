@@ -1,6 +1,7 @@
 *.sublime*
 .jshintrc
 node_modules
+test
 maps
 test
 .DS_Store

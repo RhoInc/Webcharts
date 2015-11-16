@@ -1,24 +1,26 @@
-webCharts.chartCount = 0;
+import chart from './chart/index';
 
-webCharts.createChart = function(element = 'body', config = {}, controls = null){
+export var chartCount = 0;
 
-    let chart = Object.create(webCharts.objects.chart);
+export function createChart(element = 'body', config = {}, controls = null){
 
-	chart.div = element;
+    let thisChart = Object.create(chart);
 
-	chart.config = Object.create(config);
+	thisChart.div = element;
 
-	chart.controls = controls;
+	thisChart.config = Object.create(config);
 
-	chart.raw_data = [];
+	thisChart.controls = controls;
 
-	chart.filters = [];
+	thisChart.raw_data = [];
 
-	chart.marks = [];
+	thisChart.filters = [];
 
-	chart.wrap = d3.select(chart.div).append('div');
+	thisChart.marks = [];
 
-	chart.events = {
+	thisChart.wrap = d3.select(thisChart.div).append('div');
+
+	thisChart.events = {
 		onInit(){},
 		onLayout(){},
 		onDatatransform(){},
@@ -26,20 +28,20 @@ webCharts.createChart = function(element = 'body', config = {}, controls = null)
 		onResize(){}
 	};
 	
-	chart.on = function(event, callback){
+	thisChart.on = function(event, callback){
 		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}
 		if(callback){
-			chart.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+			thisChart.events['on'+event.charAt(0).toUpperCase() + event.slice(1)] = callback;
 		}
 	};
 
-	//increment chart count to get unique chart id
-    webCharts.chartCount++;
+	//increment thisChart count to get unique thisChart id
+    chartCount++;
 
-    chart.id = webCharts.chartCount;
+    thisChart.id = chartCount;
 
-    return chart;
-};
+    return thisChart;
+}

@@ -1,4 +1,4 @@
-export function lengthenRaw(data, columns){
+export default function (data, columns){
   let my_data = [];
 
   data.forEach(e => {

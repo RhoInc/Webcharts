@@ -1,19 +1,21 @@
-webCharts.createControls = function(element = 'body', config = {}){
-    let controls = Object.create(webCharts.objects.controls);
+import controls from './controls/index';
+
+export function createControls(element = 'body', config = {}){
+    let thisControls = Object.create(controls);
     
-    controls.div = element;
+    thisControls.div = element;
 
-    controls.config = Object.create(config);
-    controls.config.inputs = controls.config.inputs || [];
+    thisControls.config = Object.create(config);
+    thisControls.config.inputs = thisControls.config.inputs || [];
 
-    controls.targets = [];
+    thisControls.targets = [];
 
     if(config.location === 'bottom'){
-        controls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+        thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-thisControls');
     }
 	else{
-	  	controls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+	  	thisControls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-thisControls');
     }
 
-    return controls;
-};
+    return thisControls;
+}

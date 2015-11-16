@@ -1,4 +1,4 @@
-export function drawBars(marks){
+export default function (marks){
   let rawData = this.raw_data;
   let config = this.config;
 
@@ -36,6 +36,7 @@ export function drawBars(marks){
       .append('title');
 
     bars
+      .attr('shape-rendering', 'crispEdges')
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
       .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
@@ -43,7 +44,7 @@ export function drawBars(marks){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.tooltip = mark.tooltip;
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(m => m[mark.split])).values();
+      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
       d3.select(this).attr(mark.attributes);
     });
 
@@ -125,7 +126,7 @@ export function drawBars(marks){
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-      d.subcats = d3.set(rawData.map(m => m[mark.split])).values();
+      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
       d.tooltip = mark.tooltip;
     });
 
@@ -208,7 +209,7 @@ export function drawBars(marks){
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(m => m[mark.split])).values();
+      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
       d3.select(this).attr(mark.attributes);
       let parent = d3.select(this.parentNode).datum();
       let rangeSet = parent.key.split(',').map(m => +m);
@@ -270,7 +271,7 @@ export function drawBars(marks){
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = d3.set(rawData.map(m => m[mark.split] )).values();
+      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split] )).values();
       let parent = d3.select(this.parentNode).datum();
       let rangeSet = parent.key.split(',').map(m => +m);
       d.rangeLow = d3.min(rangeSet);

@@ -1,4 +1,4 @@
-export function drawPoints(marks){
+export default function (marks){
   let config = this.config;
 
   let point_supergroups = this.svg.selectAll('.point-supergroup').data(marks, (d,i) => i+'-'+d.per.join('-'));

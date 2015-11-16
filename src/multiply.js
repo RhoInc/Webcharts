@@ -1,4 +1,6 @@
-webCharts.multiply = function(chart, data, split_by, order){
+import {createChart} from './chart';
+
+export default function (chart, data, split_by, order){
   let config = chart.config;
   let wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
   let master_legend = wrap.append('ul').attr('class', 'legend');
@@ -10,7 +12,7 @@ webCharts.multiply = function(chart, data, split_by, order){
     }
 
     split_vals.forEach(e => {
-      var mchart = webCharts.createChart(chart.wrap.node(), config, chart.controls);
+      var mchart = createChart(chart.wrap.node(), config, chart.controls);
       mchart.events = chart.events;
       mchart.legend = master_legend;
       mchart.filters.unshift({col: split_by, val: e, choices: split_vals});
@@ -20,4 +22,4 @@ webCharts.multiply = function(chart, data, split_by, order){
   }
 
   goAhead(data);
-};
+}

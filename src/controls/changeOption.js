@@ -1,4 +1,4 @@
-export function changeOption(option, value){
+export default function(option, value){
 
   this.targets.forEach(e => {
   	if(option instanceof Array){

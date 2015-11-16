@@ -1,4 +1,4 @@
-export function tableTransformData(data){
+export default function (data){
   if(!data){
     return;
   }

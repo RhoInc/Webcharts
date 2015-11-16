@@ -1,4 +1,4 @@
-export function layout(){
+export default function (){
   this.svg = this.wrap.append("svg")
     .attr({"class": "wc-svg",
         "xmlns": "http://www.w3.org/2000/svg",

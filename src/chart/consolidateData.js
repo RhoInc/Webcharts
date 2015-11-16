@@ -1,4 +1,6 @@
-export function consolidateData(raw){
+import naturalSorter from '../dataOps/naturalSorter';
+
+export default function (raw){
   let config = this.config;
   let all_data = [];
   let all_x = [];
@@ -28,9 +30,10 @@ export function consolidateData(raw){
     else if( config.x.order ){
       this.x_dom = d3.set(d3.merge(all_x)).values()
         .sort((a,b) => d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) );
+      console.log(this.x_dom)
     }
     else if( config.x.sort && config.x.sort === 'alphabetical-ascending' ){
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     }
     else if(config.y.type === 'time' && config.x.sort === 'earliest' ){
       this.x_dom = d3.nest()
@@ -43,7 +46,7 @@ export function consolidateData(raw){
         .map(m => m.key);
     }
     else if( !config.x.sort || config.x.sort === 'alphabetical-descending' ){
-      this.x_dom = d3.set(d3.merge(all_x)).values().sort(webCharts.dataOps.naturalSorter);
+      this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     }
     else{
       this.x_dom = d3.set(d3.merge(all_x)).values();
@@ -65,7 +68,7 @@ export function consolidateData(raw){
         .sort((a,b) => d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b)) );
     }
     else if( config.y.sort && config.y.sort === 'alphabetical-ascending' ){
-      this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter);
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter);
     }
     else if( config.x.type === 'time' && config.y.sort === 'earliest' ){
       this.y_dom = d3.nest()
@@ -78,7 +81,7 @@ export function consolidateData(raw){
         .map(m => m.key);
     }
     else if( !config.y.sort || config.y.sort === 'alphabetical-descending' ){
-      this.y_dom = d3.set(d3.merge(all_y)).values().sort(webCharts.dataOps.naturalSorter).reverse();
+      this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter).reverse();
     }
     else{
       this.y_dom = d3.set(d3.merge(all_y)).values();

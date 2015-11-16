@@ -1,4 +1,4 @@
-export function resize(){
+export default function (){
   let config = this.config;
 
   let aspect2 = 1/config.aspect;
