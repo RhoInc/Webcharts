@@ -1385,7 +1385,6 @@ function consolidateData(raw) {
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(function (a, b) {
         return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
       });
-      console.log(this.x_dom);
     } else if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
     } else if (config.y.type === 'time' && config.x.sort === 'earliest') {
@@ -2225,7 +2224,7 @@ var dataOps = {
   summarize: summarize
 };
 
-var version = '1.3.0';
+var version = '1.3.1';
 
 var index = {
   version: version,

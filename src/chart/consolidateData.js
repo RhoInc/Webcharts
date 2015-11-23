@@ -30,7 +30,6 @@ export default function (raw){
     else if( config.x.order ){
       this.x_dom = d3.set(d3.merge(all_x)).values()
         .sort((a,b) => d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) );
-      console.log(this.x_dom)
     }
     else if( config.x.sort && config.x.sort === 'alphabetical-ascending' ){
       this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
