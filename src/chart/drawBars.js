@@ -204,6 +204,7 @@ export default function (marks){
       .append('title');
 
     bars
+      .attr('shape-rendering', 'crispEdges')
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
       .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
@@ -266,6 +267,7 @@ export default function (marks){
       .append('title');
 
     bars
+      .attr('shape-rendering', 'crispEdges')
       .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
       .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
 
