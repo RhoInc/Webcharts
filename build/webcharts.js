@@ -993,11 +993,14 @@ function drawBars(marks) {
       });
       nu_bar_groups.append('title');
 
-      bars = bar_groups.selectAll("rect").data(function (d) {
-        return d.values instanceof Array ? d.values : [d];
+      bars = bar_groups.selectAll('rect').data(function (d) {
+        return d.values instanceof Array ? d.values.sort(function (a, b) {
+          return _this6.colorScale.domain().indexOf(b.key) - _this6.colorScale.domain().indexOf(a.key);
+        }) : [d];
       }, function (d) {
         return d.key;
       });
+
       bars.exit().transition().attr('y', _this6.y(0)).attr('height', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
@@ -1013,7 +1016,7 @@ function drawBars(marks) {
         var mark = d3.select(this.parentNode.parentNode).datum();
         d.tooltip = mark.tooltip;
         d.arrange = mark.split ? mark.arrange : null;
-        d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+        d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
           return m[mark.split];
         })).values();
         d3.select(this).attr(mark.attributes);
@@ -1037,9 +1040,9 @@ function drawBars(marks) {
         if (!d.arrange || d.arrange === 'stacked') {
           return _this6.x(d.values.x);
         } else if (d.arrange === 'nested') {
-          position = d.subcats.indexOf(d.key);
-          var offset = position ? _this6.x.rangeBand() / (d.subcats.length * position * 0.5) / 2 : _this6.x.rangeBand() / 2;
-          return _this6.x(d.values.x) + _this6.x.rangeBand() / 2 - offset;
+          var _position = d.subcats.indexOf(d.key);
+          var offset = _position ? _this6.x.rangeBand() / (d.subcats.length * 0.75) / _position : _this6.x.rangeBand();
+          return _this6.x(d.values.x) + (_this6.x.rangeBand() - offset) / 2;
         } else {
           position = d.subcats.indexOf(d.key);
           return _this6.x(d.values.x) + _this6.x.rangeBand() / d.subcats.length * position;
@@ -1055,7 +1058,7 @@ function drawBars(marks) {
           return _this6.x.rangeBand();
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
-          return position ? _this6.x.rangeBand() / (d.subcats.length * position * 0.5) : _this6.x.rangeBand();
+          return position ? _this6.x.rangeBand() / (d.subcats.length * 0.75) / position : _this6.x.rangeBand();
         } else {
           return _this6.x.rangeBand() / d.subcats.length;
         }
@@ -1074,10 +1077,13 @@ function drawBars(marks) {
       nu_bar_groups.append('title');
 
       bars = bar_groups.selectAll('rect').data(function (d) {
-        return d.values instanceof Array ? d.values : [d];
+        return d.values instanceof Array ? d.values.sort(function (a, b) {
+          return _this6.colorScale.domain().indexOf(b.key) - _this6.colorScale.domain().indexOf(a.key);
+        }) : [d];
       }, function (d) {
         return d.key;
       });
+
       bars.exit().transition().attr('x', _this6.x(0)).attr('width', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
@@ -1092,7 +1098,7 @@ function drawBars(marks) {
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
         d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-        d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+        d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
           return m[mark.split];
         })).values();
         d.tooltip = mark.tooltip;
@@ -1172,7 +1178,7 @@ function drawBars(marks) {
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
         d.arrange = mark.split ? mark.arrange : null;
-        d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+        d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
           return m[mark.split];
         })).values();
         d3.select(this).attr(mark.attributes);
@@ -1241,7 +1247,7 @@ function drawBars(marks) {
       bars.each(function (d) {
         var mark = d3.select(this.parentNode.parentNode).datum();
         d.arrange = mark.split ? mark.arrange : null;
-        d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+        d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
           return m[mark.split];
         })).values();
         var parent = d3.select(this.parentNode).datum();

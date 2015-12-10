@@ -22,7 +22,13 @@ export default function (marks){
     nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
     nu_bar_groups.append('title');
 
-    bars = bar_groups.selectAll("rect").data(d => d.values instanceof Array ? d.values : [d], d => d.key);
+    bars = bar_groups.selectAll('rect').data(d => {
+      return (
+        d.values instanceof Array ? d.values.sort((a,b) => this.colorScale.domain().indexOf(b.key) - this.colorScale.domain().indexOf(a.key)) 
+        : [d]
+      );
+    }, d => d.key );
+
     bars.exit()
       .transition()
       .attr('y', this.y(0))
@@ -44,7 +50,7 @@ export default function (marks){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.tooltip = mark.tooltip;
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
+      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
       d3.select(this).attr(mark.attributes);
     });
 
@@ -64,9 +70,9 @@ export default function (marks){
           return this.x(d.values.x);
         }
         else if(d.arrange === 'nested'){
-          position = d.subcats.indexOf(d.key);
-          let offset = position ? this.x.rangeBand()/(d.subcats.length*(position)*0.5)/2 : this.x.rangeBand()/2;
-          return this.x(d.values.x) + this.x.rangeBand()/2 - offset;
+          let position = d.subcats.indexOf(d.key);
+          let offset = position ? this.x.rangeBand()/(d.subcats.length*0.75)/(position) : this.x.rangeBand();
+          return this.x(d.values.x) + (this.x.rangeBand() - offset)/2;
         }
         else{
           position = d.subcats.indexOf(d.key);
@@ -87,7 +93,7 @@ export default function (marks){
         }
         else if(d.arrange === 'nested'){
           let position = d.subcats.indexOf(d.key);
-          return position ? this.x.rangeBand()/(d.subcats.length*(position)*0.5) : this.x.rangeBand();
+          return position ? this.x.rangeBand()/(d.subcats.length*0.75)/(position) : this.x.rangeBand();
         }
         else{
           return this.x.rangeBand()/d.subcats.length;
@@ -106,7 +112,13 @@ export default function (marks){
     nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
     nu_bar_groups.append('title');
 
-    bars = bar_groups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key );
+    bars = bar_groups.selectAll('rect').data(d => {
+      return (
+        d.values instanceof Array ? d.values.sort((a,b) => this.colorScale.domain().indexOf(b.key) - this.colorScale.domain().indexOf(a.key)) 
+        : [d]
+      );
+    }, d => d.key );
+
     bars.exit()
       .transition()
       .attr('x', this.x(0))
@@ -127,7 +139,7 @@ export default function (marks){
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
+      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
       d.tooltip = mark.tooltip;
     });
 
@@ -211,7 +223,7 @@ export default function (marks){
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
+      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
       d3.select(this).attr(mark.attributes);
       let parent = d3.select(this.parentNode).datum();
       let rangeSet = parent.key.split(',').map(m => +m);
@@ -274,7 +286,7 @@ export default function (marks){
     bars.each(function(d){
       let mark = d3.select(this.parentNode.parentNode).datum();
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split] )).values();
+      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split] )).values();
       let parent = d3.select(this.parentNode).datum();
       let rangeSet = parent.key.split(',').map(m => +m);
       d.rangeLow = d3.min(rangeSet);
