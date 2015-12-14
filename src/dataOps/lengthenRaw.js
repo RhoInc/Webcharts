@@ -4,7 +4,7 @@ export default function (data, columns){
   data.forEach(e => {
 
     columns.forEach(g => {
-      let obj = Object.create(e);
+      let obj = Object.assign({}, e);
       obj.wc_category = g;
       obj.wc_value = e[g];
       my_data.push(obj);
