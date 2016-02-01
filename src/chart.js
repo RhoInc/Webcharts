@@ -23,13 +23,14 @@ export function createChart(element = 'body', config = {}, controls = null){
 	thisChart.events = {
 		onInit(){},
 		onLayout(){},
+		onPreprocess(){},
 		onDatatransform(){},
 		onDraw(){},
 		onResize(){}
 	};
 	
 	thisChart.on = function(event, callback){
-		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
+		let possible_events = ['init','layout', 'preprocess', 'datatransform', 'draw', 'resize'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}

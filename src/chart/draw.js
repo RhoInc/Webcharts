@@ -1,8 +1,11 @@
 export default function (raw_data, processed_data){
   var context = this;
-  let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   let config = this.config;
   let aspect2 = 1/config.aspect;
+  //if pre-processing callback, run it now
+  this.events.onPreprocess.call(this);
+  //then do normal processing
+  let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   let data = processed_data || this.consolidateData(raw);
 
   this.wrap.datum(data);
