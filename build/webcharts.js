@@ -604,6 +604,7 @@ function setDefaults() {
   this.config.colors = this.config.colors || ['rgb(102,194,165)', 'rgb(252,141,98)', 'rgb(141,160,203)', 'rgb(231,138,195)', 'rgb(166,216,84)', 'rgb(255,217,47)', 'rgb(229,196,148)', 'rgb(179,179,179)'];
 
   this.config.scale_text = this.config.scale_text === undefined ? true : this.config.scale_text;
+  this.config.transitions = this.config.transitions === undefined ? true : this.config.transitions;
 }
 
 function setColorScale() {
@@ -660,8 +661,11 @@ function resize() {
   if (config.x_location !== 'top') {
     g_x_axis.attr('transform', 'translate(0,' + this.plot_height + ')');
   }
-  g_x_axis.transition().call(this.xAxis);
-  g_y_axis.transition().call(this.yAxis);
+  var gXAxisTrans = config.transitions ? g_x_axis.transition() : g_x_axis;
+  gXAxisTrans.call(this.xAxis);
+  var gYAxisTrans = config.transitions ? g_y_axis.transition() : g_y_axis;
+  gYAxisTrans.call(this.yAxis);
+
   x_axis_label.attr('transform', 'translate(' + this.plot_width / 2 + ',' + (this.margin.bottom - 2) + ')');
   y_axis_label.attr('x', -1 * this.plot_height / 2).attr('y', -1 * this.margin.left);
 
@@ -812,6 +816,7 @@ function init(data) {
     //make sure container is visible (has height and width) before trying to initialize
     var visible = d3.select(_this3.div).property('offsetWidth') > 0;
     if (!visible) {
+      console.warn('The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.');
       var onVisible = setInterval(function (i) {
         var visible_now = d3.select(_this3.div).property('offsetWidth') > 0;
         if (visible_now) {
@@ -854,8 +859,12 @@ function drawPoints(marks) {
     return d.key;
   });
   var oldPoints = points.exit();
-  oldPoints.selectAll('circle').transition().attr('r', 0);
-  oldPoints.transition().remove();
+
+  var oldPointsTrans = config.transitions ? oldPoints.selectAll('circle').transition() : oldPoints.selectAll('circle');
+  oldPointsTrans.attr('r', 0);
+
+  var oldPointGroupTrans = config.transitions ? oldPoints.transition() : oldPoints;
+  oldPointGroupTrans.remove();
 
   var nupoints = points.enter().append('g').attr('class', function (d) {
     return d.key + ' point';
@@ -875,7 +884,8 @@ function drawPoints(marks) {
     d3.select(this).select('circle').attr(mark.attributes);
   });
   //animated attributes
-  points.select('circle').transition().attr('r', function (d) {
+  var pointsTrans = config.transitions ? points.select('circle').transition() : points.select('circle');
+  pointsTrans.attr('r', function (d) {
     return d.mark.radius || config.flex_point_size;
   }).attr('cx', function (d) {
     var x_pos = _this4.x(d.values.x) || 0;
@@ -924,11 +934,14 @@ function drawLines(marks) {
   });
   nu_line_grps.append('path');
   nu_line_grps.append('title');
-  line_grps.select('path').attr('class', 'wc-data-mark').datum(function (d) {
+
+  var linePaths = line_grps.select('path').attr('class', 'wc-data-mark').datum(function (d) {
     return d.values;
   }).attr('stroke', function (d) {
     return _this5.colorScale(d[0].values.raw[0][config.color_by]);
-  }).attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width).attr('stroke-linecap', 'round').attr('fill', 'none').transition().attr('d', line);
+  }).attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width).attr('stroke-linecap', 'round').attr('fill', 'none');
+  var linePathsTrans = config.transitions ? linePaths.transition() : linePaths;
+  linePathsTrans.attr('d', line);
 
   line_grps.each(function (d) {
     var mark = d3.select(this.parentNode).datum();
@@ -983,10 +996,14 @@ function drawBars(marks) {
   var nu_bar_groups = undefined;
   var bars = undefined;
 
+  var oldBarsTrans = config.transitions ? old_bar_groups.selectAll('.bar').transition() : old_bar_groups.selectAll('.bar');
+  var oldBarGroupsTrans = config.transitions ? old_bar_groups.transition() : old_bar_groups;
+
   if (config.x.type === 'ordinal') {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('y', _this6.y(0)).attr('height', 0);
-      old_bar_groups.transition().remove();
+      oldBarsTrans.attr('y', _this6.y(0)).attr('height', 0);
+
+      oldBarGroupsTrans.remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
         return 'bar-group ' + d.key;
@@ -1001,7 +1018,8 @@ function drawBars(marks) {
         return d.key;
       });
 
-      bars.exit().transition().attr('y', _this6.y(0)).attr('height', 0).remove();
+      var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+      exitBars.attr('y', _this6.y(0)).attr('height', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
       }).style('clip-path', 'url(#' + _this6.id + ')').attr('y', _this6.y(0)).attr('height', 0).append('title');
@@ -1035,7 +1053,8 @@ function drawBars(marks) {
         });
       });
 
-      bars.transition().attr('x', function (d) {
+      var barsTrans = config.transitions ? bars.transition() : bars;
+      barsTrans.attr('x', function (d) {
         var position = undefined;
         if (!d.arrange || d.arrange === 'stacked') {
           return _this6.x(d.values.x);
@@ -1068,8 +1087,9 @@ function drawBars(marks) {
     })();
   } else if (config.y.type === 'ordinal') {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('x', _this6.x(0)).attr('width', 0);
-      old_bar_groups.transition().remove();
+      oldBarsTrans.attr('x', _this6.x(0)).attr('width', 0);
+
+      oldBarGroupsTrans.remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
         return 'bar-group ' + d.key;
@@ -1084,7 +1104,8 @@ function drawBars(marks) {
         return d.key;
       });
 
-      bars.exit().transition().attr('x', _this6.x(0)).attr('width', 0).remove();
+      var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+      exitBars.attr('x', _this6.x(0)).attr('width', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
       }).style('clip-path', 'url(#' + _this6.id + ')').attr('x', _this6.x(0)).attr('width', 0).append('title');
@@ -1117,7 +1138,8 @@ function drawBars(marks) {
         });
       });
 
-      bars.transition().attr('x', function (d) {
+      var barsTrans = config.transitions ? bars.transition() : bars;
+      barsTrans.attr('x', function (d) {
         if (d.arrange === 'stacked' || !d.arrange) {
           return d.values.start !== undefined ? _this6.x(d.values.start) : _this6.x(0);
         } else {
@@ -1151,8 +1173,9 @@ function drawBars(marks) {
     })();
   } else if (config.x.type === 'linear' && config.x.bin) {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('y', _this6.y(0)).attr('height', 0);
-      old_bar_groups.transition().remove();
+      oldBarsTrans.attr('y', _this6.y(0)).attr('height', 0);
+
+      oldBarGroupsTrans.remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
         return 'bar-group ' + d.key;
@@ -1164,7 +1187,9 @@ function drawBars(marks) {
       }, function (d) {
         return d.key;
       });
-      bars.exit().transition().attr('y', _this6.y(0)).attr('height', 0).remove();
+
+      var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+      exitBars.attr('y', _this6.y(0)).attr('height', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
       }).style('clip-path', 'url(#' + _this6.id + ')').attr('y', _this6.y(0)).attr('height', 0).append('title');
@@ -1204,7 +1229,8 @@ function drawBars(marks) {
         });
       });
 
-      bars.transition().attr('x', function (d) {
+      var barsTrans = config.transitions ? bars.transition() : bars;
+      barsTrans.attr('x', function (d) {
         return _this6.x(d.rangeLow);
       }).attr('y', function (d) {
         if (d.arrange !== 'stacked') {
@@ -1220,8 +1246,8 @@ function drawBars(marks) {
     })();
   } else if (config.y.type === 'linear' && config.y.bin) {
     (function () {
-      old_bar_groups.selectAll('.bar').transition().attr('x', _this6.x(0)).attr('width', 0);
-      old_bar_groups.transition().remove();
+      oldBarsTrans.attr('x', _this6.x(0)).attr('width', 0);
+      oldBarGroupsTrans.remove();
 
       nu_bar_groups = bar_groups.enter().append('g').attr('class', function (d) {
         return 'bar-group ' + d.key;
@@ -1233,7 +1259,9 @@ function drawBars(marks) {
       }, function (d) {
         return d.key;
       });
-      bars.exit().transition().attr('x', _this6.x(0)).attr('width', 0).remove();
+
+      var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+      exitBars.attr('x', _this6.x(0)).attr('width', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
         return 'wc-data-mark bar ' + d.key;
       }).style('clip-path', 'url(#' + _this6.id + ')').attr('x', _this6.x(0)).attr('width', 0).append('title');
@@ -1272,7 +1300,8 @@ function drawBars(marks) {
         });
       });
 
-      bars.transition().attr('x', function (d) {
+      var barsTrans = config.transitions ? bars.transition() : bars;
+      barsTrans.attr('x', function (d) {
         if (d.arrange === 'stacked') {
           return _this6.x(d.values.start);
         } else {
@@ -1287,8 +1316,8 @@ function drawBars(marks) {
       });
     })();
   } else {
-    old_bar_groups.selectAll('.bar').transition().attr('y', this.y(0)).attr('height', 0);
-    old_bar_groups.transition().remove();
+    oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
+    oldBarGroupsTrans.remove();
     bar_supergroups.remove();
   }
 }
@@ -1307,10 +1336,16 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
   area_grps.enter().append('g').attr('class', function (d) {
     return class_match + ' ' + d.key;
   }).append('path');
-  area_grps.select('path').datum(datum_accessor).attr('fill', function (d) {
+
+  var areaPaths = area_grps.select('path').datum(datum_accessor).attr('fill', function (d) {
     var d_attr = attr_accessor(d);
     return d_attr ? _this7.colorScale(d_attr[_this7.config.color_by]) : null;
-  }).attr('fill-opacity', this.config.fill_opacity || this.config.fill_opacity === 0 ? this.config.fill_opacity : 0.3).transition().attr('d', area_drawer);
+  }).attr('fill-opacity', this.config.fill_opacity || this.config.fill_opacity === 0 ? this.config.fill_opacity : 0.3);
+
+  //don't transition if config says not to
+  var areaPathTransitions = this.config.transitions ? areaPaths.transition() : areaPaths;
+
+  areaPathTransitions.attr('d', area_drawer);
 
   return area_grps;
 }
@@ -1319,9 +1354,12 @@ function draw(raw_data, processed_data) {
   var _this8 = this;
 
   var context = this;
-  var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   var config = this.config;
   var aspect2 = 1 / config.aspect;
+  //if pre-processing callback, run it now
+  this.events.onPreprocess.call(this);
+  //then do normal processing
+  var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
   var data = processed_data || this.consolidateData(raw);
 
   this.wrap.datum(data);
@@ -1347,11 +1385,11 @@ function draw(raw_data, processed_data) {
   this.xScaleAxis(pseudo_width);
   this.yScaleAxis(pseudo_height);
 
-  if (config.resizable) {
+  if (config.resizable && window) {
     d3.select(window).on('resize.' + context.element + context.id, function () {
       context.resize();
     });
-  } else {
+  } else if (window) {
     d3.select(window).on('resize.' + context.element + context.id, null);
   }
 
@@ -1551,13 +1589,14 @@ function createChart() {
   thisChart.events = {
     onInit: function onInit() {},
     onLayout: function onLayout() {},
+    onPreprocess: function onPreprocess() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
     onResize: function onResize() {}
   };
 
   thisChart.on = function (event, callback) {
-    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
@@ -1857,7 +1896,7 @@ function makeTextControl(control, control_wrap) {
 
   changer.on('change', function (d) {
     var value = changer.property('value');
-    _this11.changeOption(control.option, value);
+    _this11.changeOption(control.option, value, control.callback);
   });
 }
 
@@ -1923,6 +1962,10 @@ function makeSubsetterControl(control, control_wrap) {
         var new_filter = { col: control.value_col, val: values, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
+          //call callback function if provided
+          if (control.callback) {
+            control.callback();
+          }
           e.draw();
         });
       })();
@@ -1932,6 +1975,10 @@ function makeSubsetterControl(control, control_wrap) {
         var new_filter = { col: control.value_col, val: value, choices: option_data, loose: control.loose };
         targets.forEach(function (e) {
           setSubsetter(e, new_filter);
+          //call callback function if provided
+          if (control.callback) {
+            control.callback();
+          }
           e.draw();
         });
       })();
@@ -1957,7 +2004,7 @@ function makeRadioControl(control, control_wrap) {
         value = d3.select(this).property('value') === 'none' ? null : c;
       }
     });
-    _this13.changeOption(control.option, value);
+    _this13.changeOption(control.option, value, control.callback);
   });
 }
 
@@ -1970,7 +2017,7 @@ function makeNumberControl(control, control_wrap) {
 
   changer.on('change', function (d) {
     var value = +changer.property('value');
-    _this14.changeOption(control.option, value);
+    _this14.changeOption(control.option, value, control.callback);
   });
 }
 
@@ -1985,7 +2032,7 @@ function makeListControl(control, control_wrap) {
     var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
       return m.trim();
     }) : null;
-    _this15.changeOption(control.option, value);
+    _this15.changeOption(control.option, value, control.callback);
   });
 }
 
@@ -2023,9 +2070,9 @@ function makeDropdownControl(control, control_wrap) {
     }
 
     if (control.options) {
-      _this16.changeOption(control.options, value);
+      _this16.changeOption(control.options, value, control.callback);
     } else {
-      _this16.changeOption(control.option, value);
+      _this16.changeOption(control.option, value, control.callback);;
     }
   });
 
@@ -2041,7 +2088,7 @@ function makeCheckboxControl(control, control_wrap) {
 
   changer.on('change', function (d) {
     var value = changer.property('checked');
-    _this17.changeOption(d.option, value);
+    _this17.changeOption(d.option, value, control.callback);
   });
 }
 
@@ -2062,7 +2109,7 @@ function makeBtnGroupControl(control, control_wrap) {
     changers.each(function (e) {
       d3.select(this).classed('btn-primary', e === d);
     });
-    _this18.changeOption(control.option, d);
+    _this18.changeOption(control.option, d, control.callback);
   });
 }
 
@@ -2131,7 +2178,7 @@ function checkRequired$1(dataset) {
   });
 }
 
-function changeOption(option, value) {
+function changeOption(option, value, callback) {
   var _this20 = this;
 
   this.targets.forEach(function (e) {
@@ -2141,6 +2188,10 @@ function changeOption(option, value) {
       });
     } else {
       _this20.stringAccessor(e.config, option, value);
+    }
+    //call callback function if provided
+    if (callback) {
+      callback();
     }
     e.draw();
   });
@@ -2230,7 +2281,7 @@ var dataOps = {
   summarize: summarize
 };
 
-var version = '1.3.2';
+var version = '1.4.0';
 
 var index = {
   version: version,
