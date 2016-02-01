@@ -28,6 +28,7 @@ export default function (data){
       //make sure container is visible (has height and width) before trying to initialize
       var visible = d3.select(this.div).property('offsetWidth') > 0;
       if(!visible){
+          console.warn(`The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.`);
           var onVisible = setInterval(i => {
               let visible_now = d3.select(this.div).property('offsetWidth') > 0;
               if(visible_now){

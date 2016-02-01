@@ -25,7 +25,7 @@ npm install --save webcharts
 	
 Then, use it in your modules:
 ```javascript
-var webCharts = require('webCharts');
+var webCharts = require('webcharts');
 ```
 
 # Making a Chart
