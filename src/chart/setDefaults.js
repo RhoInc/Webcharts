@@ -29,5 +29,6 @@ export default function (){
 	this.config.colors = this.config.colors || ['rgb(102,194,165)','rgb(252,141,98)','rgb(141,160,203)','rgb(231,138,195)','rgb(166,216,84)','rgb(255,217,47)','rgb(229,196,148)','rgb(179,179,179)'];
 
 	this.config.scale_text = this.config.scale_text === undefined ? true : this.config.scale_text;
+	this.config.transitions = this.config.transitions === undefined ? true : this.config.transitions;
 
 }

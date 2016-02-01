@@ -8,10 +8,12 @@ export default function (marks){
   let points = point_supergroups.selectAll('.point')
     .data(d => d.data, d => d.key );
   let oldPoints = points.exit();
-  oldPoints.selectAll('circle')
-    .transition()
-    .attr('r', 0);
-  oldPoints.transition().remove();
+  
+  let oldPointsTrans = config.transitions ? oldPoints.selectAll('circle').transition() : oldPoints.selectAll('circle');
+  oldPointsTrans.attr('r', 0);
+
+  let oldPointGroupTrans = config.transitions ? oldPoints.transition() : oldPoints;
+  oldPointGroupTrans.remove();
 
   let nupoints = points.enter().append('g').attr('class', d => d.key+' point');
   nupoints.append('circle').attr('class', 'wc-data-mark')
@@ -29,8 +31,8 @@ export default function (marks){
     d3.select(this).select('circle').attr(mark.attributes);
   });
   //animated attributes
-  points.select('circle')
-    .transition()
+  let pointsTrans = config.transitions ?  points.select('circle').transition() :  points.select('circle');
+  pointsTrans
     .attr('r', d => d.mark.radius || config.flex_point_size)
     .attr('cx', d => {
       let x_pos = this.x(d.values.x) || 0;

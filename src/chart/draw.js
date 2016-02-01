@@ -34,10 +34,10 @@ export default function (raw_data, processed_data){
   this.xScaleAxis(pseudo_width);
   this.yScaleAxis(pseudo_height);
 
-  if(config.resizable){
-    d3.select(window).on('resize.'+context.element+context.id, function(){context.resize(); });
+  if(config.resizable && window){
+    d3.select(window).on('resize.'+context.element+context.id, function(){ context.resize(); });
   }
-  else{
+  else if(window){
     d3.select(window).on('resize.'+context.element+context.id, null);
   }
 

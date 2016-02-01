@@ -12,12 +12,15 @@ export default function (marks){
   let nu_bar_groups;
   let bars;
 
+  let oldBarsTrans = config.transitions ? old_bar_groups.selectAll('.bar').transition() : old_bar_groups.selectAll('.bar');
+  let oldBarGroupsTrans = config.transitions ? old_bar_groups.transition() : old_bar_groups;
+
   if(config.x.type === 'ordinal'){
-    old_bar_groups.selectAll('.bar')
-      .transition()
+    oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
-    old_bar_groups.transition().remove();
+    
+    oldBarGroupsTrans.remove();
 
     nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
     nu_bar_groups.append('title');
@@ -29,8 +32,8 @@ export default function (marks){
       );
     }, d => d.key );
 
-    bars.exit()
-      .transition()
+    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    exitBars
       .attr('y', this.y(0))
       .attr('height', 0)
       .remove();
@@ -63,7 +66,8 @@ export default function (marks){
         .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
-    bars.transition()
+    let barsTrans = config.transitions ? bars.transition() : bars;
+    barsTrans
       .attr('x', d => {
         let position;
         if(!d.arrange || d.arrange === 'stacked'){
@@ -103,11 +107,11 @@ export default function (marks){
 
   }
   else if(config.y.type === 'ordinal'){
-    old_bar_groups.selectAll('.bar')
-      .transition()
+    oldBarsTrans
       .attr('x', this.x(0))
       .attr('width', 0);
-    old_bar_groups.transition().remove();
+
+    oldBarGroupsTrans.remove();
 
     nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
     nu_bar_groups.append('title');
@@ -119,8 +123,8 @@ export default function (marks){
       );
     }, d => d.key );
 
-    bars.exit()
-      .transition()
+    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    exitBars
       .attr('x', this.x(0))
       .attr('width', 0)
       .remove();
@@ -152,7 +156,8 @@ export default function (marks){
         .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
-    bars.transition()
+    let barsTrans = config.transitions ? bars.transition() : bars;
+    barsTrans
       .attr('x', d => {
         if(d.arrange === 'stacked' || !d.arrange){
           return d.values.start !== undefined ? this.x(d.values.start) : this.x(0);
@@ -193,18 +198,19 @@ export default function (marks){
       });
   }
   else if(config.x.type === 'linear' && config.x.bin){
-    old_bar_groups.selectAll('.bar')
-      .transition()
+    oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
-    old_bar_groups.transition().remove();
+
+    oldBarGroupsTrans.remove();
 
     nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
     nu_bar_groups.append('title');
 
     bars = bar_groups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key );
-    bars.exit()
-      .transition()
+    
+    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    exitBars
       .attr('y', this.y(0))
       .attr('height', 0)
       .remove();
@@ -241,7 +247,8 @@ export default function (marks){
         .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
-    bars.transition()
+    let barsTrans = config.transitions ? bars.transition() : bars;
+    barsTrans
       .attr('x', d => this.x(d.rangeLow) )
       .attr('y', d => {
         if(d.arrange !== 'stacked'){
@@ -256,18 +263,18 @@ export default function (marks){
 
   }
   else if(config.y.type === 'linear' && config.y.bin){
-    old_bar_groups.selectAll('.bar')
-      .transition()
+    oldBarsTrans
       .attr('x', this.x(0))
       .attr('width', 0);
-    old_bar_groups.transition().remove();
+    oldBarGroupsTrans.remove();
 
     nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
     nu_bar_groups.append('title');
 
     bars = bar_groups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key );
-    bars.exit()
-      .transition()
+    
+    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    exitBars
       .attr('x', this.x(0))
       .attr('width', 0)
       .remove();
@@ -303,7 +310,8 @@ export default function (marks){
         .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
     });
 
-    bars.transition()
+    let barsTrans = config.transitions ? bars.transition() : bars;
+    barsTrans
       .attr('x', d => {
         if(d.arrange === 'stacked'){
           return this.x(d.values.start);
@@ -317,11 +325,10 @@ export default function (marks){
       .attr('height', d => this.y(d.rangeLow) - this.y(d.rangeHigh) );
   }
   else{
-    old_bar_groups.selectAll('.bar')
-      .transition()
+    oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
-    old_bar_groups.transition().remove();
+    oldBarGroupsTrans.remove();
     bar_supergroups.remove();
   }
 

@@ -48,8 +48,11 @@ export default function (){
   if(config.x_location !== 'top'){
     g_x_axis.attr('transform', 'translate(0,' + (this.plot_height) + ')');
   }
-  g_x_axis.transition().call(this.xAxis);
-  g_y_axis.transition().call(this.yAxis);
+  let gXAxisTrans = config.transitions ? g_x_axis.transition() : g_x_axis;
+  gXAxisTrans.call(this.xAxis);
+  let gYAxisTrans = config.transitions ? g_y_axis.transition() : g_y_axis;
+  gYAxisTrans.call(this.yAxis);
+
   x_axis_label
     .attr('transform', 'translate('+this.plot_width/2+','+(this.margin.bottom-2)+')');
   y_axis_label

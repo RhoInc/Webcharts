@@ -23,14 +23,15 @@ export default function (marks){
   let nu_line_grps = line_grps.enter().append('g').attr('class', d => d.key +' line');
   nu_line_grps.append('path');
   nu_line_grps.append('title');
-  line_grps.select('path').attr('class', 'wc-data-mark')
+  
+  let linePaths = line_grps.select('path').attr('class', 'wc-data-mark')
     .datum(d => d.values)
     .attr('stroke', d => this.colorScale(d[0].values.raw[0][config.color_by]) )
     .attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width)
     .attr('stroke-linecap', 'round')
-    .attr('fill', 'none')
-    .transition()
-    .attr('d', line);
+    .attr('fill', 'none');
+  let linePathsTrans = config.transitions ? linePaths.transition() : linePaths;
+  linePathsTrans.attr('d', line);
 
   line_grps.each(function(d){
     let mark = d3.select(this.parentNode).datum();
