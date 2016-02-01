@@ -16,7 +16,7 @@
   },
   "scripts": {
     "es6": "rollup -g d3 src/index.js > lib/webcharts.es6.js",
-    "common": "rollup src/index.js -g d3 | babel > lib/webcharts.common.js",
+    "common": "rollup src/index.js -g d3 | babel > lib/webcharts.common.js && sed -i \"s/require('d3')/var d3 = require('d3')/\" lib/webcharts.common.js",
     "amd": "rollup src/index.js -f amd -g d3 | babel > lib/webcharts.amd.js",
     "es5": "rollup src/index.js -g d3 | babel --modules ignore | cat lib/open.js - lib/close.js > build/webcharts.js",
     "uglify": "uglifyjs build/webcharts.js > build/webcharts.min.js",
