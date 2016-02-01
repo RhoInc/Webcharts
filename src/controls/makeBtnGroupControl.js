@@ -16,6 +16,6 @@ export default function(control, control_wrap){
      changers.each(function(e){
        d3.select(this).classed('btn-primary', e === d);
      });
-     this.changeOption(control.option, d);
+     this.changeOption(control.option, d, control.callback);
   });
 }

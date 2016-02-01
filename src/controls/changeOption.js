@@ -1,4 +1,4 @@
-export default function(option, value){
+export default function(option, value, callback){
 
   this.targets.forEach(e => {
   	if(option instanceof Array){
@@ -6,6 +6,10 @@ export default function(option, value){
   	}
   	else{
     	this.stringAccessor(e.config, option, value);
+    }
+    //call callback function if provided
+    if(callback){
+    	callback();
     }
     e.draw();
   });

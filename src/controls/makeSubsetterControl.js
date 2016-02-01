@@ -54,6 +54,10 @@ export default function (control, control_wrap){
       let new_filter = {col: control.value_col, val: values, choices: option_data, loose: control.loose};
       targets.forEach(e => {
         setSubsetter(e, new_filter);
+        //call callback function if provided
+        if(control.callback){
+          control.callback();
+        }
         e.draw();
       });
     }
@@ -62,6 +66,10 @@ export default function (control, control_wrap){
       let new_filter = {col: control.value_col, val: value, choices: option_data, loose: control.loose};
       targets.forEach(e => {
         setSubsetter(e, new_filter);
+        //call callback function if provided
+        if(control.callback){
+          control.callback();
+        }
         e.draw();
       });
     }

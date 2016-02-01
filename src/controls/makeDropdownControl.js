@@ -30,10 +30,10 @@ export default function(control, control_wrap){
     }
 
     if(control.options){
-      this.changeOption(control.options, value);
+      this.changeOption(control.options, value, control.callback);
     }
     else{
-      this.changeOption(control.option, value);
+      this.changeOption(control.option, value, control.callback);;
     }
 
   });

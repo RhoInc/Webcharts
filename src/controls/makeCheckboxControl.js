@@ -9,7 +9,7 @@ export default function(control, control_wrap){
 
   changer.on('change', d => {
   	let value = changer.property('checked');
-    this.changeOption(d.option, value);
+    this.changeOption(d.option, value, control.callback);
   });
 
 }

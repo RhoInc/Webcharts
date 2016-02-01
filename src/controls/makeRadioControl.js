@@ -20,7 +20,7 @@ export default function (control, control_wrap){
         value = d3.select(this).property('value') === 'none' ? null : c;
       }
     });
-    this.changeOption(control.option, value);
+    this.changeOption(control.option, value, control.callback);
   });
 
 }
