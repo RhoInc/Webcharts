@@ -15,6 +15,9 @@ export default function (scale = this.colorScale, label='', custom_data=null){
   if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
     this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
   }
+  else {
+    this.wrap.node().appendChild(legendOriginal.node());
+  }
   legend.style('padding', 0);
 
   let legend_data = custom_data || scale.domain().slice(0).filter(f => f !== undefined && f !== null).map(m => {
@@ -35,7 +38,7 @@ export default function (scale = this.colorScale, label='', custom_data=null){
     'inline-block' : 'block';
   let new_parts = leg_parts.enter().append('li')
     .attr('class', 'legend-item')
-    .style({'list-style-type': 'none', 'display': legendPartDisplay, 'margin-right': '1em'});
+    .style({'list-style-type': 'none', 'margin-right': '1em'});
   new_parts.append('span')
     .attr('class', 'legend-mark-text')
     .style('color', d => scale(d.label) );
@@ -47,6 +50,8 @@ export default function (scale = this.colorScale, label='', custom_data=null){
       'position': 'relative',
       'top': '0.2em'
     });
+
+  leg_parts.style('display', legendPartDisplay);
 
   if(config.legend.order){
     leg_parts.sort((a,b) => d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label)) );
