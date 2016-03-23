@@ -15,6 +15,7 @@ export default function (){
 	this.config.margin = this.config.margin || {};
 	this.config.legend = this.config.legend || {};
 	this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
+	this.config.legend.location = this.config.legend.location !== undefined ? this.config.legend.location : 'bottom';
 	this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
 
 	this.config.date_format = this.config.date_format || '%x';

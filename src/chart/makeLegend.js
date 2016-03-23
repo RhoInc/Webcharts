@@ -9,23 +9,33 @@ export default function (scale = this.colorScale, label='', custom_data=null){
   let legend_label = label ? label :
    typeof config.legend.label === 'string' ? config.legend.label : '';
 
-  let legend = this.legend || this.wrap.select('.legend');
+  let legendOriginal = this.legend || this.wrap.select('.legend');
+  let legend = legendOriginal;
+
+  if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+    this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+  }
   legend.style('padding', 0);
 
   let legend_data = custom_data || scale.domain().slice(0).filter(f => f !== undefined && f !== null).map(m => {
     return {label: m,  mark: config.legend.mark};
   });
 
-  legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none').style('margin-right', '1em');
+  legend.select('.legend-title')
+    .text(legend_label)
+    .style('display', legend_label ? 'inline' : 'none')
+    .style('margin-right', '1em');
 
   let leg_parts = legend.selectAll('.legend-item')
       .data(legend_data, d => d.label + d.mark);
 
   leg_parts.exit().remove();
 
+  const legendPartDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ?
+    'inline-block' : 'block';
   let new_parts = leg_parts.enter().append('li')
     .attr('class', 'legend-item')
-    .style({'list-style-type': 'none', 'display': 'inline-block', 'margin-right': '1em'});
+    .style({'list-style-type': 'none', 'display': legendPartDisplay, 'margin-right': '1em'});
   new_parts.append('span')
     .attr('class', 'legend-mark-text')
     .style('color', d => scale(d.label) );
@@ -66,7 +76,10 @@ export default function (scale = this.colorScale, label='', custom_data=null){
     .text(d => d.label);
 
   if(scale.domain().length > 0){
-    legend.style('display', 'block');
+    const legendDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 
+      'block' : 
+      'inline-block';
+    legend.style('display', legendDisplay);
   }
   else{
     legend.style('display', 'none');

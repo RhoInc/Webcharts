@@ -11,7 +11,7 @@
 
 'use strict';
 
-var version = '1.4.0';
+var version = '1.5.0';
 
 function checkRequired(data) {
   var _this = this;
@@ -805,7 +805,7 @@ function layout() {
     "xmlns": "http://www.w3.org/2000/svg",
     "version": "1.1",
     "xlink": "http://www.w3.org/1999/xlink"
-  }).append("g");
+  }).append("g").style('display', 'inline-block');
 
   var defs = this.svg.append("defs");
   defs.append("pattern").attr({
@@ -822,7 +822,8 @@ function layout() {
   //overlay
   this.svg.append('rect').attr('class', 'overlay').attr('opacity', 0).attr('fill', 'none').style('pointer-events', 'all');
   //add legend
-  this.wrap.append('ul').attr('class', 'legend').append('span').attr('class', 'legend-title');
+  var legend = this.wrap.append('ul');
+  legend.attr('class', 'legend').style('vertical-align', 'top').append('span').attr('class', 'legend-title');
 
   d3.select(this.div).select('.loader').remove();
 
@@ -840,7 +841,12 @@ function makeLegend() {
 
   var legend_label = label ? label : typeof config.legend.label === 'string' ? config.legend.label : '';
 
-  var legend = this.legend || this.wrap.select('.legend');
+  var legendOriginal = this.legend || this.wrap.select('.legend');
+  var legend = legendOriginal;
+
+  if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+    this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+  }
   legend.style('padding', 0);
 
   var legend_data = custom_data || scale.domain().slice(0).filter(function (f) {
@@ -857,7 +863,8 @@ function makeLegend() {
 
   leg_parts.exit().remove();
 
-  var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item').style({ 'list-style-type': 'none', 'display': 'inline-block', 'margin-right': '1em' });
+  var legendPartDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 'inline-block' : 'block';
+  var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item').style({ 'list-style-type': 'none', 'display': legendPartDisplay, 'margin-right': '1em' });
   new_parts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
     return scale(d.label);
   });
@@ -896,7 +903,8 @@ function makeLegend() {
   });
 
   if (scale.domain().length > 0) {
-    legend.style('display', 'block');
+    var legendDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 'block' : 'inline-block';
+    legend.style('display', legendDisplay);
   } else {
     legend.style('display', 'none');
   }
@@ -997,6 +1005,7 @@ function setDefaults() {
   this.config.margin = this.config.margin || {};
   this.config.legend = this.config.legend || {};
   this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
+  this.config.legend.location = this.config.legend.location !== undefined ? this.config.legend.location : 'bottom';
   this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
 
   this.config.date_format = this.config.date_format || '%x';

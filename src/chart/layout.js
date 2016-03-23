@@ -5,7 +5,8 @@ export default function (){
         "version": "1.1",
         "xlink": "http://www.w3.org/1999/xlink"
      })
-    .append("g");
+    .append("g")
+    .style('display', 'inline-block');
 
   let defs = this.svg.append("defs");
   defs.append("pattern").attr({
@@ -34,8 +35,12 @@ export default function (){
     .attr('fill', 'none')
     .style('pointer-events', 'all');
   //add legend
-  this.wrap.append('ul').attr('class', 'legend')
-    .append('span').attr('class', 'legend-title');
+  const legend = this.wrap.append('ul');
+  legend
+    .attr('class', 'legend')
+    .style('vertical-align', 'top')
+      .append('span')
+    .attr('class', 'legend-title');
 
   d3.select(this.div).select('.loader').remove();
 
