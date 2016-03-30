@@ -2,7 +2,7 @@
 Webcharts is a charting library built on top of [D3.js](https://github.com/mbostock/d3) that offers a simple way to create reusable, flexible, interactive charts with JavaScript. Charts can be customized with a handful of settings and extended through callback functions. Webcharts can also create sets of controls that are tied to charts to dynamically manipulate chart data, appearance, or behavior.
 
 # How to Use
-Like D3, Webcharts can be used in modern browsers (IE9+, Chrome, Firefox, etc.), and also exports itself as a CommonJS module for compatibility with Node. Install the package via npm:
+Webcharts can be used in modern browsers (Chrome, Firefox, IE9+, etc.) and also exports itself as a CommonJS module for compatibility with Node. Install the package via npm:
 ```bash
 npm install --save webcharts
 ```
@@ -36,7 +36,7 @@ require(['webCharts'], function(webCharts) {
 ```
 
 # Making a Chart
-Let's get right to it. A chart is created with a call to [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API#webchartscreatechartelement-config-controls), a function that takes a few arguments and returns an object that represents a chart:
+A chart is created with a call to [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API#webchartscreatechartelement-config-controls), a function that takes a few arguments and returns an object that represents a chart:
 
 ```javascript	
 // define a configuration object
@@ -78,7 +78,7 @@ The first argument, `'body'`, tells the function where to draw the chart. This i
 
 The second argument is a configuration object that sets a number of options for the chart. The config object in this example sets some basic options like what dataset fields should be mapped to the `x` and `y` axes, what type of `marks` should be drawn, how wide the chart can get (`max_width`), its `aspect` ratio, and where `gridlines` should be drawn. All of the possible configuration options are described [here](https://github.com/RhoInc/Webcharts/wiki/Chart-Configuration).
 
-The chart object returned by [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API#webchartscreatechartelement-config-controls) can then be initialized by passing data to the chart via its `init()` method. This method is the first in a chain of [a set of "lifecycle" methods](https://github.com/RhoInc/Webcharts/wiki/Webcharts-Life-Cycle) which create necessary DOM elements, define internal charting variables, manipulate data, and then render the chart via SVG.
+The chart object returned by [webCharts.createChart](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API#webchartscreatechartelement-config-controls) can then be initialized by passing data to the chart via its `init()` method. This method is the first in a chain of [a set of lifecycle methods](https://github.com/RhoInc/Webcharts/wiki/Webcharts-Life-Cycle) which create necessary DOM elements, define internal charting variables, manipulate data, and then render the chart via SVG.
 
 Behold! The code above will produce a chart like this:
 
