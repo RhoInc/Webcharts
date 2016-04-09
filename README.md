@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/21330/RhoInc/Webcharts.svg)](https://zenodo.org/badge/latestdoi/21330/RhoInc/Webcharts)
+
 # Overview
 Webcharts is a charting library built on top of [D3.js](https://github.com/mbostock/d3) that offers a simple way to create reusable, flexible, interactive charts with JavaScript. Charts can be customized with a handful of settings and extended through callback functions. Webcharts can also create sets of controls that are tied to charts to dynamically manipulate chart data, appearance, or behavior.
 
