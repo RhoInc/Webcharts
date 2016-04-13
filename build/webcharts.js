@@ -11,7 +11,7 @@
 
 'use strict';
 
-var version = '1.5.1';
+var version = '1.5.3';
 
 function checkRequired(data) {
   var _this = this;
