@@ -1,4 +1,4 @@
-import naturalSorter from '../dataOps/naturalSorter';
+import naturalSorter from '../util/naturalSorter';
 
 export default function (){
   let config = this.config;

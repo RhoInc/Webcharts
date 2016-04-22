@@ -1,5 +1,5 @@
-import naturalSorter from '../dataOps/naturalSorter';
-import summarize from '../dataOps/summarize';
+import naturalSorter from '../util/naturalSorter';
+import summarize from '../util/summarize';
 
 export default function (raw, mark){
   let config = this.config;

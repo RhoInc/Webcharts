@@ -1,23 +1,24 @@
-import {createChart} from './chart';
+import { ascending, set } from 'd3';
+import createChart from './createChart';
 
-export default function (chart, data, split_by, order){
-  let config = chart.config;
-  let wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
-  let master_legend = wrap.append('ul').attr('class', 'legend');
+export default function (chart, data, splitBy, order) {
+  const config = chart.config;
+  const wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
+  const masterLegend = wrap.append('ul').attr('class', 'legend');
 
-  function goAhead(data){
-    let split_vals = d3.set(data.map(m => m[split_by])).values().filter(f => f);
-    if(order){
-      split_vals = split_vals.sort((a,b) => d3.ascending(order.indexOf(a), order.indexOf(b)) );
+  function goAhead(input) {
+    let splitVals = set(input.map(m => m[splitBy])).values().filter(f => f);
+    if (order) {
+      splitVals = splitVals.sort((a, b) => ascending(order.indexOf(a), order.indexOf(b)));
     }
 
-    split_vals.forEach(e => {
-      var mchart = createChart(chart.wrap.node(), config, chart.controls);
+    splitVals.forEach(e => {
+      const mchart = createChart(chart.wrap.node(), config, chart.controls);
       mchart.events = chart.events;
-      mchart.legend = master_legend;
-      mchart.filters.unshift({col: split_by, val: e, choices: split_vals});
+      mchart.legend = masterLegend;
+      mchart.filters.unshift({ col: splitBy, val: e, choices: splitVals });
       mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
-      mchart.init(data);
+      mchart.init(input);
     });
   }
 

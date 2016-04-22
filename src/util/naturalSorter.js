@@ -1,5 +1,5 @@
-export default function (a, b){
-  //adapted from http://www.davekoelle.com/files/alphanum.js
+export default function naturalSorter(a, b) {
+  // adapted from http://www.davekoelle.com/files/alphanum.js
   function chunkify(t) {
     let tz = [];
     let x = 0, y = -1, n = 0, i, j;
@@ -31,5 +31,4 @@ export default function (a, b){
   }
 
   return aa.length - bb.length;
-
 }
