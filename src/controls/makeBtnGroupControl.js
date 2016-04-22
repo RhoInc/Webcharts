@@ -1,21 +1,24 @@
-export default function(control, control_wrap){
-  let option_data = control.values ? control.values : d3.keys(this.data[0]);
+import { select, keys } from 'd3';
+import stringAccessor from '../util/stringAccessor';
 
-  let btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
+export default function makeBtnGroupControl(control, controlWrap) {
+  const optionData = control.values ? control.values : keys(this.data[0]);
 
-  let changers = btn_wrap.selectAll('button')
-    	.data(option_data)
-    	.enter().append('button')
-      .attr('class', 'btn btn-default btn-sm')
-      .text(d => d)
-      .classed('btn-primary', d => {
-        return this.stringAccessor(this.targets[0].config, control.option) === d;
-      });
+  const btnWrap = controlWrap.append('div').attr('class', 'btn-group');
+
+  const changers = btnWrap.selectAll('button')
+    .data(optionData)
+    .enter().append('button')
+    .attr('class', 'btn btn-default btn-sm')
+    .text(d => d)
+    .classed('btn-primary', d =>
+      stringAccessor(this.targets[0].config, control.option) === d
+    );
 
   changers.on('click', d => {
-     changers.each(function(e){
-       d3.select(this).classed('btn-primary', e === d);
-     });
-     this.changeOption(control.option, d, control.callback);
+    changers.each(function toggleClass(e) {
+      select(this).classed('btn-primary', e === d);
+    });
+    this.changeOption(control.option, d, control.callback);
   });
 }

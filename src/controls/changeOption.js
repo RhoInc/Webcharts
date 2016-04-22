@@ -1,17 +1,17 @@
-export default function(option, value, callback){
+import stringAccessor from '../util/stringAccessor';
 
+export default function changeOption(option, value, callback) {
   this.targets.forEach(e => {
-  	if(option instanceof Array){
-  		option.forEach(o => this.stringAccessor(e.config, o, value) );
-  	}
-  	else{
-    	this.stringAccessor(e.config, option, value);
+    if (option instanceof Array) {
+      option.forEach(o => stringAccessor(e.config, o, value));
     }
-    //call callback function if provided
-    if(callback){
-    	callback();
+    else {
+      stringAccessor(e.config, option, value);
+    }
+    // call callback function if provided
+    if (callback) {
+      callback();
     }
     e.draw();
   });
-
 }

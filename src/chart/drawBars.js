@@ -1,335 +1,408 @@
-export default function (marks){
-  let rawData = this.raw_data;
-  let config = this.config;
+import { select, format, set, min, max } from 'd3';
 
-  let bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, (d,i) => i+'-'+d.per.join('-'));
-  bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
-  bar_supergroups.exit().remove();
+export default function drawBars(marks) {
+  const rawData = this.rawData;
+  const config = this.config;
 
-  let bar_groups = bar_supergroups.selectAll('.bar-group').data(d => d.data, d => d.key);
-  let old_bar_groups = bar_groups.exit();
+  const xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ?
+    format('0%') :
+    format(config.x.format);
+  const yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ?
+    format('0%') :
+    format(config.y.format);
 
-  let nu_bar_groups;
+  const barSuperGroups = this.svg.selectAll('.bar-supergroup').data(marks, (d, i) => `${i}-${d.per.join('-')}`);
+  barSuperGroups.enter().append('g').attr('class', 'bar-supergroup');
+  barSuperGroups.exit().remove();
+
+  const barGroups = barSuperGroups.selectAll('.bar-group').data(d => d.data, d => d.key);
+  const oldBarGroups = barGroups.exit();
+
+  let nuBarGroups;
   let bars;
 
-  let oldBarsTrans = config.transitions ? old_bar_groups.selectAll('.bar').transition() : old_bar_groups.selectAll('.bar');
-  let oldBarGroupsTrans = config.transitions ? old_bar_groups.transition() : old_bar_groups;
+  const oldBarsTrans = config.transitions ? oldBarGroups.selectAll('.bar').transition() : oldBarGroups.selectAll('.bar');
+  const oldBarGroupsTrans = config.transitions ? oldBarGroups.transition() : oldBarGroups;
 
-  if(config.x.type === 'ordinal'){
+  // ordinal x axis
+  if (config.x.type === 'ordinal') {
     oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
-    
+
     oldBarGroupsTrans.remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
-    nu_bar_groups.append('title');
+    nuBarGroups = barGroups.enter().append('g').attr('class', d => `bar-group ${d.key}`);
+    nuBarGroups.append('title');
 
-    bars = bar_groups.selectAll('rect').data(d => {
-      return (
-        d.values instanceof Array ? d.values.sort((a,b) => this.colorScale.domain().indexOf(b.key) - this.colorScale.domain().indexOf(a.key)) 
-        : [d]
-      );
-    }, d => d.key );
+    bars = barGroups.selectAll('rect').data(d =>
+      (
+        d.values instanceof Array ?
+        d.values.sort((a, b) => this.colorScale.domain().indexOf(b.key) - this.colorScale.domain().indexOf(a.key)) :
+        [d]
+      )
+    , d => d.key);
 
-    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    const exitBars = config.transitions ? bars.exit().transition() : bars.exit();
     exitBars
       .attr('y', this.y(0))
       .attr('height', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => 'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.id+')')
+      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .style('clip-path', `url(#${this.id})`)
       .attr('y', this.y(0))
       .attr('height', 0)
       .append('title');
 
     bars
       .attr('shape-rendering', 'crispEdges')
-      .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
+      .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]))
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
-    bars.each(function(d){
-      let mark = d3.select(this.parentNode.parentNode).datum();
+    bars.each(function assignMark(d) {
+      const mark = select(this.parentNode.parentNode).datum();
       d.tooltip = mark.tooltip;
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
-      d3.select(this).attr(mark.attributes);
+      d.subcats = config.legend.order ?
+        config.legend.order.slice().reverse() :
+        mark.values && mark.values[mark.split] ?
+        mark.values[mark.split] :
+        set(rawData.map(m => m[mark.split])).values();
+      select(this).attr(mark.attributes);
     });
 
-    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
-    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
     bars.select('title').text(d => {
-      let tt = d.tooltip || '';
+      const tt = d.tooltip || '';
       return tt.replace(/\$x/g, xformat(d.values.x))
         .replace(/\$y/g, yformat(d.values.y))
-        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
-    let barsTrans = config.transitions ? bars.transition() : bars;
+    const barsTrans = config.transitions ?
+      bars.transition() :
+      bars;
+
     barsTrans
       .attr('x', d => {
         let position;
-        if(!d.arrange || d.arrange === 'stacked'){
+        let finalXPosition;
+        if (!d.arrange || d.arrange === 'stacked') {
           return this.x(d.values.x);
         }
-        else if(d.arrange === 'nested'){
-          let position = d.subcats.indexOf(d.key);
-          let offset = position ? this.x.rangeBand()/(d.subcats.length*0.75)/(position) : this.x.rangeBand();
-          return this.x(d.values.x) + (this.x.rangeBand() - offset)/2;
-        }
-        else{
+        else if (d.arrange === 'nested') {
           position = d.subcats.indexOf(d.key);
-          return this.x(d.values.x)+this.x.rangeBand()/d.subcats.length*position;
+          const offset = position ?
+            this.x.rangeBand() / (d.subcats.length * 0.75) / (position) :
+            this.x.rangeBand();
+          finalXPosition = this.x(d.values.x) + (this.x.rangeBand() - offset) / 2;
         }
+        else {
+          position = d.subcats.indexOf(d.key);
+          finalXPosition = this.x(d.values.x) + this.x.rangeBand() / d.subcats.length * position;
+        }
+        return finalXPosition;
       })
       .attr('y', d => {
-        if(d.arrange !== 'stacked'){
-          return this.y(d.values.y);
+        let finalYPosition;
+        if (d.arrange !== 'stacked') {
+          finalYPosition = this.y(d.values.y);
         }
-        else{
-          return this.y(d.values.start);
+        else {
+          finalYPosition = this.y(d.values.start);
         }
+        return finalYPosition;
       })
       .attr('width', d => {
-        if(d.arrange === 'stacked'){
+        let finalWidth;
+        if (d.arrange === 'stacked') {
           return this.x.rangeBand();
         }
-        else if(d.arrange === 'nested'){
-          let position = d.subcats.indexOf(d.key);
-          return position ? this.x.rangeBand()/(d.subcats.length*0.75)/(position) : this.x.rangeBand();
+        else if (d.arrange === 'nested') {
+          const position = d.subcats.indexOf(d.key);
+          finalWidth = position ?
+            this.x.rangeBand() / (d.subcats.length * 0.75) / (position) :
+            this.x.rangeBand();
         }
-        else{
-          return this.x.rangeBand()/d.subcats.length;
+        else {
+          finalWidth = this.x.rangeBand() / d.subcats.length;
         }
+        return finalWidth;
       })
-      .attr('height', d => this.y(0) - this.y(d.values.y) );
-
+      .attr('height', d => this.y(0) - this.y(d.values.y));
   }
-  else if(config.y.type === 'ordinal'){
+  // ordinal Y axis
+  else if (config.y.type === 'ordinal') {
     oldBarsTrans
       .attr('x', this.x(0))
       .attr('width', 0);
 
     oldBarGroupsTrans.remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
-    nu_bar_groups.append('title');
+    nuBarGroups = barGroups.enter().append('g').attr('class', d => `bar-group ${d.key}`);
+    nuBarGroups.append('title');
 
-    bars = bar_groups.selectAll('rect').data(d => {
-      return (
-        d.values instanceof Array ? d.values.sort((a,b) => this.colorScale.domain().indexOf(b.key) - this.colorScale.domain().indexOf(a.key)) 
-        : [d]
-      );
-    }, d => d.key );
+    bars = barGroups.selectAll('rect').data(d =>
+      (
+        d.values instanceof Array ?
+        d.values.sort((a, b) => this.colorScale.domain().indexOf(b.key) - this.colorScale.domain().indexOf(a.key)) :
+        [d]
+      )
+    , d => d.key);
 
-    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    const exitBars = config.transitions ?
+      bars.exit().transition() :
+      bars.exit();
     exitBars
       .attr('x', this.x(0))
       .attr('width', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => 'wc-data-mark bar '+d.key ) 
-      .style('clip-path', 'url(#'+this.id+')')
+      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .style('clip-path', `url(#${this.id})`)
       .attr('x', this.x(0))
       .attr('width', 0)
       .append('title');
 
     bars
       .attr('shape-rendering', 'crispEdges')
-      .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
+      .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]))
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
-    bars.each(function(d){
-      let mark = d3.select(this.parentNode.parentNode).datum();
-      d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
+    bars.each(function assignMark(d) {
+      const mark = select(this.parentNode.parentNode).datum();
+      d.arrange = mark.split && mark.arrange ?
+        mark.arrange :
+        mark.split ?
+        'grouped' :
+        null;
+      d.subcats = config.legend.order ?
+        config.legend.order.slice().reverse() :
+        mark.values && mark.values[mark.split] ?
+        mark.values[mark.split] :
+        set(rawData.map(m => m[mark.split])).values();
       d.tooltip = mark.tooltip;
     });
 
-    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
-    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
     bars.select('title').text(d => {
-      let tt = d.tooltip || '';
+      const tt = d.tooltip || '';
       return tt.replace(/\$x/g, xformat(d.values.x))
         .replace(/\$y/g, yformat(d.values.y))
-        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
-    let barsTrans = config.transitions ? bars.transition() : bars;
+    const barsTrans = config.transitions ?
+      bars.transition() :
+      bars;
+
     barsTrans
       .attr('x', d => {
-        if(d.arrange === 'stacked' || !d.arrange){
-          return d.values.start !== undefined ? this.x(d.values.start) : this.x(0);
+        let finalXPosition;
+        if (d.arrange === 'stacked' || !d.arrange) {
+          finalXPosition = d.values.start !== undefined ?
+            this.x(d.values.start) :
+            this.x(0);
         }
-        else{
-          return this.x(0);
+        else {
+          finalXPosition = this.x(0);
         }
+        return finalXPosition;
       })
       .attr('y', d => {
-        if(d.arrange === 'nested'){
-          let position = d.subcats.indexOf(d.key);
-          let offset = position ? this.y.rangeBand()/(d.subcats.length*0.75)/(position) : this.y.rangeBand();
-          return this.y(d.values.y) + (this.y.rangeBand() - offset)/2;
+        let finalYPosition;
+        let position;
+        if (d.arrange === 'nested') {
+          position = d.subcats.indexOf(d.key);
+          const offset = position ?
+            this.y.rangeBand() / (d.subcats.length * 0.75) / (position) :
+            this.y.rangeBand();
+          finalYPosition = this.y(d.values.y) + (this.y.rangeBand() - offset) / 2;
         }
-        else if(d.arrange === 'grouped'){
-          let position = d.subcats.indexOf(d.key);
-          return this.y(d.values.y) + this.y.rangeBand()/d.subcats.length * position;
+        else if (d.arrange === 'grouped') {
+          position = d.subcats.indexOf(d.key);
+          finalYPosition = this.y(d.values.y) + this.y.rangeBand() / d.subcats.length * position;
         }
-        else{
+        else {
           return this.y(d.values.y);
         }
+        return finalYPosition;
       })
-      .attr('width', d => this.x(d.values.x) - this.x(0) )
+      .attr('width', d => this.x(d.values.x) - this.x(0))
       .attr('height', d => {
-        if(config.y.type === 'quantile'){
-          return 20;
+        let finalHeight;
+        if (config.y.type === 'quantile') {
+          finalHeight = 20;
         }
-        else if(d.arrange === 'nested'){
-          let position = d.subcats.indexOf(d.key);
-          return position ? this.y.rangeBand()/(d.subcats.length*0.75)/(position) : this.y.rangeBand();
+        else if (d.arrange === 'nested') {
+          const position = d.subcats.indexOf(d.key);
+          finalHeight = position ?
+            this.y.rangeBand() / (d.subcats.length * 0.75) / (position) :
+            this.y.rangeBand();
         }
-        else if(d.arrange === 'grouped'){
-          return this.y.rangeBand()/d.subcats.length;
+        else if (d.arrange === 'grouped') {
+          finalHeight = this.y.rangeBand() / d.subcats.length;
         }
-        else{
-          return this.y.rangeBand();
+        else {
+          finalHeight = this.y.rangeBand();
         }
+        return finalHeight;
       });
   }
-  else if(config.x.type === 'linear' && config.x.bin){
+  // x is linear and a bin is defined
+  else if (config.x.type === 'linear' && config.x.bin) {
     oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
 
     oldBarGroupsTrans.remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
-    nu_bar_groups.append('title');
+    nuBarGroups = barGroups.enter().append('g').attr('class', d => `bar-group ${d.key}`);
+    nuBarGroups.append('title');
 
-    bars = bar_groups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key );
-    
-    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    bars = barGroups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key);
+
+    const exitBars = config.transitions ?
+      bars.exit().transition() :
+      bars.exit();
+
     exitBars
       .attr('y', this.y(0))
       .attr('height', 0)
       .remove();
+
     bars.enter().append('rect')
-      .attr('class', d =>'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.id+')')
+      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .style('clip-path', `url(#${this.id})`)
       .attr('y', this.y(0))
       .attr('height', 0)
       .append('title');
 
     bars
       .attr('shape-rendering', 'crispEdges')
-      .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
+      .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]))
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
-    bars.each(function(d){
-      let mark = d3.select(this.parentNode.parentNode).datum();
-      d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split])).values();
-      d3.select(this).attr(mark.attributes);
-      let parent = d3.select(this.parentNode).datum();
-      let rangeSet = parent.key.split(',').map(m => +m);
-      d.rangeLow = d3.min(rangeSet);
-      d.rangeHigh = d3.max(rangeSet);
+    bars.each(function assignMark(d) {
+      const mark = select(this.parentNode.parentNode).datum();
+
+      d.arrange = mark.split ?
+        mark.arrange :
+        null;
+
+      d.subcats = config.legend.order ?
+        config.legend.order.slice().reverse() :
+        mark.values && mark.values[mark.split] ?
+        mark.values[mark.split] :
+        set(rawData.map(m => m[mark.split])).values();
+
+      select(this).attr(mark.attributes);
+
+      const parent = select(this.parentNode).datum();
+      const rangeSet = parent.key.split(',').map(m => +m);
+
+      d.rangeLow = min(rangeSet);
+      d.rangeHigh = max(rangeSet);
       d.tooltip = mark.tooltip;
     });
 
-    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
-    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
     bars.select('title').text(d => {
-      let tt = d.tooltip || '';
+      const tt = d.tooltip || '';
       return tt.replace(/\$x/g, xformat(d.values.x))
         .replace(/\$y/g, yformat(d.values.y))
-        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
-    let barsTrans = config.transitions ? bars.transition() : bars;
-    barsTrans
-      .attr('x', d => this.x(d.rangeLow) )
-      .attr('y', d => {
-        if(d.arrange !== 'stacked'){
-          return this.y(d.values.y);
-        }
-        else{
-          return this.y(d.values.start);
-        }
-      })
-      .attr('width', d => this.x(d.rangeHigh) - this.x(d.rangeLow) )
-      .attr('height', d => this.y(0) - this.y(d.values.y) );
+    const barsTrans = config.transitions ?
+      bars.transition() :
+      bars;
 
+    barsTrans
+      .attr('x', d => this.x(d.rangeLow))
+      .attr('y', d => {
+        let finalYPosition;
+        if (d.arrange !== 'stacked') {
+          finalYPosition = this.y(d.values.y);
+        }
+        else {
+          finalYPosition = this.y(d.values.start);
+        }
+        return finalYPosition;
+      })
+      .attr('width', d => this.x(d.rangeHigh) - this.x(d.rangeLow))
+      .attr('height', d => this.y(0) - this.y(d.values.y));
   }
-  else if(config.y.type === 'linear' && config.y.bin){
+  // y is linear and bin is defined
+  else if (config.y.type === 'linear' && config.y.bin) {
     oldBarsTrans
       .attr('x', this.x(0))
       .attr('width', 0);
     oldBarGroupsTrans.remove();
 
-    nu_bar_groups = bar_groups.enter().append('g').attr('class', d => 'bar-group '+d.key );
-    nu_bar_groups.append('title');
+    nuBarGroups = barGroups.enter().append('g').attr('class', d => `bar-group ${d.key}`);
+    nuBarGroups.append('title');
 
-    bars = bar_groups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key );
-    
-    let exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+    bars = barGroups.selectAll('rect').data(d => d.values instanceof Array ? d.values : [d], d => d.key);
+
+    const exitBars = config.transitions ? bars.exit().transition() : bars.exit();
     exitBars
       .attr('x', this.x(0))
       .attr('width', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => 'wc-data-mark bar '+d.key )
-      .style('clip-path', 'url(#'+this.id+')')
+      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .style('clip-path', `url(#${this.id})`)
       .attr('x', this.x(0))
       .attr('width', 0)
       .append('title');
 
     bars
       .attr('shape-rendering', 'crispEdges')
-      .attr('stroke',  d => this.colorScale(d.values.raw[0][config.color_by]) )
-      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]) );
+      .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]))
+      .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
-    bars.each(function(d){
-      let mark = d3.select(this.parentNode.parentNode).datum();
+    bars.each(function assignMark(d) {
+      const mark = select(this.parentNode.parentNode).datum();
       d.arrange = mark.split ? mark.arrange : null;
-      d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(m => m[mark.split] )).values();
-      let parent = d3.select(this.parentNode).datum();
-      let rangeSet = parent.key.split(',').map(m => +m);
-      d.rangeLow = d3.min(rangeSet);
-      d.rangeHigh = d3.max(rangeSet);
+      d.subcats = config.legend.order ?
+        config.legend.order.slice().reverse() :
+        mark.values && mark.values[mark.split] ?
+        mark.values[mark.split] :
+        set(rawData.map(m => m[mark.split])).values();
+      const parent = select(this.parentNode).datum();
+      const rangeSet = parent.key.split(',').map(m => +m);
+      d.rangeLow = min(rangeSet);
+      d.rangeHigh = max(rangeSet);
       d.tooltip = mark.tooltip;
     });
 
-    let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
-    let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
     bars.select('title').text(d => {
-      let tt = d.tooltip || '';
+      const tt = d.tooltip || '';
       return tt.replace(/\$x/g, xformat(d.values.x))
         .replace(/\$y/g, yformat(d.values.y))
-        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig] );
+        .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
-    let barsTrans = config.transitions ? bars.transition() : bars;
+    const barsTrans = config.transitions ? bars.transition() : bars;
     barsTrans
       .attr('x', d => {
-        if(d.arrange === 'stacked'){
-          return this.x(d.values.start);
+        let finalXPosition;
+        if (d.arrange === 'stacked') {
+          finalXPosition = this.x(d.values.start);
         }
-        else{
-          return this.x(0);
+        else {
+          finalXPosition = this.x(0);
         }
+        return finalXPosition;
       })
       .attr('y', d => this.y(d.rangeHigh))
-      .attr('width', d => this.x(d.values.x) )
-      .attr('height', d => this.y(d.rangeLow) - this.y(d.rangeHigh) );
+      .attr('width', d => this.x(d.values.x))
+      .attr('height', d => this.y(d.rangeLow) - this.y(d.rangeHigh));
   }
-  else{
+  else {
     oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
     oldBarGroupsTrans.remove();
-    bar_supergroups.remove();
+    barSuperGroups.remove();
   }
-
 }

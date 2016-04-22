@@ -1,15 +1,16 @@
-export default function(control, control_wrap){
-  let changer = control_wrap.append('input')
+import stringAccessor from '../util/stringAccessor';
+
+export default function makeCheckboxControl(control, controlWrap) {
+  const changer = controlWrap.append('input')
     .attr('type', 'checkbox')
     .attr('class', 'changer')
     .datum(control)
-    .property('checked', d => {
-      return this.stringAccessor(this.targets[0].config, control.option);
-    });
+    .property('checked', () =>
+      stringAccessor(this.targets[0].config, control.option)
+    );
 
   changer.on('change', d => {
-  	let value = changer.property('checked');
+    const value = changer.property('checked');
     this.changeOption(d.option, value, control.callback);
   });
-
 }

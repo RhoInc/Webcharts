@@ -1,4 +1,6 @@
-export default function (marks) {
+import { select, format, time } from 'd3';
+
+export default function drawText(marks) {
   const config = this.config;
 
   const textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, (d, i) => `${i}-${d.per.join('-')}`);
@@ -22,30 +24,35 @@ export default function (marks) {
 
   // attach mark info
   function attachMarks(d) {
-    d.mark = d3.select(this.parentNode).datum();
-    d3.select(this).select('text').attr(d.mark.attributes);
+    d.mark = select(this.parentNode).datum();
+    select(this).select('text').attr(d.mark.attributes);
   }
   texts.each(attachMarks);
 
   // parse text like tooltips
   texts.select('text').text(d => {
     const tt = d.mark.text || '';
+
     const xformat = config.x.summary === 'percent' ?
-      d3.format('0%') :
+      format('0%') :
       config.x.type === 'time' ?
-      d3.time.format(config.x.format) :
-      d3.format(config.x.format);
+      time.format(config.x.format) :
+      format(config.x.format);
+
     const yformat = config.y.summary === 'percent' ?
-      d3.format('0%') :
+      format('0%') :
       config.y.type === 'time' ?
-      d3.time.format(config.y.format) :
-      d3.format(config.y.format);
+      time.format(config.y.format) :
+      format(config.y.format);
+
     return tt.replace(/\$x/g, config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x))
       .replace(/\$y/g, config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y))
       .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
   });
+
   // animated attributes
   const textsTrans = config.transitions ? texts.select('text').transition() : texts.select('text');
+
   textsTrans
     .attr('x', d => {
       const xPos = this.x(d.values.x) || 0;
