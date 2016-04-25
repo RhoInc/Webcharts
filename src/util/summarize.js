@@ -8,7 +8,7 @@ const stats = {
   sum
 };
 
-export default function summarize(vals, operation) {
+export default function summarize(vals, operation = 'mean') {
   const nvals = vals.filter(f => +f || +f === 0)
     .map(m => +m);
 
@@ -16,10 +16,9 @@ export default function summarize(vals, operation) {
     return null;
   }
 
-  const stat = operation || 'mean';
-  const mathed = stat === 'count' ? vals.length :
-    stat === 'percent' ? vals.length :
-    stats[stat](nvals);
+  const mathed = operation === 'count' ? vals.length :
+    operation === 'percent' ? vals.length :
+    stats[operation](nvals);
 
   return mathed;
 }

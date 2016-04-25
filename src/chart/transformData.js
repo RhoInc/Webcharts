@@ -96,7 +96,7 @@ export default function transformData(rawData, mark) {
       thisNest.key(d => d[sublevelKey]);
       thisNest.sortKeys((a, b) =>
         config.x.type === 'time' ? ascending(new Date(a), new Date(b)) :
-          config.x_dom ? ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
+          config.x.domain ? ascending(config.x.domain.indexOf(a), config.x.domain.indexOf(b)) :
           sublevelKey === config.color_by && config.legend.order ? ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a, b) :
           ascending(+a, +b)
