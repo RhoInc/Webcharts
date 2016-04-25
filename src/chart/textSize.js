@@ -30,6 +30,6 @@ export default function textSize(width) {
   }
 
   this.wrap.style('font-size', fontSize);
-  this.config.flex_pointSize = pointSize;
-  this.config.flex_strokeWidth = strokeWidth;
+  this.config.flex_point_size = pointSize;
+  this.config.flex_stroke_width = strokeWidth;
 }

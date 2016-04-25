@@ -1,7 +1,7 @@
 import { select, format, set, min, max } from 'd3';
 
 export default function drawBars(marks) {
-  const rawData = this.rawData;
+  const rawData = this.raw_data;
   const config = this.config;
 
   const xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1 ?
