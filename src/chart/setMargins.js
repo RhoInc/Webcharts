@@ -1,10 +1,18 @@
 export default function setMargins() {
   const yTicks = this.yAxis.tickFormat() ? this.y.domain().map(m => this.yAxis.tickFormat()(m)) : this.y.domain();
-
-  let maxYTextLength = Math.max.apply(null, yTicks.map(m => String(m).length));
-  if (this.config.y_format && this.config.y_format.indexOf('%') > -1) {
+  const findCaps = new RegExp(/[A-Z]/g);
+  let maxYTextLength = Math.max.apply(
+    null,
+    yTicks.map(m => {
+      const capCount = String(m).match(findCaps) ? String(m).match(findCaps).length : 0;
+      // capital letters count for 1.5 the width of normal letters
+      return String(m).length - capCount + (capCount * 1.5);
+    })
+  );
+  if (this.config.y.format && this.config.y.format.indexOf('%') > -1) {
     maxYTextLength += 1;
   }
+
   maxYTextLength = Math.max(2, maxYTextLength);
   const xLabelOn = this.config.x.label ? 1.5 : 0;
   const yLabelOn = this.config.y.label ? 1.5 : 0.25;
