@@ -51,16 +51,16 @@
     // adapted from http://www.davekoelle.com/files/alphanum.js
     function chunkify(t) {
       var tz = [];
-      var x = 0,
-          y = -1,
-          n = 0,
-          i = void 0,
-          j = void 0;
+      var x = 0;
+      var y = -1;
+      var n = 0;
+      var i = void 0;
+      var j = void 0;
 
       while (i = (j = t.charAt(x++)).charCodeAt(0)) {
         var m = i == 46 || i >= 48 && i <= 57;
         if (m !== n) {
-          tz[++y] = "";
+          tz[++y] = '';
           n = m;
         }
         tz[y] += j;
@@ -68,13 +68,13 @@
       return tz;
     }
 
-    var aa = chunkify(a.toLowerCase());
-    var bb = chunkify(b.toLowerCase());
+    var aa = chunkify(String(a).toLowerCase());
+    var bb = chunkify(String(b).toLowerCase());
 
     for (var x = 0; aa[x] && bb[x]; x++) {
       if (aa[x] !== bb[x]) {
-        var c = Number(aa[x]),
-            d = Number(bb[x]);
+        var c = Number(aa[x]);
+        var d = Number(bb[x]);
         if (c == aa[x] && d == bb[x]) {
           return c - d;
         } else {
@@ -1194,7 +1194,9 @@
     sum: d3.sum
   };
 
-  function summarize(vals, operation) {
+  function summarize(vals) {
+    var operation = arguments.length <= 1 || arguments[1] === undefined ? 'mean' : arguments[1];
+
     var nvals = vals.filter(function (f) {
       return +f || +f === 0;
     }).map(function (m) {
@@ -1205,8 +1207,7 @@
       return null;
     }
 
-    var stat = operation || 'mean';
-    var mathed = stat === 'count' ? vals.length : stat === 'percent' ? vals.length : stats[stat](nvals);
+    var mathed = operation === 'count' ? vals.length : operation === 'percent' ? vals.length : stats[operation](nvals);
 
     return mathed;
   }
@@ -1320,7 +1321,7 @@
           return d[sublevelKey];
         });
         thisNest.sortKeys(function (a, b) {
-          return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) : config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) : sublevelKey === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) : config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a, b) : d3.ascending(+a, +b);
+          return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) : config.x.domain ? d3.ascending(config.x.domain.indexOf(a), config.x.domain.indexOf(b)) : sublevelKey === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) : config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a, b) : d3.ascending(+a, +b);
         });
       }
       thisNest.rollup(function (r) {
@@ -1732,21 +1733,24 @@
     return thisChart;
   }
 
-  function stringAccessor(o, s, v) {
+  function stringAccessor(obj, str, val) {
     // adapted from http://jsfiddle.net/alnitak/hEsys/
-    s = s.replace(/\[(\w+)\]/g, '.$1');
+    var s = str.replace(/\[(\w+)\]/g, '.$1');
     s = s.replace(/^\./, '');
     var a = s.split('.');
+    var objCopy = Object.create(obj);
     for (var i = 0, n = a.length; i < n; ++i) {
       var k = a[i];
-      if (k in o) {
-        if (i == n - 1 && v !== undefined) o[k] = v;
-        o = o[k];
+      if (k in objCopy) {
+        if (i === n - 1 && val !== undefined) {
+          objCopy[k] = val;
+        }
+        objCopy = objCopy[k];
       } else {
-        return;
+        break;
       }
     }
-    return o;
+    return objCopy;
   }
 
   function changeOption(option, value, callback) {
