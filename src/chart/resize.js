@@ -27,7 +27,7 @@ export default function resize() {
     .attr('width', svgWidth)
     .attr('height', svgHeight)
   .select('g')
-    .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+    .attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
 
   this.svg.select('.overlay')
     .attr('width', this.plot_width)
@@ -56,7 +56,7 @@ export default function resize() {
   gYAxisTrans.call(this.yAxis);
 
   xAxisLabel
-    .attr('transform', `translate(${this.plot_width / 2}, '${this.margin.bottom - 2})`);
+    .attr('transform', `translate(${this.plot_width / 2}, ${this.margin.bottom - 2})`);
   yAxisLabel
     .attr('x', -1 * this.plot_height / 2)
     .attr('y', -1 * this.margin.left);

@@ -13,18 +13,18 @@ export default function (data) {
 
   this.setDefaults();
 
-  this.rawData = data;
+  this.raw_data = data;
 
   this.events.onInit.call(this);
-  if (this.rawData.length) {
-    this.checkRequired(this.rawData);
+  if (this.raw_data.length) {
+    this.checkRequired(this.raw_data);
   }
 
   // connect this chart and its controls, if any
   if (this.controls) {
     this.controls.targets.push(this);
     if (!this.controls.ready) {
-      this.controls.init(this.rawData);
+      this.controls.init(this.raw_data);
     }
     else {
       this.controls.layout();

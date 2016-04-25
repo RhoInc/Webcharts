@@ -1,6 +1,6 @@
 import { select } from 'd3';
 
-export default function draw(rawData = this.rawData, processedData) {
+export default function draw(rawData = this.raw_data, processedData) {
   const context = this;
   const config = this.config;
   const aspect2 = 1 / config.aspect;

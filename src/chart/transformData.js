@@ -247,8 +247,8 @@ export default function transformData(rawData, mark) {
 
   const currentNested = makeNest(filtered, sublevel);
 
-  const flexDomX = currentNested.domX;
-  const flexDomY = currentNested.domY;
+  const flexDomX = currentNested.dom_x;
+  const flexDomY = currentNested.dom_y;
 
   if (mark.type === 'bar') {
     if (config.y.type === 'ordinal' && mark.summarizeX === 'count') {
@@ -269,8 +269,7 @@ export default function transformData(rawData, mark) {
   const preXDom = !this.filters.length ? flexDomX : xBehavior === 'raw' ? rawDomX : nonall && xBehavior === 'firstfilter' ? filt1DomX : flexDomX;
   const preYDom = !this.filters.length ? flexDomY : yBehavior === 'raw' ? rawDomY : nonall && yBehavior === 'firstfilter' ? filt1DomY : flexDomY;
 
-  const xDom = config.x.domain ? config.x.domain :
-    config.x.type === 'ordinal' && config.x.behavior === 'flex' ? set(filtered.map(m => m[config.x.column])).values() :
+  const xDom = config.x.type === 'ordinal' && config.x.behavior === 'flex' ? set(filtered.map(m => m[config.x.column])).values() :
     config.x.type === 'ordinal' ? set(raw.map(m => m[config.x.column])).values() :
     config.x_from0 ? [0, max(preXDom)] :
     preXDom;
