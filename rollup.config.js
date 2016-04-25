@@ -11,7 +11,8 @@ module.exports = {
   moduleName: 'webcharts',
   plugins: [
     babel({
-      exclude: 'node_modules/**'
+      exclude: 'node_modules/**',
+      presets: ['es2015-rollup']
     })
   ]
 };
