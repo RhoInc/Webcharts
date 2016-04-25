@@ -5,7 +5,7 @@ export default function resize() {
 
   const aspect2 = 1 / config.aspect;
   const divWidth = parseInt(this.wrap.style('width'), 10);
-  const maxWidth = config.maxWidth ? config.maxWidth : divWidth;
+  const maxWidth = config.max_width ? config.max_width : divWidth;
   const preWidth = !config.resizable ? config.width : !maxWidth || divWidth < maxWidth ? divWidth : this.raw_width;
 
   this.textSize(preWidth);
@@ -14,7 +14,7 @@ export default function resize() {
 
   const svgWidth = config.x.type === 'ordinal' && +config.range_band ? this.raw_width + this.margin.left + this.margin.right :
     !config.resizable ? this.raw_width :
-    !config.maxWidth || divWidth < config.maxWidth ? divWidth :
+    !config.max_width || divWidth < config.max_width ? divWidth :
     this.raw_width;
   this.plot_width = svgWidth - this.margin.left - this.margin.right;
   const svgHeight = config.y.type === 'ordinal' && +config.range_band ? this.raw_height + this.margin.top + this.margin.bottom :

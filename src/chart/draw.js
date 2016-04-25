@@ -16,7 +16,7 @@ export default function draw(rawData = this.raw_data, processedData) {
 
   this.setColorScale();
 
-  const maxWidth = config.maxWidth ? config.maxWidth : divWidth;
+  const maxWidth = config.max_width ? config.max_width : divWidth;
   this.raw_width = config.x.type === 'ordinal' && +config.range_band ?
     (+config.range_band + (config.range_band * config.padding)) * this.x_dom.length :
     config.resizable ?
