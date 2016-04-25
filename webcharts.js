@@ -266,7 +266,7 @@
   function drawBars(marks) {
     var _this = this;
 
-    var rawData = this.rawData;
+    var rawData = this.raw_data;
     var config = this.config;
 
     var xformat = config.marks.map(function (m) {
@@ -1166,16 +1166,15 @@
     var xLabelOn = this.config.x.label ? 1.5 : 0;
     var yLabelOn = this.config.y.label ? 1.5 : 0.25;
     var fontSize = parseInt(this.wrap.style('font-size'), 10);
-    var xSecond = this.config.x2_interval ? 1 : 0;
-    var yMargin = maxYTextLength * fontSize * 0.5 + fontSize * yLabelOn * 1.5 || 8;
-    var xMargin = fontSize + fontSize / 1.5 + fontSize * xLabelOn + fontSize * xSecond || 8;
+    var yMargin = maxYTextLength * fontSize * 0.5 + fontSize * yLabelOn * 1.5 || fontSize;
+    var xMargin = fontSize + fontSize / 1.5 + fontSize * xLabelOn || fontSize;
 
     yMargin += 6;
     xMargin += 3;
 
     return {
-      top: this.config.margin && this.config.margin.top ? this.config.margin.top : 8,
-      right: this.config.margin && this.config.margin.right ? this.config.margin.right : 16,
+      top: this.config.margin && this.config.margin.top ? this.config.margin.top : fontSize,
+      right: this.config.margin && this.config.margin.right ? this.config.margin.right : fontSize,
       bottom: this.config.margin && this.config.margin.bottom ? this.config.margin.bottom : xMargin,
       left: this.config.margin && this.config.margin.left ? this.config.margin.left : yMargin
     };
@@ -1209,8 +1208,8 @@
     }
 
     this.wrap.style('font-size', fontSize);
-    this.config.flex_pointSize = pointSize;
-    this.config.flex_strokeWidth = strokeWidth;
+    this.config.flex_point_size = pointSize;
+    this.config.flex_stroke_width = strokeWidth;
   }
 
   var stats = {
