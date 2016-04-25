@@ -1,7 +1,7 @@
 {
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.6.0",
+  "version": "2.0.0-rc.1",
   "keywords": [
     "charts",
     "javascript",
@@ -15,8 +15,8 @@
     "d3": "~3"
   },
   "scripts": {
-    "build": "rollup -c > build/webcharts.js",
-    "minify": "uglifyjs build/webcharts.js > build/webcharts.min.js",
+    "build": "rollup -c > ./webcharts.js",
+    "minify": "uglifyjs ./webcharts.js > ./webcharts.min.js",
     "start": "npm run build && npm run minify"
   },
   "repository": {
