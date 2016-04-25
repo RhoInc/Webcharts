@@ -234,35 +234,6 @@
     this.resize();
   }
 
-  function drawArea (area_drawer, area_data, datum_accessor) {
-    var class_match = arguments.length <= 3 || arguments[3] === undefined ? 'chart-area' : arguments[3];
-
-    var _this = this;
-
-    var bind_accessor = arguments[4];
-    var attr_accessor = arguments.length <= 5 || arguments[5] === undefined ? function (d) {
-      return d;
-    } : arguments[5];
-
-    var area_grps = this.svg.selectAll('.' + class_match).data(area_data, bind_accessor);
-    area_grps.exit().remove();
-    area_grps.enter().append('g').attr('class', function (d) {
-      return class_match + ' ' + d.key;
-    }).append('path');
-
-    var areaPaths = area_grps.select('path').datum(datum_accessor).attr('fill', function (d) {
-      var d_attr = attr_accessor(d);
-      return d_attr ? _this.colorScale(d_attr[_this.config.color_by]) : null;
-    }).attr('fill-opacity', this.config.fill_opacity || this.config.fill_opacity === 0 ? this.config.fill_opacity : 0.3);
-
-    //don't transition if config says not to
-    var areaPathTransitions = this.config.transitions ? areaPaths.transition() : areaPaths;
-
-    areaPathTransitions.attr('d', area_drawer);
-
-    return area_grps;
-  }
-
   function drawBars(marks) {
     var _this = this;
 
@@ -1690,7 +1661,6 @@
     'checkRequired': { value: checkRequired },
     'consolidateData': { value: consolidateData },
     'draw': { value: draw },
-    'drawArea': { value: drawArea },
     'drawBars': { value: drawBars },
     'drawGridlines': { value: drawGridlines },
     'drawLines': { value: drawLines },

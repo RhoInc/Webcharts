@@ -1,5 +1,5 @@
 *.sublime*
-.eslintrc
+.eslint*
 node_modules
 maps
 test

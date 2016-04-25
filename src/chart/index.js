@@ -1,7 +1,6 @@
 import checkRequired from './checkRequired';
 import consolidateData from './consolidateData';
 import draw from './draw';
-import drawArea from './drawArea';
 import drawBars from './drawBars';
 import drawGridlines from './drawGridlines';
 import drawLines from './drawLines';
@@ -29,7 +28,6 @@ export default Object.create(chartProto, {
   'checkRequired': { value: checkRequired },
   'consolidateData': { value: consolidateData },
   'draw': { value: draw },
-  'drawArea': { value: drawArea },
   'drawBars': { value: drawBars },
   'drawGridlines': { value: drawGridlines },
   'drawLines': { value: drawLines },
