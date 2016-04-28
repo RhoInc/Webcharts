@@ -12,7 +12,7 @@
   "main": "webcharts.js",
   "jsnext:main": "src/index.js",
   "dependencies": {
-    "d3": "~3"
+    "d3": "~3.5"
   },
   "scripts": {
     "build": "rollup -c > ./webcharts.js",
