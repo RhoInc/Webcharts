@@ -9,8 +9,9 @@ const stats = {
 };
 
 export default function summarize(vals, operation = 'mean') {
-  const nvals = vals.filter(f => +f || +f === 0)
-    .map(m => +m);
+  const nvals = vals
+    .filter(f => parseInt(f, 10) || parseInt(f, 10) === 0)
+    .map(m => parseInt(m, 10));
 
   if (operation === 'cumulative') {
     return null;
