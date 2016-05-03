@@ -8,13 +8,6 @@ export default function draw(rawData = this.raw_data, processedData) {
 
   const colList = config.cols.length ? config.cols : data.length ? keys(data[0].values[0].raw) : [];
 
-  if (config.bootstrap) {
-    table.classed('table', true);
-  }
-  else {
-    table.classed('table', false);
-  }
-
   const headerData = !data.length ? [] : config.headers && config.headers.length ? config.headers : colList;
   const headerRow = table.select('thead').select('tr.headers');
   const ths = headerRow.selectAll('th').data(headerData);
