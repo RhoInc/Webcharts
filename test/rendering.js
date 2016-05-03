@@ -1,21 +1,11 @@
 import expect from 'expect';
 import jsdom from 'jsdom';
 import d3 from 'd3';
-// webcharts functions
 import createChart from '../src/createChart';
 import data from './samples/data';
+import settings from './samples/element-settings';
 
-var settings = {
-  x: {column: "Melt", type: "linear", label: "Melting Point (K)"},
-  y: {column: "Boil", type: "linear", label: "Boiling Point (K)"},
-  marks: [
-    {type: "line", per: ['Element'], summarizeY: "mean"}
-  ],
-  max_width: 500,
-  gridlines: 'y'
-};
-
-describe('Rendering', () => {
+describe('Chart rendering', () => {
   let window;
   let div;
   let chart;
@@ -38,11 +28,11 @@ describe('Rendering', () => {
 
   afterEach(() => {
     // kill chart after each test
-    d3.select(div).selectAll('*').remove();
+    div.children[0].remove();
     chart = null;
   });
 
-  describe('div is invisible', () => {
+  describe('div is not visible', () => {
     it('SVG not created when .init() is called', () => {
       chart.init([]);
       expect(chart.svg).toNotExist();
@@ -50,26 +40,43 @@ describe('Rendering', () => {
   });
 
   describe('div is visible', () => {
-    const divWidth = 1000;
+    beforeEach(() => {
+      div.offsetWidth = 1000;
+    });
     
     it('SVG created when .init() is called', () => {
-      div.offsetWidth = divWidth;
       chart.init([]);
       expect(chart.svg).toExist();
     });
 
     it('SVG width is equal to max_width', () => {
-      div.offsetWidth = divWidth;
       chart.init([]);
       const chartWidth = +d3.select(chart.svg.node().parentNode).attr('width');
       expect(chartWidth).toEqual(settings.max_width);
     });
 
-    it('number of marks matches number of rows in data', () => {
-      div.offsetWidth = divWidth;
+    it('render group to wrap points is created if marks.type = circle', () => {
       chart.init(data);
-      const markCount = chart.svg.selectAll('.wc-data-mark').size();
-      expect(markCount).toEqual(data.length);
+      const configMarks = settings.marks.filter(f => f.type === 'circle').length;
+      expect(!chart.svg.selectAll('.point-supergroup').empty()).toBe(Boolean(configMarks));
+    });
+
+    it('render group to wrap lines is created if marks.type = line', () => {
+      chart.init(data);
+      const configMarks = settings.marks.filter(f => f.type === 'line').length;
+      expect(!chart.svg.selectAll('.line-supergroup').empty()).toBe(Boolean(configMarks));
+    });
+
+    it('render group to wrap bars is created if marks.type = bar', () => {
+      chart.init(data);
+      const configMarks = settings.marks.filter(f => f.type === 'bar').length;
+      expect(!chart.svg.selectAll('.bar-supergroup').empty()).toBe(Boolean(configMarks));
+    });
+
+    it('render group to wrap text elements is created if marks.type = text', () => {
+      chart.init(data);
+      const configMarks = settings.marks.filter(f => f.type === 'text').length;
+      expect(!chart.svg.selectAll('.text-supergroup').empty()).toBe(Boolean(configMarks));
     });
 
   });

@@ -34,15 +34,6 @@ describe('Top-level API', () => {
     expect(Object.getPrototypeOf(createdChart)).toBe(chart);
   });
 
-  it('multiple charts in same location should have different ids', () => {
-    // need querySelector for basic d3 selection
-    const div = window.document.querySelector('div');
-    const createdChart1 = createChart(div);
-    const createdChart2 = createChart(div);
-
-    expect(createdChart1.id).toNotBe(createdChart2.id);
-  });
-
   it('createControls should return a controls object', () => {
     // need querySelector for basic d3 selection
     const div = window.document.querySelector('div');

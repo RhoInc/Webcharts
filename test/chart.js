@@ -2,10 +2,12 @@ import expect from 'expect';
 import jsdom from 'jsdom';
 import createChart from '../src/createChart';
 import settings from './samples/element-settings';
+import defaultSettings from './samples/default-settings';
 
-describe('Chart', () => {
+describe('Chart lifecycle', () => {
   let window;
   let chart;
+  let chart2;
   let div;
 
   before(() => {
@@ -24,6 +26,7 @@ describe('Chart', () => {
     div.offsetWidth = 10;
     // create chart for each test
     chart = createChart(div, settings);
+    chart2 = createChart(div);
     expect.spyOn(chart.events, 'onInit');
     expect.spyOn(chart.events, 'onLayout');
     expect.spyOn(chart.events, 'onPreprocess');
@@ -32,12 +35,25 @@ describe('Chart', () => {
     expect.spyOn(chart.events, 'onResize'); 
 
     chart.init([]);
+    chart2.init([]);
   });
 
   afterEach(() => {
-    // kill chart after each test
+    // kill charts after each test
     div.children[0].remove();
     chart = null;
+    chart2 = null;
+  });
+
+  describe('defaults are set', () => {
+    it('multiple charts in same location should have different ids', () => {
+      expect(chart.id).toNotBe(chart2.id);
+    });
+
+    it('a default config is established when no config is specified', () => {
+      // loose match between objects
+      expect(chart2.config).toMatch(defaultSettings);
+    });
   });
 
   describe('should run all .on([lifecycle]) functions when initialized with marks specified in the config', () => {
