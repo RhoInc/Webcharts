@@ -1198,9 +1198,9 @@
     var operation = arguments.length <= 1 || arguments[1] === undefined ? 'mean' : arguments[1];
 
     var nvals = vals.filter(function (f) {
-      return +f || +f === 0;
+      return parseFloat(f) || parseFloat(f) === 0;
     }).map(function (m) {
-      return +m;
+      return parseFloat(m);
     });
 
     if (operation === 'cumulative') {
@@ -2181,12 +2181,6 @@
     this.wrap.datum(data);
 
     var colList = config.cols.length ? config.cols : data.length ? d3.keys(data[0].values[0].raw) : [];
-
-    if (config.bootstrap) {
-      table.classed('table', true);
-    } else {
-      table.classed('table', false);
-    }
 
     var headerData = !data.length ? [] : config.headers && config.headers.length ? config.headers : colList;
     var headerRow = table.select('thead').select('tr.headers');
