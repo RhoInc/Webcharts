@@ -92,7 +92,7 @@ export default function (marks){
         }
       })
       .attr('width', d => {
-        if(d.arrange === 'stacked'){
+        if(!d.arrange || d.arrange === 'stacked'){
           return this.x.rangeBand();
         }
         else if(d.arrange === 'nested'){
