@@ -807,7 +807,7 @@
       });
     }
 
-    this.wrap.attr('class', 'WebchartsChartWrap wc-chart');
+    this.wrap.attr('class', 'WebchartsWrap');
 
     this.setDefaults();
 
@@ -905,6 +905,8 @@
 
     var legendOriginal = this.legend || this.wrap.select('.legend');
     var legend = legendOriginal;
+
+    legend.classed('WebchartsLegend--top', false).classed('WebchartsLegend--bottom', false).classed('WebchartsLegend--left', false).classed('WebchartsLegend--right', false).classed('WebchartsLegend--' + config.legend.location, true);
 
     if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
       this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
@@ -1790,6 +1792,7 @@
 
   function init$1(data) {
     this.data = data;
+    this.wrap.attr('class', 'WebchartsWrap');
     this.checkRequired(this.data);
     this.layout();
   }
@@ -1801,12 +1804,10 @@
   }
 
   function makeControlItem(control) {
-    var controlWrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
-    var controlLabel = controlWrap.append('span').attr('class', 'control-label').text(control.label);
-    if (control.required) {
-      controlLabel.append('span').attr('class', 'label label-required').text('Required');
-    }
-    controlWrap.append('span').attr('class', 'span-description').text(control.description);
+    var controlWrap = this.wrap.append('div').attr('class', 'WebchartsControlGroup WebchartsControlGroup--' + control.type).classed('WebchartsControlGroup--inline', control.inline).datum(control);
+    controlWrap.append('span').attr('class', 'WebchartsControlGroup__Title').text(control.label);
+
+    controlWrap.append('span').attr('class', 'WebchartsControlGroup__Description').text(control.description);
 
     if (control.type === 'text') {
       this.makeTextControl(control, controlWrap);
@@ -1834,17 +1835,17 @@
 
     var optionData = control.values ? control.values : d3.keys(this.data[0]);
 
-    var btnWrap = controlWrap.append('div').attr('class', 'btn-group');
+    var btnWrap = controlWrap.append('div').attr('class', 'WebchartsControlGroup__ButtonGroup WebchartsButtonGroup btn-group');
 
-    var changers = btnWrap.selectAll('button').data(optionData).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
+    var changers = btnWrap.selectAll('button').data(optionData).enter().append('button').attr('class', 'WebchartsButtonGroup__Button').text(function (d) {
       return d;
-    }).classed('btn-primary', function (d) {
+    }).classed('WebchartsButtonGroup__Button--active', function (d) {
       return stringAccessor(_this.targets[0].config, control.option) === d;
     });
 
     changers.on('click', function (d) {
       changers.each(function toggleClass(e) {
-        d3.select(this).classed('btn-primary', e === d);
+        d3.select(this).classed('WebchartsButtonGroup__Button--active', e === d);
       });
       if (control.options) {
         _this.changeOption(control.options, d, control.callback);
@@ -1857,7 +1858,7 @@
   function makeCheckboxControl(control, controlWrap) {
     var _this = this;
 
-    var changer = controlWrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function () {
+    var changer = controlWrap.append('input').attr('type', 'checkbox').attr('class', 'WebchartsControlGroup__Control').datum(control).property('checked', function () {
       return stringAccessor(_this.targets[0].config, control.option);
     });
 
@@ -1875,7 +1876,7 @@
     var _this = this;
 
     var mainOption = control.option || control.options[0];
-    var changer = controlWrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
+    var changer = controlWrap.append('select').attr('class', 'WebchartsControlGroup__Control').attr('multiple', control.multiple ? true : null).datum(control);
 
     var optionValues = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
       return m[_this.targets[0].config[control.values]];
@@ -1917,7 +1918,7 @@
   function makeListControl(control, controlWrap) {
     var _this = this;
 
-    var changer = controlWrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function () {
+    var changer = controlWrap.append('input').attr('type', 'text').attr('class', 'WebchartsControlGroup__Control').datum(control).property('value', function () {
       return stringAccessor(_this.targets[0].config, control.option);
     });
 
@@ -1936,7 +1937,7 @@
   function makeNumberControl(control, controlWrap) {
     var _this = this;
 
-    var changer = controlWrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function () {
+    var changer = controlWrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'WebchartsControlGroup__Control').datum(control).property('value', function () {
       return stringAccessor(_this.targets[0].config, control.option);
     });
 
@@ -1953,9 +1954,9 @@
   function makeRadioControl(control, controlWrap) {
     var _this = this;
 
-    var changers = controlWrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
+    var changers = controlWrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'WebchartsControlGroup__Label WebchartsControlGroup__Label--radio').text(function (d, i) {
       return control.relabels ? control.relabels[i] : d;
-    }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
+    }).append('input').attr('type', 'radio').attr('class', 'WebchartsControlGroup__Control').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
       return d;
     }).property('checked', function (d) {
       return stringAccessor(_this.targets[0].config, control.option) === d;
@@ -1978,7 +1979,7 @@
 
   function makeSubsetterControl(control, controlWrap) {
     var targets = this.targets;
-    var changer = controlWrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
+    var changer = controlWrap.append('select').attr('class', 'WebchartsControlGroup__Control').attr('multiple', control.multiple ? true : null).datum(control);
 
     var optionData = control.values ? control.values : d3.set(this.data.map(function (m) {
       return m[control.value_col];
@@ -2065,7 +2066,7 @@
   function makeTextControl (control, controlWrap) {
     var _this = this;
 
-    var changer = controlWrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function () {
+    var changer = controlWrap.append('input').attr('type', 'text').attr('class', 'WebchartsControlGroup__Control').datum(control).property('value', function () {
       return stringAccessor(_this.targets[0].config, control.option);
     });
 
@@ -2110,9 +2111,9 @@
     thisControls.targets = [];
 
     if (config.location === 'bottom') {
-      thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+      thisControls.wrap = d3.select(element).append('div');
     } else {
-      thisControls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+      thisControls.wrap = d3.select(element).insert('div', ':first-child');
     }
 
     return thisControls;
@@ -2120,8 +2121,8 @@
 
   function layout$2() {
     d3.select(this.div).select('.loader').remove();
-    var table = this.wrap.append('table');
-    table.append('thead').append('tr').attr('class', 'headers');
+    var table = this.wrap.append('table').attr('class', 'WebchartsTable');
+    table.append('thead').append('tr').attr('class', 'WebchartsTable__HeaderRow headers');
     this.table = table;
     this.events.onLayout.call(this);
   }

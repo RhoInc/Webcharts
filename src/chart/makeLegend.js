@@ -14,6 +14,13 @@ export default function makeLegend(scale = this.colorScale, label = '', customDa
   const legendOriginal = this.legend || this.wrap.select('.legend');
   const legend = legendOriginal;
 
+  legend
+    .classed('WebchartsLegend--top', false)
+    .classed('WebchartsLegend--bottom', false)
+    .classed('WebchartsLegend--left', false)
+    .classed('WebchartsLegend--right', false)
+    .classed(`WebchartsLegend--${config.legend.location}`, true);
+
   if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
     this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
   }

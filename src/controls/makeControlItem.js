@@ -1,13 +1,15 @@
 export default function makeControlItem(control) {
   const controlWrap = this.wrap.append('div')
-    .attr('class', 'control-group')
-    .classed('inline', control.inline)
+    .attr('class', `WebchartsControlGroup WebchartsControlGroup--${control.type}`)
+    .classed('WebchartsControlGroup--inline', control.inline)
     .datum(control);
-  const controlLabel = controlWrap.append('span').attr('class', 'control-label').text(control.label);
-  if (control.required) {
-    controlLabel.append('span').attr('class', 'label label-required').text('Required');
-  }
-  controlWrap.append('span').attr('class', 'span-description').text(control.description);
+  controlWrap.append('span')
+    .attr('class', 'WebchartsControlGroup__Title')
+    .text(control.label);
+
+  controlWrap.append('span')
+    .attr('class', 'WebchartsControlGroup__Description')
+    .text(control.description);
 
   if (control.type === 'text') {
     this.makeTextControl(control, controlWrap);

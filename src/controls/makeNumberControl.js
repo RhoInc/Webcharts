@@ -6,7 +6,7 @@ export default function makeNumberControl(control, controlWrap) {
     .attr('min', control.min !== undefined ? control.min : 0)
     .attr('max', control.max)
     .attr('step', control.step || 1)
-    .attr('class', 'changer')
+    .attr('class', 'WebchartsControlGroup__Control')
     .datum(control)
     .property('value', () =>
       stringAccessor(this.targets[0].config, control.option)

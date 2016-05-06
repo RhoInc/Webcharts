@@ -4,7 +4,7 @@ import stringAccessor from '../util/stringAccessor';
 export default function (control, controlWrap) {
   const mainOption = control.option || control.options[0];
   const changer = controlWrap.append('select')
-    .attr('class', 'changer')
+    .attr('class', 'WebchartsControlGroup__Control')
     .attr('multiple', control.multiple ? true : null)
     .datum(control);
 

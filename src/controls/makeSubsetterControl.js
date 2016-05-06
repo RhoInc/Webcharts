@@ -4,7 +4,7 @@ import naturalSorter from '../util/naturalSorter';
 export default function makeSubsetterControl(control, controlWrap) {
   const targets = this.targets;
   const changer = controlWrap.append('select')
-    .attr('class', 'changer')
+    .attr('class', 'WebchartsControlGroup__Control')
     .attr('multiple', control.multiple ? true : null)
     .datum(control);
 

@@ -3,7 +3,7 @@ import stringAccessor from '../util/stringAccessor';
 export default function makeCheckboxControl(control, controlWrap) {
   const changer = controlWrap.append('input')
     .attr('type', 'checkbox')
-    .attr('class', 'changer')
+    .attr('class', 'WebchartsControlGroup__Control')
     .datum(control)
     .property('checked', () =>
       stringAccessor(this.targets[0].config, control.option)
