@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "rollup -c > ./webcharts.js",
-    "minify": "uglifyjs ./webcharts.js > ./webcharts.min.js",
+    "minify": "uglifyjs -c -m -v --screw-ie8 -- ./webcharts.js > ./webcharts.min.js",
     "start": "npm run build && npm run minify",
     "test": "mocha --compilers js:babel-register --recursive ./test/*.js"
   },
