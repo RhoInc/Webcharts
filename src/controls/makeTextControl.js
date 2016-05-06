@@ -11,6 +11,11 @@ export default function (control, controlWrap) {
 
   changer.on('change', () => {
     const value = changer.property('value');
-    this.changeOption(control.option, value, control.callback);
+    if (control.options) {
+      this.changeOption(control.options, value, control.callback);
+    }
+    else {
+      this.changeOption(control.option, value, control.callback);
+    }
   });
 }

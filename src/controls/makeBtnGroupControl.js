@@ -19,6 +19,11 @@ export default function makeBtnGroupControl(control, controlWrap) {
     changers.each(function toggleClass(e) {
       select(this).classed('btn-primary', e === d);
     });
-    this.changeOption(control.option, d, control.callback);
+    if (control.options) {
+      this.changeOption(control.options, d, control.callback);
+    }
+    else {
+      this.changeOption(control.option, d, control.callback);
+    }
   });
 }

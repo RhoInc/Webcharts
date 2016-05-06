@@ -23,6 +23,11 @@ export default function makeRadioControl(control, controlWrap) {
         value = select(this).property('value') === 'none' ? null : c;
       }
     });
-    this.changeOption(control.option, value, control.callback);
+    if (control.options) {
+      this.changeOption(control.options, value, control.callback);
+    }
+    else {
+      this.changeOption(control.option, value, control.callback);
+    }
   });
 }
