@@ -42,13 +42,13 @@ export default function makeLegend(scale = this.colorScale, label = '', customDa
   const legendPartDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ?
     'inline-block' : 'block';
   const newParts = legParts.enter().append('li')
-    .attr('class', 'legend-item')
+    .attr('class', 'WebchartsLegend__Item LegendItem legend-item')
     .style({ 'list-style-type': 'none', 'margin-right': '1em' });
   newParts.append('span')
-    .attr('class', 'legend-mark-text')
+    .attr('class', 'LegendItem__MarkText legend-mark-text')
     .style('color', d => scale(d.label));
   newParts.append('svg')
-    .attr('class', 'legend-color-block')
+    .attr('class', 'LegendItem__MarkCanvas MarkCanvas legend-color-block')
     .attr('width', '1.1em')
     .attr('height', '1.1em')
     .style({
@@ -71,7 +71,7 @@ export default function makeLegend(scale = this.colorScale, label = '', customDa
           'cx': '.5em',
           'cy': '.45em',
           'r': '.45em',
-          'class': 'legend-mark'
+          'class': 'MarkCanvas__Mark legend-mark'
         });
     }
     else if (e.mark === 'line') {
@@ -83,7 +83,7 @@ export default function makeLegend(scale = this.colorScale, label = '', customDa
           'y2': '.5em',
           'stroke-width': 2,
           'shape-rendering': 'crispEdges',
-          'class': 'legend-mark'
+          'class': 'MarkCanvas__Mark legend-mark'
         });
     }
     else if (e.mark === 'square') {
@@ -91,7 +91,7 @@ export default function makeLegend(scale = this.colorScale, label = '', customDa
         .attr({
           'height': '1em',
           'width': '1em',
-          'class': 'legend-mark',
+          'class': 'MarkCanvas__Mark legend-mark',
           'shape-rendering': 'crispEdges'
         });
     }
@@ -105,7 +105,7 @@ export default function makeLegend(scale = this.colorScale, label = '', customDa
     });
 
   newParts.append('span')
-    .attr('class', 'legend-label')
+    .attr('class', 'LegendItem__Label legend-label')
     .style('margin-left', '0.25em')
     .text(d => d.label);
 

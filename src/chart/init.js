@@ -9,7 +9,7 @@ export default function (data) {
         .attr('class', d => `blockG rotate${(d + 1)}`);
   }
 
-  this.wrap.attr('class', 'wc-chart');
+  this.wrap.attr('class', 'WebchartsChartWrap wc-chart');
 
   this.setDefaults();
 

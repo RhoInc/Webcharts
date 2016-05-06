@@ -49,7 +49,7 @@ export default function drawBars(marks) {
       .attr('height', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .attr('class', d => `WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ${d.key}`)
       .style('clip-path', `url(#${this.id})`)
       .attr('y', this.y(0))
       .attr('height', 0)
@@ -158,7 +158,7 @@ export default function drawBars(marks) {
       .attr('width', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .attr('class', d => `WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ${d.key}`)
       .style('clip-path', `url(#${this.id})`)
       .attr('x', this.x(0))
       .attr('width', 0)
@@ -271,7 +271,7 @@ export default function drawBars(marks) {
       .remove();
 
     bars.enter().append('rect')
-      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .attr('class', d => `WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ${d.key}`)
       .style('clip-path', `url(#${this.id})`)
       .attr('y', this.y(0))
       .attr('height', 0)
@@ -349,7 +349,7 @@ export default function drawBars(marks) {
       .attr('width', 0)
       .remove();
     bars.enter().append('rect')
-      .attr('class', d => `wc-data-mark bar ${d.key}`)
+      .attr('class', d => `WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ${d.key}`)
       .style('clip-path', `url(#${this.id})`)
       .attr('x', this.x(0))
       .attr('width', 0)

@@ -111,9 +111,6 @@
     });
 
     if (config.x.type === 'ordinal') {
-      // if (config.x.domain) {
-      //   this.x_dom = config.x.domain;
-      // }
       if (config.x.order) {
         this.x_dom = d3.set(d3.merge(allX)).values().sort(function (a, b) {
           return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
@@ -148,9 +145,6 @@
     }
 
     if (config.y.type === 'ordinal') {
-      // if (config.y.domain) {
-      //   this.y_dom = config.y.domain;
-      // }
       if (config.y.order) {
         this.y_dom = d3.set(d3.merge(allY)).values().sort(function (a, b) {
           return d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
@@ -181,10 +175,8 @@
     }).indexOf(true) > -1) {
       this.y_dom = [0, 1];
     } else {
-      console.log(allY);
       this.y_dom = d3.extent(d3.merge(allY));
     }
-    console.log(this.y_dom);
   }
 
   function draw() {
@@ -292,7 +284,7 @@
       var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
       exitBars.attr('y', this.y(0)).attr('height', 0).remove();
       bars.enter().append('rect').attr('class', function (d) {
-        return 'wc-data-mark bar ' + d.key;
+        return 'WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ' + d.key;
       }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
 
       bars.attr('shape-rendering', 'crispEdges').attr('stroke', function (d) {
@@ -379,7 +371,7 @@
         var _exitBars = config.transitions ? bars.exit().transition() : bars.exit();
         _exitBars.attr('x', this.x(0)).attr('width', 0).remove();
         bars.enter().append('rect').attr('class', function (d) {
-          return 'wc-data-mark bar ' + d.key;
+          return 'WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ' + d.key;
         }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0).append('title');
 
         bars.attr('shape-rendering', 'crispEdges').attr('stroke', function (d) {
@@ -467,7 +459,7 @@
           _exitBars2.attr('y', this.y(0)).attr('height', 0).remove();
 
           bars.enter().append('rect').attr('class', function (d) {
-            return 'wc-data-mark bar ' + d.key;
+            return 'WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ' + d.key;
           }).style('clip-path', 'url(#' + this.id + ')').attr('y', this.y(0)).attr('height', 0).append('title');
 
           bars.attr('shape-rendering', 'crispEdges').attr('stroke', function (d) {
@@ -541,7 +533,7 @@
             var _exitBars3 = config.transitions ? bars.exit().transition() : bars.exit();
             _exitBars3.attr('x', this.x(0)).attr('width', 0).remove();
             bars.enter().append('rect').attr('class', function (d) {
-              return 'wc-data-mark bar ' + d.key;
+              return 'WebchartsDataMark WebchartsDataMark--Bar wc-data-mark bar ' + d.key;
             }).style('clip-path', 'url(#' + this.id + ')').attr('x', this.x(0)).attr('width', 0).append('title');
 
             bars.attr('shape-rendering', 'crispEdges').attr('stroke', function (d) {
@@ -646,7 +638,7 @@
     nuLineGroups.append('path');
     nuLineGroups.append('title');
 
-    var linePaths = lineGroups.select('path').attr('class', 'wc-data-mark').datum(function (d) {
+    var linePaths = lineGroups.select('path').attr('class', 'WebchartsDataMark WebchartsDataMark--Line wc-data-mark').datum(function (d) {
       return d.values;
     }).attr('stroke', function (d) {
       return _this.colorScale(d[0].values.raw[0][config.color_by]);
@@ -701,7 +693,7 @@
     var nupoints = points.enter().append('g').attr('class', function (d) {
       return d.key + ' point';
     });
-    nupoints.append('circle').attr('class', 'wc-data-mark').attr('r', 0);
+    nupoints.append('circle').attr('class', 'WebchartsDataMark WebchartsDataMark--Circle wc-data-mark').attr('r', 0);
 
     nupoints.append('title');
 
@@ -815,7 +807,7 @@
       });
     }
 
-    this.wrap.attr('class', 'wc-chart');
+    this.wrap.attr('class', 'WebchartsChartWrap wc-chart');
 
     this.setDefaults();
 
@@ -862,7 +854,7 @@
 
   function layout() {
     this.svg = this.wrap.append('svg').attr({
-      'class': 'wc-svg',
+      'class': 'WebchartsChartSVG wc-svg',
       'xmlns': 'http://www.w3.org/2000/svg',
       'version': '1.1',
       'xlink': 'http://www.w3.org/1999/xlink'
@@ -880,20 +872,20 @@
       'style': 'stroke:none; fill:black'
     });
 
-    defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
+    defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'WebchartsChartSVG__PlottingArea plotting-area');
 
     // y axis
-    this.svg.append('g').attr('class', 'y axis').append('text').attr('class', 'axis-title').attr('transform', 'rotate(-90)').attr('dy', '.75em').attr('text-anchor', 'middle');
+    this.svg.append('g').attr('class', 'WebchartsAxis WebchartsAxis--Y y axis').append('text').attr('class', 'WebchartsAxis__Title axis-title').attr('transform', 'rotate(-90)').attr('dy', '.75em').attr('text-anchor', 'middle');
 
     // x axis
-    this.svg.append('g').attr('class', 'x axis').append('text').attr('class', 'axis-title').attr('dy', '-.35em').attr('text-anchor', 'middle');
+    this.svg.append('g').attr('class', 'WebchartsAxis WebchartsAxis--X x axis').append('text').attr('class', 'WebchartsAxis__Title axis-title').attr('dy', '-.35em').attr('text-anchor', 'middle');
 
     // overlay
-    this.svg.append('rect').attr('class', 'overlay').attr('opacity', 0).attr('fill', 'none').style('pointer-events', 'all');
+    this.svg.append('rect').attr('class', 'WebchartsChartSVG__Overlay overlay').attr('opacity', 0).attr('fill', 'none').style('pointer-events', 'all');
 
     // add legend
     var legend = this.wrap.append('ul');
-    legend.attr('class', 'legend').style('vertical-align', 'top').append('span').attr('class', 'legend-title');
+    legend.attr('class', 'WebchartsLegend legend').style('vertical-align', 'top').append('span').attr('class', 'WebchartsLegend__Title legend-title');
 
     d3.select(this.div).select('.loader').remove();
 
@@ -936,11 +928,11 @@
     legParts.exit().remove();
 
     var legendPartDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 'inline-block' : 'block';
-    var newParts = legParts.enter().append('li').attr('class', 'legend-item').style({ 'list-style-type': 'none', 'margin-right': '1em' });
-    newParts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
+    var newParts = legParts.enter().append('li').attr('class', 'WebchartsLegend__Item LegendItem legend-item').style({ 'list-style-type': 'none', 'margin-right': '1em' });
+    newParts.append('span').attr('class', 'LegendItem__MarkText legend-mark-text').style('color', function (d) {
       return scale(d.label);
     });
-    newParts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em').style({
+    newParts.append('svg').attr('class', 'LegendItem__MarkCanvas MarkCanvas legend-color-block').attr('width', '1.1em').attr('height', '1.1em').style({
       'position': 'relative',
       'top': '0.2em'
     });
@@ -961,7 +953,7 @@
           'cx': '.5em',
           'cy': '.45em',
           'r': '.45em',
-          'class': 'legend-mark'
+          'class': 'MarkCanvas__Mark legend-mark'
         });
       } else if (e.mark === 'line') {
         svg.append('line').attr({
@@ -971,13 +963,13 @@
           'y2': '.5em',
           'stroke-width': 2,
           'shape-rendering': 'crispEdges',
-          'class': 'legend-mark'
+          'class': 'MarkCanvas__Mark legend-mark'
         });
       } else if (e.mark === 'square') {
         svg.append('rect').attr({
           'height': '1em',
           'width': '1em',
-          'class': 'legend-mark',
+          'class': 'MarkCanvas__Mark legend-mark',
           'shape-rendering': 'crispEdges'
         });
       }
@@ -991,7 +983,7 @@
       d3.select(this).attr(e.attributes);
     });
 
-    newParts.append('span').attr('class', 'legend-label').style('margin-left', '0.25em').text(function (d) {
+    newParts.append('span').attr('class', 'LegendItem__Label legend-label').style('margin-left', '0.25em').text(function (d) {
       return d.label;
     });
 
@@ -1854,7 +1846,11 @@
       changers.each(function toggleClass(e) {
         d3.select(this).classed('btn-primary', e === d);
       });
-      _this.changeOption(control.option, d, control.callback);
+      if (control.options) {
+        _this.changeOption(control.options, d, control.callback);
+      } else {
+        _this.changeOption(control.option, d, control.callback);
+      }
     });
   }
 
@@ -1867,7 +1863,11 @@
 
     changer.on('change', function (d) {
       var value = changer.property('checked');
-      _this.changeOption(d.option, value, control.callback);
+      if (d.options) {
+        _this.changeOption(d.options, value, control.callback);
+      } else {
+        _this.changeOption(d.option, value, control.callback);
+      }
     });
   }
 
@@ -1925,7 +1925,11 @@
       var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
         return m.trim();
       }) : null;
-      _this.changeOption(control.option, value, control.callback);
+      if (control.options) {
+        _this.changeOption(control.options, value, control.callback);
+      } else {
+        _this.changeOption(control.option, value, control.callback);
+      }
     });
   }
 
@@ -1938,7 +1942,11 @@
 
     changer.on('change', function () {
       var value = +changer.property('value');
-      _this.changeOption(control.option, value, control.callback);
+      if (control.options) {
+        _this.changeOption(control.options, value, control.callback);
+      } else {
+        _this.changeOption(control.option, value, control.callback);
+      }
     });
   }
 
@@ -1960,7 +1968,11 @@
           value = d3.select(this).property('value') === 'none' ? null : c;
         }
       });
-      _this.changeOption(control.option, value, control.callback);
+      if (control.options) {
+        _this.changeOption(control.options, value, control.callback);
+      } else {
+        _this.changeOption(control.option, value, control.callback);
+      }
     });
   }
 
@@ -2059,7 +2071,11 @@
 
     changer.on('change', function () {
       var value = changer.property('value');
-      _this.changeOption(control.option, value, control.callback);
+      if (control.options) {
+        _this.changeOption(control.options, value, control.callback);
+      } else {
+        _this.changeOption(control.option, value, control.callback);
+      }
     });
   }
 

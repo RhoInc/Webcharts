@@ -30,7 +30,7 @@ export default function drawPoints(marks) {
 
   const nupoints = points.enter().append('g').attr('class', d => `${d.key} point`);
   nupoints.append('circle')
-    .attr('class', 'wc-data-mark')
+    .attr('class', 'WebchartsDataMark WebchartsDataMark--Circle wc-data-mark')
     .attr('r', 0);
 
   nupoints.append('title');

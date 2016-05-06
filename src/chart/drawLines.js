@@ -32,7 +32,7 @@ export default function drawLines(marks) {
   nuLineGroups.append('path');
   nuLineGroups.append('title');
 
-  const linePaths = lineGroups.select('path').attr('class', 'wc-data-mark')
+  const linePaths = lineGroups.select('path').attr('class', 'WebchartsDataMark WebchartsDataMark--Line wc-data-mark')
     .datum(d => d.values)
     .attr('stroke', d => this.colorScale(d[0].values.raw[0][config.color_by]))
     .attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width)

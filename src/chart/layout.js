@@ -3,7 +3,7 @@ import { select } from 'd3';
 export default function layout() {
   this.svg = this.wrap.append('svg')
     .attr({
-      'class': 'wc-svg',
+      'class': 'WebchartsChartSVG wc-svg',
       'xmlns': 'http://www.w3.org/2000/svg',
       'version': '1.1',
       'xlink': 'http://www.w3.org/1999/xlink'
@@ -24,24 +24,24 @@ export default function layout() {
     'style': 'stroke:none; fill:black'
   });
 
-  defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
+  defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'WebchartsChartSVG__PlottingArea plotting-area');
 
   // y axis
-  this.svg.append('g').attr('class', 'y axis')
-    .append('text').attr('class', 'axis-title')
+  this.svg.append('g').attr('class', 'WebchartsAxis WebchartsAxis--Y y axis')
+    .append('text').attr('class', 'WebchartsAxis__Title axis-title')
       .attr('transform', 'rotate(-90)')
       .attr('dy', '.75em')
       .attr('text-anchor', 'middle');
 
   // x axis
-  this.svg.append('g').attr('class', 'x axis')
-    .append('text').attr('class', 'axis-title')
+  this.svg.append('g').attr('class', 'WebchartsAxis WebchartsAxis--X x axis')
+    .append('text').attr('class', 'WebchartsAxis__Title axis-title')
       .attr('dy', '-.35em')
       .attr('text-anchor', 'middle');
 
   // overlay
   this.svg.append('rect')
-    .attr('class', 'overlay')
+    .attr('class', 'WebchartsChartSVG__Overlay overlay')
     .attr('opacity', 0)
     .attr('fill', 'none')
     .style('pointer-events', 'all');
@@ -49,10 +49,10 @@ export default function layout() {
   // add legend
   const legend = this.wrap.append('ul');
   legend
-    .attr('class', 'legend')
+    .attr('class', 'WebchartsLegend legend')
     .style('vertical-align', 'top')
       .append('span')
-    .attr('class', 'legend-title');
+    .attr('class', 'WebchartsLegend__Title legend-title');
 
   select(this.div).select('.loader').remove();
 
