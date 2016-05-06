@@ -11,7 +11,7 @@
 
 'use strict';
 
-var version = '1.6.0';
+var version = '1.6.1';
 
 function stringAccessor(o, s, v) {
   //adapted from http://jsfiddle.net/alnitak/hEsys/
@@ -1674,7 +1674,7 @@ function drawBars(marks) {
           return _this17.y(d.values.start);
         }
       }).attr('width', function (d) {
-        if (d.arrange === 'stacked') {
+        if (!d.arrange || d.arrange === 'stacked') {
           return _this17.x.rangeBand();
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
