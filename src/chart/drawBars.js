@@ -88,7 +88,7 @@ export default function drawBars(marks) {
         let position;
         let finalXPosition;
         if (!d.arrange || d.arrange === 'stacked') {
-          return this.x(d.values.x);
+          finalXPosition = this.x(d.values.x);
         }
         else if (d.arrange === 'nested') {
           position = d.subcats.indexOf(d.key);
@@ -115,8 +115,8 @@ export default function drawBars(marks) {
       })
       .attr('width', d => {
         let finalWidth;
-        if (d.arrange === 'stacked') {
-          return this.x.rangeBand();
+        if (!d.arrange || d.arrange === 'stacked') {
+          finalWidth = this.x.rangeBand();
         }
         else if (d.arrange === 'nested') {
           const position = d.subcats.indexOf(d.key);

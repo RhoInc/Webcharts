@@ -24,10 +24,7 @@ export default function consolidateData(raw) {
   });
 
   if (config.x.type === 'ordinal') {
-    if (config.x.domain) {
-      this.x_dom = config.x.domain;
-    }
-    else if (config.x.order) {
+    if (config.x.order) {
       this.x_dom = set(merge(allX)).values()
         .sort((a, b) => ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)));
     }
@@ -59,10 +56,7 @@ export default function consolidateData(raw) {
   }
 
   if (config.y.type === 'ordinal') {
-    if (config.y.domain) {
-      this.y_dom = config.y.domain;
-    }
-    else if (config.y.order) {
+    if (config.y.order) {
       this.y_dom = set(merge(allY)).values()
         .sort((a, b) => ascending(config.y.order.indexOf(a), config.y.order.indexOf(b)));
     }

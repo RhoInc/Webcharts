@@ -111,9 +111,10 @@
     });
 
     if (config.x.type === 'ordinal') {
-      if (config.x.domain) {
-        this.x_dom = config.x.domain;
-      } else if (config.x.order) {
+      // if (config.x.domain) {
+      //   this.x_dom = config.x.domain;
+      // }
+      if (config.x.order) {
         this.x_dom = d3.set(d3.merge(allX)).values().sort(function (a, b) {
           return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
         });
@@ -147,9 +148,10 @@
     }
 
     if (config.y.type === 'ordinal') {
-      if (config.y.domain) {
-        this.y_dom = config.y.domain;
-      } else if (config.y.order) {
+      // if (config.y.domain) {
+      //   this.y_dom = config.y.domain;
+      // }
+      if (config.y.order) {
         this.y_dom = d3.set(d3.merge(allY)).values().sort(function (a, b) {
           return d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
         });
@@ -179,8 +181,10 @@
     }).indexOf(true) > -1) {
       this.y_dom = [0, 1];
     } else {
+      console.log(allY);
       this.y_dom = d3.extent(d3.merge(allY));
     }
+    console.log(this.y_dom);
   }
 
   function draw() {
@@ -320,7 +324,7 @@
         var position = void 0;
         var finalXPosition = void 0;
         if (!d.arrange || d.arrange === 'stacked') {
-          return _this.x(d.values.x);
+          finalXPosition = _this.x(d.values.x);
         } else if (d.arrange === 'nested') {
           position = d.subcats.indexOf(d.key);
           var offset = position ? _this.x.rangeBand() / (d.subcats.length * 0.75) / position : _this.x.rangeBand();
@@ -340,8 +344,8 @@
         return finalYPosition;
       }).attr('width', function (d) {
         var finalWidth = void 0;
-        if (d.arrange === 'stacked') {
-          return _this.x.rangeBand();
+        if (!d.arrange || d.arrange === 'stacked') {
+          finalWidth = _this.x.rangeBand();
         } else if (d.arrange === 'nested') {
           var position = d.subcats.indexOf(d.key);
           finalWidth = position ? _this.x.rangeBand() / (d.subcats.length * 0.75) / position : _this.x.rangeBand();
@@ -1528,13 +1532,13 @@
       return m[config.x.column];
     })).values() : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
       return m[config.x.column];
-    })).values() : config.x_from0 ? [0, d3.max(preXDom)] : preXDom;
+    })).values() : preXDom;
 
-    var yDom = config.y.domain ? config.y.domain : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+    var yDom = config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
       return m[config.y.column];
     })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
       return m[config.y.column];
-    })).values() : config.y_from0 ? [0, d3.max(preYDom)] : preYDom;
+    })).values() : preYDom;
 
     if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
       xDom[0] = config.x.domain[0];

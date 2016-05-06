@@ -1,4 +1,4 @@
-import { time, sum, extent, merge, set, max, scale, range, nest, ascending, descending, quantile } from 'd3';
+import { time, sum, extent, merge, set, scale, range, nest, ascending, descending, quantile } from 'd3';
 import naturalSorter from '../util/naturalSorter';
 import summarize from '../util/summarize';
 
@@ -271,13 +271,10 @@ export default function transformData(rawData, mark) {
 
   const xDom = config.x.type === 'ordinal' && config.x.behavior === 'flex' ? set(filtered.map(m => m[config.x.column])).values() :
     config.x.type === 'ordinal' ? set(raw.map(m => m[config.x.column])).values() :
-    config.x_from0 ? [0, max(preXDom)] :
     preXDom;
 
-  const yDom = config.y.domain ? config.y.domain :
-    config.y.type === 'ordinal' && config.y.behavior === 'flex' ? set(filtered.map(m => m[config.y.column])).values() :
+  const yDom = config.y.type === 'ordinal' && config.y.behavior === 'flex' ? set(filtered.map(m => m[config.y.column])).values() :
     config.y.type === 'ordinal' ? set(raw.map(m => m[config.y.column])).values() :
-    config.y_from0 ? [0, max(preYDom)] :
     preYDom;
 
   if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
