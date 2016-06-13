@@ -64,7 +64,7 @@ export default function transformData(rawData, mark) {
   if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
     raw = raw.filter(f =>
       (mark.summarizeY !== 'count' && mark.summarizeY !== 'percent') ?
-      (+f[config.y.column] || +f[config.y.column] === 0) :
+      (+f[config.y.column] || f[config.y.column] === 0 || f[config.y.column] === '0') :
       f
     );
   }
