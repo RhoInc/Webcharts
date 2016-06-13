@@ -20,10 +20,10 @@ export default function yScaleAxis(maxRange = this.plot_height, domain = this.y_
   y.domain(domain);
 
   if (type === 'ordinal') {
-    y.rangeBands([+maxRange, 0], config.padding, config.outer_pad);
+    y.rangeBands([+maxRange, 0], config.y.padding, config.y.outer_pad);
   }
   else {
-    y.range([+maxRange, 0]).clamp(Boolean(config.y_clamp));
+    y.range([+maxRange, 0]).clamp(Boolean(config.y.clamp));
   }
 
   const yFormat = config.y.format ? config.y.format : config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? '0%' : '.0f';

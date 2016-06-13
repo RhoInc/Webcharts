@@ -11,6 +11,12 @@ export default function setDefaults() {
   this.config.x.type = this.config.x.type || 'linear';
   this.config.y.type = this.config.y.type || 'linear';
 
+  this.config.x.padding = this.config.x.padding !== undefined ? this.config.x.padding : 0.3;
+  this.config.x.outer_pad = this.config.x.outer_pad !== undefined ? this.config.x.outer_pad : 0.1;
+
+  this.config.y.padding = this.config.y.padding !== undefined ? this.config.y.padding : 0.3;
+  this.config.y.outer_pad = this.config.y.outer_pad !== undefined ? this.config.y.outer_pad : 0.1;
+
   this.config.margin = this.config.margin || {};
   this.config.legend = this.config.legend || {};
   this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
@@ -18,9 +24,6 @@ export default function setDefaults() {
   this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
 
   this.config.date_format = this.config.date_format || '%x';
-
-  this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
-  this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
 
   this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
 

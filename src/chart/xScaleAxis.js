@@ -20,7 +20,7 @@ export default function xScaleAxis(maxRange = this.plot_width, domain = this.x_d
   x.domain(domain);
 
   if (type === 'ordinal') {
-    x.rangeBands([0, +maxRange], config.padding, config.outer_pad);
+    x.rangeBands([0, +maxRange], config.x.padding, config.x.outer_pad);
   }
   else {
     x.range([0, +maxRange]).clamp(Boolean(config.x.clamp));
