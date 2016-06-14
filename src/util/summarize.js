@@ -10,8 +10,8 @@ const stats = {
 
 export default function summarize(vals, operation = 'mean') {
   const nvals = vals
-    .filter(f => parseFloat(f) || parseFloat(f) === 0)
-    .map(m => parseFloat(m));
+    .filter(f => +f || +f === 0)
+    .map(m => +m);
 
   if (operation === 'cumulative') {
     return null;

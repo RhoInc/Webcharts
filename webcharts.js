@@ -1199,9 +1199,9 @@
     var operation = arguments.length <= 1 || arguments[1] === undefined ? 'mean' : arguments[1];
 
     var nvals = vals.filter(function (f) {
-      return parseFloat(f) || parseFloat(f) === 0;
+      return +f || +f === 0;
     }).map(function (m) {
-      return parseFloat(m);
+      return +m;
     });
 
     if (operation === 'cumulative') {
@@ -1283,7 +1283,7 @@
     }
     if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
       raw = raw.filter(function (f) {
-        return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent' ? +f[config.y.column] || +f[config.y.column] === 0 : f;
+        return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent' ? +f[config.y.column] || f[config.y.column] === 0 || f[config.y.column] === '0' : f;
       });
     }
 
