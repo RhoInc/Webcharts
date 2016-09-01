@@ -3,6 +3,8 @@
 # Overview
 Webcharts is a charting library built on top of [D3.js](https://github.com/mbostock/d3) that offers a simple way to create reusable, flexible, interactive charts with JavaScript. Charts can be customized with a handful of settings and extended through callback functions. Webcharts can also create sets of controls that are tied to charts to dynamically manipulate chart data, appearance, or behavior.
 
+For a detailed description of the framework, see the [Webcharts - A Web-based Charting Library for Custom Interactive Data Visualization](http://openresearchsoftware.metajnl.com/articles/10.5334/jors.127/) in the [Journal of Open Research Software](http://openresearchsoftware.metajnl.com/). Full API documentation is in the [wiki](https://github.com/RhoInc/Webcharts). 
+
 # How to Use
 Webcharts can be used in modern browsers (Chrome, Firefox, IE9+, etc.) and also exports itself as a CommonJS module for compatibility with Node. Install the package via npm:
 ```bash
@@ -90,5 +92,7 @@ To see the real thing and look more closely at the code, [check out this gist](h
 
 # More Information
 [API documentation](https://github.com/RhoInc/Webcharts/wiki/Webcharts-API)
+
+[Manuscript](http://openresearchsoftware.metajnl.com/articles/10.5334/jors.127/)
 
 [Examples](https://github.com/RhoInc/Webcharts/wiki/Examples)
