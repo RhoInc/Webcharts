@@ -1951,6 +1951,18 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
   return area_grps;
 }
 
+function destroy() {
+  //run onDestroy callback
+  this.events.onDestroy.call(this);
+
+  //remove resize event listener
+  var context = this;
+  d3.select(window).on('resize.' + context.element + context.id, null);
+
+  //unmount chart wrapper
+  this.wrap.remove();
+}
+
 function draw(raw_data, processed_data) {
   var _this19 = this;
 
@@ -2145,6 +2157,7 @@ var chart = Object.create(chartProto, {
   'checkRequired': { value: checkRequired },
   'consolidateData': { value: consolidateData },
   'draw': { value: draw },
+  'destroy': { value: destroy },
   'drawArea': { value: drawArea },
   'drawBars': { value: drawBars },
   'drawGridlines': { value: drawGridlines },
@@ -2206,11 +2219,12 @@ function createChart() {
     onPreprocess: function onPreprocess() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
-    onResize: function onResize() {}
+    onResize: function onResize() {},
+    onDestroy: function onDestroy() {}
   };
 
   thisChart.on = function (event, callback) {
-    var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize', 'destroy'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
