@@ -22,11 +22,12 @@ export function createTable(element = 'body', config = {}, controls=null){
 		onLayout(){},
 		onDatatransform(){},
 		onDraw(){},
-		onResize(){}
+		onResize(){},
+		onDestroy(){}
 	};
 	
 	thisTable.on = function(event, callback){
-		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize'];
+		let possible_events = ['init','layout', 'datatransform', 'draw', 'resize','destroy'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}

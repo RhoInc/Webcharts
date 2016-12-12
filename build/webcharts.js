@@ -2302,11 +2302,12 @@ function createTable() {
     onLayout: function onLayout() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
-    onResize: function onResize() {}
+    onResize: function onResize() {},
+    onDestroy: function onDestroy() {}
   };
 
   thisTable.on = function (event, callback) {
-    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize', 'destroy'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
