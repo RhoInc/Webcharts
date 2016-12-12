@@ -338,6 +338,11 @@ function init$1(data) {
   this.layout();
 }
 
+function destroy$1() {
+  //unmount controls wrapper
+  this.wrap.remove();
+}
+
 function controlUpdate() {
   var _this9 = this;
 
@@ -383,6 +388,7 @@ var controls = {
   changeOption: changeOption,
   checkRequired: checkRequired$1,
   controlUpdate: controlUpdate,
+  destroy: destroy$1,
   init: init$1,
   layout: layout$2,
   makeControlItem: makeControlItem,
@@ -1952,12 +1958,19 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
 }
 
 function destroy() {
+  var destroyControls = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
   //run onDestroy callback
   this.events.onDestroy.call(this);
 
   //remove resize event listener
   var context = this;
   d3.select(window).on('resize.' + context.element + context.id, null);
+
+  //destroy controls
+  if (destroyControls && this.controls) {
+    this.controls.destroy();
+  }
 
   //unmount chart wrapper
   this.wrap.remove();
