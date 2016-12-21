@@ -26,11 +26,12 @@ export function createChart(element = 'body', config = {}, controls = null){
 		onPreprocess(){},
 		onDatatransform(){},
 		onDraw(){},
-		onResize(){}
+		onResize(){},
+		onDestroy(){}
 	};
 	
 	thisChart.on = function(event, callback){
-		let possible_events = ['init','layout', 'preprocess', 'datatransform', 'draw', 'resize'];
+		let possible_events = ['init','layout', 'preprocess', 'datatransform', 'draw', 'resize','destroy'];
 		if(possible_events.indexOf(event) < 0){
 			return;
 		}

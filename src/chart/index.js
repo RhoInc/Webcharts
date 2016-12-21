@@ -1,5 +1,6 @@
 import checkRequired from './checkRequired';
 import consolidateData from './consolidateData';
+import destroy from './destroy';
 import draw from './draw';
 import drawArea from './drawArea';
 import drawBars from './drawBars';
@@ -20,6 +21,7 @@ import updateDataMarks from './updateDataMarks';
 import xScaleAxis from './xScaleAxis';
 import yScaleAxis from './yScaleAxis';
 
+
 const chartProto = {
   raw_data: [],
   config: {}
@@ -29,6 +31,7 @@ export default Object.create(chartProto, {
   'checkRequired': { value: checkRequired },
   'consolidateData': { value: consolidateData },
   'draw': { value: draw },
+  'destroy':{ value:destroy },
   'drawArea': { value: drawArea },
   'drawBars': { value: drawBars },
   'drawGridlines': { value: drawGridlines },

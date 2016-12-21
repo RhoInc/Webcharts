@@ -338,6 +338,11 @@ function init$1(data) {
   this.layout();
 }
 
+function destroy$1() {
+  //unmount controls wrapper
+  this.wrap.remove();
+}
+
 function controlUpdate() {
   var _this9 = this;
 
@@ -383,6 +388,7 @@ var controls = {
   changeOption: changeOption,
   checkRequired: checkRequired$1,
   controlUpdate: controlUpdate,
+  destroy: destroy$1,
   init: init$1,
   layout: layout$2,
   makeControlItem: makeControlItem,
@@ -1951,6 +1957,25 @@ function drawArea(area_drawer, area_data, datum_accessor, class_match, bind_acce
   return area_grps;
 }
 
+function destroy() {
+  var destroyControls = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+  //run onDestroy callback
+  this.events.onDestroy.call(this);
+
+  //remove resize event listener
+  var context = this;
+  d3.select(window).on('resize.' + context.element + context.id, null);
+
+  //destroy controls
+  if (destroyControls && this.controls) {
+    this.controls.destroy();
+  }
+
+  //unmount chart wrapper
+  this.wrap.remove();
+}
+
 function draw(raw_data, processed_data) {
   var _this19 = this;
 
@@ -2145,6 +2170,7 @@ var chart = Object.create(chartProto, {
   'checkRequired': { value: checkRequired },
   'consolidateData': { value: consolidateData },
   'draw': { value: draw },
+  'destroy': { value: destroy },
   'drawArea': { value: drawArea },
   'drawBars': { value: drawBars },
   'drawGridlines': { value: drawGridlines },
@@ -2206,11 +2232,12 @@ function createChart() {
     onPreprocess: function onPreprocess() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
-    onResize: function onResize() {}
+    onResize: function onResize() {},
+    onDestroy: function onDestroy() {}
   };
 
   thisChart.on = function (event, callback) {
-    var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize', 'destroy'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
@@ -2275,11 +2302,12 @@ function createTable() {
     onLayout: function onLayout() {},
     onDatatransform: function onDatatransform() {},
     onDraw: function onDraw() {},
-    onResize: function onResize() {}
+    onResize: function onResize() {},
+    onDestroy: function onDestroy() {}
   };
 
   thisTable.on = function (event, callback) {
-    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize'];
+    var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize', 'destroy'];
     if (possible_events.indexOf(event) < 0) {
       return;
     }
