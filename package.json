@@ -1,7 +1,7 @@
 {
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "keywords": [
     "charts",
     "javascript",
@@ -12,16 +12,14 @@
   "main": "lib/webcharts.common.js",
   "jsnext:main": "src/index.js",
   "dependencies": {
-    "d3": ">= 3.0.0"
+    "d3": "~3"
   },
   "scripts": {
-    "es6": "rollup -g d3 src/index.js > lib/webcharts.es6.js",
-    "common": "rollup src/index.js -g d3 | babel > lib/webcharts.common.js &&  sed -i \"s/require('d3')/var d3 = require('d3')/\" lib/webcharts.common.js",
-    "amd": "rollup src/index.js -f amd -g d3 | babel > lib/webcharts.amd.js",
-    "es5": "rollup src/index.js -g d3 | babel --modules ignore | cat lib/open.js - lib/close.js > build/webcharts.js",
-    "uglify": "uglifyjs build/webcharts.js > build/webcharts.min.js",
-    "build": "npm run es5 && npm run uglify",
-    "all": "npm run common && npm run es6 && npm run amd && npm run build"
+    "uglifyhtml":"uglifyjs build/webcharts.js > build/webcharts.min.js",
+    "uglifycss":"uglifycss css/webcharts.css > css/webcharts.min.css",
+    "uglify":"npm run uglifyhtml && npm run uglifycss",
+    "rollup":"rollup -c ./scripts/rollup.config.js | babel > ./build/webcharts.js",
+    "build":"npm run rollup && npm run uglify"
   },
   "repository": {
     "type": "git",
@@ -33,8 +31,11 @@
     "url": "https://github.com/rhoinc/webcharts/issues"
   },
   "devDependencies": {
-    "babel": "^5.8.23",
-    "rollup": "^0.19.2",
-    "uglify-js": "^2.5.0"
+    "babel-cli": "^6.0.0",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "rollup": "^0.25.1",
+    "rollup-plugin-babel": "^2.4.0",
+    "uglify-js": "^2.5.0",
+    "uglifycss":"~0"
   }
 }
