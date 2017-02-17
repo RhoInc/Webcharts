@@ -11,7 +11,7 @@
 
 'use strict';
 
-var version = '1.6.2';
+var version = '1.7.1';
 
 function stringAccessor(o, s, v) {
   //adapted from http://jsfiddle.net/alnitak/hEsys/
