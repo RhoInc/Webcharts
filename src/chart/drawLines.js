@@ -3,12 +3,12 @@ export default function (marks){
   let line = d3.svg.line()
     .interpolate(config.interpolate)
     .x(d => {
-      return config.x.type === 'linear' ? this.x(+d.values.x) :
+      return config.x.type === 'linear' || config.x.type == 'log' ? this.x(+d.values.x) :
         config.x.type === 'time' ? this.x(new Date(d.values.x)) :
         this.x(d.values.x) + this.x.rangeBand()/2;
     })
     .y(d => {
-      return config.y.type === 'linear' ? this.y(+d.values.y) :
+      return config.y.type === 'linear' || config.y.type == 'log' ? this.y(+d.values.y) :
         config.y.type === 'time' ? this.y(new Date(d.values.y)) :
         this.y(d.values.y) + this.y.rangeBand()/2;
     });
