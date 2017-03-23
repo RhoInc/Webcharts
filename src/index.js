@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 import version from './version';
 import objects from './objects';
 import { createChart } from './chart';

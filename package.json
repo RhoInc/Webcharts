@@ -17,11 +17,7 @@
   "scripts": {
     "es5": "rollup --config",
     "uglify": "uglifyjs build/webcharts.js > build/webcharts.min.js",
-    "build": "npm run es5 && npm run uglify",
-    "es6": "rollup src/index.js --format iife --name webCharts --plugins babel --output lib/webcharts.es6.js",
-    "amd": "rollup src/index.js --format amd --name webCharts --plugins babel --output lib/webcharts.amd.js",
-    "common": "rollup src/index.js --format cjs --name webCharts --plugins babel --output lib/webcharts.common.js",
-    "all": "npm run build && npm run es6 && npm run amd && npm run common"
+    "build": "npm run es5 && npm run uglify"
   },
   "repository": {
     "type": "git",
