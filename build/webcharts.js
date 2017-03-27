@@ -2,7 +2,7 @@
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3')) :
 	typeof define === 'function' && define.amd ? define(['d3'], factory) :
 	(global.webCharts = factory(global.d3));
-}(this, (function (d3$1) { 'use strict';
+}(this, (function (d3) { 'use strict';
 
 var version = '1.7.2';
 

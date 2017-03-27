@@ -15,7 +15,7 @@
     "d3": ">= 3.0.0"
   },
   "scripts": {
-    "es5": "rollup --config",
+    "es5": "rollup --config && sed -i 's/d3$1/d3/' build/webcharts.js",
     "uglify": "uglifyjs build/webcharts.js > build/webcharts.min.js",
     "build": "npm run es5 && npm run uglify"
   },
