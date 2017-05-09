@@ -197,7 +197,7 @@ export default function (marks){
         }
       });
   }
-  else if(config.x.type === 'linear' && config.x.bin){
+  else if(['linear', 'log'].indexOf(config.x.type) > -1 && config.x.bin){
     oldBarsTrans
       .attr('y', this.y(0))
       .attr('height', 0);
@@ -262,7 +262,7 @@ export default function (marks){
       .attr('height', d => this.y(0) - this.y(d.values.y) );
 
   }
-  else if(config.y.type === 'linear' && config.y.bin){
+  else if(['linear', 'log'].indexOf(config.y.type) > -1 && config.y.type === 'linear' && config.y.bin){
     oldBarsTrans
       .attr('x', this.x(0))
       .attr('width', 0);
