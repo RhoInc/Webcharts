@@ -810,58 +810,58 @@ var drawText = function (marks) {
 };
 
 var init = function (data) {
-    var _this = this;
+  var _this = this;
 
-    if (d3.select(this.div).select('.loader').empty()) {
-        d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
-            return 'blockG rotate' + (d + 1);
-        });
+  if (d3.select(this.div).select('.loader').empty()) {
+    d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
+      return 'blockG rotate' + (d + 1);
+    });
+  }
+
+  this.wrap.attr('class', 'wc-chart');
+
+  this.setDefaults();
+
+  this.raw_data = data;
+
+  var startup = function startup(data) {
+    //connect this chart and its controls, if any
+    if (_this.controls) {
+      _this.controls.targets.push(_this);
+      if (!_this.controls.ready) {
+        _this.controls.init(_this.raw_data);
+      } else {
+        _this.controls.layout();
+      }
     }
 
-    this.wrap.attr('class', 'wc-chart');
-
-    this.setDefaults();
-
-    this.raw_data = data;
-
-    var startup = function startup(data) {
-        //connect this chart and its controls, if any
-        if (_this.controls) {
-            _this.controls.targets.push(_this);
-            if (!_this.controls.ready) {
-                _this.controls.init(_this.raw_data);
-            } else {
-                _this.controls.layout();
-            }
+    //make sure container is visible (has height and width) before trying to initialize
+    var visible = d3.select(_this.div).property('offsetWidth') > 0;
+    if (!visible) {
+      console.warn('The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.');
+      var onVisible = setInterval(function (i) {
+        var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
+        if (visible_now) {
+          _this.layout();
+          _this.wrap.datum(_this);
+          _this.draw();
+          clearInterval(onVisible);
         }
-
-        //make sure container is visible (has height and width) before trying to initialize
-        var visible = d3.select(_this.div).property('offsetWidth') > 0;
-        if (!visible) {
-            console.warn('The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.');
-            var onVisible = setInterval(function (i) {
-                var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
-                if (visible_now) {
-                    _this.layout();
-                    _this.wrap.datum(_this);
-                    _this.draw();
-                    clearInterval(onVisible);
-                }
-            }, 500);
-        } else {
-            _this.layout();
-            _this.wrap.datum(_this);
-            _this.draw();
-        }
-    };
-
-    this.events.onInit.call(this);
-    if (this.raw_data.length) {
-        this.checkRequired(this.raw_data);
+      }, 500);
+    } else {
+      _this.layout();
+      _this.wrap.datum(_this);
+      _this.draw();
     }
-    startup(data);
+  };
 
-    return this;
+  this.events.onInit.call(this);
+  if (this.raw_data.length) {
+    this.checkRequired(this.raw_data);
+  }
+  startup(data);
+
+  return this;
 };
 
 var layout = function () {
