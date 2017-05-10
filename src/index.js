@@ -9,11 +9,11 @@ import multiply from './multiply';
 import dataOps from './dataOps/index';
 
 export default {
-  version,
-  dataOps,
-  objects,
-  createChart,
-  createControls,
-  createTable,
-  multiply
+    version,
+    dataOps,
+    objects,
+    createChart,
+    createControls,
+    createTable,
+    multiply
 };
