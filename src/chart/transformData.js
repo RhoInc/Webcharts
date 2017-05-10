@@ -104,7 +104,7 @@ export default function (raw, mark){
       this_nest.key(d => d[sublevel]);
       this_nest.sortKeys((a,b) => {
         return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) :
-          config.x_dom ? d3.ascending(config.x_dom.indexOf(a), config.x_dom.indexOf(b)) :
+          config.x.order ? d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) :
           sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) :
           config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a,b) :
           d3.ascending(+a, +b);
