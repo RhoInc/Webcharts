@@ -6,11 +6,7 @@ export default {
     dest: 'build/webcharts.js',
     format: 'umd',
     globals: {d3: 'd3'},
-    external: (function() {
-        var dependencies = require('./package.json').dependencies;
-
-        return Object.keys(dependencies);
-    }()),
+    external: ['d3'],
     plugins: [
         babel({exclude: 'node_modules/**'})
     ]

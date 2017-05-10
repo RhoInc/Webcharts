@@ -15,7 +15,7 @@
     "d3": ">= 3.0.0"
   },
   "scripts": {
-    "es5": "rollup --config && sed -i 's/d3$1/d3/' build/webcharts.js",
+    "es5": "rollup --config",
     "uglify": "uglifyjs build/webcharts.js > build/webcharts.min.js",
     "build": "npm run es5 && npm run uglify"
   },
@@ -31,8 +31,8 @@
   "devDependencies": {
     "rollup": "^0.41.6",
     "rollup-plugin-babel": "^2.7.1",
-    "babel-cli": "^6.0.0",
     "babel-preset-es2015": "^6.0.0",
+    "babel-plugin-external-helpers": "^6.0.0",
     "uglify-js": "^2.5.0"
   }
 }
