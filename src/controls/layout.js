@@ -1,5 +1,5 @@
-export default function(){
+export default function() {
     this.wrap.selectAll('*').remove();
     this.ready = true;
-   	this.controlUpdate();
+    this.controlUpdate();
 }
