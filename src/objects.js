@@ -3,7 +3,7 @@ import table from './table/index';
 import controls from './controls/index';
 
 export default {
-  chart: chart,
-  table: table,
-  controls: controls
+    chart: chart,
+    table: table,
+    controls: controls
 };
