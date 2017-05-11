@@ -2,8 +2,7 @@ import { select, range } from 'd3';
 
 export default function init(data) {
     if (select(this.div).select('.loader').empty()) {
-        d3
-            .select(this.div)
+        select(this.div)
             .insert('div', ':first-child')
             .attr('class', 'loader')
             .selectAll('.blockG')
