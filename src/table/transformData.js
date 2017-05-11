@@ -1,9 +1,11 @@
-export default function(data) {
+import { keys, nest } from 'd3';
+
+export default function transformData(data) {
     if (!data) {
         return;
     }
     let config = this.config;
-    let colList = config.cols || d3.keys(data[0]);
+    let colList = config.cols || keys(data[0]);
     if (config.keep) {
         config.keep.forEach(e => {
             if (colList.indexOf(e) === -1) {
@@ -28,8 +30,7 @@ export default function(data) {
         });
     }
 
-    let slimmed = d3
-        .nest()
+    let slimmed = nest()
         .key(d => {
             if (config.row_per) {
                 return config.row_per.map(m => d[m]).join(' ');

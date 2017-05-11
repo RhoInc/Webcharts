@@ -1,4 +1,6 @@
-export default function(control, control_wrap) {
+import { set, keys, select } from 'd3';
+
+export default function makeDropdownControl(control, control_wrap) {
     let mainOption = control.option || control.options[0];
     let changer = control_wrap
         .append('select')
@@ -9,8 +11,8 @@ export default function(control, control_wrap) {
     let opt_values = control.values && control.values instanceof Array
         ? control.values
         : control.values
-              ? d3.set(this.data.map(m => m[this.targets[0].config[control.values]])).values()
-              : d3.keys(this.data[0]);
+              ? set(this.data.map(m => m[this.targets[0].config[control.values]])).values()
+              : keys(this.data[0]);
 
     if (!control.require || control.none) {
         opt_values.unshift('None');
@@ -32,9 +34,9 @@ export default function(control, control_wrap) {
         if (control.multiple) {
             value = options
                 .filter(function(f) {
-                    return d3.select(this).property('selected');
+                    return select(this).property('selected');
                 })[0]
-                .map(m => d3.select(m).property('value'))
+                .map(m => select(m).property('value'))
                 .filter(f => f !== 'None');
         }
 

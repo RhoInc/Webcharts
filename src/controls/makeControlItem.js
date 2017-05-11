@@ -1,4 +1,4 @@
-export default function(control) {
+export default function makeControlItem(control) {
     let control_wrap = this.wrap
         .append('div')
         .attr('class', 'control-group')

@@ -1,6 +1,7 @@
 import table from './table/index';
+import { select } from 'd3';
 
-export function createTable(element = 'body', config = {}, controls = null) {
+export default function createTable(element = 'body', config = {}, controls = null) {
     let thisTable = Object.create(table);
 
     thisTable.div = element;
@@ -15,7 +16,7 @@ export function createTable(element = 'body', config = {}, controls = null) {
 
     thisTable.marks = [];
 
-    thisTable.wrap = d3.select(thisTable.div).append('div');
+    thisTable.wrap = select(thisTable.div).append('div');
 
     thisTable.events = {
         onInit() {},

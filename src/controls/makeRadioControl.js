@@ -1,7 +1,9 @@
-export default function(control, control_wrap) {
+import { keys, select } from 'd3';
+
+export default function makeRadioControl(control, control_wrap) {
     let changers = control_wrap
         .selectAll('label')
-        .data(control.values || d3.keys(this.data[0]))
+        .data(control.values || keys(this.data[0]))
         .enter()
         .append('label')
         .attr('class', 'radio')
@@ -18,8 +20,8 @@ export default function(control, control_wrap) {
     changers.on('change', d => {
         let value = null;
         changers.each(function(c) {
-            if (d3.select(this).property('checked')) {
-                value = d3.select(this).property('value') === 'none' ? null : c;
+            if (select(this).property('checked')) {
+                value = select(this).property('value') === 'none' ? null : c;
             }
         });
         this.changeOption(control.option, value, control.callback);

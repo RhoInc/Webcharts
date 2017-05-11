@@ -1,4 +1,4 @@
-export default function(a, b) {
+export default function naturalSorter(a, b) {
     //adapted from http://www.davekoelle.com/files/alphanum.js
     function chunkify(t) {
         let tz = [];

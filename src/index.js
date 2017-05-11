@@ -1,16 +1,11 @@
-import * as d3 from 'd3';
-
 import version from './version';
-import objects from './objects';
-import { createChart } from './chart';
-import { createControls } from './controls';
-import { createTable } from './table';
+import createChart from './createChart';
+import createControls from './createControls';
+import createTable from './createTable';
 import multiply from './multiply';
-import dataOps from './dataOps/index';
 
 export default {
     version,
-    dataOps,
     objects,
     createChart,
     createControls,
