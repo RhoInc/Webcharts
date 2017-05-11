@@ -6,7 +6,6 @@ import multiply from './multiply';
 
 export default {
     version,
-    objects,
     createChart,
     createControls,
     createTable,

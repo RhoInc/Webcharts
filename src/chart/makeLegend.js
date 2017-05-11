@@ -1,4 +1,6 @@
-export default function(scale = this.colorScale, label = '', custom_data = null) {
+import { ascending, select } from 'd3';
+
+export default function makeLegend(scale = this.colorScale, label = '', custom_data = null) {
     let config = this.config;
 
     config.legend.mark = config.legend.mark
@@ -61,38 +63,34 @@ export default function(scale = this.colorScale, label = '', custom_data = null)
 
     if (config.legend.order) {
         leg_parts.sort((a, b) =>
-            d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label))
+            ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label))
         );
     }
 
     leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
     leg_parts.selectAll('.legend-color-block').each(function(e) {
-        let svg = d3.select(this);
+        let svg = select(this);
         if (e.mark === 'circle') {
             svg
                 .append('circle')
                 .attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
         } else if (e.mark === 'line') {
-            svg
-                .append('line')
-                .attr({
-                    x1: 0,
-                    y1: '.5em',
-                    x2: '1em',
-                    y2: '.5em',
-                    'stroke-width': 2,
-                    'shape-rendering': 'crispEdges',
-                    class: 'legend-mark'
-                });
+            svg.append('line').attr({
+                x1: 0,
+                y1: '.5em',
+                x2: '1em',
+                y2: '.5em',
+                'stroke-width': 2,
+                'shape-rendering': 'crispEdges',
+                class: 'legend-mark'
+            });
         } else if (e.mark === 'square') {
-            svg
-                .append('rect')
-                .attr({
-                    height: '1em',
-                    width: '1em',
-                    class: 'legend-mark',
-                    'shape-rendering': 'crispEdges'
-                });
+            svg.append('rect').attr({
+                height: '1em',
+                width: '1em',
+                class: 'legend-mark',
+                'shape-rendering': 'crispEdges'
+            });
         }
     });
     leg_parts
@@ -101,7 +99,7 @@ export default function(scale = this.colorScale, label = '', custom_data = null)
         .attr('fill', d => d.color || scale(d.label))
         .attr('stroke', d => d.color || scale(d.label))
         .each(function(e) {
-            d3.select(this).attr(e.attributes);
+            select(this).attr(e.attributes);
         });
 
     new_parts

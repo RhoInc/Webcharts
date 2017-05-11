@@ -1,4 +1,6 @@
-export default function() {
+import { select } from 'd3';
+
+export default function resize() {
     let config = this.config;
 
     let aspect2 = 1 / config.aspect;
@@ -25,8 +27,7 @@ export default function() {
               : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
     this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
-    d3
-        .select(this.svg.node().parentNode)
+    select(this.svg.node().parentNode)
         .attr('width', svg_width)
         .attr('height', svg_height)
         .select('g')

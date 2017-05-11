@@ -1,21 +1,22 @@
 import naturalSorter from '../dataOps/naturalSorter';
 import summarize from '../dataOps/summarize';
+import { time, sum, set, extent, merge, nest, scale, range, ascending, quantile, max } from 'd3';
 
-export default function(raw, mark) {
+export default function transformData(raw, mark) {
     let config = this.config;
     let x_behavior = config.x.behavior || 'raw';
     let y_behavior = config.y.behavior || 'raw';
     let sublevel = mark.type === 'line'
         ? config.x.column
         : mark.type === 'bar' && mark.split ? mark.split : null;
-    let dateConvert = d3.time.format(config.date_format);
+    let dateConvert = time.format(config.date_format);
     let totalOrder;
 
     function calcStartTotal(e) {
         let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
             ? 'y'
             : 'x';
-        e.total = d3.sum(e.values.map(m => +m.values[axis]));
+        e.total = sum(e.values.map(m => +m.values[axis]));
         let counter = 0;
         e.values.forEach((v, i) => {
             if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
@@ -94,47 +95,43 @@ export default function(raw, mark) {
     let raw_dom_x = mark.summarizeX === 'cumulative'
         ? [0, raw.length]
         : config.x.type === 'ordinal'
-              ? d3.set(raw.map(m => m[config.x.column])).values().filter(f => f)
+              ? set(raw.map(m => m[config.x.column])).values().filter(f => f)
               : mark.split && mark.arrange !== 'stacked'
-                    ? d3.extent(
-                          d3.merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length)))
+                    ? extent(
+                          merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length)))
                       )
                     : mark.summarizeX === 'count'
-                          ? d3.extent(raw_nest.nested.map(m => m.values.raw.length))
-                          : d3.extent(
-                                raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0)
-                            );
+                          ? extent(raw_nest.nested.map(m => m.values.raw.length))
+                          : extent(raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
 
     let raw_dom_y = mark.summarizeY === 'cumulative'
         ? [0, raw.length]
         : config.y.type === 'ordinal'
-              ? d3.set(raw.map(m => m[config.y.column])).values().filter(f => f)
+              ? set(raw.map(m => m[config.y.column])).values().filter(f => f)
               : mark.split && mark.arrange !== 'stacked'
-                    ? d3.extent(
-                          d3.merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length)))
+                    ? extent(
+                          merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length)))
                       )
                     : mark.summarizeY === 'count'
-                          ? d3.extent(raw_nest.nested.map(m => m.values.raw.length))
-                          : d3.extent(
-                                raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0)
-                            );
+                          ? extent(raw_nest.nested.map(m => m.values.raw.length))
+                          : extent(raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
 
     let filtered = raw;
 
     function makeNest(entries, sublevel) {
         let dom_xs = [];
         let dom_ys = [];
-        let this_nest = d3.nest();
+        let this_nest = nest();
 
         if (
             (config.x.type === 'linear' && config.x.bin) ||
             (config.y.type === 'linear' && config.y.bin)
         ) {
             let xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
-            let quant = d3.scale
+            let quant = scale
                 .quantile()
-                .domain(d3.extent(entries.map(m => +m[config[xy].column])))
-                .range(d3.range(+config[xy].bin));
+                .domain(extent(entries.map(m => +m[config[xy].column])))
+                .range(range(+config[xy].bin));
 
             entries.forEach(e => (e.wc_bin = quant(e[config[xy].column])));
 
@@ -147,23 +144,23 @@ export default function(raw, mark) {
             this_nest.key(d => d[sublevel]);
             this_nest.sortKeys((a, b) => {
                 return config.x.type === 'time'
-                    ? d3.ascending(new Date(a), new Date(b))
+                    ? ascending(new Date(a), new Date(b))
                     : config.x.order
-                          ? d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
+                          ? ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
                           : sublevel === config.color_by && config.legend.order
-                                ? d3.ascending(
+                                ? ascending(
                                       config.legend.order.indexOf(a),
                                       config.legend.order.indexOf(b)
                                   )
                                 : config.x.type === 'ordinal' || config.y.type === 'ordinal'
                                       ? naturalSorter(a, b)
-                                      : d3.ascending(+a, +b);
+                                      : ascending(+a, +b);
             });
         }
         this_nest.rollup(r => {
             let obj = { raw: r };
-            let y_vals = r.map(m => m[config.y.column]).sort(d3.ascending);
-            let x_vals = r.map(m => m[config.x.column]).sort(d3.ascending);
+            let y_vals = r.map(m => m[config.y.column]).sort(ascending);
+            let x_vals = r.map(m => m[config.x.column]).sort(ascending);
             obj.x = config.x.type === 'ordinal'
                 ? r[0][config.x.column]
                 : summarize(x_vals, mark.summarizeX);
@@ -172,13 +169,13 @@ export default function(raw, mark) {
                 : summarize(y_vals, mark.summarizeY);
 
             obj.x_q25 = config.error_bars && config.y.type === 'ordinal'
-                ? d3.quantile(x_vals, 0.25)
+                ? quantile(x_vals, 0.25)
                 : obj.x;
             obj.x_q75 = config.error_bars && config.y.type === 'ordinal'
-                ? d3.quantile(x_vals, 0.75)
+                ? quantile(x_vals, 0.75)
                 : obj.x;
-            obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
-            obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
+            obj.y_q25 = config.error_bars ? quantile(y_vals, 0.25) : obj.y;
+            obj.y_q75 = config.error_bars ? quantile(y_vals, 0.75) : obj.y;
             dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
             dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
 
@@ -194,7 +191,7 @@ export default function(raw, mark) {
 
                 let cumul = config.x.type === 'time'
                     ? interm.length
-                    : d3.sum(
+                    : sum(
                           interm.map(
                               m =>
                                   +m[config.y.column] || +m[config.y.column] === 0
@@ -223,16 +220,16 @@ export default function(raw, mark) {
 
         let test = this_nest.entries(entries);
 
-        let dom_x = d3.extent(d3.merge(dom_xs));
-        let dom_y = d3.extent(d3.merge(dom_ys));
+        let dom_x = extent(merge(dom_xs));
+        let dom_y = extent(merge(dom_ys));
 
         if (sublevel && mark.type === 'bar' && mark.arrange === 'stacked') {
             test.forEach(calcStartTotal);
             if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
-                dom_y = d3.extent(test.map(m => m.total));
+                dom_y = extent(test.map(m => m.total));
             }
             if (config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin)) {
-                dom_x = d3.extent(test.map(m => m.total));
+                dom_x = extent(test.map(m => m.total));
             }
         } else if (sublevel && mark.type === 'bar' && mark.split) {
             test.forEach(calcStartTotal);
@@ -247,12 +244,12 @@ export default function(raw, mark) {
             (config.x.sort === 'total-ascending' && config.x.type == 'ordinal') ||
             (config.y.sort === 'total-descending' && config.y.type == 'ordinal')
         ) {
-            totalOrder = test.sort((a, b) => d3.ascending(a.total, b.total)).map(m => m.key);
+            totalOrder = test.sort((a, b) => ascending(a.total, b.total)).map(m => m.key);
         } else if (
             (config.x.sort === 'total-descending' && config.x.type == 'ordinal') ||
             (config.y.sort === 'total-ascending' && config.y.type == 'ordinal')
         ) {
-            totalOrder = test.sort((a, b) => d3.descending(+a.total, +b.total)).map(m => m.key);
+            totalOrder = test.sort((a, b) => descending(+a.total, +b.total)).map(m => m.key);
         }
 
         return { nested: test, dom_x: dom_x, dom_y: dom_y };
@@ -288,8 +285,8 @@ export default function(raw, mark) {
         }
     }
 
-    let filt1_dom_x = d3.extent(d3.merge(filt1_xs));
-    let filt1_dom_y = d3.extent(d3.merge(filt1_ys));
+    let filt1_dom_x = extent(merge(filt1_xs));
+    let filt1_dom_y = extent(merge(filt1_ys));
 
     this.filtered_data = filtered;
 
@@ -327,18 +324,18 @@ export default function(raw, mark) {
     let x_dom = config.x_dom
         ? config.x_dom
         : config.x.type === 'ordinal' && config.x.behavior === 'flex'
-              ? d3.set(filtered.map(m => m[config.x.column])).values()
+              ? set(filtered.map(m => m[config.x.column])).values()
               : config.x.type === 'ordinal'
-                    ? d3.set(raw.map(m => m[config.x.column])).values()
-                    : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
+                    ? set(raw.map(m => m[config.x.column])).values()
+                    : config.x_from0 ? [0, max(pre_x_dom)] : pre_x_dom;
 
     let y_dom = config.y_dom
         ? config.y_dom
         : config.y.type === 'ordinal' && config.y.behavior === 'flex'
-              ? d3.set(filtered.map(m => m[config.y.column])).values()
+              ? set(filtered.map(m => m[config.y.column])).values()
               : config.y.type === 'ordinal'
-                    ? d3.set(raw.map(m => m[config.y.column])).values()
-                    : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
+                    ? set(raw.map(m => m[config.y.column])).values()
+                    : config.y_from0 ? [0, max(pre_y_dom)] : pre_y_dom;
 
     if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
         x_dom[0] = config.x.domain[0];

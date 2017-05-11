@@ -1,4 +1,4 @@
-export default function() {
+export default function drawGridLines() {
     this.wrap.classed('gridlines', this.config.gridlines);
     if (this.config.gridlines) {
         this.svg.select('.y.axis').selectAll('.tick line').attr('x1', 0);

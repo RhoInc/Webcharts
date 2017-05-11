@@ -9,9 +9,7 @@ export default function multiply(chart, data, split_by, order) {
     function goAhead(data) {
         let split_vals = set(data.map(m => m[split_by])).values().filter(f => f);
         if (order) {
-            split_vals = split_vals.sort((a, b) =>
-                ascending(order.indexOf(a), order.indexOf(b))
-            );
+            split_vals = split_vals.sort((a, b) => ascending(order.indexOf(a), order.indexOf(b)));
         }
 
         split_vals.forEach(e => {

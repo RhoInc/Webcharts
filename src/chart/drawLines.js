@@ -1,6 +1,8 @@
-export default function(marks) {
+import { svg, select, format } from 'd3';
+
+export default function drawLines(marks) {
     let config = this.config;
-    let line = d3.svg
+    let line = svg
         .line()
         .interpolate(config.interpolate)
         .x(d => {
@@ -42,15 +44,15 @@ export default function(marks) {
     linePathsTrans.attr('d', line);
 
     line_grps.each(function(d) {
-        let mark = d3.select(this.parentNode).datum();
+        let mark = select(this.parentNode).datum();
         d.tooltip = mark.tooltip;
-        d3.select(this).select('path').attr(mark.attributes);
+        select(this).select('path').attr(mark.attributes);
     });
 
     line_grps.select('title').text(d => {
         let tt = d.tooltip || '';
-        let xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
-        let yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+        let xformat = config.x.summary === 'percent' ? format('0%') : format(config.x.format);
+        let yformat = config.y.summary === 'percent' ? format('0%') : format(config.y.format);
         return tt
             .replace(/\$x/g, xformat(d.values.x))
             .replace(/\$y/g, yformat(d.values.y))

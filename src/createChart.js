@@ -3,7 +3,7 @@ import { select } from 'd3';
 
 export var chartCount = 0;
 
-export defualt function createChart(element = 'body', config = {}, controls = null) {
+export default function createChart(element = 'body', config = {}, controls = null) {
     let thisChart = Object.create(chart);
 
     thisChart.div = element;

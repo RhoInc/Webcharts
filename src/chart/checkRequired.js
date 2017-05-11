@@ -1,4 +1,6 @@
-export default function(data) {
+import { select } from 'd3';
+
+export default function checkRequired(data) {
     let colnames = Object.keys(data[0]);
     let requiredVars = [];
     let requiredCols = [];
@@ -29,7 +31,7 @@ export default function(data) {
 
     requiredCols.forEach((e, i) => {
         if (colnames.indexOf(e) < 0) {
-            d3.select(this.div).select('.loader').remove();
+            select(this.div).select('.loader').remove();
             this.wrap
                 .append('div')
                 .style('color', 'red')
