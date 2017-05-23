@@ -21,7 +21,7 @@
     "minify": "npm run minifyjs && npm run minifycss",
     "minifycss": "cleancss -o css/webcharts.min.css css/webcharts.css",
     "minifyjs": "uglifyjs build/webcharts.js > build/webcharts.min.js",
-    "test": "mocha --require babel-register --recursive ./test/*.js",
+    "test": "mocha --require babel-register --recursive ./test/test.js",
     "watch": "rollup -c -w"
   },
   "repository": {
@@ -34,10 +34,10 @@
     "url": "https://github.com/rhoinc/webcharts/issues"
   },
   "devDependencies": {
-    "babel-register": "^6.7.2",
-    "expect": "^1.18.0",
-    "jsdom": "^8.4.1",
-    "mocha": "^3.0.0",
+    "babel-register": "6",
+    "expect": "1",
+    "jsdom": "10",
+    "mocha": "3",
 
     "babel-plugin-external-helpers":"^6.22.0",
     "babel-preset-es2015": "^6.0.0",

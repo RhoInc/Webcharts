@@ -1,6 +1,6 @@
 import { select, range } from 'd3';
 
-export default function init(data) {
+export default function init(data, test = false) {
     if (select(this.div).select('.loader').empty()) {
         select(this.div)
             .insert('div', ':first-child')
@@ -30,7 +30,7 @@ export default function init(data) {
         }
 
         //make sure container is visible (has height and width) before trying to initialize
-        var visible = select(this.div).property('offsetWidth') > 0;
+        var visible = select(this.div).property('offsetWidth') > 0 || test;
         if (!visible) {
             console.warn(
                 `The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.`
