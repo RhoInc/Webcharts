@@ -1,18 +1,16 @@
 import jsdom from 'jsdom';
-import createChart from '../src/createChart';
+import createChart from '../../src/createChart';
 import expect from 'expect';
-import iris from './iris';
-import settings from './settings';
-import clone from './clone';
+import settings from '../samples/irisSettings';
 
-describe('testing', () => {
+describe('chart object creation', () => {
     const { JSDOM } = jsdom;
     let dom,
         container,
         chart;
 
     before(() => {
-        dom = new JSDOM('<!DOCTYPE html><p>Hello world</p>');
+        dom = new JSDOM('<!DOCTYPE html>');
         container = dom.window.document.createElement('div');
     });
 
@@ -26,10 +24,6 @@ describe('testing', () => {
     });
 
     describe('user calls createChart()', () => {
-        it('webCharts returns chart object', () => {
-            expect(typeof chart).toEqual('object');
-        });
-
         it('webCharts returns chart object with a given set of properties', () => {
             const properties = ['div', 'config', 'controls', 'raw_data', 'filters', 'marks', 'wrap', 'events', 'on', 'id'];
             expect(Object.keys(chart).sort()).toEqual(properties.sort());
@@ -47,13 +41,6 @@ describe('testing', () => {
             let property;
             for (property in settings)
                 expect(chart.config[property]).toEqual(settings[property]);
-        });
-    });
-
-    describe('user calls chart init() method', () => {
-        it('webCharts attaches raw data', () => {
-            chart.init(iris, true);
-            expect(chart.raw_data).toEqual(iris);
         });
     });
 });

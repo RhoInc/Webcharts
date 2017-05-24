@@ -14,21 +14,16 @@ export default function createTable(element = 'body', config = {}, controls = nu
 
     thisTable.required_cols = [];
 
-    thisTable.marks = [];
-
     thisTable.wrap = select(thisTable.div).append('div');
 
     thisTable.events = {
         onInit() {},
         onLayout() {},
-        onDatatransform() {},
-        onDraw() {},
-        onResize() {},
-        onDestroy() {}
+        onDraw() {}
     };
 
     thisTable.on = function(event, callback) {
-        let possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize', 'destroy'];
+        let possible_events = ['init', 'layout', 'draw'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }

@@ -72,6 +72,7 @@ export default function drawPoints(marks) {
             )
             .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
+    console.log(points);
 
     return points;
 }
