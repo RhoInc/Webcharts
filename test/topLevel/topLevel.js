@@ -1,15 +1,15 @@
 import jsdom from 'jsdom';
 import expect from 'expect';
-import version from '../src/version';
-import pkg from '../package.json';
+import version from '../../src/version';
+import pkg from '../../package.json';
 
-import createChart from '../src/createChart';
-import createControls from '../src/createControls';
-import createTable from '../src/createTable';
+import createChart from '../../src/createChart';
+import createControls from '../../src/createControls';
+import createTable from '../../src/createTable';
 
-import chart from '../src/chart/index';
-import controls from '../src/controls/index';
-import table from '../src/table/index';
+import chart from '../../src/chart/index';
+import controls from '../../src/controls/index';
+import table from '../../src/table/index';
 
 describe('Top-level API', () => {
     const { JSDOM } = jsdom;
