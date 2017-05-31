@@ -9,7 +9,23 @@ export default
 		[
 			{type: 'circle'
 			,per: ['Sepal.Length', 'Sepal.Width']
+			,summarizeX: 'mean'
 			,summarizeY: 'mean'}
+		,
+			{type: 'circle'
+			,per: ['Sepal.Length', 'Sepal.Width']
+			,summarizeX: 'min'
+			,summarizeY: 'min'}
+		,
+			{type: 'circle'
+			,per: ['Sepal.Length', 'Sepal.Width']
+			,summarizeX: 'max'
+			,summarizeY: 'max'}
+		,
+			{type: 'circle'
+			,per: ['Sepal.Length', 'Sepal.Width']
+			,summarizeX: 'sum'
+			,summarizeY: 'sum'}
 		]
 	,color_by: 'Species'
 	,legend:
