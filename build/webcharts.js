@@ -812,6 +812,8 @@ function drawText(marks) {
 function init(data) {
     var _this = this;
 
+    var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
     if (d3.select(this.div).select('.loader').empty()) {
         d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
             return 'blockG rotate' + (d + 1);
@@ -836,7 +838,7 @@ function init(data) {
         }
 
         //make sure container is visible (has height and width) before trying to initialize
-        var visible = d3.select(_this.div).property('offsetWidth') > 0;
+        var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
         if (!visible) {
             console.warn('The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.');
             var onVisible = setInterval(function (i) {
@@ -2308,21 +2310,16 @@ function createTable() {
 
     thisTable.required_cols = [];
 
-    thisTable.marks = [];
-
     thisTable.wrap = d3.select(thisTable.div).append('div');
 
     thisTable.events = {
         onInit: function onInit() {},
         onLayout: function onLayout() {},
-        onDatatransform: function onDatatransform() {},
-        onDraw: function onDraw() {},
-        onResize: function onResize() {},
-        onDestroy: function onDestroy() {}
+        onDraw: function onDraw() {}
     };
 
     thisTable.on = function (event, callback) {
-        var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize', 'destroy'];
+        var possible_events = ['init', 'layout', 'draw'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }

@@ -29,8 +29,10 @@ export default function checkRequired(data) {
         }
     });
 
+    let missingDataField = false;
     requiredCols.forEach((e, i) => {
         if (colnames.indexOf(e) < 0) {
+            missingDataField = true;
             select(this.div).select('.loader').remove();
             this.wrap
                 .append('div')
@@ -51,4 +53,10 @@ export default function checkRequired(data) {
             );
         }
     });
+
+    return {
+        'missingDataField': missingDataField,
+        'dataFieldArguments': requiredVars,
+        'requiredDataFields': requiredCols,
+    };
 }
