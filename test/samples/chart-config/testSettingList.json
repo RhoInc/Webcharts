@@ -1,4 +1,8 @@
 [
   {"label":"Test #1","filename":"manualTests.json"},
-  {"label":"Test #2","filename":"testConfig.json"}
+  {"label":"Test #2","filename":"testConfig.json"},
+  {"Test iterations of settings for bar charts":"Test #3","filename":"bar_chart_testConfig.json"},
+  {"Test iterations of chart size configurations":"Test #3","filename":"config_settings_testConfig.json"}
+  {"Test iterations of settings for scatter plots":"Test #3","filename":"scatter_plot_testConfig.json"}
+  {"Test iterations of settings for the time axis":"Test #3","filename":"time_axis_testConfig.json"}
 ]
