@@ -193,8 +193,21 @@ def create_time_axis():
         html = render_template('time_axis.html', context)
         f.write(html)
 
+#--------------------------------------sumamrize_tests--------------------------------------------------------------  
+def summarize_template():
+    fname = "summarize_chart_testConfig.js"
+    mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percent']
+    mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']               
+    context = {
+        'mark_summarizeX':mark_summarizeX,
+        'mark_summarizeY':mark_summarizeY,   
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('summarize_chart.html', context)
+        f.write(html)
+        
 #-----------------------------------------------------------------------------------------------------------------  
-
 
 
 
@@ -203,6 +216,7 @@ def main():
     create_bar_chart()
     create_config_settings()
     create_time_axis()
+    summarize_template()
 #############################################################################
 
 if __name__ == "__main__":
