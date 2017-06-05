@@ -2981,3 +2981,5 @@ var testConfig = [
 
 
 ];
+
+module.exports = testConfig;
