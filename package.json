@@ -22,6 +22,7 @@
     "minifycss": "cleancss -o css/webcharts.min.css css/webcharts.css",
     "minifyjs": "uglifyjs build/webcharts.js > build/webcharts.min.js",
     "test": "mocha --require babel-register --recursive ./test/**/*.js",
+    "test-configs":"mocha --require babel-register ./test/settingsTester.js",
     "watch": "rollup -c -w"
   },
   "repository": {
