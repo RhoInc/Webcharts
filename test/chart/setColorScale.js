@@ -41,6 +41,6 @@ describe('prior to chart rendering a color scale is defined', () => {
         chart.config.color_by = null;
         chart.config.color_dom = ['1', '2', '3'];
         chart.init(data, true);
-        expect(chart.colorScale.domain()).toEqual(['1', '2', '3']);
+        expect(chart.colorScale.domain()).toEqual(['1', '2', '3', undefined]);
     });
 });

@@ -27,6 +27,12 @@ export default function checkRequired(data) {
             requiredVars.push('this.config.marks[' + i + '].split');
             requiredCols.push(e.split);
         }
+        if (e.values) {
+            for (const value in e.values) {
+                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredCols.push(value);
+            }
+        }
     });
 
     let missingDataField = false;
@@ -55,8 +61,8 @@ export default function checkRequired(data) {
     });
 
     return {
-        'missingDataField': missingDataField,
-        'dataFieldArguments': requiredVars,
-        'requiredDataFields': requiredCols,
+        missingDataField: missingDataField,
+        dataFieldArguments: requiredVars,
+        requiredDataFields: requiredCols
     };
 }

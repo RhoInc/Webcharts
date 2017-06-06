@@ -32,10 +32,12 @@ describe('upon chart initialization data field arguments are checked against act
             required.push(
                 {argument: 'x.column'
                 ,dataField: settings.x.column});
+
         if (settings.y.column)
             required.push(
                 {argument: 'y.column'
                 ,dataField: settings.y.column});
+
         if (settings.marks)
             settings.marks.forEach((mark,i) => {
                 if (mark.per && mark.per.length)
@@ -44,11 +46,20 @@ describe('upon chart initialization data field arguments are checked against act
                             {argument: `marks[${i}].per[${j}]`
                             ,dataField: per});
                     });
+
                 if (mark.split)
                     required.push(
                         {argument: `marks[${i}].split`
                         ,dataField: mark.split});
+
+                if (mark.values) {
+                    for (const value in mark.values)
+                        required.push(
+                            {argument: `marks[${i}].values[${value}]`
+                            ,dataField: value});
+                };
             });
+
         if (settings.color_by)
             required.push(
                 {argument: 'color_by'

@@ -35,15 +35,29 @@ function checkRequired(data) {
             requiredVars.push('this.config.marks[' + i + '].split');
             requiredCols.push(e.split);
         }
+        if (e.values) {
+            for (var value in e.values) {
+                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredCols.push(value);
+            }
+        }
     });
 
+    var missingDataField = false;
     requiredCols.forEach(function (e, i) {
         if (colnames.indexOf(e) < 0) {
+            missingDataField = true;
             d3.select(_this.div).select('.loader').remove();
             _this.wrap.append('div').style('color', 'red').html('The value "' + e + '" for the <code>' + requiredVars[i] + '</code> setting does not match any column in the provided dataset.');
             throw new Error('Error in settings object: The value "' + e + '" for the ' + requiredVars[i] + ' setting does not match any column in the provided dataset.');
         }
     });
+
+    return {
+        missingDataField: missingDataField,
+        dataFieldArguments: requiredVars,
+        requiredDataFields: requiredCols
+    };
 }
 
 function naturalSorter(a, b) {
@@ -1433,7 +1447,7 @@ function transformData(raw, mark) {
             });
         } else if (config.x.sort === 'total-descending' && config.x.type == 'ordinal' || config.y.sort === 'total-ascending' && config.y.type == 'ordinal') {
             totalOrder = test.sort(function (a, b) {
-                return descending(+a.total, +b.total);
+                return d3.descending(+a.total, +b.total);
             }).map(function (m) {
                 return m.key;
             });

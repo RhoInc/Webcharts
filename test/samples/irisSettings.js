@@ -10,7 +10,12 @@ export default
 			{type: 'circle'
 			,per: ['Sepal.Length', 'Sepal.Width']
 			,summarizeX: 'mean'
-			,summarizeY: 'mean'}
+			,summarizeY: 'mean'
+			,values:
+			    {Species:
+			        ['setosa'
+			        ,'versicolor'
+			        ,'virginica']}}
 		,
 			{type: 'circle'
 			,per: ['Sepal.Length', 'Sepal.Width']

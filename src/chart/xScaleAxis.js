@@ -34,8 +34,8 @@ export default function xScaleAxis(max_range, domain, type) {
     let xFormat = config.x.format
         ? config.x.format
         : config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1
-              ? '0%'
-              : type === 'time' ? '%x' : '.0f';
+          ? '0%'
+          : type === 'time' ? '%x' : '.0f';
     let tick_count = Math.max(2, Math.min(max_range / 80, 8));
     let xAxis = svg
         .axis()
