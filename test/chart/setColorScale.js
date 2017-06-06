@@ -55,7 +55,6 @@ describe('prior to chart rendering a color scale is defined.', () => {
         chart.config.color_by = null;
         chart.config.color_dom = [ 'notarealcolor', 'setosa', 'versicolor', 'virginica' ];
         chart.init(data, true);
-        console.log(chart.colorScale.range())
         expect(chart.colorScale.domain()[chart.config.color_dom.length]).toEqual(undefined);
         expect(chart.svg.select(".point-supergroup").select("g").select("circle").attr("fill"))
         .toEqual(chart.colorScale.range()[chart.config.color_dom.length])
