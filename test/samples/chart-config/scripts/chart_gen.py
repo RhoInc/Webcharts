@@ -15,7 +15,7 @@ def render_template(template_filename, context):
 
 
 def create_index_html():
-    fname = "testConfig.js"
+    fname = "testConfig.json"
     # x_type time not tested in template yet
     x_types = ['linear','log']
     x_column = 'Number'
@@ -36,7 +36,7 @@ def create_index_html():
 
     mark_type = ['circle','line','bar','text']
     mark_per = 'Element'
-    mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percentmark_value']
+    mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percent']
     mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']               
     mark_tooltip = ['','$x','$y']
     mark_text = ['','$x','$y']
@@ -76,11 +76,147 @@ def create_index_html():
     with open(fname, 'w') as f:
         html = render_template('index.html', context)
         f.write(html)
+        
+
+#----------------------------------------------scatter_plots----------------------------------------------------  
+def create_scatter_plot():
+    x_column = ''
+    y_column = ''
+    x_label = ''
+    y_label = ''
+    x_types = ['linear','log']
+    y_types = ['linear','log']
+    mark_type = ['circle','line','text']
+    mark_per = ['Element','group']
+
+    fname = "scatter_plot_testConfig.json"
+
+    context = {
+        'x_column':x_column,
+        'y_column':y_column,
+        'x_label':x_label,
+        'y_label':y_label,
+        'x_types':x_types,
+        'y_types':y_types,
+        'mark_type':mark_type,
+        'mark_per':mark_per
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('scatter_plot.html', context)
+        f.write(html)
+
+#----------------------------------------------bar_chart----------------------------------------------------------  
+def create_bar_chart():
+    x_column = 'Chick'
+    y_column = 'weight'
+    x_label = 'chick'
+    y_label = 'weight'
+    x_types = ['linear','log']
+    y_types = ['linear','log']
+    mark_type = 'bar'
+    mark_split = ['','Diet']
+    mark_arrange = ['stacked','grouped','nested']
+    mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percent']
+    mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']               
+
+    
+    fname = "bar_chart_testConfig.json"
+    
+    context = {
+        'x_column':x_column,
+        'y_column':y_column,
+        'x_label':x_label,
+        'y_label':y_label,
+        'x_types':x_types,
+        'y_types':y_types,
+        'mark_type':mark_type,
+        'mark_split':mark_split,
+        'mark_arrange':mark_arrange,
+        'mark_summarizeX':mark_summarizeX,
+        'mark_summarizeY':mark_summarizeY
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('bar_chart.html', context)
+        f.write(html)
+
+
+
+        
+#--------------------------------------------config_settings---------------------------------------------------------------  
+def create_config_settings():
+    width = ['default','500']
+    height = ['default','500']
+    max_width = ['default','300']
+    margin = ['default','100']
+    resizable = ['true','false']
+    aspect = ['1.33','2','0.5']
+    
+    fname = "config_settings_testConfig.json"
+    
+    context = {
+        'width':width,
+        'height':height,
+        'max_width':max_width,
+        'margin':margin,
+        'resizable':resizable,
+        'aspect':aspect,
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('config_settings.html', context)
+        f.write(html)
+
+#---------------------------------------------time_axis------------------------------------------------------------  
+def create_time_axis():
+    y_types = ['linear','log']
+    mark_type = ['circle','line','text']
+    mark_per = ''
+    x_format = ''
+    x_label = ''
+    y_label = ''
+
+    fname = "time_axis_testConfig.json"
+    
+    context = {
+
+    	'y_types':y_types,
+    	'mark_type':mark_type,
+ 	'mark_per':mark_per,
+ 	'x_format':x_format,
+ 	'x_label':x_label,
+ 	'y_label':y_label,
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('time_axis.html', context)
+        f.write(html)
+
+#--------------------------------------sumamrize_tests--------------------------------------------------------------  
+def summarize_template():
+    fname = "summarize_chart_testConfig.json"
+    mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percent']
+    mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']               
+    context = {
+        'mark_summarizeX':mark_summarizeX,
+        'mark_summarizeY':mark_summarizeY,   
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('summarize_chart.html', context)
+        f.write(html)
+        
+#-----------------------------------------------------------------------------------------------------------------  
+
 
 
 def main():
-    create_index_html()
-
+    create_scatter_plot()
+    create_bar_chart()
+    create_config_settings()
+    create_time_axis()
+    summarize_template()
 #############################################################################
 
 if __name__ == "__main__":

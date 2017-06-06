@@ -1,6 +1,5 @@
 
-//---------------------------------testConfig.js_template-----------------------------------------------------------------
-var testConfig = [
+[
 
 {# COMMENT: Following for loops permutate through the populated lists #}
 {% for x_type in x_types -%}
@@ -12,86 +11,85 @@ var testConfig = [
 {% for y_bin in y_bin -%}
 {% for x_sort in x_sort -%}
 
-{# COMMENT: Following if loops remove cases which don't generate graphs (log presenting issues) #}
-{% if x_type == 'log' -%}{% if mark_type == 'line' -%}
+{# COMMENT: Following if loops remove cases which don"t generate graphs (log presenting issues) #}
+{% if x_type == "log" -%}{% if mark_type == "line" -%}
 /*
 {% endif -%}{% endif -%}
-{% if y_type == 'log' -%}{% if mark_type == 'line' -%}
+{% if y_type == "log" -%}{% if mark_type == "line" -%}
 /*
 {% endif -%}{% endif -%}
-{% if y_type == 'log' -%}{% if mark_type == 'bar' -%}
+{% if y_type == "log" -%}{% if mark_type == "bar" -%}
 /*
 {% endif -%}{% endif -%}
-{% if x_type == 'log' -%}{% if mark_type == 'bar' -%}
+{% if x_type == "log" -%}{% if mark_type == "bar" -%}
 /*
 {% endif -%}{% endif -%}
-//----------------------------------------------------------------------------------------------------------------------
   {
-    label: 'X:{{ x_type }}, Y:{{ y_type }}, Mark Type:{{ mark_type}}',
-    notes: 'Plotting {{ x_label }} against {{ y_label }}',
-    tests: [],
-    settings: {
-      max_width:500,
-      x: {
-        column: '{{ x_column }}',
-		{# COMMENT: below statement is to ensure 'ordinal' tag is used when needed #}
-		{% if mark_type == 'bar' -%}
-		type: 'ordinal',
-		sort: '{{ x_sort }}',
+    "label": "X:{{ x_type }}, Y:{{ y_type }}, Mark Type:{{ mark_type}}",
+    "notes": "Plotting {{ x_label }} against {{ y_label }}",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "{{ x_column }}",
+		{# COMMENT: below statement is to ensure "ordinal" tag is used when needed #}
+		{% if mark_type == "bar" -%}
+		"type": "ordinal",
+		"sort": "{{ x_sort }}",
 		{%else -%}
-        type: '{{ x_type }}',
+        "type": "{{ x_type }}",
 		{% endif -%}
-		{% if x_type == 'linear' -%}
-		bin: '{{ x_bin }}',
+		{% if x_type == "linear" -%}
+		"bin": "{{ x_bin }}",
 		{% endif -%}
-        label: '{{ x_label }}',
-		format: '{{ x_format }}'
+        "label": "{{ x_label }}",
+		"format": "{{ x_format }}"
       },
-      y: {
-        column: '{{ y_column }}',
-        type: '{{ y_type }}',
-        label: '{{ y_label }}',
-		{% if y_type == 'linear' -%}
-		bin: '{{ y_bin }}',
+      "y": {
+        "column": "{{ y_column }}",
+        "type": "{{ y_type }}",
+        "label": "{{ y_label }}",
+		{% if y_type == "linear" -%}
+		"bin": "{{ y_bin }}",
 		{% endif -%}
-		format: '{{ y_format }}'
+		"format": "{{ y_format }}"
       },
-      marks: [
+      "marks": [
         {
-          type: '{{ mark_type }}',
-		  {# COMMENT: below statement is to ensure 'per[]' mark is used properly #}
-		  {% if mark_type == 'line' -%}
-          per: [],
+          "type": "{{ mark_type }}",
+		  {# COMMENT: below statement is to ensure "per[]" mark is used properly #}
+		  {% if mark_type == "line" -%}
+          "per": [],
 		  {% else -%}
-		  per: ['{{ mark_per }}'],
+		  "per": ["{{ mark_per }}"],
 		  {% endif -%}
-		  {# COMMENT: below statement is to ensure 'text' mark is used properly #}
-		  {% if mark_type == 'text' -%}
-		  text: "$x"
+		  {# COMMENT: below statement is to ensure "text" mark is used properly #}
+		  {% if mark_type == "text" -%}
+		  "text": "$x"
 		  {% endif -%}
         }
       ]
     },
-    dataPath: '../../data/elements_first_five.csv'
+    dataPath: "../../data/elements_first_five.csv"
   },
   
-{# COMMENT: Following if loops remove cases which don't generate graphs (log presenting issues) #}
-{% if x_type == 'linear' -%}{% if y_type == 'log' -%}{% if mark_type == 'line' -%}
+{# COMMENT: Following if loops remove cases which don"t generate graphs (log presenting issues) #}
+{% if x_type == "linear" -%}{% if y_type == "log" -%}{% if mark_type == "line" -%}
 */
 {% endif -%}{% endif -%}{% endif -%}
-{% if x_type == 'log' -%}{% if y_type == 'linear' -%}{% if mark_type == 'line' -%}
+{% if x_type == "log" -%}{% if y_type == "linear" -%}{% if mark_type == "line" -%}
 */
 {% endif -%}{% endif -%}{% endif -%}
-{% if x_type == 'log' -%}{% if y_type == 'log' -%}{% if mark_type == 'line' -%}
+{% if x_type == "log" -%}{% if y_type == "log" -%}{% if mark_type == "line" -%}
 */
 {% endif -%}{% endif -%}{% endif -%}
-{% if x_type == 'linear' -%}{% if y_type == 'log' -%}{% if mark_type == 'bar' -%}
+{% if x_type == "linear" -%}{% if y_type == "log" -%}{% if mark_type == "bar" -%}
 */
 {% endif -%}{% endif -%}{% endif -%}
-{% if x_type == 'log' -%}{% if y_type == 'linear' -%}{% if mark_type == 'bar' -%}
+{% if x_type == "log" -%}{% if y_type == "linear" -%}{% if mark_type == "bar" -%}
 */
 {% endif -%}{% endif -%}{% endif -%}
-{% if x_type == 'log' -%}{% if y_type == 'log' -%}{% if mark_type == 'bar' -%}
+{% if x_type == "log" -%}{% if y_type == "log" -%}{% if mark_type == "bar" -%}
 */
 {% endif -%}{% endif -%}{% endif -%}
 
@@ -105,4 +103,4 @@ var testConfig = [
 {% endfor -%}
 {% endfor -%}
 
-];
+]
