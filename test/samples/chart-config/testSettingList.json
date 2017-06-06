@@ -5,4 +5,6 @@
   {"label":"Test iterations of chart size configurations","filename":"config_settings_testConfig.json"},
   {"label":"Test iterations of settings for scatter plots","filename":"scatter_plot_testConfig.json"},
   {"label":"Test iterations of settings for the time axis","filename":"time_axis_testConfig.json"}
+  {"label":"Test iterations of settings for the SummarizeY and SummarizeX","filename":"summarize_chart_testConfig.json"}
+
 ]

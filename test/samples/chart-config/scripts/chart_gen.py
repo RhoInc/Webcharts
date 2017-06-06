@@ -15,7 +15,7 @@ def render_template(template_filename, context):
 
 
 def create_index_html():
-    fname = "testConfig.js"
+    fname = "testConfig.json"
     # x_type time not tested in template yet
     x_types = ['linear','log']
     x_column = 'Number'
@@ -89,7 +89,7 @@ def create_scatter_plot():
     mark_type = ['circle','line','text']
     mark_per = ['Element','group']
 
-    fname = "scatter_plot_testConfig.js"
+    fname = "scatter_plot_testConfig.json"
 
     context = {
         'x_column':x_column,
@@ -121,7 +121,7 @@ def create_bar_chart():
     mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']               
 
     
-    fname = "bar_chart_testConfig.js"
+    fname = "bar_chart_testConfig.json"
     
     context = {
         'x_column':x_column,
@@ -153,7 +153,7 @@ def create_config_settings():
     resizable = ['true','false']
     aspect = ['1.33','2','0.5']
     
-    fname = "config_settings_testConfig.js"
+    fname = "config_settings_testConfig.json"
     
     context = {
         'width':width,
@@ -177,7 +177,7 @@ def create_time_axis():
     x_label = ''
     y_label = ''
 
-    fname = "time_axis_testConfig.js"
+    fname = "time_axis_testConfig.json"
     
     context = {
 
@@ -193,8 +193,21 @@ def create_time_axis():
         html = render_template('time_axis.html', context)
         f.write(html)
 
+#--------------------------------------sumamrize_tests--------------------------------------------------------------  
+def summarize_template():
+    fname = "summarize_chart_testConfig.json"
+    mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percent']
+    mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']               
+    context = {
+        'mark_summarizeX':mark_summarizeX,
+        'mark_summarizeY':mark_summarizeY,   
+    }
+    
+    with open(fname, 'w') as f:
+        html = render_template('summarize_chart.html', context)
+        f.write(html)
+        
 #-----------------------------------------------------------------------------------------------------------------  
-
 
 
 
@@ -203,6 +216,7 @@ def main():
     create_bar_chart()
     create_config_settings()
     create_time_axis()
+    summarize_template()
 #############################################################################
 
 if __name__ == "__main__":
