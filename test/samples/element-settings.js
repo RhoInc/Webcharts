@@ -4,6 +4,7 @@ export default {
   marks: [
     {type: "bar", per: ["Group"], split: "Period", arrange: "grouped"},
     {type: "circle", per: ["Group"], summarizeY: "mean", tooltip: "[Name]", attributes: {"fill-opacity": 1, fill: "black", "stroke": "black"}, size: 4},
+    {type: "line", per: ["Period"], summarizeY: "mean", tooltip: "[Name]", attributes: {"fill-opacity": 1, fill: "black", "stroke": "black"}, size: 4},
     {
       type: 'text',
       per: ['Group'],
