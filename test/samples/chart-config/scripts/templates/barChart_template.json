@@ -9,7 +9,7 @@
 
 
   {
-    "label": "Y:{{ y_types }}, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeY: {{ mark_summarizeY }} Bin: null",    
+    "label": "Y:{{ y_types }}, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeY: {{ mark_summarizeY }} Bin: null",
 	"notes": "Plotting {{ x_label }} against {{ y_label }}",
     "tests": [],
     "settings": {
@@ -35,11 +35,11 @@
 		  {% endif -%}
 		  "split":"{{ mark_split }}",
 		  "arrange":"{{ mark_arrange }}",
-          "type": "{{ mark_type }}"        
+          "type": "{{ mark_type }}"
 		}
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
@@ -59,7 +59,7 @@
 
 
   {
-    "label": "X:{{ x_types }}, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeX: {{ mark_summarizeX }} Bin: null",        
+    "label": "X:{{ x_types }}, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeX: {{ mark_summarizeX }} Bin: null",
 	"notes": "Plotting {{ x_label }} against {{ y_label }}",
     "tests": [],
     "settings": {
@@ -109,7 +109,7 @@
 
 
   {
-    "label": "Y:linear, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeY: {{ mark_summarizeY }}, Bin: 10",    
+    "label": "Y:linear, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeY: {{ mark_summarizeY }}, Bin: 10",
 	"notes": "Plotting {{ x_label }} against {{ y_label }}",
     "tests": [],
     "settings": {
@@ -136,11 +136,11 @@
 		  {% endif -%}
 		  "split":"{{ mark_split }}",
 		  "arrange":"{{ mark_arrange }}",
-          "type": "{{ mark_type }}"        
+          "type": "{{ mark_type }}"
 		}
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 {% endfor -%}
@@ -155,7 +155,7 @@
 
 
   {
-    "label": "X:linear, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeX: {{ mark_summarizeX }}, Bin: 10",        
+    "label": "X:linear, Split:{{ mark_split }}, Arrange:{{ mark_arrange}}, summarizeX: {{ mark_summarizeX }}, Bin: 10",
 	"notes": "Plotting {{ x_label }} against {{ y_label }}",
     "tests": [],
     "settings": {
@@ -186,7 +186,7 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 {% endfor -%}
@@ -217,7 +217,7 @@
 				"arrange": "nested"
 			}]
 		},
-		"dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
 	}
 
 ]

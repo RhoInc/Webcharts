@@ -26,12 +26,12 @@
       "marks": [
         {
 		  "per": ["DATE"],
-
+		  
           "type": "circle"
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 
 
@@ -60,12 +60,12 @@
       "marks": [
         {
 		  "per": [],
-
+		  
           "type": "line"
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 
 
@@ -95,12 +95,12 @@
         {
 		  "per": ["DATE"],
 		  "text":"$y",
-
+		  
           "type": "text"
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 
 
@@ -129,12 +129,12 @@
       "marks": [
         {
 		  "per": ["DATE"],
-
+		  
           "type": "circle"
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 
 
@@ -163,12 +163,12 @@
       "marks": [
         {
 		  "per": [],
-
+		  
           "type": "line"
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 
 
@@ -198,12 +198,12 @@
         {
 		  "per": ["DATE"],
 		  "text":"$y",
-
+		  
           "type": "text"
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 
 
@@ -237,7 +237,7 @@
         }
       ]
     },
-    "filename": "../data/climate_data.csv"
+    "dataPath": "../../data/climate_data.csv"
   },
 {
 		"label": "Y:linear, Mark Type: bar, Mark Per:  ",
@@ -266,6 +266,6 @@
 
 			}]
 		},
-		"filename": "../data/climate_data.csv"
+		"dataPath": "../../data/climate_data.csv"
 	}
 ]

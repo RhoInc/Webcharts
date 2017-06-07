@@ -11,7 +11,7 @@
 {% for aspect in aspect -%}
 
   {
-    "label": "Resizable: {{ resizable }}, Width:{{ width }}, Height:{{ height }}, Max Width:{{ max_width }}, Margin:{{ margin }}, Aspect: {{ aspect }}",    
+    "label": "Resizable: {{ resizable }}, Width:{{ width }}, Height:{{ height }}, Max Width:{{ max_width }}, Margin:{{ margin }}, Aspect: {{ aspect }}",
 	"notes": "Testing various config settings (seen in label)",
     "tests": [],
     "settings": {
@@ -22,18 +22,18 @@
 	  {% endif -%}
 	  {% if height == "500" -%}
 	  "height":{{ height }},
-	  {% endif -%}	  
+	  {% endif -%}
 	  {% if max_width == "250" -%}
 	  "max_width":{{ max_width }},
 	  {% endif -%}
-	  {% if margin == "250" -%}	  
+	  {% if margin == "250" -%}
 	  "margin": {
 	    "top":"{{ margin }}",
 	    "bottom":"{{ margin }}",
 	    "left":"{{ margin }}",
 	    "right":"{{ margin }}"
       },
-	  {% endif -%}	  
+	  {% endif -%}
       "x": {
         "column": "Chick",
         "type": "ordinal",
@@ -51,7 +51,7 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
@@ -86,7 +86,7 @@
 				"per": ["weight"]
 			}]
 		},
-		"dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
 	},
 
 

@@ -7,7 +7,7 @@
 
 
   {
-    "label": "SummarizeY: {{ mark_summarizeY }}, SummarizeX {{ mark_summarizeX }}",    
+    "label": "SummarizeY: {{ mark_summarizeY }}, SummarizeX {{ mark_summarizeX }}",
 	"notes": "Plotting {{ x_label }} against {{ y_label }}",
     "tests": [],
     "settings": {
@@ -31,7 +31,7 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
@@ -61,7 +61,7 @@
 				"SummarizeY": "percent"
 			}]
 		},
-		"dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
 	}
 
 

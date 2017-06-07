@@ -7,7 +7,7 @@
 
 
   {
-    "label": "Y:{{ y_types }}, Mark Type: {{ mark_type }}",    
+    "label": "Y:{{ y_types }}, Mark Type: {{ mark_type }}",
 	"notes": "Plotting {{ x_label }} against {{ y_label }}",
     "tests": [],
     "settings": {
@@ -41,7 +41,7 @@
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
@@ -50,7 +50,7 @@
 {% endfor -%}
 
   {
-    "label": "Y:linear, Mark Type: bar, Mark Per:  ",    
+    "label": "Y:linear, Mark Type: bar, Mark Per:  ",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -74,11 +74,11 @@
         {
           "type": "bar",
 		  "per": ["DATE"]
-		  
+
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+  "filename": "../data/climate_data.csv"
   },
 {
 		"label": "Y:linear, Mark Type: bar, Mark Per:  ",
@@ -107,6 +107,6 @@
 
 			}]
 		},
-		"dataPath": "../../data/climate_data.csv"
+		"filename": "../data/climate_data.csv"
 	}
 ]
