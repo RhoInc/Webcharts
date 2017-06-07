@@ -3,7 +3,7 @@
 
 
 {
-    "label": "Y:linear, Mark Type: circle",    
+    "label": "Y:linear, Mark Type: circle",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -26,18 +26,18 @@
       "marks": [
         {
 		  "per": ["DATE"],
-		  
+
           "type": "circle"
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
 
 {
-    "label": "Y:linear, Mark Type: line",    
+    "label": "Y:linear, Mark Type: line",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -60,18 +60,18 @@
       "marks": [
         {
 		  "per": [],
-		  
+
           "type": "line"
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
 
 {
-    "label": "Y:linear, Mark Type: text",    
+    "label": "Y:linear, Mark Type: text",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -95,18 +95,18 @@
         {
 		  "per": ["DATE"],
 		  "text":"$y",
-		  
+
           "type": "text"
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
 
 {
-    "label": "Y:log, Mark Type: circle",    
+    "label": "Y:log, Mark Type: circle",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -129,18 +129,18 @@
       "marks": [
         {
 		  "per": ["DATE"],
-		  
+
           "type": "circle"
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
 
 {
-    "label": "Y:log, Mark Type: line",    
+    "label": "Y:log, Mark Type: line",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -163,18 +163,18 @@
       "marks": [
         {
 		  "per": [],
-		  
+
           "type": "line"
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
 
 {
-    "label": "Y:log, Mark Type: text",    
+    "label": "Y:log, Mark Type: text",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -198,18 +198,18 @@
         {
 		  "per": ["DATE"],
 		  "text":"$y",
-		  
+
           "type": "text"
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 
 
 
 {
-    "label": "Y:linear, Mark Type: bar, Mark Per:  ",    
+    "label": "Y:linear, Mark Type: bar, Mark Per:  ",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -233,11 +233,11 @@
         {
           "type": "bar",
 		  "per": ["DATE"]
-		  
+
         }
       ]
     },
-    "dataPath": "../../data/climate_data.csv"
+    "filename": "../data/climate_data.csv"
   },
 {
 		"label": "Y:linear, Mark Type: bar, Mark Per:  ",
@@ -266,6 +266,6 @@
 
 			}]
 		},
-		"dataPath": "../../data/climate_data.csv"
+		"filename": "../data/climate_data.csv"
 	}
 ]

@@ -3,7 +3,7 @@
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX mean",    
+    "label": "SummarizeY: mean, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -27,13 +27,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX median",    
+    "label": "SummarizeY: mean, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -57,13 +57,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX min",    
+    "label": "SummarizeY: mean, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -87,13 +87,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX max",    
+    "label": "SummarizeY: mean, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -117,13 +117,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX sum",    
+    "label": "SummarizeY: mean, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -147,13 +147,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX count",    
+    "label": "SummarizeY: mean, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -177,13 +177,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX cumulative",    
+    "label": "SummarizeY: mean, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -207,13 +207,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: mean, SummarizeX percent",    
+    "label": "SummarizeY: mean, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -237,13 +237,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX mean",    
+    "label": "SummarizeY: median, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -267,13 +267,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX median",    
+    "label": "SummarizeY: median, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -297,13 +297,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX min",    
+    "label": "SummarizeY: median, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -327,13 +327,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX max",    
+    "label": "SummarizeY: median, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -357,13 +357,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX sum",    
+    "label": "SummarizeY: median, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -387,13 +387,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX count",    
+    "label": "SummarizeY: median, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -417,13 +417,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX cumulative",    
+    "label": "SummarizeY: median, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -447,13 +447,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: median, SummarizeX percent",    
+    "label": "SummarizeY: median, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -477,13 +477,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX mean",    
+    "label": "SummarizeY: min, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -507,13 +507,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX median",    
+    "label": "SummarizeY: min, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -537,13 +537,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX min",    
+    "label": "SummarizeY: min, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -567,13 +567,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX max",    
+    "label": "SummarizeY: min, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -597,13 +597,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX sum",    
+    "label": "SummarizeY: min, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -627,13 +627,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX count",    
+    "label": "SummarizeY: min, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -657,13 +657,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX cumulative",    
+    "label": "SummarizeY: min, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -687,13 +687,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: min, SummarizeX percent",    
+    "label": "SummarizeY: min, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -717,13 +717,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX mean",    
+    "label": "SummarizeY: max, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -747,13 +747,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX median",    
+    "label": "SummarizeY: max, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -777,13 +777,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX min",    
+    "label": "SummarizeY: max, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -807,13 +807,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX max",    
+    "label": "SummarizeY: max, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -837,13 +837,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX sum",    
+    "label": "SummarizeY: max, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -867,13 +867,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX count",    
+    "label": "SummarizeY: max, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -897,13 +897,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX cumulative",    
+    "label": "SummarizeY: max, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -927,13 +927,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: max, SummarizeX percent",    
+    "label": "SummarizeY: max, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -957,13 +957,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX mean",    
+    "label": "SummarizeY: sum, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -987,13 +987,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX median",    
+    "label": "SummarizeY: sum, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1017,13 +1017,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX min",    
+    "label": "SummarizeY: sum, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1047,13 +1047,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX max",    
+    "label": "SummarizeY: sum, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1077,13 +1077,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX sum",    
+    "label": "SummarizeY: sum, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1107,13 +1107,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX count",    
+    "label": "SummarizeY: sum, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1137,13 +1137,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX cumulative",    
+    "label": "SummarizeY: sum, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1167,13 +1167,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: sum, SummarizeX percent",    
+    "label": "SummarizeY: sum, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1197,13 +1197,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX mean",    
+    "label": "SummarizeY: count, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1227,13 +1227,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX median",    
+    "label": "SummarizeY: count, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1257,13 +1257,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX min",    
+    "label": "SummarizeY: count, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1287,13 +1287,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX max",    
+    "label": "SummarizeY: count, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1317,13 +1317,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX sum",    
+    "label": "SummarizeY: count, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1347,13 +1347,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX count",    
+    "label": "SummarizeY: count, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1377,13 +1377,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX cumulative",    
+    "label": "SummarizeY: count, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1407,13 +1407,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: count, SummarizeX percent",    
+    "label": "SummarizeY: count, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1437,13 +1437,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX mean",    
+    "label": "SummarizeY: cumulative, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1467,13 +1467,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX median",    
+    "label": "SummarizeY: cumulative, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1497,13 +1497,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX min",    
+    "label": "SummarizeY: cumulative, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1527,13 +1527,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX max",    
+    "label": "SummarizeY: cumulative, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1557,13 +1557,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX sum",    
+    "label": "SummarizeY: cumulative, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1587,13 +1587,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX count",    
+    "label": "SummarizeY: cumulative, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1617,13 +1617,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX cumulative",    
+    "label": "SummarizeY: cumulative, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1647,13 +1647,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: cumulative, SummarizeX percent",    
+    "label": "SummarizeY: cumulative, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1677,13 +1677,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX mean",    
+    "label": "SummarizeY: percent, SummarizeX mean",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1707,13 +1707,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX median",    
+    "label": "SummarizeY: percent, SummarizeX median",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1737,13 +1737,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX min",    
+    "label": "SummarizeY: percent, SummarizeX min",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1767,13 +1767,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX max",    
+    "label": "SummarizeY: percent, SummarizeX max",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1797,13 +1797,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX sum",    
+    "label": "SummarizeY: percent, SummarizeX sum",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1827,13 +1827,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX count",    
+    "label": "SummarizeY: percent, SummarizeX count",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1857,13 +1857,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX cumulative",    
+    "label": "SummarizeY: percent, SummarizeX cumulative",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1887,13 +1887,13 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
 
 {
-    "label": "SummarizeY: percent, SummarizeX percent",    
+    "label": "SummarizeY: percent, SummarizeX percent",
 	"notes": "Plotting  against ",
     "tests": [],
     "settings": {
@@ -1917,7 +1917,7 @@
         }
       ]
     },
-    "dataPath": "../../data/ChickWeight.csv"
+    "filename": "../data/ChickWeight.csv"
   },
 
 
@@ -1945,7 +1945,7 @@
 				"SummarizeY": "percent"
 			}]
 		},
-		"dataPath": "../../data/ChickWeight.csv"
+		"filename": "../data/ChickWeight.csv"
 	}
 
 
