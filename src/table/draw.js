@@ -1,4 +1,6 @@
-export default function(raw_data, processed_data) {
+import { keys } from 'd3';
+
+export default function draw(raw_data, processed_data) {
     let raw = raw_data ? raw_data : this.raw_data;
     let config = this.config;
     let data = processed_data || this.transformData(raw);
@@ -7,7 +9,7 @@ export default function(raw_data, processed_data) {
 
     let col_list = config.cols.length
         ? config.cols
-        : data.length ? d3.keys(data[0].values[0].raw) : [];
+        : data.length ? keys(data[0].values[0].raw) : [];
 
     if (config.bootstrap) {
         table.classed('table', true);

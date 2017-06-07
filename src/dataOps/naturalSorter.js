@@ -1,8 +1,12 @@
-export default function(a, b) {
+export default function naturalSorter(a, b) {
     //adapted from http://www.davekoelle.com/files/alphanum.js
     function chunkify(t) {
         let tz = [];
-        let x = 0, y = -1, n = 0, i, j;
+        let x = 0,
+            y = -1,
+            n = 0,
+            i,
+            j;
 
         while ((i = (j = t.charAt(x++)).charCodeAt(0))) {
             let m = i == 46 || (i >= 48 && i <= 57);
@@ -20,7 +24,8 @@ export default function(a, b) {
 
     for (let x = 0; aa[x] && bb[x]; x++) {
         if (aa[x] !== bb[x]) {
-            let c = Number(aa[x]), d = Number(bb[x]);
+            let c = Number(aa[x]),
+                d = Number(bb[x]);
             if (c == aa[x] && d == bb[x]) {
                 return c - d;
             } else {

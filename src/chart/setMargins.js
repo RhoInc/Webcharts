@@ -1,9 +1,11 @@
-export default function() {
+import { max } from 'd3';
+
+export default function setMargins() {
     let y_ticks = this.yAxis.tickFormat()
         ? this.y.domain().map(m => this.yAxis.tickFormat()(m))
         : this.y.domain();
 
-    let max_y_text_length = d3.max(y_ticks.map(m => String(m).length));
+    let max_y_text_length = max(y_ticks.map(m => String(m).length));
     if (this.config.y_format && this.config.y_format.indexOf('%') > -1) {
         max_y_text_length += 1;
     }

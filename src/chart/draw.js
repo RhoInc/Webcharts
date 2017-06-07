@@ -1,4 +1,6 @@
-export default function(raw_data, processed_data) {
+import { select } from 'd3';
+
+export default function draw(raw_data, processed_data) {
     var context = this;
     let config = this.config;
     let aspect2 = 1 / config.aspect;
@@ -21,8 +23,8 @@ export default function(raw_data, processed_data) {
     this.raw_height = config.y.type === 'ordinal' && +config.range_band
         ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length
         : config.resizable
-              ? max_width * aspect2
-              : config.height ? config.height : div_width * aspect2;
+          ? max_width * aspect2
+          : config.height ? config.height : div_width * aspect2;
 
     let pseudo_width = this.svg.select('.overlay').attr('width')
         ? this.svg.select('.overlay').attr('width')
@@ -46,11 +48,11 @@ export default function(raw_data, processed_data) {
     this.yScaleAxis(pseudo_height);
 
     if (config.resizable && typeof window !== 'undefined') {
-        d3.select(window).on('resize.' + context.element + context.id, function() {
+        select(window).on('resize.' + context.element + context.id, function() {
             context.resize();
         });
     } else if (typeof window !== 'undefined') {
-        d3.select(window).on('resize.' + context.element + context.id, null);
+        select(window).on('resize.' + context.element + context.id, null);
     }
 
     this.events.onDraw.call(this);

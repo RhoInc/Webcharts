@@ -1,14 +1,23 @@
-export default function(vals, operation) {
-    let nvals = vals.filter(f => +f || +f === 0).map(m => +m);
+import { mean, min, max, median, sum } from 'd3';
+
+const stats = {
+    mean,
+    min,
+    max,
+    median,
+    sum
+};
+
+export default function summarize(vals, operation = 'mean') {
+    const nvals = vals.filter(f => +f || +f === 0).map(m => +m);
 
     if (operation === 'cumulative') {
         return null;
     }
 
-    let stat = operation || 'mean';
-    let mathed = stat === 'count'
+    const mathed = operation === 'count'
         ? vals.length
-        : stat === 'percent' ? vals.length : d3[stat](nvals);
+        : operation === 'percent' ? vals.length : stats[operation](nvals);
 
     return mathed;
 }

@@ -1,0 +1,40 @@
+body{
+  background:#bbb
+}
+
+div.testWrap{
+  border:2px solid black;
+  background:white;
+  padding:1em;
+  margin:1em 5em 1em 5em;
+}
+
+div.testWrap .chart svg{
+  border:1px dotted #444;
+  margin:1em;
+  padding:1em;
+
+}
+
+div.testWrap .chart, div.testWrap .notes{
+  display:inline-block;
+}
+
+div.testWrap .notes{
+  width:350px;
+  vertical-align:top;
+  margin:1em;
+}
+
+div.testWrap .notes div{
+padding-top:.5em;
+}
+
+div.testWrap h2, div.testWrap .notes div ul{
+  margin-top:0
+}
+
+
+.hidden{
+  display:none
+}

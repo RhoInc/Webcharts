@@ -8,6 +8,17 @@ export default {
     globals: {d3: 'd3'},
     external: ['d3'],
     plugins: [
-        babel({exclude: 'node_modules/**'})
+        babel({
+            exclude: 'node_modules/**',
+            presets: [
+                ['es2015',
+                {'modules': false}
+                ]
+            ],
+            plugins: [
+                'external-helpers'
+            ],
+            babelrc: false
+        })
     ]
 }

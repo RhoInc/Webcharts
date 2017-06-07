@@ -1,4 +1,4 @@
-export default function(option, value, callback) {
+export default function changeOption(option, value, callback) {
     this.targets.forEach(e => {
         if (option instanceof Array) {
             option.forEach(o => this.stringAccessor(e.config, o, value));

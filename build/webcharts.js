@@ -2,11 +2,11 @@
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3')) :
 	typeof define === 'function' && define.amd ? define(['d3'], factory) :
 	(global.webCharts = factory(global.d3));
-}(this, (function (d3$1) { 'use strict';
+}(this, (function (d3) { 'use strict';
 
 var version = '1.7.2';
 
-var checkRequired = function (data) {
+function checkRequired(data) {
     var _this = this;
 
     var colnames = Object.keys(data[0]);
@@ -35,18 +35,32 @@ var checkRequired = function (data) {
             requiredVars.push('this.config.marks[' + i + '].split');
             requiredCols.push(e.split);
         }
+        if (e.values) {
+            for (var value in e.values) {
+                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredCols.push(value);
+            }
+        }
     });
 
+    var missingDataField = false;
     requiredCols.forEach(function (e, i) {
         if (colnames.indexOf(e) < 0) {
+            missingDataField = true;
             d3.select(_this.div).select('.loader').remove();
             _this.wrap.append('div').style('color', 'red').html('The value "' + e + '" for the <code>' + requiredVars[i] + '</code> setting does not match any column in the provided dataset.');
             throw new Error('Error in settings object: The value "' + e + '" for the ' + requiredVars[i] + ' setting does not match any column in the provided dataset.');
         }
     });
-};
 
-var naturalSorter = function (a, b) {
+    return {
+        missingDataField: missingDataField,
+        dataFieldArguments: requiredVars,
+        requiredDataFields: requiredCols
+    };
+}
+
+function naturalSorter(a, b) {
     //adapted from http://www.davekoelle.com/files/alphanum.js
     function chunkify(t) {
         var tz = [];
@@ -83,9 +97,9 @@ var naturalSorter = function (a, b) {
     }
 
     return aa.length - bb.length;
-};
+}
 
-var consolidateData = function (raw) {
+function consolidateData(raw) {
     var _this = this;
 
     var config = this.config;
@@ -181,9 +195,9 @@ var consolidateData = function (raw) {
     } else {
         this.y_dom = d3.extent(d3.merge(all_y));
     }
-};
+}
 
-var destroy = function () {
+function destroy() {
     var destroyControls = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
     //run onDestroy callback
@@ -200,9 +214,9 @@ var destroy = function () {
 
     //unmount chart wrapper
     this.wrap.remove();
-};
+}
 
-var draw = function (raw_data, processed_data) {
+function draw(raw_data, processed_data) {
     var _this = this;
 
     var context = this;
@@ -247,9 +261,9 @@ var draw = function (raw_data, processed_data) {
 
     this.events.onDraw.call(this);
     this.resize();
-};
+}
 
-var drawArea = function (area_drawer, area_data, datum_accessor) {
+function drawArea(area_drawer, area_data, datum_accessor) {
     var class_match = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'chart-area';
 
     var _this = this;
@@ -276,9 +290,9 @@ var drawArea = function (area_drawer, area_data, datum_accessor) {
     areaPathTransitions.attr('d', area_drawer);
 
     return area_grps;
-};
+}
 
-var drawBars = function (marks) {
+function drawBars(marks) {
     var _this = this;
 
     var rawData = this.raw_data;
@@ -616,9 +630,9 @@ var drawBars = function (marks) {
         oldBarGroupsTrans.remove();
         bar_supergroups.remove();
     }
-};
+}
 
-var drawGridlines = function () {
+function drawGridLines() {
     this.wrap.classed('gridlines', this.config.gridlines);
     if (this.config.gridlines) {
         this.svg.select('.y.axis').selectAll('.tick line').attr('x1', 0);
@@ -629,9 +643,9 @@ var drawGridlines = function () {
         this.svg.select('.y.axis').selectAll('.tick line').attr('x1', 0);
         this.svg.select('.x.axis').selectAll('.tick line').attr('y1', 0);
     }
-};
+}
 
-var drawLines = function (marks) {
+function drawLines(marks) {
     var _this = this;
 
     var config = this.config;
@@ -683,9 +697,9 @@ var drawLines = function (marks) {
     });
 
     return line_grps;
-};
+}
 
-var drawPoints = function (marks) {
+function drawPoints(marks) {
     var _this = this;
 
     var config = this.config;
@@ -748,9 +762,9 @@ var drawPoints = function (marks) {
     });
 
     return points;
-};
+}
 
-var drawText = function (marks) {
+function drawText(marks) {
     var _this = this;
 
     var config = this.config;
@@ -807,10 +821,12 @@ var drawText = function (marks) {
     });
 
     return texts;
-};
+}
 
-var init = function (data) {
+function init(data) {
     var _this = this;
+
+    var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
     if (d3.select(this.div).select('.loader').empty()) {
         d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
@@ -836,7 +852,7 @@ var init = function (data) {
         }
 
         //make sure container is visible (has height and width) before trying to initialize
-        var visible = d3.select(_this.div).property('offsetWidth') > 0;
+        var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
         if (!visible) {
             console.warn('The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.');
             var onVisible = setInterval(function (i) {
@@ -862,9 +878,9 @@ var init = function (data) {
     startup(data);
 
     return this;
-};
+}
 
-var layout = function () {
+function layout() {
     this.svg = this.wrap.append('svg').attr({
         class: 'wc-svg',
         xmlns: 'http://www.w3.org/2000/svg',
@@ -898,10 +914,10 @@ var layout = function () {
     d3.select(this.div).select('.loader').remove();
 
     this.events.onLayout.call(this);
-};
+}
 
-var makeLegend = function () {
-    var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.colorScale;
+function makeLegend() {
+    var scale$$1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.colorScale;
     var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
     var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
@@ -921,7 +937,7 @@ var makeLegend = function () {
     }
     legend.style('padding', 0);
 
-    var legend_data = custom_data || scale.domain().slice(0).filter(function (f) {
+    var legend_data = custom_data || scale$$1.domain().slice(0).filter(function (f) {
         return f !== undefined && f !== null;
     }).map(function (m) {
         return { label: m, mark: config.legend.mark };
@@ -938,7 +954,7 @@ var makeLegend = function () {
     var legendPartDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 'inline-block' : 'block';
     var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item').style({ 'list-style-type': 'none', 'margin-right': '1em' });
     new_parts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
-        return scale(d.label);
+        return scale$$1(d.label);
     });
     new_parts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em').style({
         position: 'relative',
@@ -955,11 +971,11 @@ var makeLegend = function () {
 
     leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
     leg_parts.selectAll('.legend-color-block').each(function (e) {
-        var svg = d3.select(this);
+        var svg$$1 = d3.select(this);
         if (e.mark === 'circle') {
-            svg.append('circle').attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
+            svg$$1.append('circle').attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
         } else if (e.mark === 'line') {
-            svg.append('line').attr({
+            svg$$1.append('line').attr({
                 x1: 0,
                 y1: '.5em',
                 x2: '1em',
@@ -969,7 +985,7 @@ var makeLegend = function () {
                 class: 'legend-mark'
             });
         } else if (e.mark === 'square') {
-            svg.append('rect').attr({
+            svg$$1.append('rect').attr({
                 height: '1em',
                 width: '1em',
                 class: 'legend-mark',
@@ -978,9 +994,9 @@ var makeLegend = function () {
         }
     });
     leg_parts.selectAll('.legend-color-block').select('.legend-mark').attr('fill', function (d) {
-        return d.color || scale(d.label);
+        return d.color || scale$$1(d.label);
     }).attr('stroke', function (d) {
-        return d.color || scale(d.label);
+        return d.color || scale$$1(d.label);
     }).each(function (e) {
         d3.select(this).attr(e.attributes);
     });
@@ -989,7 +1005,7 @@ var makeLegend = function () {
         return d.label;
     });
 
-    if (scale.domain().length > 0) {
+    if (scale$$1.domain().length > 0) {
         var legendDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 'block' : 'inline-block';
         legend.style('display', legendDisplay);
     } else {
@@ -997,9 +1013,9 @@ var makeLegend = function () {
     }
 
     this.legend = legend;
-};
+}
 
-var resize = function () {
+function resize() {
     var config = this.config;
 
     var aspect2 = 1 / config.aspect;
@@ -1053,9 +1069,9 @@ var resize = function () {
 
     //call .on("resize") function, if any
     this.events.onResize.call(this);
-};
+}
 
-var setColorScale = function () {
+function setColorScale() {
     var config = this.config;
     var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
     var colordom = config.color_dom || d3.set(data.map(function (m) {
@@ -1073,9 +1089,9 @@ var setColorScale = function () {
     }
 
     this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
-};
+}
 
-var setDefaults = function () {
+function setDefaults() {
     this.config.x = this.config.x || {};
     this.config.y = this.config.y || {};
 
@@ -1107,9 +1123,9 @@ var setDefaults = function () {
 
     this.config.scale_text = this.config.scale_text === undefined ? true : this.config.scale_text;
     this.config.transitions = this.config.transitions === undefined ? true : this.config.transitions;
-};
+}
 
-var setMargins = function () {
+function setMargins() {
     var _this = this;
 
     var y_ticks = this.yAxis.tickFormat() ? this.y.domain().map(function (m) {
@@ -1139,9 +1155,9 @@ var setMargins = function () {
         bottom: this.config.margin && this.config.margin.bottom ? this.config.margin.bottom : x_margin,
         left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin
     };
-};
+}
 
-var textSize = function (width) {
+function textSize(width) {
     var font_size = '14px';
     var point_size = 4;
     var stroke_width = 2;
@@ -1171,9 +1187,19 @@ var textSize = function (width) {
     this.wrap.style('font-size', font_size);
     this.config.flex_point_size = point_size;
     this.config.flex_stroke_width = stroke_width;
+}
+
+var stats = {
+    mean: d3.mean,
+    min: d3.min,
+    max: d3.max,
+    median: d3.median,
+    sum: d3.sum
 };
 
-var summarize = function (vals, operation) {
+function summarize(vals) {
+    var operation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'mean';
+
     var nvals = vals.filter(function (f) {
         return +f || +f === 0;
     }).map(function (m) {
@@ -1184,13 +1210,12 @@ var summarize = function (vals, operation) {
         return null;
     }
 
-    var stat = operation || 'mean';
-    var mathed = stat === 'count' ? vals.length : stat === 'percent' ? vals.length : d3[stat](nvals);
+    var mathed = operation === 'count' ? vals.length : operation === 'percent' ? vals.length : stats[operation](nvals);
 
     return mathed;
-};
+}
 
-var transformData = function (raw, mark) {
+function transformData(raw, mark) {
     var _this = this;
 
     var config = this.config;
@@ -1530,7 +1555,7 @@ var transformData = function (raw, mark) {
     this.events.onDatatransform.call(this);
 
     return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
-};
+}
 
 function updateDataMarks() {
     this.drawBars(this.marks.filter(function (f) {
@@ -1547,7 +1572,7 @@ function updateDataMarks() {
     }));
 }
 
-var xScaleAxis = function (max_range, domain, type) {
+function xScaleAxis(max_range, domain, type) {
     if (max_range === undefined) {
         max_range = this.plot_width;
     }
@@ -1578,18 +1603,18 @@ var xScaleAxis = function (max_range, domain, type) {
         x.range([0, +max_range]).clamp(Boolean(config.x.clamp));
     }
 
-    var format = config.x.format ? config.x.format : config.marks.map(function (m) {
+    var xFormat = config.x.format ? config.x.format : config.marks.map(function (m) {
         return m.summarizeX === 'percent';
     }).indexOf(true) > -1 ? '0%' : type === 'time' ? '%x' : '.0f';
     var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-    var xAxis = d3.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(format) : d3.format(format)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
+    var xAxis = d3.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(xFormat) : d3.format(xFormat)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
 
     this.svg.select('g.x.axis').attr('class', 'x axis ' + type);
     this.x = x;
     this.xAxis = xAxis;
-};
+}
 
-var yScaleAxis = function (max_range, domain, type) {
+function yScaleAxis(max_range, domain, type) {
     if (max_range === undefined) {
         max_range = this.plot_height;
     }
@@ -1619,17 +1644,17 @@ var yScaleAxis = function (max_range, domain, type) {
         y.range([+max_range, 0]).clamp(Boolean(config.y_clamp));
     }
 
-    var y_format = config.y.format ? config.y.format : config.marks.map(function (m) {
+    var yFormat = config.y.format ? config.y.format : config.marks.map(function (m) {
         return m.summarizeY === 'percent';
     }).indexOf(true) > -1 ? '0%' : '.0f';
     var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(y_format) : d3.format(y_format)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
+    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(yFormat) : d3.format(yFormat)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
 
     this.svg.select('g.y.axis').attr('class', 'y axis ' + type);
 
     this.y = y;
     this.yAxis = yAxis;
-};
+}
 
 var chartProto = {
     raw_data: [],
@@ -1643,7 +1668,7 @@ var chart = Object.create(chartProto, {
     destroy: { value: destroy },
     drawArea: { value: drawArea },
     drawBars: { value: drawBars },
-    drawGridlines: { value: drawGridlines },
+    drawGridlines: { value: drawGridLines },
     drawLines: { value: drawLines },
     drawPoints: { value: drawPoints },
     drawText: { value: drawText },
@@ -1661,15 +1686,453 @@ var chart = Object.create(chartProto, {
     yScaleAxis: { value: yScaleAxis }
 });
 
-var layout$1 = function () {
+var chartCount = 0;
+
+function createChart() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var controls = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+    var thisChart = Object.create(chart);
+
+    thisChart.div = element;
+
+    thisChart.config = Object.create(config);
+
+    thisChart.controls = controls;
+
+    thisChart.raw_data = [];
+
+    thisChart.filters = [];
+
+    thisChart.marks = [];
+
+    thisChart.wrap = d3.select(thisChart.div).append('div');
+
+    thisChart.events = {
+        onInit: function onInit() {},
+        onLayout: function onLayout() {},
+        onPreprocess: function onPreprocess() {},
+        onDatatransform: function onDatatransform() {},
+        onDraw: function onDraw() {},
+        onResize: function onResize() {},
+        onDestroy: function onDestroy() {}
+    };
+
+    thisChart.on = function (event, callback) {
+        var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize', 'destroy'];
+        if (possible_events.indexOf(event) < 0) {
+            return;
+        }
+        if (callback) {
+            thisChart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
+        }
+    };
+
+    //increment thisChart count to get unique thisChart id
+    chartCount++;
+
+    thisChart.id = chartCount;
+
+    return thisChart;
+}
+
+function changeOption(option, value, callback) {
+    var _this = this;
+
+    this.targets.forEach(function (e) {
+        if (option instanceof Array) {
+            option.forEach(function (o) {
+                return _this.stringAccessor(e.config, o, value);
+            });
+        } else {
+            _this.stringAccessor(e.config, option, value);
+        }
+        //call callback function if provided
+        if (callback) {
+            callback();
+        }
+        e.draw();
+    });
+}
+
+function checkRequired$1(dataset) {
+    if (!dataset[0] || !this.config.inputs) {
+        return;
+    }
+    var colnames = d3.keys(dataset[0]);
+    this.config.inputs.forEach(function (e, i) {
+        if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
+            throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
+        }
+    });
+}
+
+function controlUpdate() {
+    var _this = this;
+
+    if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
+        this.config.inputs.forEach(function (e) {
+            return _this.makeControlItem(e);
+        });
+    }
+}
+
+function destroy$1() {
+    //unmount controls wrapper
+    this.wrap.remove();
+}
+
+function init$1(data) {
+    this.data = data;
+    if (!this.config.builder) {
+        this.checkRequired(this.data);
+    }
+    this.layout();
+}
+
+function layout$1() {
+    this.wrap.selectAll('*').remove();
+    this.ready = true;
+    this.controlUpdate();
+}
+
+function makeControlItem(control) {
+    var control_wrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
+    var ctrl_label = control_wrap.append('span').attr('class', 'control-label').text(control.label);
+    if (control.required) {
+        ctrl_label.append('span').attr('class', 'label label-required').text('Required');
+    }
+    control_wrap.append('span').attr('class', 'span-description').text(control.description);
+
+    if (control.type === 'text') {
+        this.makeTextControl(control, control_wrap);
+    } else if (control.type === 'number') {
+        this.makeNumberControl(control, control_wrap);
+    } else if (control.type === 'list') {
+        this.makeListControl(control, control_wrap);
+    } else if (control.type === 'dropdown') {
+        this.makeDropdownControl(control, control_wrap);
+    } else if (control.type === 'btngroup') {
+        this.makeBtnGroupControl(control, control_wrap);
+    } else if (control.type === 'checkbox') {
+        this.makeCheckboxControl(control, control_wrap);
+    } else if (control.type === 'radio') {
+        this.makeRadioControl(control, control_wrap);
+    } else if (control.type === 'subsetter') {
+        this.makeSubsetterControl(control, control_wrap);
+    } else {
+        throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
+    }
+}
+
+function makeBtnGroupControl(control, control_wrap) {
+    var _this = this;
+
+    var option_data = control.values ? control.values : d3.keys(this.data[0]);
+
+    var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
+
+    var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
+        return d;
+    }).classed('btn-primary', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, control.option) === d;
+    });
+
+    changers.on('click', function (d) {
+        changers.each(function (e) {
+            d3.select(this).classed('btn-primary', e === d);
+        });
+        _this.changeOption(control.option, d, control.callback);
+    });
+}
+
+function makeCheckboxControl(control, control_wrap) {
+    var _this = this;
+
+    var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, control.option);
+    });
+
+    changer.on('change', function (d) {
+        var value = changer.property('checked');
+        _this.changeOption(d.option, value, control.callback);
+    });
+}
+
+function makeDropdownControl(control, control_wrap) {
+    var _this = this;
+
+    var mainOption = control.option || control.options[0];
+    var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
+
+    var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
+        return m[_this.targets[0].config[control.values]];
+    })).values() : d3.keys(this.data[0]);
+
+    if (!control.require || control.none) {
+        opt_values.unshift('None');
+    }
+
+    var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
+        return d;
+    }).property('selected', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, mainOption) === d;
+    });
+
+    changer.on('change', function (d) {
+        var value = changer.property('value') === 'None' ? null : changer.property('value');
+
+        if (control.multiple) {
+            value = options.filter(function (f) {
+                return d3.select(this).property('selected');
+            })[0].map(function (m) {
+                return d3.select(m).property('value');
+            }).filter(function (f) {
+                return f !== 'None';
+            });
+        }
+
+        if (control.options) {
+            _this.changeOption(control.options, value, control.callback);
+        } else {
+            _this.changeOption(control.option, value, control.callback);
+        }
+    });
+
+    return changer;
+}
+
+function makeListControl(control, control_wrap) {
+    var _this = this;
+
+    var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, control.option);
+    });
+
+    changer.on('change', function (d) {
+        var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
+            return m.trim();
+        }) : null;
+        _this.changeOption(control.option, value, control.callback);
+    });
+}
+
+function makeNumberControl(control, control_wrap) {
+    var _this = this;
+
+    var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, control.option);
+    });
+
+    changer.on('change', function (d) {
+        var value = +changer.property('value');
+        _this.changeOption(control.option, value, control.callback);
+    });
+}
+
+function makeRadioControl(control, control_wrap) {
+    var _this = this;
+
+    var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
+        return control.relabels ? control.relabels[i] : d;
+    }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
+        return d;
+    }).property('checked', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, control.option) === d;
+    });
+
+    changers.on('change', function (d) {
+        var value = null;
+        changers.each(function (c) {
+            if (d3.select(this).property('checked')) {
+                value = d3.select(this).property('value') === 'none' ? null : c;
+            }
+        });
+        _this.changeOption(control.option, value, control.callback);
+    });
+}
+
+function makeSubsetterControl(control, control_wrap) {
+    var targets = this.targets;
+    var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
+
+    var option_data = control.values ? control.values : d3.set(this.data.map(function (m) {
+        return m[control.value_col];
+    }).filter(function (f) {
+        return f;
+    })).values();
+    option_data.sort(naturalSorter);
+
+    control.start = control.start ? control.start : control.loose ? option_data[0] : null;
+
+    if (!control.multiple && !control.start) {
+        option_data.unshift('All');
+    }
+
+    control.loose = !control.loose && control.start ? true : control.loose;
+
+    var options = changer.selectAll('option').data(option_data).enter().append('option').text(function (d) {
+        return d;
+    }).property('selected', function (d) {
+        return d === control.start;
+    });
+
+    targets.forEach(function (e) {
+        var match = e.filters.slice().map(function (m) {
+            return m.col === control.value_col;
+        }).indexOf(true);
+        if (match > -1) {
+            e.filters[match] = {
+                col: control.value_col,
+                val: control.start ? control.start : 'All',
+                choices: option_data,
+                loose: control.loose
+            };
+        } else {
+            e.filters.push({
+                col: control.value_col,
+                val: control.start ? control.start : 'All',
+                choices: option_data,
+                loose: control.loose
+            });
+        }
+    });
+
+    function setSubsetter(target, obj) {
+        var match = -1;
+        target.filters.forEach(function (e, i) {
+            if (e.col === obj.col) {
+                match = i;
+            }
+        });
+        if (match > -1) {
+            target.filters[match] = obj;
+        }
+    }
+
+    changer.on('change', function (d) {
+        if (control.multiple) {
+            var values = options.filter(function (f) {
+                return d3.select(this).property('selected');
+            })[0].map(function (m) {
+                return d3.select(m).property('text');
+            });
+
+            var new_filter = {
+                col: control.value_col,
+                val: values,
+                choices: option_data,
+                loose: control.loose
+            };
+            targets.forEach(function (e) {
+                setSubsetter(e, new_filter);
+                //call callback function if provided
+                if (control.callback) {
+                    control.callback();
+                }
+                e.draw();
+            });
+        } else {
+            var value = d3.select(this).select('option:checked').property('text');
+            var _new_filter = {
+                col: control.value_col,
+                val: value,
+                choices: option_data,
+                loose: control.loose
+            };
+            targets.forEach(function (e) {
+                setSubsetter(e, _new_filter);
+                //call callback function if provided
+                if (control.callback) {
+                    control.callback();
+                }
+                e.draw();
+            });
+        }
+    });
+}
+
+function makeTextControl(control, control_wrap) {
+    var _this = this;
+
+    var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
+        return _this.stringAccessor(_this.targets[0].config, control.option);
+    });
+
+    changer.on('change', function (d) {
+        var value = changer.property('value');
+        _this.changeOption(control.option, value, control.callback);
+    });
+}
+
+function stringAccessor(o, s, v) {
+    //adapted from http://jsfiddle.net/alnitak/hEsys/
+    s = s.replace(/\[(\w+)\]/g, '.$1');
+    s = s.replace(/^\./, '');
+    var a = s.split('.');
+    for (var i = 0, n = a.length; i < n; ++i) {
+        var k = a[i];
+        if (k in o) {
+            if (i == n - 1 && v !== undefined) o[k] = v;
+            o = o[k];
+        } else {
+            return;
+        }
+    }
+    return o;
+}
+
+var controls = {
+    changeOption: changeOption,
+    checkRequired: checkRequired$1,
+    controlUpdate: controlUpdate,
+    destroy: destroy$1,
+    init: init$1,
+    layout: layout$1,
+    makeControlItem: makeControlItem,
+    makeBtnGroupControl: makeBtnGroupControl,
+    makeCheckboxControl: makeCheckboxControl,
+    makeDropdownControl: makeDropdownControl,
+    makeListControl: makeListControl,
+    makeNumberControl: makeNumberControl,
+    makeRadioControl: makeRadioControl,
+    makeSubsetterControl: makeSubsetterControl,
+    makeTextControl: makeTextControl,
+    stringAccessor: stringAccessor
+};
+
+function createControls() {
+    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var thisControls = Object.create(controls);
+
+    thisControls.div = element;
+
+    thisControls.config = Object.create(config);
+    thisControls.config.inputs = thisControls.config.inputs || [];
+
+    thisControls.targets = [];
+
+    if (config.location === 'bottom') {
+        thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+    } else {
+        thisControls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+    }
+
+    return thisControls;
+}
+
+function layout$2() {
     d3.select(this.div).select('.loader').remove();
     var table = this.wrap.append('table');
     table.append('thead').append('tr').attr('class', 'headers');
     this.table = table;
     this.events.onLayout.call(this);
-};
+}
 
-var transformData$1 = function (data) {
+function transformData$1(data) {
     if (!data) {
         return;
     }
@@ -1729,9 +2192,9 @@ var transformData$1 = function (data) {
     this.events.onDatatransform.call(this);
 
     return this.current_data;
-};
+}
 
-var draw$1 = function (raw_data, processed_data) {
+function draw$1(raw_data, processed_data) {
     var raw = raw_data ? raw_data : this.raw_data;
     var config = this.config;
     var data = processed_data || this.transformData(raw);
@@ -1836,457 +2299,13 @@ var draw$1 = function (raw_data, processed_data) {
     }
 
     this.events.onDraw.call(this);
-};
+}
 
 var table = Object.create(chart, {
-    layout: { value: layout$1 },
+    layout: { value: layout$2 },
     transformData: { value: transformData$1 },
     draw: { value: draw$1 }
 });
-
-var changeOption = function (option, value, callback) {
-    var _this = this;
-
-    this.targets.forEach(function (e) {
-        if (option instanceof Array) {
-            option.forEach(function (o) {
-                return _this.stringAccessor(e.config, o, value);
-            });
-        } else {
-            _this.stringAccessor(e.config, option, value);
-        }
-        //call callback function if provided
-        if (callback) {
-            callback();
-        }
-        e.draw();
-    });
-};
-
-var checkRequired$1 = function (dataset) {
-    if (!dataset[0] || !this.config.inputs) {
-        return;
-    }
-    var colnames = d3.keys(dataset[0]);
-    this.config.inputs.forEach(function (e, i) {
-        if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
-            throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
-        }
-    });
-};
-
-var controlUpdate = function () {
-    var _this = this;
-
-    if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
-        this.config.inputs.forEach(function (e) {
-            return _this.makeControlItem(e);
-        });
-    }
-};
-
-var destroy$1 = function () {
-    //unmount controls wrapper
-    this.wrap.remove();
-};
-
-var init$1 = function (data) {
-    this.data = data;
-    if (!this.config.builder) {
-        this.checkRequired(this.data);
-    }
-    this.layout();
-};
-
-var layout$2 = function () {
-    this.wrap.selectAll('*').remove();
-    this.ready = true;
-    this.controlUpdate();
-};
-
-var makeControlItem = function (control) {
-    var control_wrap = this.wrap.append('div').attr('class', 'control-group').classed('inline', control.inline).datum(control);
-    var ctrl_label = control_wrap.append('span').attr('class', 'control-label').text(control.label);
-    if (control.required) {
-        ctrl_label.append('span').attr('class', 'label label-required').text('Required');
-    }
-    control_wrap.append('span').attr('class', 'span-description').text(control.description);
-
-    if (control.type === 'text') {
-        this.makeTextControl(control, control_wrap);
-    } else if (control.type === 'number') {
-        this.makeNumberControl(control, control_wrap);
-    } else if (control.type === 'list') {
-        this.makeListControl(control, control_wrap);
-    } else if (control.type === 'dropdown') {
-        this.makeDropdownControl(control, control_wrap);
-    } else if (control.type === 'btngroup') {
-        this.makeBtnGroupControl(control, control_wrap);
-    } else if (control.type === 'checkbox') {
-        this.makeCheckboxControl(control, control_wrap);
-    } else if (control.type === 'radio') {
-        this.makeRadioControl(control, control_wrap);
-    } else if (control.type === 'subsetter') {
-        this.makeSubsetterControl(control, control_wrap);
-    } else {
-        throw new Error('Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"');
-    }
-};
-
-var makeBtnGroupControl = function (control, control_wrap) {
-    var _this = this;
-
-    var option_data = control.values ? control.values : d3.keys(this.data[0]);
-
-    var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
-
-    var changers = btn_wrap.selectAll('button').data(option_data).enter().append('button').attr('class', 'btn btn-default btn-sm').text(function (d) {
-        return d;
-    }).classed('btn-primary', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, control.option) === d;
-    });
-
-    changers.on('click', function (d) {
-        changers.each(function (e) {
-            d3.select(this).classed('btn-primary', e === d);
-        });
-        _this.changeOption(control.option, d, control.callback);
-    });
-};
-
-var makeCheckboxControl = function (control, control_wrap) {
-    var _this = this;
-
-    var changer = control_wrap.append('input').attr('type', 'checkbox').attr('class', 'changer').datum(control).property('checked', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, control.option);
-    });
-
-    changer.on('change', function (d) {
-        var value = changer.property('checked');
-        _this.changeOption(d.option, value, control.callback);
-    });
-};
-
-var makeDropdownControl = function (control, control_wrap) {
-    var _this = this;
-
-    var mainOption = control.option || control.options[0];
-    var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
-
-    var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
-        return m[_this.targets[0].config[control.values]];
-    })).values() : d3.keys(this.data[0]);
-
-    if (!control.require || control.none) {
-        opt_values.unshift('None');
-    }
-
-    var options = changer.selectAll('option').data(opt_values).enter().append('option').text(function (d) {
-        return d;
-    }).property('selected', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, mainOption) === d;
-    });
-
-    changer.on('change', function (d) {
-        var value = changer.property('value') === 'None' ? null : changer.property('value');
-
-        if (control.multiple) {
-            value = options.filter(function (f) {
-                return d3.select(this).property('selected');
-            })[0].map(function (m) {
-                return d3.select(m).property('value');
-            }).filter(function (f) {
-                return f !== 'None';
-            });
-        }
-
-        if (control.options) {
-            _this.changeOption(control.options, value, control.callback);
-        } else {
-            _this.changeOption(control.option, value, control.callback);
-        }
-    });
-
-    return changer;
-};
-
-var makeListControl = function (control, control_wrap) {
-    var _this = this;
-
-    var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, control.option);
-    });
-
-    changer.on('change', function (d) {
-        var value = changer.property('value') ? changer.property('value').split(',').map(function (m) {
-            return m.trim();
-        }) : null;
-        _this.changeOption(control.option, value, control.callback);
-    });
-};
-
-var makeNumberControl = function (control, control_wrap) {
-    var _this = this;
-
-    var changer = control_wrap.append('input').attr('type', 'number').attr('min', control.min !== undefined ? control.min : 0).attr('max', control.max).attr('step', control.step || 1).attr('class', 'changer').datum(control).property('value', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, control.option);
-    });
-
-    changer.on('change', function (d) {
-        var value = +changer.property('value');
-        _this.changeOption(control.option, value, control.callback);
-    });
-};
-
-var makeRadioControl = function (control, control_wrap) {
-    var _this = this;
-
-    var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
-        return control.relabels ? control.relabels[i] : d;
-    }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
-        return d;
-    }).property('checked', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, control.option) === d;
-    });
-
-    changers.on('change', function (d) {
-        var value = null;
-        changers.each(function (c) {
-            if (d3.select(this).property('checked')) {
-                value = d3.select(this).property('value') === 'none' ? null : c;
-            }
-        });
-        _this.changeOption(control.option, value, control.callback);
-    });
-};
-
-var makeSubsetterControl = function (control, control_wrap) {
-    var targets = this.targets;
-    var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
-
-    var option_data = control.values ? control.values : d3.set(this.data.map(function (m) {
-        return m[control.value_col];
-    }).filter(function (f) {
-        return f;
-    })).values();
-    option_data.sort(naturalSorter);
-
-    control.start = control.start ? control.start : control.loose ? option_data[0] : null;
-
-    if (!control.multiple && !control.start) {
-        option_data.unshift('All');
-    }
-
-    control.loose = !control.loose && control.start ? true : control.loose;
-
-    var options = changer.selectAll('option').data(option_data).enter().append('option').text(function (d) {
-        return d;
-    }).property('selected', function (d) {
-        return d === control.start;
-    });
-
-    targets.forEach(function (e) {
-        var match = e.filters.slice().map(function (m) {
-            return m.col === control.value_col;
-        }).indexOf(true);
-        if (match > -1) {
-            e.filters[match] = {
-                col: control.value_col,
-                val: control.start ? control.start : 'All',
-                choices: option_data,
-                loose: control.loose
-            };
-        } else {
-            e.filters.push({
-                col: control.value_col,
-                val: control.start ? control.start : 'All',
-                choices: option_data,
-                loose: control.loose
-            });
-        }
-    });
-
-    function setSubsetter(target, obj) {
-        var match = -1;
-        target.filters.forEach(function (e, i) {
-            if (e.col === obj.col) {
-                match = i;
-            }
-        });
-        if (match > -1) {
-            target.filters[match] = obj;
-        }
-    }
-
-    changer.on('change', function (d) {
-        if (control.multiple) {
-            var values = options.filter(function (f) {
-                return d3.select(this).property('selected');
-            })[0].map(function (m) {
-                return d3.select(m).property('text');
-            });
-
-            var new_filter = {
-                col: control.value_col,
-                val: values,
-                choices: option_data,
-                loose: control.loose
-            };
-            targets.forEach(function (e) {
-                setSubsetter(e, new_filter);
-                //call callback function if provided
-                if (control.callback) {
-                    control.callback();
-                }
-                e.draw();
-            });
-        } else {
-            var value = d3.select(this).select('option:checked').property('text');
-            var _new_filter = {
-                col: control.value_col,
-                val: value,
-                choices: option_data,
-                loose: control.loose
-            };
-            targets.forEach(function (e) {
-                setSubsetter(e, _new_filter);
-                //call callback function if provided
-                if (control.callback) {
-                    control.callback();
-                }
-                e.draw();
-            });
-        }
-    });
-};
-
-var makeTextControl = function (control, control_wrap) {
-    var _this = this;
-
-    var changer = control_wrap.append('input').attr('type', 'text').attr('class', 'changer').datum(control).property('value', function (d) {
-        return _this.stringAccessor(_this.targets[0].config, control.option);
-    });
-
-    changer.on('change', function (d) {
-        var value = changer.property('value');
-        _this.changeOption(control.option, value, control.callback);
-    });
-};
-
-var stringAccessor = function (o, s, v) {
-    //adapted from http://jsfiddle.net/alnitak/hEsys/
-    s = s.replace(/\[(\w+)\]/g, '.$1');
-    s = s.replace(/^\./, '');
-    var a = s.split('.');
-    for (var i = 0, n = a.length; i < n; ++i) {
-        var k = a[i];
-        if (k in o) {
-            if (i == n - 1 && v !== undefined) o[k] = v;
-            o = o[k];
-        } else {
-            return;
-        }
-    }
-    return o;
-};
-
-var controls = {
-    changeOption: changeOption,
-    checkRequired: checkRequired$1,
-    controlUpdate: controlUpdate,
-    destroy: destroy$1,
-    init: init$1,
-    layout: layout$2,
-    makeControlItem: makeControlItem,
-    makeBtnGroupControl: makeBtnGroupControl,
-    makeCheckboxControl: makeCheckboxControl,
-    makeDropdownControl: makeDropdownControl,
-    makeListControl: makeListControl,
-    makeNumberControl: makeNumberControl,
-    makeRadioControl: makeRadioControl,
-    makeSubsetterControl: makeSubsetterControl,
-    makeTextControl: makeTextControl,
-    stringAccessor: stringAccessor
-};
-
-var objects = {
-    chart: chart,
-    table: table,
-    controls: controls
-};
-
-var chartCount = 0;
-
-function createChart() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var controls = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-    var thisChart = Object.create(chart);
-
-    thisChart.div = element;
-
-    thisChart.config = Object.create(config);
-
-    thisChart.controls = controls;
-
-    thisChart.raw_data = [];
-
-    thisChart.filters = [];
-
-    thisChart.marks = [];
-
-    thisChart.wrap = d3.select(thisChart.div).append('div');
-
-    thisChart.events = {
-        onInit: function onInit() {},
-        onLayout: function onLayout() {},
-        onPreprocess: function onPreprocess() {},
-        onDatatransform: function onDatatransform() {},
-        onDraw: function onDraw() {},
-        onResize: function onResize() {},
-        onDestroy: function onDestroy() {}
-    };
-
-    thisChart.on = function (event, callback) {
-        var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize', 'destroy'];
-        if (possible_events.indexOf(event) < 0) {
-            return;
-        }
-        if (callback) {
-            thisChart.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
-        }
-    };
-
-    //increment thisChart count to get unique thisChart id
-    chartCount++;
-
-    thisChart.id = chartCount;
-
-    return thisChart;
-}
-
-function createControls() {
-    var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    var thisControls = Object.create(controls);
-
-    thisControls.div = element;
-
-    thisControls.config = Object.create(config);
-    thisControls.config.inputs = thisControls.config.inputs || [];
-
-    thisControls.targets = [];
-
-    if (config.location === 'bottom') {
-        thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
-    } else {
-        thisControls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
-    }
-
-    return thisControls;
-}
 
 function createTable() {
     var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
@@ -2305,21 +2324,16 @@ function createTable() {
 
     thisTable.required_cols = [];
 
-    thisTable.marks = [];
-
     thisTable.wrap = d3.select(thisTable.div).append('div');
 
     thisTable.events = {
         onInit: function onInit() {},
         onLayout: function onLayout() {},
-        onDatatransform: function onDatatransform() {},
-        onDraw: function onDraw() {},
-        onResize: function onResize() {},
-        onDestroy: function onDestroy() {}
+        onDraw: function onDraw() {}
     };
 
     thisTable.on = function (event, callback) {
-        var possible_events = ['init', 'layout', 'datatransform', 'draw', 'resize', 'destroy'];
+        var possible_events = ['init', 'layout', 'draw'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }
@@ -2331,7 +2345,7 @@ function createTable() {
     return thisTable;
 }
 
-var multiply = function (chart, data, split_by, order) {
+function multiply(chart, data, split_by, order) {
     var config = chart.config;
     var wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
     var master_legend = wrap.append('ul').attr('class', 'legend');
@@ -2359,49 +2373,10 @@ var multiply = function (chart, data, split_by, order) {
     }
 
     goAhead(data);
-};
-
-var getValType = function (data, variable) {
-    var var_vals = d3.set(data.map(function (m) {
-        return m[variable];
-    })).values();
-    var vals_numbers = var_vals.filter(function (f) {
-        return +f || +f === 0;
-    });
-
-    if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
-        return 'continuous';
-    } else {
-        return 'categorical';
-    }
-};
-
-var lengthenRaw = function (data, columns) {
-    var my_data = [];
-
-    data.forEach(function (e) {
-        columns.forEach(function (g) {
-            var obj = Object.create(e);
-            obj.wc_category = g;
-            obj.wc_value = e[g];
-            my_data.push(obj);
-        });
-    });
-
-    return my_data;
-};
-
-var dataOps = {
-    getValType: getValType,
-    lengthenRaw: lengthenRaw,
-    naturalSorter: naturalSorter,
-    summarize: summarize
-};
+}
 
 var index = {
     version: version,
-    dataOps: dataOps,
-    objects: objects,
     createChart: createChart,
     createControls: createControls,
     createTable: createTable,

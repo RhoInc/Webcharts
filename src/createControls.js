@@ -1,6 +1,7 @@
 import controls from './controls/index';
+import { select } from 'd3';
 
-export function createControls(element = 'body', config = {}) {
+export default function createControls(element = 'body', config = {}) {
     let thisControls = Object.create(controls);
 
     thisControls.div = element;
@@ -11,10 +12,9 @@ export function createControls(element = 'body', config = {}) {
     thisControls.targets = [];
 
     if (config.location === 'bottom') {
-        thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+        thisControls.wrap = select(element).append('div').attr('class', 'wc-controls');
     } else {
-        thisControls.wrap = d3
-            .select(element)
+        thisControls.wrap = select(element)
             .insert('div', ':first-child')
             .attr('class', 'wc-controls');
     }

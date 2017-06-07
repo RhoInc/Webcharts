@@ -1,4 +1,4 @@
-export default function(o, s, v) {
+export default function stringAccessor(o, s, v) {
     //adapted from http://jsfiddle.net/alnitak/hEsys/
     s = s.replace(/\[(\w+)\]/g, '.$1');
     s = s.replace(/^\./, '');

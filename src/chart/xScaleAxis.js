@@ -1,4 +1,6 @@
-export default function(max_range, domain, type) {
+import { scale, time, svg, format } from 'd3';
+
+export default function xScaleAxis(max_range, domain, type) {
     if (max_range === undefined) {
         max_range = this.plot_width;
     }
@@ -12,13 +14,13 @@ export default function(max_range, domain, type) {
     let x;
 
     if (type === 'log') {
-        x = d3.scale.log();
+        x = scale.log();
     } else if (type === 'ordinal') {
-        x = d3.scale.ordinal();
+        x = scale.ordinal();
     } else if (type === 'time') {
-        x = d3.time.scale();
+        x = time.scale();
     } else {
-        x = d3.scale.linear();
+        x = scale.linear();
     }
 
     x.domain(domain);
@@ -29,19 +31,19 @@ export default function(max_range, domain, type) {
         x.range([0, +max_range]).clamp(Boolean(config.x.clamp));
     }
 
-    let format = config.x.format
+    let xFormat = config.x.format
         ? config.x.format
         : config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1
-              ? '0%'
-              : type === 'time' ? '%x' : '.0f';
+          ? '0%'
+          : type === 'time' ? '%x' : '.0f';
     let tick_count = Math.max(2, Math.min(max_range / 80, 8));
-    let xAxis = d3.svg
+    let xAxis = svg
         .axis()
         .scale(x)
         .orient(config.x.location)
         .ticks(tick_count)
         .tickFormat(
-            type === 'ordinal' ? null : type === 'time' ? d3.time.format(format) : d3.format(format)
+            type === 'ordinal' ? null : type === 'time' ? time.format(xFormat) : format(xFormat)
         )
         .tickValues(config.x.ticks ? config.x.ticks : null)
         .innerTickSize(6)

@@ -1,4 +1,6 @@
-export default function() {
+import { select } from 'd3';
+
+export default function layout() {
     this.svg = this.wrap
         .append('svg')
         .attr({
@@ -59,7 +61,7 @@ export default function() {
         .append('span')
         .attr('class', 'legend-title');
 
-    d3.select(this.div).select('.loader').remove();
+    select(this.div).select('.loader').remove();
 
     this.events.onLayout.call(this);
 }

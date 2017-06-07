@@ -1,4 +1,4 @@
-export default function(
+export default function drawArea(
     area_drawer,
     area_data,
     datum_accessor,

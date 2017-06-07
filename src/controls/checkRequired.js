@@ -1,8 +1,10 @@
-export default function(dataset) {
+import { keys } from 'd3';
+
+export default function checkRequired(dataset) {
     if (!dataset[0] || !this.config.inputs) {
         return;
     }
-    let colnames = d3.keys(dataset[0]);
+    let colnames = keys(dataset[0]);
     this.config.inputs.forEach((e, i) => {
         if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
             throw new Error(

@@ -1,4 +1,6 @@
-export default function(marks) {
+import { select, format, time } from 'd3';
+
+export default function drawText(marks) {
     const config = this.config;
 
     const textSupergroups = this.svg
@@ -22,8 +24,8 @@ export default function(marks) {
 
     // attach mark info
     function attachMarks(d) {
-        d.mark = d3.select(this.parentNode).datum();
-        d3.select(this).select('text').attr(d.mark.attributes);
+        d.mark = select(this.parentNode).datum();
+        select(this).select('text').attr(d.mark.attributes);
     }
     texts.each(attachMarks);
 
@@ -31,15 +33,11 @@ export default function(marks) {
     texts.select('text').text(d => {
         const tt = d.mark.text || '';
         const xformat = config.x.summary === 'percent'
-            ? d3.format('0%')
-            : config.x.type === 'time'
-                  ? d3.time.format(config.x.format)
-                  : d3.format(config.x.format);
+            ? format('0%')
+            : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
         const yformat = config.y.summary === 'percent'
-            ? d3.format('0%')
-            : config.y.type === 'time'
-                  ? d3.time.format(config.y.format)
-                  : d3.format(config.y.format);
+            ? format('0%')
+            : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
         return tt
             .replace(
                 /\$x/g,

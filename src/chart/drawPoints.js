@@ -1,4 +1,6 @@
-export default function(marks) {
+import { select, format, time } from 'd3';
+
+export default function drawPoints(marks) {
     let config = this.config;
 
     let point_supergroups = this.svg
@@ -32,9 +34,9 @@ export default function(marks) {
         .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]));
     //attach mark info
     points.each(function(d) {
-        let mark = d3.select(this.parentNode).datum();
+        let mark = select(this.parentNode).datum();
         d.mark = mark;
-        d3.select(this).select('circle').attr(mark.attributes);
+        select(this).select('circle').attr(mark.attributes);
     });
     //animated attributes
     let pointsTrans = config.transitions
@@ -54,15 +56,11 @@ export default function(marks) {
     points.select('title').text(d => {
         let tt = d.mark.tooltip || '';
         let xformat = config.x.summary === 'percent'
-            ? d3.format('0%')
-            : config.x.type === 'time'
-                  ? d3.time.format(config.x.format)
-                  : d3.format(config.x.format);
+            ? format('0%')
+            : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
         let yformat = config.y.summary === 'percent'
-            ? d3.format('0%')
-            : config.y.type === 'time'
-                  ? d3.time.format(config.y.format)
-                  : d3.format(config.y.format);
+            ? format('0%')
+            : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
         return tt
             .replace(
                 /\$x/g,

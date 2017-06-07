@@ -1,4 +1,6 @@
-export default function() {
+import { select } from 'd3';
+
+export default function resize() {
     let config = this.config;
 
     let aspect2 = 1 / config.aspect;
@@ -15,18 +17,17 @@ export default function() {
     let svg_width = config.x.type === 'ordinal' && +config.range_band
         ? this.raw_width + this.margin.left + this.margin.right
         : !config.resizable
-              ? this.raw_width
-              : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
+          ? this.raw_width
+          : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
     this.plot_width = svg_width - this.margin.left - this.margin.right;
     var svg_height = config.y.type === 'ordinal' && +config.range_band
         ? this.raw_height + this.margin.top + this.margin.bottom
         : !config.resizable && config.height
-              ? config.height
-              : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
+          ? config.height
+          : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
     this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
-    d3
-        .select(this.svg.node().parentNode)
+    select(this.svg.node().parentNode)
         .attr('width', svg_width)
         .attr('height', svg_height)
         .select('g')

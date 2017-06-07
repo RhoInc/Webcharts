@@ -1,4 +1,6 @@
-export default function(data) {
+import { select } from 'd3';
+
+export default function checkRequired(data) {
     let colnames = Object.keys(data[0]);
     let requiredVars = [];
     let requiredCols = [];
@@ -25,11 +27,19 @@ export default function(data) {
             requiredVars.push('this.config.marks[' + i + '].split');
             requiredCols.push(e.split);
         }
+        if (e.values) {
+            for (const value in e.values) {
+                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredCols.push(value);
+            }
+        }
     });
 
+    let missingDataField = false;
     requiredCols.forEach((e, i) => {
         if (colnames.indexOf(e) < 0) {
-            d3.select(this.div).select('.loader').remove();
+            missingDataField = true;
+            select(this.div).select('.loader').remove();
             this.wrap
                 .append('div')
                 .style('color', 'red')
@@ -49,4 +59,10 @@ export default function(data) {
             );
         }
     });
+
+    return {
+        missingDataField: missingDataField,
+        dataFieldArguments: requiredVars,
+        requiredDataFields: requiredCols
+    };
 }

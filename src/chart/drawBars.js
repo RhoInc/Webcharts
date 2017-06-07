@@ -1,4 +1,6 @@
-export default function(marks) {
+import { select, set, format, min, max } from 'd3';
+
+export default function drawBars(marks) {
     let rawData = this.raw_data;
     let config = this.config;
 
@@ -54,23 +56,23 @@ export default function(marks) {
             .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
         bars.each(function(d) {
-            let mark = d3.select(this.parentNode.parentNode).datum();
+            let mark = select(this.parentNode.parentNode).datum();
             d.tooltip = mark.tooltip;
             d.arrange = mark.split ? mark.arrange : null;
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : d3.set(rawData.map(m => m[mark.split])).values();
-            d3.select(this).attr(mark.attributes);
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
+            select(this).attr(mark.attributes);
         });
 
         let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.x.format);
+            ? format('0%')
+            : format(config.x.format);
         let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.y.format);
+            ? format('0%')
+            : format(config.y.format);
         bars.select('title').text(d => {
             let tt = d.tooltip || '';
             return tt
@@ -151,22 +153,22 @@ export default function(marks) {
             .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
         bars.each(function(d) {
-            let mark = d3.select(this.parentNode.parentNode).datum();
+            let mark = select(this.parentNode.parentNode).datum();
             d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : d3.set(rawData.map(m => m[mark.split])).values();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
             d.tooltip = mark.tooltip;
         });
 
         let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.x.format);
+            ? format('0%')
+            : format(config.x.format);
         let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.y.format);
+            ? format('0%')
+            : format(config.y.format);
         bars.select('title').text(d => {
             let tt = d.tooltip || '';
             return tt
@@ -242,27 +244,27 @@ export default function(marks) {
             .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
         bars.each(function(d) {
-            let mark = d3.select(this.parentNode.parentNode).datum();
+            let mark = select(this.parentNode.parentNode).datum();
             d.arrange = mark.split ? mark.arrange : null;
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : d3.set(rawData.map(m => m[mark.split])).values();
-            d3.select(this).attr(mark.attributes);
-            let parent = d3.select(this.parentNode).datum();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
+            select(this).attr(mark.attributes);
+            let parent = select(this.parentNode).datum();
             let rangeSet = parent.key.split(',').map(m => +m);
-            d.rangeLow = d3.min(rangeSet);
-            d.rangeHigh = d3.max(rangeSet);
+            d.rangeLow = min(rangeSet);
+            d.rangeHigh = max(rangeSet);
             d.tooltip = mark.tooltip;
         });
 
         let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.x.format);
+            ? format('0%')
+            : format(config.x.format);
         let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.y.format);
+            ? format('0%')
+            : format(config.y.format);
         bars.select('title').text(d => {
             let tt = d.tooltip || '';
             return tt
@@ -315,26 +317,26 @@ export default function(marks) {
             .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
         bars.each(function(d) {
-            let mark = d3.select(this.parentNode.parentNode).datum();
+            let mark = select(this.parentNode.parentNode).datum();
             d.arrange = mark.split ? mark.arrange : null;
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : d3.set(rawData.map(m => m[mark.split])).values();
-            let parent = d3.select(this.parentNode).datum();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
+            let parent = select(this.parentNode).datum();
             let rangeSet = parent.key.split(',').map(m => +m);
-            d.rangeLow = d3.min(rangeSet);
-            d.rangeHigh = d3.max(rangeSet);
+            d.rangeLow = min(rangeSet);
+            d.rangeHigh = max(rangeSet);
             d.tooltip = mark.tooltip;
         });
 
         let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.x.format);
+            ? format('0%')
+            : format(config.x.format);
         let yformat = config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1
-            ? d3.format('0%')
-            : d3.format(config.y.format);
+            ? format('0%')
+            : format(config.y.format);
         bars.select('title').text(d => {
             let tt = d.tooltip || '';
             return tt

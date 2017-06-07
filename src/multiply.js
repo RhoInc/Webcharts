@@ -1,16 +1,15 @@
-import { createChart } from './chart';
+import createChart from './createChart';
+import { set, ascending } from 'd3';
 
-export default function(chart, data, split_by, order) {
+export default function multiply(chart, data, split_by, order) {
     let config = chart.config;
     let wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
     let master_legend = wrap.append('ul').attr('class', 'legend');
 
     function goAhead(data) {
-        let split_vals = d3.set(data.map(m => m[split_by])).values().filter(f => f);
+        let split_vals = set(data.map(m => m[split_by])).values().filter(f => f);
         if (order) {
-            split_vals = split_vals.sort((a, b) =>
-                d3.ascending(order.indexOf(a), order.indexOf(b))
-            );
+            split_vals = split_vals.sort((a, b) => ascending(order.indexOf(a), order.indexOf(b)));
         }
 
         split_vals.forEach(e => {
