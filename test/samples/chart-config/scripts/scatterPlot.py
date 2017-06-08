@@ -14,14 +14,14 @@ def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
 
 def create_scatter_plot():
-    x_column = ''
-    y_column = ''
-    x_label = ''
-    y_label = ''
+    x_column = 'Boil'
+    y_column = 'Weight'
+    x_label = 'Boil'
+    y_label = 'Weight'
     x_types = ['linear','log']
     y_types = ['linear','log']
-    mark_type = ['circle','line','text']
-    mark_per = ['Element','group']
+    mark_type = ['circle','text']
+    mark_per = ['Element','Group']
 
 
     context = {

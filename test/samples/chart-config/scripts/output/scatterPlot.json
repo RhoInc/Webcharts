@@ -4,19 +4,19 @@
 
 {
     "label": "X:linear, Y:linear, Mark Type:circle, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -26,113 +26,55 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:linear, Y:linear, Mark Type:circle, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:linear, Y:linear, Mark Type:circle, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "circle",
 		  
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:linear, Y:linear, Mark Type:line, Mark Per: Element",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["Element"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:linear, Y:linear, Mark Type:line, Mark Per: group",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["group"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:linear, Y:linear, Mark Type:text, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -143,56 +85,56 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:linear, Y:linear, Mark Type:text, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:linear, Y:linear, Mark Type:text, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "text",
 		  
 		  "text": "$x",
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:linear, Y:log, Mark Type:circle, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -202,113 +144,55 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:linear, Y:log, Mark Type:circle, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:linear, Y:log, Mark Type:circle, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "circle",
 		  
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:linear, Y:log, Mark Type:line, Mark Per: Element",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["Element"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:linear, Y:log, Mark Type:line, Mark Per: group",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["group"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:linear, Y:log, Mark Type:text, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -319,56 +203,56 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:linear, Y:log, Mark Type:text, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:linear, Y:log, Mark Type:text, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "linear",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "text",
 		  
 		  "text": "$x",
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:log, Y:linear, Mark Type:circle, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -378,113 +262,55 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:log, Y:linear, Mark Type:circle, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:log, Y:linear, Mark Type:circle, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "circle",
 		  
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:log, Y:linear, Mark Type:line, Mark Per: Element",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["Element"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:log, Y:linear, Mark Type:line, Mark Per: group",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "linear",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["group"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:log, Y:linear, Mark Type:text, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -495,56 +321,56 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:log, Y:linear, Mark Type:text, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:log, Y:linear, Mark Type:text, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "linear",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "text",
 		  
 		  "text": "$x",
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:log, Y:log, Mark Type:circle, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -554,113 +380,55 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:log, Y:log, Mark Type:circle, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:log, Y:log, Mark Type:circle, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "circle",
 		  
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:log, Y:log, Mark Type:line, Mark Per: Element",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["Element"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
-  },
-
-
-
-{
-    "label": "X:log, Y:log, Mark Type:line, Mark Per: group",
-    "notes": "Plotting  against ",
-    "tests": [],
-    "settings": {
-      "max_width":500,
-      "x": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "y": {
-        "column": "",
-        "type": "log",
-        "label": ""
-      },
-      "marks": [
-        {
-          "type": "line",
-		  
-		  "per": ["group"]
-        }
-      ]
-    },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
     "label": "X:log, Y:log, Mark Type:text, Mark Per: Element",
-    "notes": "Plotting  against ",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
@@ -671,37 +439,37 @@
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
 
 {
-    "label": "X:log, Y:log, Mark Type:text, Mark Per: group",
-    "notes": "Plotting  against ",
+    "label": "X:log, Y:log, Mark Type:text, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
     "tests": [],
     "settings": {
       "max_width":500,
       "x": {
-        "column": "",
+        "column": "Boil",
         "type": "log",
-        "label": ""
+        "label": "Boil"
       },
       "y": {
-        "column": "",
+        "column": "Weight",
         "type": "log",
-        "label": ""
+        "label": "Weight"
       },
       "marks": [
         {
           "type": "text",
 		  
 		  "text": "$x",
-		  "per": ["group"]
+		  "per": ["Group"]
         }
       ]
     },
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
   },
 
 
@@ -729,7 +497,7 @@
 				"per": ["group"]
 			}]
 		},
-    "filename": "../data/elements.csv"
+    "filename": "elements.csv"
 	}
 
 
