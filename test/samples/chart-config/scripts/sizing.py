@@ -33,7 +33,7 @@ def create_sizing():
         'aspect':aspect,
     }
 
-    fname = "../sizing.json"
+    fname = "./output/sizing.json"
     with open(fname, 'w') as f:
         json = render_template('sizing_template.json', context)
         f.write(json)

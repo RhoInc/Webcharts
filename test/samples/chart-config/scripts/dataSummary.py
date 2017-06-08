@@ -18,13 +18,13 @@ def create_dataSummary():
 
     mark_summarizeX = ['mean','median','min','max','sum','count','cumulative','percent']
     mark_summarizeY = ['mean','median','min','max','sum','count','cumulative','percent']
-    
+
     context = {
         'mark_summarizeX':mark_summarizeX,
         'mark_summarizeY':mark_summarizeY,
     }
 
-    fname = "../create_dataSummary.json"
+    fname = "./output/dataSummary.json"
     with open(fname, 'w') as f:
         html = render_template('dataSummary_template.json', context)
         f.write(html)

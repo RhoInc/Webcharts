@@ -30,7 +30,7 @@ def create_time_axis():
  	'y_label':y_label,
     }
 
-    fname = "../timeAxis.json"
+    fname = "./output/timeAxis.json"
     with open(fname, 'w') as f:
         json = render_template('timeAxis_template.json', context)
         f.write(json)

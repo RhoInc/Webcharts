@@ -35,7 +35,7 @@ def create_scatter_plot():
         'mark_per':mark_per
     }
 
-    fname = "../scatterPlot.json"
+    fname = "./output/scatterPlot.json"
 
     with open(fname, 'w') as f:
         json = render_template('scatterPlot_template.json', context)

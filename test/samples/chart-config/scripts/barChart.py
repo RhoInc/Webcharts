@@ -41,7 +41,7 @@ def create_bar_chart():
         'mark_summarizeY':mark_summarizeY
     }
 
-    fname = "../barChart.json"
+    fname = "./output/barChart.json"
     with open(fname, 'w') as f:
         json = render_template('barChart_template.json', context)
         f.write(json)
