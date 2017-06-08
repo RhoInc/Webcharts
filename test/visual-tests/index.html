@@ -88,7 +88,7 @@ function drawCharts(path){
   console.log(path)
   d3.json(path,function(error,testConfig){
     console.log(error || testConfig)
-    testConfig.forEach(function(d,i){d.index = i})
+    testConfig.forEach(function(d,i){d.index = i+1})
 
     var chartDivs = d3
       .select('.charts')
@@ -99,6 +99,8 @@ function drawCharts(path){
       .attr('class', function(d) {
         return 'testWrap test' + d.index;
       })
+
+      chartDivs.append("span").text(function(d){return "Test #"+d.index})
 
 
     //get all test data sets (once each)

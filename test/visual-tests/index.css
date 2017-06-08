@@ -10,11 +10,10 @@ div.testWrap{
   margin:1em 5em 1em 5em;
 }
 
-div.testWrap .chart svg{
+div.testWrap .chart{
   border:1px dotted #444;
   margin:1em;
   padding:1em;
-
 }
 
 div.testWrap .chart, div.testWrap .notes{
