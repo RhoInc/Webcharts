@@ -1,7 +1,8 @@
 [
+  {"label":"Bar Charts: Data Summaries","filename":"barchart_summarizeY.json"},
   {"label":"Bar Charts: Stacked Bars","filename":"barchart_stacked.json"},
   {"label":"Bar Charts: Grouped Bars","filename":"barchart_grouped.json"},
   {"label":"Bar Charts: Horizontal Bars","filename":"barchart_horizontal.json"},
   {"label":"Bar Charts: Vertical Bars","filename":"barchart_vertical.json"},
-  {"label":"Sample Tests","filename":"samples.json"}
+  {"label":"Scatter Plots: Axis Types","filename":"samples.json"}
 ]
