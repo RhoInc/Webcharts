@@ -1,5 +1,6 @@
 body{
-  background:#bbb
+  background:#bbb;
+  margin:1em;
 }
 
 div.testWrap{
