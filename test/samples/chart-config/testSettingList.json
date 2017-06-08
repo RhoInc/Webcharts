@@ -1,13 +1,13 @@
 [
+  {"label":"Scatter Plots: Axis Types","filename":"scatter_axis.json"},
+  {"label":"Scatter Plots: log/linear","filename":"scripts/output/scatterPlot.json"},
   {"label":"Sizing: Margins","filename":"sizing_margins.json"},
   {"label":"Sizing: Resizable","filename":"sizing_resizeable.json"},
   {"label":"Sizing: Not Resiable","filename":"sizing_non_resizeable.json"},
-  {"label":"Scatter Plots: log/linear","filename":"scripts/output/scatterPlot.json"},
   {"label":"Bar Charts: Data Summaries + Grouping","filename":"barchart_summarizeY_stacked.json"},
   {"label":"Bar Charts: Data Summaries","filename":"barchart_summarizeY.json"},
   {"label":"Bar Charts: Stacked Bars","filename":"barchart_stacked.json"},
   {"label":"Bar Charts: Grouped Bars","filename":"barchart_grouped.json"},
   {"label":"Bar Charts: Horizontal Bars","filename":"barchart_horizontal.json"},
-  {"label":"Bar Charts: Vertical Bars","filename":"barchart_vertical.json"},
-  {"label":"Scatter Plots: Axis Types","filename":"samples.json"}
+  {"label":"Bar Charts: Vertical Bars","filename":"barchart_vertical.json"}
 ]
