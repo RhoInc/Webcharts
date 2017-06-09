@@ -2,8 +2,8 @@ import jsdom from 'jsdom';
 import createChart from '../../src/createChart';
 import expect from 'expect';
 
-export default function testCreateChart(settings) {
-    describe('chart object creation', () => {
+export default function testCreateChart(settings, full=true) {
+    describe('chart object creation. ', () => {
         const { JSDOM } = jsdom;
         let dom,
             container,
@@ -23,25 +23,27 @@ export default function testCreateChart(settings) {
             chart = null;
         });
 
-        describe('user calls createChart()', () => {
-            it('webCharts returns chart object with a given set of properties', () => {
+        describe('user calls createChart(). ', () => {
+            it('webCharts returns chart object with a given set of properties. ', () => {
                 const properties = ['div', 'config', 'controls', 'raw_data', 'filters', 'marks', 'wrap', 'events', 'on', 'id'];
                 expect(Object.keys(chart).sort()).toEqual(properties.sort());
             });
 
-            it('chart div property is equal to first argument to createChart()', () => {
-                expect(chart.div).toEqual(container);
-            });
+            if(full){
+              it('chart div property is equal to first argument to createChart(). ', () => {
+                  expect(chart.div).toEqual(container);
+              });
 
-            it('chart wrap property is d3 selection of first argument to createChart()', () => {
-                expect(chart.wrap.node()).toEqual(container.querySelector('div'));
-            });
+              it('chart wrap property is d3 selection of first argument to createChart(). ', () => {
+                  expect(chart.wrap.node()).toEqual(container.querySelector('div'));
+              });
 
-            it('chart config property matches second argument to createChart()', () => {
-                let property;
-                for (property in settings)
-                    expect(chart.config[property]).toEqual(settings[property]);
-            });
+              it('chart config property matches second argument to createChart(). ', () => {
+                  let property;
+                  for (property in settings)
+                      expect(chart.config[property]).toEqual(settings[property]);
+              });
+            }
         });
     });
 }
