@@ -9,7 +9,6 @@ TEMPLATE_ENVIRONMENT = Environment(
     loader=FileSystemLoader(os.path.join(PATH, 'templates')),
     trim_blocks=False)
 
-
 def render_template(template_filename, context):
     return TEMPLATE_ENVIRONMENT.get_template(template_filename).render(context)
 
@@ -18,8 +17,8 @@ def create_scatter_plot():
     y_column = 'Weight'
     x_label = 'Boil'
     y_label = 'Weight'
-    x_types = ['linear','log']
-    y_types = ['linear','log']
+    x_types = ['linear']
+    y_types = ['linear']
     mark_type = ['circle','text']
     mark_per = ['Element','Group']
 

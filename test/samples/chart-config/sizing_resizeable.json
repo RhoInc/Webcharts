@@ -25,7 +25,7 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
 
   {
@@ -52,7 +52,7 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
 
 {
@@ -75,11 +75,11 @@
       "marks": [
         {
           "type": "bar",
-		  "per": ["weight"]
+		      "per": ["weight"]
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
 
   {
@@ -106,7 +106,7 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
 
 {
@@ -134,7 +134,7 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
 
 {
@@ -162,9 +162,9 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
- 
+
 {
     "label": "Resizable: true, Width:default, Height:500, Max Width:300, Aspect: 0.5",
 	"notes": "Testing various config settings (seen in label)",
@@ -190,7 +190,7 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   },
 
 {
@@ -218,7 +218,7 @@
         }
       ]
     },
-    "filename": "../data/ChickWeight.csv"
+    "filename": "ChickWeight.csv"
   }
 
 ]

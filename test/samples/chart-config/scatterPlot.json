@@ -21,7 +21,7 @@
       "marks": [
         {
           "type": "circle",
-		  
+
 		  "per": ["Element"]
         }
       ]
@@ -50,7 +50,7 @@
       "marks": [
         {
           "type": "circle",
-		  
+
 		  "per": ["Group"]
         }
       ]
@@ -79,7 +79,7 @@
       "marks": [
         {
           "type": "text",
-		  
+
 		  "text": "$x",
 		  "per": ["Element"]
         }
@@ -109,42 +109,12 @@
       "marks": [
         {
           "type": "text",
-		  
+
 		  "text": "$x",
 		  "per": ["Group"]
         }
       ]
     },
     "filename": "elements.csv"
-  },
-
-
-
-{
-		"label": "X:log, Y:log, Mark Type:text, Mark Per: group",
-		"notes": "Plotting  against ",
-		"tests": [],
-		"settings": {
-			"max_width": 500,
-			"x": {
-				"column": "",
-				"type": "log",
-				"label": ""
-			},
-			"y": {
-				"column": "",
-				"type": "log",
-				"label": ""
-			},
-			"marks": [{
-				"type": "text",
-
-				"text": "$x",
-				"per": ["group"]
-			}]
-		},
-    "filename": "elements.csv"
-	}
-
-
+  }
 ]

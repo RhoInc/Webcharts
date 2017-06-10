@@ -1,6 +1,6 @@
 [
   {"label":"Scatter Plots: Axis Types","filename":"scatter_axis.json"},
-  {"label":"Scatter Plots: log/linear","filename":"scripts/output/scatterPlot.json"},
+  {"label":"Scatter Plots: text/circle","filename":"scatterPlot.json"},
   {"label":"Sizing: Margins","filename":"sizing_margins.json"},
   {"label":"Sizing: Resizable","filename":"sizing_resizeable.json"},
   {"label":"Sizing: Not Resiable","filename":"sizing_non_resizeable.json"},
