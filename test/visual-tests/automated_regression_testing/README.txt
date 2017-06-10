@@ -8,7 +8,7 @@ For comparing a website to a previously passed version of itself, simply change 
             to allow for sufficient rendering time
       1b. Update the URL to whatever website you want to test
 2. Execute the script
-3. The difference between the two images can be found in the output.png file
+3. The difference between the two images can be found in the output.png file (for numerical details refer to pixelmatch execute log)
 
 TOOLS:
 Converting html to jpg image:
