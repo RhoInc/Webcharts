@@ -121,16 +121,14 @@
         },
         "y": {
            "type": "ordinal",
-           "label": "Field Name",
-           "column":"Field Name"
+           "label": "Query Status",
+           "column":"Query Status"
         },
         "date_format": "%Y-%m-%d",
         "marks": [
            {
               "type": "bar",
-              "per": [
-                 "Query Open Date"
-              ]
+              "per": ["Query Status"]
            }
         ]
      },

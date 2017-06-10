@@ -2,7 +2,6 @@
   {"label":"Scatter Plots: Axis Types","filename":"scatter_axis.json"},
   {"label":"Scatter Plots: text/circle","filename":"scatterPlot.json"},
   {"label":"Sizing: Margins","filename":"sizing_margins.json"},
-  {"label":"Sizing: Resizable","filename":"sizing_resizeable.json"},
   {"label":"Sizing: Not Resiable","filename":"sizing_non_resizeable.json"},
   {"label":"Bar Charts: Data Summaries + Grouping","filename":"barchart_summarizeY_stacked.json"},
   {"label":"Bar Charts: Data Summaries","filename":"barchart_summarizeY.json"},
