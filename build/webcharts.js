@@ -37,7 +37,7 @@ function checkRequired(data) {
         }
         if (e.values) {
             for (var value in e.values) {
-                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                 requiredCols.push(value);
             }
         }

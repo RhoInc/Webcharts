@@ -29,7 +29,7 @@ export default function checkRequired(data) {
         }
         if (e.values) {
             for (const value in e.values) {
-                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                 requiredCols.push(value);
             }
         }

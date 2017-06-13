@@ -46,6 +46,12 @@ export default function testCheckRequired(settings,data) {
                         required.push(
                             {argument: `marks[${i}].split`
                             ,dataField: mark.split});
+                    if (mark.values) {
+                        for (const field in mark.values)
+                            required.push(
+                                {argument: `marks[${i}].values['${field}']`
+                                ,dataField: field});
+                    };
                 });
             if (settings.color_by)
                 required.push(
