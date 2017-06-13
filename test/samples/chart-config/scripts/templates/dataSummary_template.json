@@ -1,0 +1,68 @@
+
+[
+
+{# COMMENT: Following for loops permutate through the populated lists #}
+{% for mark_summarizeY in mark_summarizeY -%}
+{% for mark_summarizeX in mark_summarizeX -%}
+
+
+  {
+    "label": "SummarizeY: {{ mark_summarizeY }}, SummarizeX {{ mark_summarizeX }}",
+	"notes": "Plotting {{ x_label }} against {{ y_label }}",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "{{ mark_summarizeX }}",
+		  "SummarizeY": "{{ mark_summarizeY }}"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+{# COMMENT: End the for loops seen at the top of the template #}
+{% endfor -%}
+{% endfor -%}
+	{
+		"label": "SummarizeY: percent, SummarizeX percent",
+		"notes": "Plotting  against ",
+		"tests": [],
+		"settings": {
+			"max_width": 500,
+			"x": {
+				"column": "Chick",
+				"type": "linear",
+				"label": "Chick"
+			},
+			"y": {
+				"column": "weight",
+				"type": "linear",
+				"label": "Weight"
+			},
+			"marks": [{
+				"type": "circle",
+				"per": ["weight"],
+				"SummarizeX": "percent",
+				"SummarizeY": "percent"
+			}]
+		},
+    "filename": "../data/ChickWeight.csv"
+	}
+
+
+]

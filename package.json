@@ -21,7 +21,7 @@
     "minify": "npm run minifyjs && npm run minifycss",
     "minifycss": "cleancss -o css/webcharts.min.css css/webcharts.css",
     "minifyjs": "uglifyjs build/webcharts.js > build/webcharts.min.js",
-    "test": "mocha --require babel-register --recursive ./test/**/*.js",
+    "test": "mocha --timeout 5000 --require babel-register --recursive ./test/**/*.js",
     "watch": "rollup -c -w"
   },
   "repository": {

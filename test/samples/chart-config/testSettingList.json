@@ -1,8 +1,12 @@
 [
-  {"label":"Test #1","filename":"manualTests.json"},
-  {"label":"Test #2","filename":"testConfig.json"},
-  {"label":"Test iterations of settings for bar charts","filename":"bar_chart_testConfig.json"},
-  {"label":"Test iterations of chart size configurations","filename":"config_settings_testConfig.json"},
-  {"label":"Test iterations of settings for scatter plots","filename":"scatter_plot_testConfig.json"},
-  {"label":"Test iterations of settings for the time axis","filename":"time_axis_testConfig.json"}
+  {"label":"Scatter Plots: Axis Types","filename":"scatter_axis.json"},
+  {"label":"Scatter Plots: text/circle","filename":"scatterPlot.json"},
+  {"label":"Sizing: Margins","filename":"sizing_margins.json"},
+  {"label":"Sizing: Not Resiable","filename":"sizing_non_resizeable.json"},
+  {"label":"Bar Charts: Data Summaries + Grouping","filename":"barchart_summarizeY_stacked.json"},
+  {"label":"Bar Charts: Data Summaries","filename":"barchart_summarizeY.json"},
+  {"label":"Bar Charts: Stacked Bars","filename":"barchart_stacked.json"},
+  {"label":"Bar Charts: Grouped Bars","filename":"barchart_grouped.json"},
+  {"label":"Bar Charts: Horizontal Bars","filename":"barchart_horizontal.json"},
+  {"label":"Bar Charts: Vertical Bars","filename":"barchart_vertical.json"}
 ]

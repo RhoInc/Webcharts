@@ -1,0 +1,302 @@
+
+[
+
+{
+    "label": "Margin:top = 100",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "top":"100"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+  
+{
+    "label": "Margin:top = 200",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "top":"200"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:bottom = 100",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "bottom":"100"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:bottom = 200",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "bottom":"200"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:left = 100",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "left":"100"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:Left = 200",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "left":"200"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:right = 100",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "right":"100"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:right = 200",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "right":"200"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:different_values set 1",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "top":"100",
+	    "bottom":"200",
+	    "left":"300",
+	    "right":"400"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+{
+    "label": "Margin:different_values set 2",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+	  "margin": {
+	    "top":"50",
+	    "bottom":"100",
+	    "left":"150",
+	    "right":"200"
+      },      
+	  "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  }
+
+]
