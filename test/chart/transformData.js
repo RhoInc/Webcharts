@@ -83,10 +83,6 @@ describe('data transformation', () => {
 
     describe('chart object has marks property', () => {
         it('marks property has the same length as settings.marks', () => {
-            chart.marks.forEach(mark => {
-                mark.data.forEach(datum => {
-                });
-            });
             expect(settings.marks.length).toEqual(chart.marks.length);
         });
     });

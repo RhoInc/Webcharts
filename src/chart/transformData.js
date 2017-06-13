@@ -1,6 +1,19 @@
 import naturalSorter from '../dataOps/naturalSorter';
 import summarize from '../dataOps/summarize';
-import { time, sum, set, extent, merge, nest, scale, range, ascending, quantile, max } from 'd3';
+import {
+    time,
+    sum,
+    set,
+    extent,
+    merge,
+    nest,
+    scale,
+    range,
+    ascending,
+    descending,
+    quantile,
+    max
+} from 'd3';
 
 export default function transformData(raw, mark) {
     let config = this.config;
@@ -95,26 +108,22 @@ export default function transformData(raw, mark) {
     let raw_dom_x = mark.summarizeX === 'cumulative'
         ? [0, raw.length]
         : config.x.type === 'ordinal'
-              ? set(raw.map(m => m[config.x.column])).values().filter(f => f)
-              : mark.split && mark.arrange !== 'stacked'
-                    ? extent(
-                          merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length)))
-                      )
-                    : mark.summarizeX === 'count'
-                          ? extent(raw_nest.nested.map(m => m.values.raw.length))
-                          : extent(raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
+          ? set(raw.map(m => m[config.x.column])).values().filter(f => f)
+          : mark.split && mark.arrange !== 'stacked'
+            ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
+            : mark.summarizeX === 'count'
+              ? extent(raw_nest.nested.map(m => m.values.raw.length))
+              : extent(raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
 
     let raw_dom_y = mark.summarizeY === 'cumulative'
         ? [0, raw.length]
         : config.y.type === 'ordinal'
-              ? set(raw.map(m => m[config.y.column])).values().filter(f => f)
-              : mark.split && mark.arrange !== 'stacked'
-                    ? extent(
-                          merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length)))
-                      )
-                    : mark.summarizeY === 'count'
-                          ? extent(raw_nest.nested.map(m => m.values.raw.length))
-                          : extent(raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
+          ? set(raw.map(m => m[config.y.column])).values().filter(f => f)
+          : mark.split && mark.arrange !== 'stacked'
+            ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
+            : mark.summarizeY === 'count'
+              ? extent(raw_nest.nested.map(m => m.values.raw.length))
+              : extent(raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
 
     let filtered = raw;
 
@@ -146,15 +155,12 @@ export default function transformData(raw, mark) {
                 return config.x.type === 'time'
                     ? ascending(new Date(a), new Date(b))
                     : config.x.order
-                          ? ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
-                          : sublevel === config.color_by && config.legend.order
-                                ? ascending(
-                                      config.legend.order.indexOf(a),
-                                      config.legend.order.indexOf(b)
-                                  )
-                                : config.x.type === 'ordinal' || config.y.type === 'ordinal'
-                                      ? naturalSorter(a, b)
-                                      : ascending(+a, +b);
+                      ? ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
+                      : sublevel === config.color_by && config.legend.order
+                        ? ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b))
+                        : config.x.type === 'ordinal' || config.y.type === 'ordinal'
+                          ? naturalSorter(a, b)
+                          : ascending(+a, +b);
             });
         }
         this_nest.rollup(r => {
@@ -313,29 +319,29 @@ export default function transformData(raw, mark) {
     let pre_x_dom = !this.filters.length
         ? flex_dom_x
         : x_behavior === 'raw'
-              ? raw_dom_x
-              : nonall && x_behavior === 'firstfilter' ? filt1_dom_x : flex_dom_x;
+          ? raw_dom_x
+          : nonall && x_behavior === 'firstfilter' ? filt1_dom_x : flex_dom_x;
     let pre_y_dom = !this.filters.length
         ? flex_dom_y
         : y_behavior === 'raw'
-              ? raw_dom_y
-              : nonall && y_behavior === 'firstfilter' ? filt1_dom_y : flex_dom_y;
+          ? raw_dom_y
+          : nonall && y_behavior === 'firstfilter' ? filt1_dom_y : flex_dom_y;
 
     let x_dom = config.x_dom
         ? config.x_dom
         : config.x.type === 'ordinal' && config.x.behavior === 'flex'
-              ? set(filtered.map(m => m[config.x.column])).values()
-              : config.x.type === 'ordinal'
-                    ? set(raw.map(m => m[config.x.column])).values()
-                    : config.x_from0 ? [0, max(pre_x_dom)] : pre_x_dom;
+          ? set(filtered.map(m => m[config.x.column])).values()
+          : config.x.type === 'ordinal'
+            ? set(raw.map(m => m[config.x.column])).values()
+            : config.x_from0 ? [0, max(pre_x_dom)] : pre_x_dom;
 
     let y_dom = config.y_dom
         ? config.y_dom
         : config.y.type === 'ordinal' && config.y.behavior === 'flex'
-              ? set(filtered.map(m => m[config.y.column])).values()
-              : config.y.type === 'ordinal'
-                    ? set(raw.map(m => m[config.y.column])).values()
-                    : config.y_from0 ? [0, max(pre_y_dom)] : pre_y_dom;
+          ? set(filtered.map(m => m[config.y.column])).values()
+          : config.y.type === 'ordinal'
+            ? set(raw.map(m => m[config.y.column])).values()
+            : config.y_from0 ? [0, max(pre_y_dom)] : pre_y_dom;
 
     if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
         x_dom[0] = config.x.domain[0];

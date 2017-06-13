@@ -15,7 +15,7 @@
     "d3": "^3"
   },
   "scripts": {
-    "build": "npm run format && npm run es5 && npm run minify",
+    "build": "npm run format && npm run es5 && npm run minify && npm run test",
     "es5": "rollup -c",
     "format": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
     "minify": "npm run minifyjs && npm run minifycss",
