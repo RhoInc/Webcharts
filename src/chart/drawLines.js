@@ -9,15 +9,15 @@ export default function drawLines(marks) {
             return config.x.type === 'linear' || config.x.type == 'log'
                 ? this.x(+d.values.x)
                 : config.x.type === 'time'
-                  ? this.x(new Date(d.values.x))
-                  : this.x(d.values.x) + this.x.rangeBand() / 2;
+                      ? this.x(new Date(d.values.x))
+                      : this.x(d.values.x) + this.x.rangeBand() / 2;
         })
         .y(d => {
             return config.y.type === 'linear' || config.y.type == 'log'
                 ? this.y(+d.values.y)
                 : config.y.type === 'time'
-                  ? this.y(new Date(d.values.y))
-                  : this.y(d.values.y) + this.y.rangeBand() / 2;
+                      ? this.y(new Date(d.values.y))
+                      : this.y(d.values.y) + this.y.rangeBand() / 2;
         });
 
     let line_supergroups = this.svg

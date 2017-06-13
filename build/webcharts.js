@@ -4,7 +4,7 @@
 	(global.webCharts = factory(global.d3));
 }(this, (function (d3) { 'use strict';
 
-var version = '1.7.2';
+var version = '1.8.0';
 
 function checkRequired(data) {
     var _this = this;
@@ -37,7 +37,7 @@ function checkRequired(data) {
         }
         if (e.values) {
             for (var value in e.values) {
-                requiredVars.push('this.config.marks[' + i + '].values[' + value + ']');
+                requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                 requiredCols.push(value);
             }
         }
@@ -2329,11 +2329,12 @@ function createTable() {
     thisTable.events = {
         onInit: function onInit() {},
         onLayout: function onLayout() {},
+        onDatatransform: function onDatatransform() {},
         onDraw: function onDraw() {}
     };
 
     thisTable.on = function (event, callback) {
-        var possible_events = ['init', 'layout', 'draw'];
+        var possible_events = ['init', 'layout', 'datatransform', 'draw'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }

@@ -17,14 +17,14 @@ export default function resize() {
     let svg_width = config.x.type === 'ordinal' && +config.range_band
         ? this.raw_width + this.margin.left + this.margin.right
         : !config.resizable
-          ? this.raw_width
-          : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
+              ? this.raw_width
+              : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
     this.plot_width = svg_width - this.margin.left - this.margin.right;
     var svg_height = config.y.type === 'ordinal' && +config.range_band
         ? this.raw_height + this.margin.top + this.margin.bottom
         : !config.resizable && config.height
-          ? config.height
-          : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
+              ? config.height
+              : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
     this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
     select(this.svg.node().parentNode)
