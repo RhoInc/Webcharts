@@ -4,7 +4,7 @@
 	(global.webCharts = factory(global.d3));
 }(this, (function (d3) { 'use strict';
 
-var version = '1.7.2';
+var version = '1.8.0';
 
 function checkRequired(data) {
     var _this = this;
