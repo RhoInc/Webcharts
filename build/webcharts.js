@@ -2329,11 +2329,12 @@ function createTable() {
     thisTable.events = {
         onInit: function onInit() {},
         onLayout: function onLayout() {},
+        onDatatransform: function onDatatransform() {},
         onDraw: function onDraw() {}
     };
 
     thisTable.on = function (event, callback) {
-        var possible_events = ['init', 'layout', 'draw'];
+        var possible_events = ['init', 'layout', 'datatransform', 'draw'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }
