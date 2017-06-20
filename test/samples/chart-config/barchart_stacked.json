@@ -3,7 +3,8 @@
      "label": "Stacked Vertical Bar chart:linear Y-axis",
      "notes": "Stacked barchart for means doesn't make tons of sense, but it works as expected",
      "tests": [
-       "One bar per period renders as expected"
+       "One bar per period renders as expected",
+       "Check for correct chart type and that axis appears as expected"
       ],
      "settings": {
         "max_width": 500,
