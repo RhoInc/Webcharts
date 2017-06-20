@@ -62,8 +62,8 @@ export default function drawBars(marks) {
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : set(rawData.map(m => m[mark.split])).values();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
             select(this).attr(mark.attributes);
         });
 
@@ -158,8 +158,8 @@ export default function drawBars(marks) {
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : set(rawData.map(m => m[mark.split])).values();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
             d.tooltip = mark.tooltip;
         });
 
@@ -249,8 +249,8 @@ export default function drawBars(marks) {
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : set(rawData.map(m => m[mark.split])).values();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
             select(this).attr(mark.attributes);
             let parent = select(this.parentNode).datum();
             let rangeSet = parent.key.split(',').map(m => +m);
@@ -322,8 +322,8 @@ export default function drawBars(marks) {
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
-                      ? mark.values[mark.split]
-                      : set(rawData.map(m => m[mark.split])).values();
+                  ? mark.values[mark.split]
+                  : set(rawData.map(m => m[mark.split])).values();
             let parent = select(this.parentNode).datum();
             let rangeSet = parent.key.split(',').map(m => +m);
             d.rangeLow = min(rangeSet);

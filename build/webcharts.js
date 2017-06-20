@@ -2376,12 +2376,50 @@ function multiply(chart, data, split_by, order) {
     goAhead(data);
 }
 
+function getValType(data, variable) {
+    var var_vals = d3.set(data.map(function (m) {
+        return m[variable];
+    })).values();
+    var vals_numbers = var_vals.filter(function (f) {
+        return +f || +f === 0;
+    });
+
+    if (var_vals.length === vals_numbers.length && var_vals.length > 4) {
+        return 'continuous';
+    } else {
+        return 'categorical';
+    }
+}
+
+function lengthenRaw(data, columns) {
+    var my_data = [];
+
+    data.forEach(function (e) {
+        columns.forEach(function (g) {
+            var obj = Object.create(e);
+            obj.wc_category = g;
+            obj.wc_value = e[g];
+            my_data.push(obj);
+        });
+    });
+
+    return my_data;
+}
+
+var dataOps = {
+    getValType: getValType,
+    lengthenRaw: lengthenRaw,
+    naturalSorter: naturalSorter,
+    summarize: summarize
+};
+
 var index = {
     version: version,
     createChart: createChart,
     createControls: createControls,
     createTable: createTable,
-    multiply: multiply
+    multiply: multiply,
+    dataOps: dataOps
 };
 
 return index;

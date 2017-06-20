@@ -11,8 +11,8 @@ export default function makeDropdownControl(control, control_wrap) {
     let opt_values = control.values && control.values instanceof Array
         ? control.values
         : control.values
-              ? set(this.data.map(m => m[this.targets[0].config[control.values]])).values()
-              : keys(this.data[0]);
+          ? set(this.data.map(m => m[this.targets[0].config[control.values]])).values()
+          : keys(this.data[0]);
 
     if (!control.require || control.none) {
         opt_values.unshift('None');
