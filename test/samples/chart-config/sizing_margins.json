@@ -237,8 +237,9 @@
 {
     "label": "Margin:different_values set 1",
 	"notes": "Testing various config settings (seen in label)",
-		 "Use large version to test",
-    "tests": [],
+    "tests": [
+	    "Use large version to test"
+    ],
     "settings": {
 	  "resizable":false,
 	  "height":500,
@@ -269,11 +270,10 @@
   },
 {
     "label": "Margin:different_values set 2",
-	"notes": [
-		"Testing various config settings (seen in label)",
-		"Use large version to test"
-		]
-    "tests": [],
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [
+	    "Use large version to test"
+    ],
     "settings": {
 	  "resizable":false,
 	  "height":500,
