@@ -234,7 +234,7 @@
       "filename":"queries.csv"
    },
    {
-      "label": "Testing Axis Types - ordinal vs. date ",
+      "label": "Testing Axis Types - date vs. date ",
       "notes": "Using same variable for both axes",
       "settings": {
          "max_width": 500,
