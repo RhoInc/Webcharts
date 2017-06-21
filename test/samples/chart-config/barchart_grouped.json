@@ -4,7 +4,8 @@
      "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
      "tests": [
        "One bar per perior renders as expected",
-       "Bar heights are roughly at mean levels for circles"
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -46,7 +47,8 @@
      "label": "Grouped Vertical bar chart: Histogram with 10 bins (no y-variable specified) with linear Y-axis",
      "notes": "Note that 0 must be specified in the y-domain.",
      "tests": [
-       "10 Bars expected (1 per bin)"
+       "10 Bars expected (1 per bin)",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -83,7 +85,8 @@
      "notes": "Bars not rendering in v1.8. A domain must be specified if there are any 0's or negative numbers. (note that missing values are imputed to 0)",
      "tests": [
        "One bar per period renders as expected",
-       "Bar heights are roughly at mean levels for circles"
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -122,6 +125,9 @@
   {
      "label": "Grouped Vertical Bar chart: date Y-axis",
      "notes": "Custom domain and subset via marks.values to help readability",
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
      "settings": {
         "max_width": 500,
         "y": {
@@ -154,7 +160,9 @@
   {
      "label": "Grouped Vertical Bar chart: Ordinal Y-axis",
      "notes": "Bars don't render. This is expected.",
-     "tests": [],
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
      "settings": {
         "max_width": 500,
         "x": {
@@ -192,7 +200,8 @@
      "notes": "Note that 0 must be specified in the x-domain to avoid hiding the first bar. Circles are added for visual reference.",
      "tests": [
        "One bar per perior renders as expected",
-       "Bar heights are roughly at mean levels for circles"
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -233,7 +242,8 @@
      "label": "Grouped Horizontal bar chart: Histogram with 10 bins (no x-variable specified) with linear x-axis",
      "notes": "Note that 0 must be specified in the x-domain.",
      "tests": [
-       "10 Bars expected (1 per bin)"
+       "10 Bars expected (1 per bin)",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -270,7 +280,8 @@
      "notes": "Bars not rendering in v1.8. A domain must be specified if there are any 0's or negative numbers. (note that missing values are imputed to 0)",
      "tests": [
        "One bar per period renders as expected",
-       "Bar heights are roughly at mean levels for circles"
+       "Bar heights are roughly at mean levels for circles", 
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -309,6 +320,9 @@
   {
      "label": "Grouped Horizontal Bar chart: date X-axis",
      "notes": "Custom domain and subset via marks.values to help readability",
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
      "settings": {
         "max_width": 500,
         "x": {
@@ -341,7 +355,9 @@
   {
      "label": "Grouped Horizontal Bar chart: Ordinal X-axis",
      "notes": "Bars don't render. This is expected.",
-     "tests": [],
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
      "settings": {
         "max_width": 500,
         "y": {
