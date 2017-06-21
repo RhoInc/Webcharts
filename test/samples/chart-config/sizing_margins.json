@@ -150,7 +150,9 @@
 {
     "label": "Margin:Left = 200",
 	"notes": "Testing various config settings (seen in label)",
-    "tests": [],
+    "tests": [
+	    "Use large version to test"
+    ],
     "settings": {
 	  "resizable":false,
 	  "height":500,
@@ -208,7 +210,9 @@
 {
     "label": "Margin:right = 200",
 	"notes": "Testing various config settings (seen in label)",
-    "tests": [],
+    "tests": [
+	    "Use large version to test"
+    ],
     "settings": {
 	  "resizable":false,
 	  "height":500,
