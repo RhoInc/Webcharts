@@ -2329,12 +2329,15 @@ function createTable() {
     thisTable.events = {
         onInit: function onInit() {},
         onLayout: function onLayout() {},
+        onPreprocess: function onPreprocess() {},
         onDatatransform: function onDatatransform() {},
-        onDraw: function onDraw() {}
+        onDraw: function onDraw() {},
+        onResize: function onResize() {},
+        onDestroy: function onDestroy() {}
     };
 
     thisTable.on = function (event, callback) {
-        var possible_events = ['init', 'layout', 'datatransform', 'draw'];
+        var possible_events = ['init', 'layout', 'preprocess', 'datatransform', 'draw', 'resize', 'destroy'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }
