@@ -4,8 +4,8 @@ import naturalSorter from './naturalSorter';
 import summarize from './summarize';
 
 export default {
-  getValType: getValType,
-  lengthenRaw: lengthenRaw,
-  naturalSorter: naturalSorter,
-  summarize: summarize
+    getValType: getValType,
+    lengthenRaw: lengthenRaw,
+    naturalSorter: naturalSorter,
+    summarize: summarize
 };

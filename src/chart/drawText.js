@@ -1,60 +1,67 @@
-export default function (marks) {
-  const config = this.config;
+import { select, format, time } from 'd3';
 
-  const textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, (d, i) => `${i}-${d.per.join('-')}`);
-  textSupergroups.enter().append('g').attr('class', 'text-supergroup');
-  textSupergroups.exit().remove();
+export default function drawText(marks) {
+    const config = this.config;
 
-  const texts = textSupergroups.selectAll('.text')
-    .data(d => d.data, d => d.key);
-  const oldTexts = texts.exit();
+    const textSupergroups = this.svg
+        .selectAll('.text-supergroup')
+        .data(marks, (d, i) => `${i}-${d.per.join('-')}`);
+    textSupergroups.enter().append('g').attr('class', 'text-supergroup');
+    textSupergroups.exit().remove();
 
-  // don't need to transition position of outgoing text
-  // const oldTextsTrans = config.transitions ? oldTexts.selectAll('text').transition() : oldTexts.selectAll('text');
+    const texts = textSupergroups.selectAll('.text').data(d => d.data, d => d.key);
+    const oldTexts = texts.exit();
 
-  const oldTextGroupTrans = config.transitions ? oldTexts.transition() : oldTexts;
-  oldTextGroupTrans.remove();
+    // don't need to transition position of outgoing text
+    // const oldTextsTrans = config.transitions ? oldTexts.selectAll('text').transition() : oldTexts.selectAll('text');
 
-  const nutexts = texts.enter().append('g').attr('class', d => `${d.key} text`);
-  nutexts.append('text')
-    .attr('class', 'wc-data-mark');
-  // don't need to set initial location for incoming text
+    const oldTextGroupTrans = config.transitions ? oldTexts.transition() : oldTexts;
+    oldTextGroupTrans.remove();
 
-  // attach mark info
-  function attachMarks(d) {
-    d.mark = d3.select(this.parentNode).datum();
-    d3.select(this).select('text').attr(d.mark.attributes);
-  }
-  texts.each(attachMarks);
+    const nutexts = texts.enter().append('g').attr('class', d => `${d.key} text`);
+    nutexts.append('text').attr('class', 'wc-data-mark');
+    // don't need to set initial location for incoming text
 
-  // parse text like tooltips
-  texts.select('text').text(d => {
-    const tt = d.mark.text || '';
-    const xformat = config.x.summary === 'percent' ?
-      d3.format('0%') :
-      config.x.type === 'time' ?
-      d3.time.format(config.x.format) :
-      d3.format(config.x.format);
-    const yformat = config.y.summary === 'percent' ?
-      d3.format('0%') :
-      config.y.type === 'time' ?
-      d3.time.format(config.y.format) :
-      d3.format(config.y.format);
-    return tt.replace(/\$x/g, config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x))
-      .replace(/\$y/g, config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y))
-      .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
-  });
-  // animated attributes
-  const textsTrans = config.transitions ? texts.select('text').transition() : texts.select('text');
-  textsTrans
-    .attr('x', d => {
-      const xPos = this.x(d.values.x) || 0;
-      return config.x.type === 'ordinal' ? xPos + this.x.rangeBand() / 2 : xPos;
-    })
-    .attr('y', d => {
-      const yPos = this.y(d.values.y) || 0;
-      return config.y.type === 'ordinal' ? yPos + this.y.rangeBand() / 2 : yPos;
+    // attach mark info
+    function attachMarks(d) {
+        d.mark = select(this.parentNode).datum();
+        select(this).select('text').attr(d.mark.attributes);
+    }
+    texts.each(attachMarks);
+
+    // parse text like tooltips
+    texts.select('text').text(d => {
+        const tt = d.mark.text || '';
+        const xformat = config.x.summary === 'percent'
+            ? format('0%')
+            : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
+        const yformat = config.y.summary === 'percent'
+            ? format('0%')
+            : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
+        return tt
+            .replace(
+                /\$x/g,
+                config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)
+            )
+            .replace(
+                /\$y/g,
+                config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
+            )
+            .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
+    // animated attributes
+    const textsTrans = config.transitions
+        ? texts.select('text').transition()
+        : texts.select('text');
+    textsTrans
+        .attr('x', d => {
+            const xPos = this.x(d.values.x) || 0;
+            return config.x.type === 'ordinal' ? xPos + this.x.rangeBand() / 2 : xPos;
+        })
+        .attr('y', d => {
+            const yPos = this.y(d.values.y) || 0;
+            return config.y.type === 'ordinal' ? yPos + this.y.rangeBand() / 2 : yPos;
+        });
 
-  return texts;
+    return texts;
 }

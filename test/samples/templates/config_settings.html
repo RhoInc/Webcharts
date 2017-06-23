@@ -1,0 +1,68 @@
+
+//---------------------------------config_settings_testConfig.js_template-----------------------------------------------------------------
+var testConfig = [
+
+{# COMMENT: Following for loops permutate through the populated lists #}
+
+{% for width in width -%}
+{% for height in height -%}
+{% for max_width in max_width -%}
+{% for margin in margin -%}
+{% for resizable in resizable -%}
+{% for aspect in aspect -%}
+
+//----------------------------------------------------------------------------------------------------------------------
+  {
+    label: 'Resizable: {{ resizable }}, Width:{{ width }}, Height:{{ height }}, Max Width:{{ max_width }}, Margin:{{ margin }}, Aspect: {{ aspect }}',    
+	notes: 'Testing various config settings (seen in label)',
+    tests: [],
+    settings: {
+	  resizable:{{ resizable }},
+	  aspect:{{ aspect }},
+	  {% if width == '500' -%}
+	  width:{{ width }},
+	  {% endif -%}
+	  {% if height == '500' -%}
+	  height:{{ height }},
+	  {% endif -%}	  
+	  {% if max_width == '250' -%}
+	  max_width:{{ max_width }},
+	  {% endif -%}
+	  {% if margin == '250' -%}	  
+	  margin: {
+	    top:'{{ margin }}',
+	    bottom:'{{ margin }}',
+	    left:'{{ margin }}',
+	    right:'{{ margin }}',
+      },
+	  {% endif -%}	  
+      x: {
+        column: 'Chick',
+        type: 'ordinal',
+        label: 'Chick',
+      },
+      y: {
+        column: 'weight',
+        type: 'linear',
+        label: 'weight',
+		},
+      marks: [
+        {
+          type: 'bar',
+		  per: ['weight'],
+        }
+      ]
+    },
+    dataPath: '../../data/ChickWeight.csv'
+  },
+
+
+{# COMMENT: End the for loops seen at the top of the template #}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+
+];

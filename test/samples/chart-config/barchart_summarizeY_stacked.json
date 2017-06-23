@@ -1,0 +1,281 @@
+[
+  {
+     "label": "Vertical Stacked Bar chart: SummarizeY = mean",
+     "notes": "Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are roughly at mean levels for circles"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+              "arrange":"stacked",
+              "split":"Group",
+              "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"}
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Stacked Bar chart:summarizeY = Median",
+     "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are roughly at median levels for circles"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"stacked",
+             "split":"Group",
+              "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"median"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"}
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart:summarizeY = Min",
+     "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are roughly at min levels for circles"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"stacked",
+             "split":"Group",
+             "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"min"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"}
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart:summarizeY = Max",
+     "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are at max levels for circles"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"stacked",
+             "split":"Group",
+             "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"max"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"}
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart:summarizeY = count",
+     "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar.",
+     "tests": [
+       "One bar per period renders as expected",
+       "Bar heights are integers showing count of elements in the group"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"stacked",
+             "split":"Group",
+             "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"count"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart:summarizeY = sum",
+     "notes": "Forces Y axis to [0,1] and format to percent.",
+     "tests": [
+       "One bar per period renders as expected",
+       "Bar heights adds up to 100%"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Group",
+             "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"sum"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"}
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart:summarizeY = percent",
+     "notes": "Forces Y axis to [0,1] and format to percent.",
+     "tests": [
+       "One bar per period renders as expected",
+       "Bar heights adds up to 100%"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"stacked",
+             "split":"Group",
+             "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"percent"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"}
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  }
+
+]

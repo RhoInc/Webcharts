@@ -1,0 +1,1952 @@
+
+[
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: mean, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "mean"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: median, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "median"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: min, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "min"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: max, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "max"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: sum, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "sum"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: count, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "count"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: cumulative, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "cumulative"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX mean",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "mean",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX median",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "median",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX min",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "min",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX max",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "max",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX sum",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "sum",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX count",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "count",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX cumulative",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "cumulative",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+    "label": "SummarizeY: percent, SummarizeX percent",
+	"notes": "Plotting  against ",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Chick",
+        "type": "linear",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "Weight"
+		},
+      "marks": [
+        {
+          "type": "circle",
+		  "per": ["weight"],
+		  "SummarizeX": "percent",
+		  "SummarizeY": "percent"
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+
+
+{
+		"label": "SummarizeY: percent, SummarizeX percent",
+		"notes": "Plotting  against ",
+		"tests": [],
+		"settings": {
+			"max_width": 500,
+			"x": {
+				"column": "Chick",
+				"type": "linear",
+				"label": "Chick"
+			},
+			"y": {
+				"column": "weight",
+				"type": "linear",
+				"label": "Weight"
+			},
+			"marks": [{
+				"type": "circle",
+				"per": ["weight"],
+				"SummarizeX": "percent",
+				"SummarizeY": "percent"
+			}]
+		},
+    "filename": "../data/ChickWeight.csv"
+	}
+
+
+]

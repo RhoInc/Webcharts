@@ -1,0 +1,47 @@
+
+//---------------------------------scatter_plot_testConfig.js_template-----------------------------------------------------------------
+var testConfig = [
+
+{# COMMENT: Following for loops permutate through the populated lists #}
+{% for x_type in x_types -%}
+{% for y_type in y_types -%}
+{% for mark_type in mark_type -%}
+{% for mark_per in mark_per -%}
+//----------------------------------------------------------------------------------------------------------------------
+  {
+    label: 'X:{{ x_type }}, Y:{{ y_type }}, Mark Type:{{ mark_type}}, Mark Per: {{ mark_per }}',
+    notes: 'Plotting {{ x_label }} against {{ y_label }}',
+    tests: [],
+    settings: {
+      max_width:500,
+      x: {
+        column: '{{ x_column }}',
+        type: '{{ x_type }}',
+        label: '{{ x_label }}',
+      },
+      y: {
+        column: '{{ y_column }}',
+        type: '{{ y_type }}',
+        label: '{{ y_label }}',
+      },
+      marks: [
+        {
+          type: '{{ mark_type }}',
+		  per: ['{{ mark_per }}'],
+		  {# COMMENT: below statement is to ensure 'text' mark is used properly #}
+		  {% if mark_type == 'text' -%}
+		  text: "$x"
+		  {% endif -%}
+        }
+      ]
+    },
+    dataPath: '../../data/elements_first_five.csv'
+  },
+
+
+{# COMMENT: End the for loops seen at the top of the template #}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+];

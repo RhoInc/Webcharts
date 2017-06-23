@@ -1,0 +1,170 @@
+[
+  {
+     "label": "Vertical Bar chart:linear Y-axis",
+     "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are roughly at mean levels for circles"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+              "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeX":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeX":"mean"
+           }
+        ]
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical bar chart: Histogram with 10 bins (no y-variable specified) with linear Y-axis",
+     "notes": "Note that 0 must be specified in the y-domain.",
+     "tests": [
+       "10 Bars expected (1 per bin)"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "type": "linear",
+           "column": "Weight",
+           "bin":10,
+           "label": "Weight"
+
+        },
+        "y": {
+           "column": "",
+           "type":"linear",
+           "label":"Number of observations",
+           "domain":[0,null]
+
+        },
+        "marks": [
+           {
+              "type": "bar",
+              "per":["Weight"],
+              "summarizeY":"count",
+              "summarizeX":"mean"
+           }
+        ]
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart: log Y-axis",
+     "notes": "Bars not rendering in v1.8. A domain must be specified if there are any 0's or negative numbers. (note that missing values are imputed to 0)",
+     "tests": [
+       "One bar per period renders as expected",
+       "Bar heights are roughly at mean levels for circles"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Weight",
+           "type": "log",
+           "label": "Weight"
+        },
+        "marks": [
+           {
+              "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeX":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeX":"mean"
+           }
+        ]
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Vertical Bar chart: date Y-axis",
+     "notes": "Not a very pretty chart, but demonstrates compatability of bars/dates.",
+     "settings": {
+        "max_width": 500,
+        "y": {
+           "column": "Query Open Date",
+           "type": "time",
+           "format": "%y-%m"
+        },
+        "x": {
+           "type": "ordinal",
+           "label": "Query Status",
+           "column":"Query Status"
+        },
+        "date_format": "%Y-%m-%d",
+        "marks": [
+           {
+              "type": "bar",
+              "per": ["Query Status"]
+           }
+        ]
+     },
+     "filename":"queries.csv"
+  },
+  {
+     "label": "Vertical Bar chart: Ordinal Y-axis",
+     "notes": "Bars don't render. This is expected.",
+     "tests": [],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Group",
+           "type": "ordinal"
+        },
+        "marks": [
+           {
+              "type": "bar",
+              "per": [
+                 "Element"
+              ]
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeX":"mean"
+           }
+        ]
+     },
+     "filename":"elements.csv"
+  }
+]

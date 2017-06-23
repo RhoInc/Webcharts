@@ -1,16 +1,18 @@
-export default function (destroyControls=true){
-  //run onDestroy callback
-  this.events.onDestroy.call(this);
+import { select } from 'd3';
 
-  //remove resize event listener
-  var context = this;
-  d3.select(window).on('resize.'+context.element+context.id, null);
+export default function destroy(destroyControls = true) {
+    //run onDestroy callback
+    this.events.onDestroy.call(this);
 
-  //destroy controls 
-  if(destroyControls && this.controls){
-  	this.controls.destroy()
-  }
+    //remove resize event listener
+    var context = this;
+    select(window).on('resize.' + context.element + context.id, null);
 
-  //unmount chart wrapper
-  this.wrap.remove()
+    //destroy controls
+    if (destroyControls && this.controls) {
+        this.controls.destroy();
+    }
+
+    //unmount chart wrapper
+    this.wrap.remove();
 }

@@ -1,0 +1,120 @@
+
+[
+
+
+{
+    "label": "X:linear, Y:linear, Mark Type:circle, Mark Per: Element",
+    "notes": "Plotting Boil against Weight",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Boil",
+        "type": "linear",
+        "label": "Boil"
+      },
+      "y": {
+        "column": "Weight",
+        "type": "linear",
+        "label": "Weight"
+      },
+      "marks": [
+        {
+          "type": "circle",
+
+		  "per": ["Element"]
+        }
+      ]
+    },
+    "filename": "elements.csv"
+  },
+
+
+
+{
+    "label": "X:linear, Y:linear, Mark Type:circle, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Boil",
+        "type": "linear",
+        "label": "Boil"
+      },
+      "y": {
+        "column": "Weight",
+        "type": "linear",
+        "label": "Weight"
+      },
+      "marks": [
+        {
+          "type": "circle",
+
+		  "per": ["Group"]
+        }
+      ]
+    },
+    "filename": "elements.csv"
+  },
+
+
+
+{
+    "label": "X:linear, Y:linear, Mark Type:text, Mark Per: Element",
+    "notes": "Plotting Boil against Weight",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Boil",
+        "type": "linear",
+        "label": "Boil"
+      },
+      "y": {
+        "column": "Weight",
+        "type": "linear",
+        "label": "Weight"
+      },
+      "marks": [
+        {
+          "type": "text",
+
+		  "text": "$x",
+		  "per": ["Element"]
+        }
+      ]
+    },
+    "filename": "elements.csv"
+  },
+
+
+
+{
+    "label": "X:linear, Y:linear, Mark Type:text, Mark Per: Group",
+    "notes": "Plotting Boil against Weight",
+    "tests": [],
+    "settings": {
+      "max_width":500,
+      "x": {
+        "column": "Boil",
+        "type": "linear",
+        "label": "Boil"
+      },
+      "y": {
+        "column": "Weight",
+        "type": "linear",
+        "label": "Weight"
+      },
+      "marks": [
+        {
+          "type": "text",
+
+		  "text": "$x",
+		  "per": ["Group"]
+        }
+      ]
+    },
+    "filename": "elements.csv"
+  }
+]

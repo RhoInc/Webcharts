@@ -1,49 +1,60 @@
-export default function (raw_data, processed_data){
-  var context = this;
-  let config = this.config;
-  let aspect2 = 1/config.aspect;
-  //if pre-processing callback, run it now
-  this.events.onPreprocess.call(this);
-  //then do normal processing
-  let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
-  let data = processed_data || this.consolidateData(raw);
+import { select } from 'd3';
 
-  this.wrap.datum(data);
+export default function draw(raw_data, processed_data) {
+    var context = this;
+    let config = this.config;
+    let aspect2 = 1 / config.aspect;
+    //if pre-processing callback, run it now
+    this.events.onPreprocess.call(this);
+    //then do normal processing
+    let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
+    let data = processed_data || this.consolidateData(raw);
 
-  let div_width = parseInt(this.wrap.style('width'));
+    this.wrap.datum(data);
 
-  this.setColorScale();
+    let div_width = parseInt(this.wrap.style('width'));
 
-  let max_width = config.max_width ? config.max_width : div_width;
-  this.raw_width = config.x.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*this.x_dom.length :
-    config.resizable ? max_width :
-    config.width ? config.width :
-    div_width;
-  this.raw_height = config.y.type === "ordinal" && +config.range_band ? (+config.range_band+(config.range_band*config.padding))*this.y_dom.length :
-    config.resizable ? max_width*aspect2 :
-    config.height ? config.height :
-    div_width*aspect2;
+    this.setColorScale();
 
-  let pseudo_width = this.svg.select(".overlay").attr("width") ? this.svg.select(".overlay").attr("width") : this.raw_width;
-  let pseudo_height = this.svg.select(".overlay").attr("height") ? this.svg.select(".overlay").attr("height") : this.raw_height;
+    let max_width = config.max_width ? config.max_width : div_width;
+    this.raw_width = config.x.type === 'ordinal' && +config.range_band
+        ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length
+        : config.resizable ? max_width : config.width ? config.width : div_width;
+    this.raw_height = config.y.type === 'ordinal' && +config.range_band
+        ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length
+        : config.resizable
+          ? max_width * aspect2
+          : config.height ? config.height : div_width * aspect2;
 
-  this.svg.select(".x.axis").select(".axis-title").text(d => {
-    return typeof config.x.label === "string" ? config.x.label : typeof config.x.label === "function" ? config.x.label.call(this) : null;
-  });
-  this.svg.select(".y.axis").select(".axis-title").text(d => {
-    return typeof config.y.label === "string" ? config.y.label : typeof config.y.label === "function" ? config.y.label.call(this) : null;
-  });
+    let pseudo_width = this.svg.select('.overlay').attr('width')
+        ? this.svg.select('.overlay').attr('width')
+        : this.raw_width;
+    let pseudo_height = this.svg.select('.overlay').attr('height')
+        ? this.svg.select('.overlay').attr('height')
+        : this.raw_height;
 
-  this.xScaleAxis(pseudo_width);
-  this.yScaleAxis(pseudo_height);
+    this.svg.select('.x.axis').select('.axis-title').text(d => {
+        return typeof config.x.label === 'string'
+            ? config.x.label
+            : typeof config.x.label === 'function' ? config.x.label.call(this) : null;
+    });
+    this.svg.select('.y.axis').select('.axis-title').text(d => {
+        return typeof config.y.label === 'string'
+            ? config.y.label
+            : typeof config.y.label === 'function' ? config.y.label.call(this) : null;
+    });
 
-  if(config.resizable && typeof window !== 'undefined'){
-    d3.select(window).on('resize.'+context.element+context.id, function(){ context.resize(); });
-  }
-  else if(typeof window !== 'undefined'){
-    d3.select(window).on('resize.'+context.element+context.id, null);
-  }
+    this.xScaleAxis(pseudo_width);
+    this.yScaleAxis(pseudo_height);
 
-  this.events.onDraw.call(this);
-  this.resize();
+    if (config.resizable && typeof window !== 'undefined') {
+        select(window).on('resize.' + context.element + context.id, function() {
+            context.resize();
+        });
+    } else if (typeof window !== 'undefined') {
+        select(window).on('resize.' + context.element + context.id, null);
+    }
+
+    this.events.onDraw.call(this);
+    this.resize();
 }

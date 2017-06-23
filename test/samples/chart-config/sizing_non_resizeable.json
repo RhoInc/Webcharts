@@ -1,0 +1,224 @@
+
+[
+
+{
+    "label": "Height:500",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+  {
+    "label": "Height:750",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "height":750,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+{
+    "label": "Width:500",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "width":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+  {
+    "label": "Width:750",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "width":750,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+{
+    "label": "Width:750, Max Width:500",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+      "max_width": 500,
+	  "resizable":false,
+	  "width":750,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+{
+    "label": "Width:500, Max Width:750",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+      "max_width": 750,
+	  "resizable":false,
+	  "width":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+ 
+{
+    "label": "Height:500, Aspect: 0.5",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "aspect":0.5,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  },
+
+{
+    "label": "Height:500, Aspect: 2",
+	"notes": "Testing various config settings (seen in label)",
+    "tests": [],
+    "settings": {
+	  "resizable":false,
+	  "aspect":2,
+	  "height":500,
+	  "x": {
+        "column": "Chick",
+        "type": "ordinal",
+        "label": "Chick"
+      },
+      "y": {
+        "column": "weight",
+        "type": "linear",
+        "label": "weight"
+		},
+      "marks": [
+        {
+          "type": "bar",
+		  "per": ["weight"]
+        }
+      ]
+    },
+    "filename": "../data/ChickWeight.csv"
+  }
+
+]

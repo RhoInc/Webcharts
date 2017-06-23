@@ -1,0 +1,263 @@
+[
+   {
+      "label": "Testing Axis Types - linear vs. linear",
+      "notes": "",
+      "tests": [
+         "Confirm that both axis are renderering with numeric values",
+         "Confirm that points are being drawn",
+         "Confirm that labels are being created as specified",
+         "Confirm that there is one circle per element being drawn"
+      ],
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Melt",
+            "type": "linear",
+            "label": "Melting Point (K)"
+         },
+         "y": {
+            "column": "Boil",
+            "type": "linear",
+            "label": "Boiling Point (K)"
+         },
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Element"
+               ]
+            }
+         ]
+      },
+      "filename":"elements.csv"
+   },
+   {
+      "label": "Testing Axis Types - linear vs. log",
+      "notes": "",
+      "tests": [
+         "Confirm that both axis are renderering with numeric values",
+         "Confirm that points are being drawn",
+         "Confirm that labels are being created as specified",
+         "Confirm that there is one circle per element being drawn"
+      ],
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Melt",
+            "type": "linear",
+            "label": "Melting Point (K)"
+         },
+         "y": {
+            "column": "Weight",
+            "type": "log",
+            "label": "Boiling Point (K)"
+         },
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Element"
+               ]
+            }
+         ]
+      },
+      "filename":"elements.csv"
+   },
+   {
+      "label": "Testing Axis Types - linear vs. ordinal",
+      "notes": "",
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Period",
+            "type": "ordinal",
+            "label": "Period"
+         },
+         "y": {
+            "column": "Boil",
+            "type": "linear",
+            "label": "Boiling Point (K)"
+         },
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Element"
+               ]
+            }
+         ]
+      },
+      "filename":"elements.csv"
+   },
+   {
+      "label": "Testing Axis Types - log vs. log",
+      "notes": "",
+      "tests": [
+         "Confirm that both axis are renderering with numeric values",
+         "Confirm that points are being drawn",
+         "Confirm that labels are being created as specified",
+         "Confirm that there is one circle per element being drawn"
+      ],
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Weight",
+            "type": "log",
+            "label": "Weight"
+         },
+         "y": {
+            "column": "Weight",
+            "type": "log",
+            "label": "Weight"
+         },
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Element"
+               ]
+            }
+         ]
+      },
+      "filename":"elements.csv"
+   },
+   {
+      "label": "Testing Axis Types - log vs. date ",
+      "notes": "This charts shows the number of records at each given date. Note that no `y.column` is specified; instead, marks.summarizeY specifies a simple calculation.",
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Query Open Date",
+            "type": "time",
+            "format": "%y-%m"
+         },
+         "y": {
+            "type": "log",
+            "label": "count",
+            "domain": [
+               0.1
+            ]
+         },
+         "date_format": "%Y-%m-%d",
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Query Open Date"
+               ],
+               "summarizeY": "count"
+            }
+         ]
+      },
+      "filename":"queries.csv"
+   },
+   {
+      "label": "Testing Axis Types - log vs. ordinal",
+      "notes": "",
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Period",
+            "type": "ordinal",
+            "label": "Period"
+         },
+         "y": {
+            "column": "Weight",
+            "type": "log"
+         },
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Element"
+               ]
+            }
+         ]
+      },
+      "filename":"elements.csv"
+   },
+   {
+      "label": "Testing Axis Types - ordinal vs. ordinal",
+      "notes": "Opacity set to identify overlapping points. As shown, ordinal axis treat missing values as just another level to be plotted. (e.g. `group=\"\"` or  `group=\" \"`)",
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Period",
+            "type": "ordinal",
+            "label": "Period"
+         },
+         "y": {
+            "column": "Group",
+            "type": "ordinal",
+            "label": "Group"
+         },
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Element"
+               ],
+               "attributes": {
+                  "fill-opacity": 0.2,
+                  "stroke-opacity": 1
+               }
+            }
+         ]
+      },
+      "filename":"elements.csv"
+   },
+   {
+      "label": "Testing Axis Types - ordinal vs. date ",
+      "notes": "Date by site",
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Query Open Date",
+            "type": "time",
+            "format": "%y-%m"
+         },
+         "y": {
+           "column":"Site Name",
+            "type": "ordinal"
+         },
+         "date_format": "%Y-%m-%d",
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Query Open Date"
+               ],
+               "summarizeY": "count"
+            }
+         ]
+      },
+      "filename":"queries.csv"
+   },
+   {
+      "label": "Testing Axis Types - date vs. date ",
+      "notes": "Using same variable for both axes",
+      "settings": {
+         "max_width": 500,
+         "x": {
+            "column": "Query Open Date",
+            "type": "time",
+            "format": "%y-%m"
+         },
+         "y": {
+            "column": "Query Open Date",
+            "type": "time",
+            "format": "%y-%m"
+         },
+         "date_format": "%Y-%m-%d",
+         "marks": [
+            {
+               "type": "circle",
+               "per": [
+                  "Query Open Date"
+               ]
+            }
+         ]
+      },
+      "filename":"queries.csv"
+   }
+]

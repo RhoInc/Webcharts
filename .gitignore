@@ -1,7 +1,5 @@
 *.sublime*
 .eslintrc
 node_modules
-test
 maps
-test
 .DS_Store

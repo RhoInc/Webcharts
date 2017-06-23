@@ -1,0 +1,393 @@
+[
+  {
+     "label": "Grouped Vertical Bar chart:linear Y-axis",
+     "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+              "arrange":"grouped",
+              "type": "bar",
+              "split":"Group",
+              "per": [
+                "Group",
+                "Period"
+              ],
+              "summarizeX":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeX":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Vertical bar chart: Histogram with 10 bins (no y-variable specified) with linear Y-axis",
+     "notes": "Note that 0 must be specified in the y-domain.",
+     "tests": [
+       "10 Bars expected (1 per bin)",
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "type": "linear",
+           "column": "Weight",
+           "bin":10,
+           "label": "Weight"
+
+        },
+        "y": {
+           "column": "",
+           "type":"linear",
+           "label":"Number of observations",
+           "domain":[0,null]
+
+        },
+        "marks": [
+           {
+              "arrange":"grouped",
+              "split":"Group",
+              "type": "bar",
+              "per":["Weight"],
+              "summarizeY":"count",
+              "summarizeX":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Vertical Bar chart: log Y-axis",
+     "notes": "Bars not rendering in v1.8. A domain must be specified if there are any 0's or negative numbers. (note that missing values are imputed to 0)",
+     "tests": [
+       "One bar per period renders as expected",
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Weight",
+           "type": "log",
+           "label": "Weight"
+        },
+        "marks": [
+           {
+              "arrange":"grouped",
+              "split":"Group",
+              "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeX":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+
+              "summarizeX":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Vertical Bar chart: date Y-axis",
+     "notes": "Custom domain and subset via marks.values to help readability",
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "y": {
+           "column": "Query Open Date",
+           "type": "time",
+           "format": "%y-%m"
+        },
+        "x": {
+           "type": "ordinal",
+           "label": "Field Name",
+           "column":"Field Name",
+           "domain":["PULSE","VSDT"]
+        },
+        "date_format": "%Y-%m-%d",
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Query Status",
+              "type": "bar",
+              "per": [
+                 "Query Open Date"
+              ],
+              "values":{"Field Name":["PULSE","VSDT"]}
+           }
+        ],
+        "color_by":"Query Status"
+     },
+     "filename":"queries.csv"
+  },
+  {
+     "label": "Grouped Vertical Bar chart: Ordinal Y-axis",
+     "notes": "Bars don't render. This is expected.",
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "y": {
+           "column": "Group",
+           "type": "ordinal"
+        },
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Group",
+              "type": "bar",
+              "per": [
+                 "Element"
+              ]
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeX":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Horizontal Bar chart:linear x-axis",
+     "notes": "Note that 0 must be specified in the x-domain to avoid hiding the first bar. Circles are added for visual reference.",
+     "tests": [
+       "One bar per perior renders as expected",
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "y": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "x": {
+           "column": "Boil",
+           "type": "linear",
+           "domain":[0,null],
+           "label": "Average Boiling Point (K)"
+        },
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Group",
+             "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeY":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Horizontal bar chart: Histogram with 10 bins (no x-variable specified) with linear x-axis",
+     "notes": "Note that 0 must be specified in the x-domain.",
+     "tests": [
+       "10 Bars expected (1 per bin)",
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "y": {
+           "type": "linear",
+           "column": "Weight",
+           "bin":10,
+           "label": "Weight"
+
+        },
+        "x": {
+           "column": "",
+           "type":"linear",
+           "label":"Number of observations",
+           "domain":[0,null]
+
+        },
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Group",
+             "type": "bar",
+             "per":["Weight"],
+             "summarizeX":"count",
+             "summarizeY":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Horizontal Bar chart: log X-axis",
+     "notes": "Bars not rendering in v1.8. A domain must be specified if there are any 0's or negative numbers. (note that missing values are imputed to 0)",
+     "tests": [
+       "One bar per period renders as expected",
+       "Bar heights are roughly at mean levels for circles", 
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "y": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "x": {
+           "column": "Weight",
+           "type": "log",
+           "label": "Weight"
+        },
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Group",
+              "type": "bar",
+              "per": [
+                 "Period"
+              ],
+              "summarizeY":"mean"
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeY":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  },
+  {
+     "label": "Grouped Horizontal Bar chart: date X-axis",
+     "notes": "Custom domain and subset via marks.values to help readability",
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "x": {
+           "column": "Query Open Date",
+           "type": "time",
+           "format": "%y-%m"
+        },
+        "y": {
+           "type": "ordinal",
+           "label": "Field Name",
+           "column":"Field Name",
+           "domain":["PULSE","VSDT"]
+        },
+        "date_format": "%Y-%m-%d",
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Query Status",
+              "type": "bar",
+              "per": [
+                 "Query Open Date"
+              ],
+              "values":{"Field Name":["PULSE","VSDT"]}
+           }
+        ],
+        "color_by":"Query Status"
+     },
+     "filename":"queries.csv"
+  },
+  {
+     "label": "Grouped Horizontal Bar chart: Ordinal X-axis",
+     "notes": "Bars don't render. This is expected.",
+     "tests": [
+       "Check for correct chart type and that axis appears as expected"
+     ],
+     "settings": {
+        "max_width": 500,
+        "y": {
+           "column": "Period",
+           "type": "ordinal"
+        },
+        "x": {
+           "column": "Group",
+           "type": "ordinal"
+        },
+        "marks": [
+           {
+             "arrange":"grouped",
+             "split":"Group",
+              "type": "bar",
+              "per": [
+                 "Element"
+              ]
+           },
+           {
+              "type": "circle",
+              "per": [
+                 "Element"
+              ],
+              "attributes":{"stroke":"black","fill":"none"},
+              "summarizeY":"mean"
+           }
+        ],
+        "color_by":"Group"
+     },
+     "filename":"elements.csv"
+  }
+]
