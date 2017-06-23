@@ -3,7 +3,8 @@
      "label": "Stacked Vertical Bar chart:linear Y-axis",
      "notes": "Stacked barchart for means doesn't make tons of sense, but it works as expected",
      "tests": [
-       "One bar per period renders as expected"
+       "One bar per period renders as expected",
+       "Check for correct chart type and that axis appears as expected"
       ],
      "settings": {
         "max_width": 500,
@@ -37,7 +38,8 @@
      "label": "Stacked Vertical bar chart: Histogram with 10 bins (no y-variable specified) with linear Y-axis",
      "notes": "Note that 0 must be specified in the y-domain.",
      "tests": [
-       "10 Bars expected (1 per bin)"
+       "10 Bars expected (1 per bin)",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -74,7 +76,8 @@
      "notes": "Bars not rendering in v1.8. A domain must be specified if there are any 0's or negative numbers. (note that missing values are imputed to 0)",
      "tests": [
        "One bar per period renders as expected",
-       "Bar heights are roughly at mean levels for circles"
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
@@ -183,7 +186,8 @@
      "notes": "Stacked barchart for means doesn't make tons of sense, but it works as expected",
      "tests": [
        "One bar per perior renders as expected",
-       "Bar heights are roughly at mean levels for circles"
+       "Bar heights are roughly at mean levels for circles",
+       "Check for correct chart type and that axis appears as expected"
      ],
      "settings": {
         "max_width": 500,
