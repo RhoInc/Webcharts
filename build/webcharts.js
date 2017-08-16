@@ -4,7 +4,7 @@
 	(global.webCharts = factory(global.d3));
 }(this, (function (d3) { 'use strict';
 
-var version = '1.8.0';
+var version = '1.8.1';
 
 function checkRequired(data) {
     var _this = this;
@@ -2350,9 +2350,12 @@ function createTable() {
 }
 
 function multiply(chart, data, split_by, order) {
+    var test = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
     var config = chart.config;
     var wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
     var master_legend = wrap.append('ul').attr('class', 'legend');
+    chart.multiples = [];
 
     function goAhead(data) {
         var split_vals = d3.set(data.map(function (m) {
@@ -2365,17 +2368,17 @@ function multiply(chart, data, split_by, order) {
                 return d3.ascending(order.indexOf(a), order.indexOf(b));
             });
         }
-
         split_vals.forEach(function (e) {
             var mchart = createChart(chart.wrap.node(), config, chart.controls);
             mchart.events = chart.events;
             mchart.legend = master_legend;
             mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
             mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
-            mchart.init(data);
+            mchart.init(data, test);
+            mchart.parent = chart;
+            chart.multiples.push(mchart);
         });
     }
-
     goAhead(data);
 }
 
