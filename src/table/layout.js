@@ -5,5 +5,10 @@ export default function layout() {
     let table = this.wrap.append('table');
     table.append('thead').append('tr').attr('class', 'headers');
     this.table = table;
+
+  //Define pagination container.
+    this.pagination.layout.call(this);
+
+  //Call layout callback.
     this.events.onLayout.call(this);
 }

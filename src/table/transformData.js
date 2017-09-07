@@ -56,6 +56,9 @@ export default function transformData(data) {
 
     this.current_data = slimmed;
 
+    //Reset pagination.
+    this.pagination.wrap.selectAll('*').remove();
+
     this.events.onDatatransform.call(this);
 
     return this.current_data;

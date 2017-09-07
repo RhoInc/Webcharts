@@ -90,5 +90,8 @@ export default function draw(raw_data, processed_data) {
         }
     }
 
+  //Add pagination.
+    this.pagination.addPagination.call(this);
+
     this.events.onDraw.call(this);
 }
