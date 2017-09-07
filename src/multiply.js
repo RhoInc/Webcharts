@@ -1,11 +1,11 @@
 import createChart from './createChart';
 import { set, ascending } from 'd3';
 
-export default function multiply(chart, data, split_by, order, test=false) {
+export default function multiply(chart, data, split_by, order, test = false) {
     let config = chart.config;
     let wrap = chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
     let master_legend = wrap.append('ul').attr('class', 'legend');
-    chart.multiples = []
+    chart.multiples = [];
 
     function goAhead(data) {
         let split_vals = set(data.map(m => m[split_by])).values().filter(f => f);
