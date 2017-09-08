@@ -15,12 +15,14 @@
     "d3": "^3"
   },
   "scripts": {
-    "build": "npm run format && npm run es5 && npm run minify && npm run test",
-    "es5": "rollup -c",
+    "build": "npm run format && npm run bundle && npm run format-bundle && npm run minify && npm run test",
+    "bundle": "rollup -c",
     "format": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
+    "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write build/webcharts.js",
     "minify": "npm run minifyjs && npm run minifycss",
     "minifycss": "cleancss -o css/webcharts.min.css css/webcharts.css",
     "minifyjs": "uglifyjs build/webcharts.js > build/webcharts.min.js",
+    "notest": "npm run format && npm run bundle && npm run format-bundle && npm run minify",
     "test": "mocha --timeout 5000 --require babel-register --recursive ./test/**/*.js",
     "watch": "rollup -c -w"
   },

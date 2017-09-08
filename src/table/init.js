@@ -13,21 +13,26 @@ export default function init(data, test = false) {
             .attr('class', d => 'blockG rotate' + (d + 1));
     }
 
-    this.wrap.attr('class', 'wc-table');
+    this.wrap.attr('class', 'wc-chart wc-table');
 
     this.setDefaults();
 
-    this.raw_data = data;
-
-  //Attach pagination object to table object.
+    //Attach pagination object to table object.
     this.pagination = pagination;
+
+    this.data = {
+        raw: data,
+        passed: data,
+        filtered: data,
+        paginated: data.filter((d, i) => i < this.pagination.settings.nRows)
+    };
 
     let startup = data => {
         //connect this table and its controls, if any
         if (this.controls) {
             this.controls.targets.push(this);
             if (!this.controls.ready) {
-                this.controls.init(this.raw_data);
+                this.controls.init(this.data.raw);
             } else {
                 this.controls.layout();
             }
@@ -56,8 +61,8 @@ export default function init(data, test = false) {
     };
 
     this.events.onInit.call(this);
-    if (this.raw_data.length) {
-        this.checkRequired(this.raw_data);
+    if (this.data.raw.length) {
+        this.checkRequired(this.data.raw);
     }
     startup(data);
 

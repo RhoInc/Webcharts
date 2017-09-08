@@ -3,13 +3,15 @@ import { select } from 'd3';
 
 export default function addLinks() {
     //Count rows.
-    this.pagination.settings.rowsTotal = this.raw_data.length;
+    this.pagination.settings.nRows = this.data.raw.length;
 
     //Calculate number of pages needed and create a link for each page.
-    this.pagination.settings.numPages = Math.ceil(this.pagination.settings.rowsTotal / this.pagination.settings.rowsShown);
+    this.pagination.settings.nPages = Math.ceil(
+        this.pagination.settings.nRows / this.pagination.settings.nRowsPerPage
+    );
     this.pagination.wrap.selectAll('a,span').remove();
 
-    for (let i = 0; i < this.pagination.settings.numPages; i++) {
+    for (let i = 0; i < this.pagination.settings.nPages; i++) {
         this.pagination.wrap
             .append('a')
             .datum({ rel: i })
@@ -19,14 +21,19 @@ export default function addLinks() {
             })
             .text(i + 1)
             .classed('page-link', true)
-            .classed('active', d => d.rel == this.pagination.settings.activeLink)
+            .classed('active', d => d.rel == this.pagination.settings.activePage)
             .classed(
                 'hidden',
-                this.pagination.settings.activeLink <= 4
-                    ? i > 4
-                    : this.pagination.settings.activeLink >= this.pagination.settings.numPages - 5
-                      ? i < this.pagination.settings.numPages - 5
-                      : i < this.pagination.settings.activeLink - 2 || this.pagination.settings.activeLink + 2 < i
+                this.pagination.settings.activePage < this.pagination.settings.nPageLinksDisplayed
+                    ? i >= this.pagination.settings.nPageLinksDisplayed
+                    : this.pagination.settings.activePage >=
+                          this.pagination.settings.nPages -
+                              this.pagination.settings.nPageLinksDisplayed
+                      ? i <
+                            this.pagination.settings.nPages -
+                                this.pagination.settings.nPageLinksDisplayed
+                      : i < this.pagination.settings.activePage - 2 ||
+                            this.pagination.settings.activePage + 2 < i
             );
     }
 

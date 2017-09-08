@@ -54,12 +54,12 @@ export default function transformData(data) {
         })
         .entries(filtered);
 
-    this.current_data = slimmed;
+    this.data.current = slimmed;
 
     //Reset pagination.
     this.pagination.wrap.selectAll('*').remove();
 
     this.events.onDatatransform.call(this);
 
-    return this.current_data;
+    return this.data.current;
 }

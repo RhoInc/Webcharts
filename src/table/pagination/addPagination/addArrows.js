@@ -1,15 +1,17 @@
 export default function addArrows() {
-    let prev = this.pagination.settings.activeLink - 1,
-        next = this.pagination.settings.activeLink + 1;
-    if (prev < 0)
-        prev = 0; // nothing before the first page
-    if (next >= this.pagination.settings.numPages)
-        next = this.pagination.settings.numPages - 1; // nothing after the last page
+    let prev = this.pagination.settings.activePage - 1,
+        next = this.pagination.settings.activePage + 1;
+    if (prev < 0) prev = 0; // nothing before the first page
+    if (next >= this.pagination.settings.nPages) next = this.pagination.settings.nPages - 1; // nothing after the last page
 
     this.pagination.wrap
         .insert('span', ':first-child')
+        .classed('dot-dot-dot', true)
         .text('...')
-        .classed('hidden', this.pagination.settings.activeLink <= 4);
+        .classed(
+            'hidden',
+            this.pagination.settings.activePage < this.pagination.settings.nPageLinksDisplayed
+        );
 
     this.pagination.prev = this.pagination.wrap
         .insert('a', ':first-child')
@@ -31,8 +33,16 @@ export default function addArrows() {
 
     this.pagination.wrap
         .append('span')
+        .classed('dot-dot-dot', true)
         .text('...')
-        .classed('hidden', this.pagination.settings.activeLink >= this.pagination.settings.numPages - 5);
+        .classed(
+            'hidden',
+            this.pagination.settings.activePage >=
+                Math.max(
+                    this.pagination.settings.nPageLinksDisplayed,
+                    this.pagination.settings.nPages - this.pagination.settings.nPageLinksDisplayed
+                )
+        );
 
     this.pagination.next = this.pagination.wrap
         .append('a')
@@ -48,7 +58,7 @@ export default function addArrows() {
         .classed('right double-arrow-link', true)
         .attr({
             href: '#',
-            rel: this.pagination.settings.numPages - 1
+            rel: this.pagination.settings.nPages - 1
         })
         .text('>>');
 

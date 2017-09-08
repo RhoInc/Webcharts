@@ -6,9 +6,9 @@ export default function layout() {
     table.append('thead').append('tr').attr('class', 'headers');
     this.table = table;
 
-  //Define pagination container.
+    //Define pagination container.
     this.pagination.layout.call(this);
 
-  //Call layout callback.
+    //Call layout callback.
     this.events.onLayout.call(this);
 }
