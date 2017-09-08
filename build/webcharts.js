@@ -3008,7 +3008,7 @@
         var _this = this;
 
         //Count rows.
-        this.pagination.settings.nRows = this.data.raw.length;
+        this.pagination.settings.nRows = this.data.filtered[0].values.length;
 
         //Calculate number of pages needed and create a link for each page.
         this.pagination.settings.nPages = Math.ceil(
@@ -3054,6 +3054,10 @@
         if (prev < 0) prev = 0; // nothing before the first page
         if (next >= this.pagination.settings.nPages) next = this.pagination.settings.nPages - 1; // nothing after the last page
 
+        /**-------------------------------------------------------------------------------------------\
+      Left side
+    \-------------------------------------------------------------------------------------------**/
+
         this.pagination.wrap
             .insert('span', ':first-child')
             .classed('dot-dot-dot', true)
@@ -3081,6 +3085,10 @@
             })
             .text('<<');
 
+        /**-------------------------------------------------------------------------------------------\
+      Right side
+    \-------------------------------------------------------------------------------------------**/
+
         this.pagination.wrap
             .append('span')
             .classed('dot-dot-dot', true)
@@ -3092,7 +3100,8 @@
                         this.pagination.settings.nPageLinksDisplayed,
                         this.pagination.settings.nPages -
                             this.pagination.settings.nPageLinksDisplayed
-                    )
+                    ) ||
+                    this.pagination.settings.nPages < this.pagination.settings.nPageLinksDisplayed
             );
 
         this.pagination.next = this.pagination.wrap
@@ -3374,12 +3383,63 @@
         throw new Error('Unable to copy [obj]! Its type is not supported.');
     }
 
+    /*------------------------------------------------------------------------------------------------\
+  Check equality of two arrays (https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript)
+\------------------------------------------------------------------------------------------------*/
+
+    // Warn if overriding existing method
+    if (Array.prototype.equals)
+        console.warn(
+            "Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code."
+        );
+    // attach the .equals method to Array's prototype to call it on any array
+    Array.prototype.equals = function(array) {
+        // if the other array is a falsy value, return
+        if (!array) return false;
+
+        // compare lengths - can save a lot of time
+        if (this.length != array.length) return false;
+
+        for (var i = 0, l = this.length; i < l; i++) {
+            // Check if we have nested arrays
+            if (this[i] instanceof Array && array[i] instanceof Array) {
+                // recurse into the nested arrays
+                if (!this[i].equals(array[i])) return false;
+            } else if (this[i] != array[i]) {
+                // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                return false;
+            }
+        }
+        return true;
+    };
+    // Hide method from for-in loops
+    Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
+
     function draw$1(passed_data, processed_data) {
         var _this = this;
 
         var context = this,
             config = this.config,
             table = this.table;
+
+        //Reset pagination if filters have changed.
+        if (this.filters) {
+            this.currentFilters = this.filters.map(function(filter) {
+                return filter.val;
+            });
+
+            if (!this.currentFilters.equals(this.previousFilters)) {
+                this.pagination.settings.activePage = 0;
+                this.pagination.settings.startIndex =
+                    this.pagination.settings.activePage * this.pagination.settings.nRowsPerPage; // first row shown
+                this.pagination.settings.endIndex =
+                    this.pagination.settings.startIndex + this.pagination.settings.nRowsPerPage; // last row shown
+            }
+
+            this.previousFilters = this.filters.map(function(filter) {
+                return filter.val;
+            });
+        }
 
         this.data.passed = passed_data || this.data.raw;
         this.data.filtered = processed_data || this.transformData(this.data.raw);
@@ -3517,7 +3577,7 @@
         }
 
         //Add pagination.
-        this.pagination.addPagination.call(this);
+        if (this.config.pagination) this.pagination.addPagination.call(this);
 
         this.events.onDraw.call(this);
     }

@@ -1,10 +1,26 @@
 import { keys } from 'd3';
 import clone from '../util/clone';
+import '../util/array-equals';
 
 export default function draw(passed_data, processed_data) {
     const context = this,
         config = this.config,
         table = this.table;
+
+    //Reset pagination if filters have changed.
+    if (this.filters) {
+        this.currentFilters = this.filters.map(filter => filter.val);
+
+        if (!this.currentFilters.equals(this.previousFilters)) {
+            this.pagination.settings.activePage = 0;
+            this.pagination.settings.startIndex =
+                this.pagination.settings.activePage * this.pagination.settings.nRowsPerPage; // first row shown
+            this.pagination.settings.endIndex =
+                this.pagination.settings.startIndex + this.pagination.settings.nRowsPerPage; // last row shown
+        }
+
+        this.previousFilters = this.filters.map(filter => filter.val);
+    }
 
     this.data.passed = passed_data || this.data.raw;
     this.data.filtered = processed_data || this.transformData(this.data.raw);
@@ -118,7 +134,7 @@ export default function draw(passed_data, processed_data) {
     }
 
     //Add pagination.
-    this.pagination.addPagination.call(this);
+    if (this.config.pagination) this.pagination.addPagination.call(this);
 
     this.events.onDraw.call(this);
 }

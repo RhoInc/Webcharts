@@ -4,6 +4,10 @@ export default function addArrows() {
     if (prev < 0) prev = 0; // nothing before the first page
     if (next >= this.pagination.settings.nPages) next = this.pagination.settings.nPages - 1; // nothing after the last page
 
+    /**-------------------------------------------------------------------------------------------\
+      Left side
+    \-------------------------------------------------------------------------------------------**/
+
     this.pagination.wrap
         .insert('span', ':first-child')
         .classed('dot-dot-dot', true)
@@ -31,6 +35,10 @@ export default function addArrows() {
         })
         .text('<<');
 
+    /**-------------------------------------------------------------------------------------------\
+      Right side
+    \-------------------------------------------------------------------------------------------**/
+
     this.pagination.wrap
         .append('span')
         .classed('dot-dot-dot', true)
@@ -41,7 +49,7 @@ export default function addArrows() {
                 Math.max(
                     this.pagination.settings.nPageLinksDisplayed,
                     this.pagination.settings.nPages - this.pagination.settings.nPageLinksDisplayed
-                )
+                ) || this.pagination.settings.nPages < this.pagination.settings.nPageLinksDisplayed
         );
 
     this.pagination.next = this.pagination.wrap
