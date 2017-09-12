@@ -1,7 +1,7 @@
 export default function setDefaults() {
     //Pagination settings
     this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
-    this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 10; // number of rows displayed per page
+    this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page
 
     //Chart settings we probably don't need.
     this.config.margin = this.config.margin || {};
