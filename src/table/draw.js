@@ -21,7 +21,7 @@ export default function draw(passed_data, processed_data) {
     }
 
     this.data.passed = passed_data || this.data.raw;
-    this.data.filtered = processed_data || this.transformData(this.data.raw);
+    this.data.filtered = processed_data || this.transformData(this.data.passed);
     this.data.paginated = clone(this.data.filtered);
     this.data.paginated[0].values = this.data.paginated[0].values.filter(
         (d, i) => this.config.startIndex <= i && i < this.config.endIndex
