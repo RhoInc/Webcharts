@@ -15,17 +15,19 @@ export default function init(data, test = false) {
 
     this.wrap.attr('class', 'wc-chart wc-table');
 
+    //Define default settings.
     this.setDefaults();
 
-    //Attach pagination object to table object.
-    this.pagination = pagination;
-
+    //Define data object.
     this.data = {
         raw: data,
         passed: data,
         filtered: data,
-        paginated: data.filter((d, i) => i < this.pagination.settings.nRows)
+        paginated: data.filter((d, i) => i < this.config.nRowsPerPage)
     };
+
+    //Attach pagination object to table object.
+    this.pagination = pagination.call(this);
 
     let startup = data => {
         //connect this table and its controls, if any

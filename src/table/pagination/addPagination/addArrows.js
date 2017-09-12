@@ -1,8 +1,8 @@
 export default function addArrows() {
-    let prev = this.pagination.settings.activePage - 1,
-        next = this.pagination.settings.activePage + 1;
+    let prev = this.config.activePage - 1,
+        next = this.config.activePage + 1;
     if (prev < 0) prev = 0; // nothing before the first page
-    if (next >= this.pagination.settings.nPages) next = this.pagination.settings.nPages - 1; // nothing after the last page
+    if (next >= this.config.nPages) next = this.config.nPages - 1; // nothing after the last page
 
     /**-------------------------------------------------------------------------------------------\
       Left side
@@ -12,10 +12,7 @@ export default function addArrows() {
         .insert('span', ':first-child')
         .classed('dot-dot-dot', true)
         .text('...')
-        .classed(
-            'hidden',
-            this.pagination.settings.activePage < this.pagination.settings.nPageLinksDisplayed
-        );
+        .classed('hidden', this.config.activePage < this.config.nPageLinksDisplayed);
 
     this.pagination.prev = this.pagination.wrap
         .insert('a', ':first-child')
@@ -45,11 +42,11 @@ export default function addArrows() {
         .text('...')
         .classed(
             'hidden',
-            this.pagination.settings.activePage >=
+            this.config.activePage >=
                 Math.max(
-                    this.pagination.settings.nPageLinksDisplayed,
-                    this.pagination.settings.nPages - this.pagination.settings.nPageLinksDisplayed
-                ) || this.pagination.settings.nPages < this.pagination.settings.nPageLinksDisplayed
+                    this.config.nPageLinksDisplayed,
+                    this.config.nPages - this.config.nPageLinksDisplayed
+                ) || this.config.nPages < this.config.nPageLinksDisplayed
         );
 
     this.pagination.next = this.pagination.wrap
@@ -66,7 +63,7 @@ export default function addArrows() {
         .classed('right double-arrow-link', true)
         .attr({
             href: '#',
-            rel: this.pagination.settings.nPages - 1
+            rel: this.config.nPages - 1
         })
         .text('>>');
 

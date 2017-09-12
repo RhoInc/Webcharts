@@ -4,13 +4,11 @@ export default function updatePagination() {
 
     //Set to active the selected page link.
     const activePage = this.pagination.links
-        .filter(link => +link.rel === +this.pagination.settings.activePage)
+        .filter(link => +link.rel === +this.config.activePage)
         .classed('active', true);
 
     //Define and draw selected page.
-    this.pagination.settings.startIndex =
-        this.pagination.settings.activePage * this.pagination.settings.nRowsPerPage;
-    this.pagination.settings.endIndex =
-        this.pagination.settings.startIndex + this.pagination.settings.nRowsPerPage;
+    this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
+    this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
     this.draw();
 }

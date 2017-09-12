@@ -14,11 +14,11 @@
         var colnames = Object.keys(data[0]);
         var requiredVars = [];
         var requiredCols = [];
-        if (this.config.x.column) {
+        if (this.config.x && this.config.x.column) {
             requiredVars.push('this.config.x.column');
             requiredCols.push(this.config.x.column);
         }
-        if (this.config.y.column) {
+        if (this.config.y && this.config.y.column) {
             requiredVars.push('this.config.y.column');
             requiredCols.push(this.config.y.column);
         }
@@ -26,24 +26,25 @@
             requiredVars.push('this.config.color_by');
             requiredCols.push(this.config.color_by);
         }
-        this.config.marks.forEach(function(e, i) {
-            if (e.per && e.per.length) {
-                e.per.forEach(function(p, j) {
-                    requiredVars.push('this.config.marks[' + i + '].per[' + j + ']');
-                    requiredCols.push(p);
-                });
-            }
-            if (e.split) {
-                requiredVars.push('this.config.marks[' + i + '].split');
-                requiredCols.push(e.split);
-            }
-            if (e.values) {
-                for (var value in e.values) {
-                    requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
-                    requiredCols.push(value);
+        if (this.config.marks)
+            this.config.marks.forEach(function(e, i) {
+                if (e.per && e.per.length) {
+                    e.per.forEach(function(p, j) {
+                        requiredVars.push('this.config.marks[' + i + '].per[' + j + ']');
+                        requiredCols.push(p);
+                    });
                 }
-            }
-        });
+                if (e.split) {
+                    requiredVars.push('this.config.marks[' + i + '].split');
+                    requiredCols.push(e.split);
+                }
+                if (e.values) {
+                    for (var value in e.values) {
+                        requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
+                        requiredCols.push(value);
+                    }
+                }
+            });
 
         var missingDataField = false;
         requiredCols.forEach(function(e, i) {
@@ -2968,373 +2969,6 @@
         return thisControls;
     }
 
-    var defaultSettings = {
-        nRows: null, // total number of rows, i.e. the length of the data file
-        nRowsPerPage: 10, // number of rows displayed per page
-        nPages: null, // total number of pages given number of rows
-        nPageLinksDisplayed: 10, // total number of pages given number of rows
-        activePage: 0 // current page, 0-indexed
-    };
-
-    defaultSettings.startIndex = defaultSettings.activePage * defaultSettings.nRowsPerPage; // first row shown
-    defaultSettings.endIndex = defaultSettings.startIndex + defaultSettings.nRowsPerPage; // last row shown
-
-    function layout$2() {
-        this.pagination.wrap = this.wrap.append('div').classed('pagination-container', true);
-    }
-
-    function updatePagination() {
-        var _this = this;
-
-        //Reset pagination.
-        this.pagination.links.classed('active', false);
-
-        //Set to active the selected page link.
-        var activePage = this.pagination.links
-            .filter(function(link) {
-                return +link.rel === +_this.pagination.settings.activePage;
-            })
-            .classed('active', true);
-
-        //Define and draw selected page.
-        this.pagination.settings.startIndex =
-            this.pagination.settings.activePage * this.pagination.settings.nRowsPerPage;
-        this.pagination.settings.endIndex =
-            this.pagination.settings.startIndex + this.pagination.settings.nRowsPerPage;
-        this.draw();
-    }
-
-    function addLinks() {
-        var _this = this;
-
-        //Count rows.
-        this.pagination.settings.nRows = this.data.filtered[0].values.length;
-
-        //Calculate number of pages needed and create a link for each page.
-        this.pagination.settings.nPages = Math.ceil(
-            this.pagination.settings.nRows / this.pagination.settings.nRowsPerPage
-        );
-        this.pagination.wrap.selectAll('a,span').remove();
-
-        for (var i = 0; i < this.pagination.settings.nPages; i++) {
-            this.pagination.wrap
-                .append('a')
-                .datum({ rel: i })
-                .attr({
-                    href: '#',
-                    rel: i
-                })
-                .text(i + 1)
-                .classed('page-link', true)
-                .classed('active', function(d) {
-                    return d.rel == _this.pagination.settings.activePage;
-                })
-                .classed(
-                    'hidden',
-                    this.pagination.settings.activePage <
-                        this.pagination.settings.nPageLinksDisplayed
-                        ? i >= this.pagination.settings.nPageLinksDisplayed
-                        : this.pagination.settings.activePage >=
-                              this.pagination.settings.nPages -
-                                  this.pagination.settings.nPageLinksDisplayed
-                          ? i <
-                                this.pagination.settings.nPages -
-                                    this.pagination.settings.nPageLinksDisplayed
-                          : i < this.pagination.settings.activePage - 2 ||
-                                this.pagination.settings.activePage + 2 < i
-                );
-        }
-
-        this.pagination.links = this.pagination.wrap.selectAll('a.page-link');
-    }
-
-    function addArrows() {
-        var prev = this.pagination.settings.activePage - 1,
-            next = this.pagination.settings.activePage + 1;
-        if (prev < 0) prev = 0; // nothing before the first page
-        if (next >= this.pagination.settings.nPages) next = this.pagination.settings.nPages - 1; // nothing after the last page
-
-        /**-------------------------------------------------------------------------------------------\
-      Left side
-    \-------------------------------------------------------------------------------------------**/
-
-        this.pagination.wrap
-            .insert('span', ':first-child')
-            .classed('dot-dot-dot', true)
-            .text('...')
-            .classed(
-                'hidden',
-                this.pagination.settings.activePage < this.pagination.settings.nPageLinksDisplayed
-            );
-
-        this.pagination.prev = this.pagination.wrap
-            .insert('a', ':first-child')
-            .classed('left arrow-link', true)
-            .attr({
-                href: '#',
-                rel: prev
-            })
-            .text('<');
-
-        this.pagination.doublePrev = this.pagination.wrap
-            .insert('a', ':first-child')
-            .classed('left double-arrow-link', true)
-            .attr({
-                href: '#',
-                rel: 0
-            })
-            .text('<<');
-
-        /**-------------------------------------------------------------------------------------------\
-      Right side
-    \-------------------------------------------------------------------------------------------**/
-
-        this.pagination.wrap
-            .append('span')
-            .classed('dot-dot-dot', true)
-            .text('...')
-            .classed(
-                'hidden',
-                this.pagination.settings.activePage >=
-                    Math.max(
-                        this.pagination.settings.nPageLinksDisplayed,
-                        this.pagination.settings.nPages -
-                            this.pagination.settings.nPageLinksDisplayed
-                    ) ||
-                    this.pagination.settings.nPages < this.pagination.settings.nPageLinksDisplayed
-            );
-
-        this.pagination.next = this.pagination.wrap
-            .append('a')
-            .classed('right arrow-link', true)
-            .attr({
-                href: '#',
-                rel: next
-            })
-            .text('>');
-
-        this.pagination.doubleNext = this.pagination.wrap
-            .append('a')
-            .classed('right double-arrow-link', true)
-            .attr({
-                href: '#',
-                rel: this.pagination.settings.nPages - 1
-            })
-            .text('>>');
-
-        this.pagination.arrows = this.pagination.wrap.selectAll('a.arrow-link');
-        this.pagination.doubleArrows = this.pagination.wrap.selectAll('a.double-arrow-link');
-    }
-
-    function addPagination() {
-        var listing = this;
-
-        //Render page links.
-        addLinks.call(this);
-
-        //Render a different page on click.
-        this.pagination.links.on('click', function() {
-            listing.pagination.settings.activePage = +d3.select(this).attr('rel');
-            updatePagination.call(listing);
-        });
-
-        //Render arrow links.
-        addArrows.call(this);
-
-        //Render a different page on click.
-        this.pagination.arrows.on('click', function() {
-            if (listing.pagination.settings.activePage !== +d3.select(this).attr('rel')) {
-                listing.pagination.settings.activePage = +d3.select(this).attr('rel');
-                listing.pagination.prev.attr(
-                    'rel',
-                    listing.pagination.settings.activePage > 0
-                        ? listing.pagination.settings.activePage - 1
-                        : 0
-                );
-                listing.pagination.next.attr(
-                    'rel',
-                    listing.pagination.settings.activePage < listing.pagination.settings.nPages
-                        ? listing.pagination.settings.activePage + 1
-                        : listing.pagination.settings.nPages - 1
-                );
-                updatePagination.call(listing);
-            }
-        });
-
-        //Render a different page on click.
-        this.pagination.doubleArrows.on('click', function() {
-            listing.pagination.settings.activePage = +d3.select(this).attr('rel');
-            updatePagination.call(listing);
-        });
-    }
-
-    var pagination = {
-        settings: defaultSettings,
-        layout: layout$2,
-        addPagination: addPagination
-    };
-
-    function init$2(data) {
-        var _this = this;
-
-        var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-        if (d3.select(this.div).select('.loader').empty()) {
-            d3
-                .select(this.div)
-                .insert('div', ':first-child')
-                .attr('class', 'loader')
-                .selectAll('.blockG')
-                .data(d3.range(8))
-                .enter()
-                .append('div')
-                .attr('class', function(d) {
-                    return 'blockG rotate' + (d + 1);
-                });
-        }
-
-        this.wrap.attr('class', 'wc-chart wc-table');
-
-        this.setDefaults();
-
-        //Attach pagination object to table object.
-        this.pagination = pagination;
-
-        this.data = {
-            raw: data,
-            passed: data,
-            filtered: data,
-            paginated: data.filter(function(d, i) {
-                return i < _this.pagination.settings.nRows;
-            })
-        };
-
-        var startup = function startup(data) {
-            //connect this table and its controls, if any
-            if (_this.controls) {
-                _this.controls.targets.push(_this);
-                if (!_this.controls.ready) {
-                    _this.controls.init(_this.data.raw);
-                } else {
-                    _this.controls.layout();
-                }
-            }
-
-            //make sure container is visible (has height and width) before trying to initialize
-            var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
-            if (!visible) {
-                console.warn(
-                    'The table cannot be initialized inside an element with 0 width. The table will be initialized as soon as the container element is given a width > 0.'
-                );
-                var onVisible = setInterval(function(i) {
-                    var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
-                    if (visible_now) {
-                        _this.layout();
-                        _this.wrap.datum(_this);
-                        _this.draw();
-                        clearInterval(onVisible);
-                    }
-                }, 500);
-            } else {
-                _this.layout();
-                _this.wrap.datum(_this);
-                _this.draw();
-            }
-        };
-
-        this.events.onInit.call(this);
-        if (this.data.raw.length) {
-            this.checkRequired(this.data.raw);
-        }
-        startup(data);
-
-        return this;
-    }
-
-    function layout$3() {
-        d3.select(this.div).select('.loader').remove();
-        var table = this.wrap.append('table');
-        table.append('thead').append('tr').attr('class', 'headers');
-        this.table = table;
-
-        //Define pagination container.
-        this.pagination.layout.call(this);
-
-        //Call layout callback.
-        this.events.onLayout.call(this);
-    }
-
-    function transformData$1(data) {
-        if (!data) {
-            return;
-        }
-        var config = this.config;
-        var colList = config.cols || d3.keys(data[0]);
-        if (config.keep) {
-            config.keep.forEach(function(e) {
-                if (colList.indexOf(e) === -1) {
-                    colList.unshift(e);
-                }
-            });
-        }
-        this.config.cols = colList;
-
-        var filtered = data;
-
-        if (this.filters.length) {
-            this.filters.forEach(function(e) {
-                var is_array = e.val instanceof Array;
-                filtered = filtered.filter(function(d) {
-                    if (is_array) {
-                        return e.val.indexOf(d[e.col]) !== -1;
-                    } else {
-                        return e.val !== 'All' ? d[e.col] === e.val : d;
-                    }
-                });
-            });
-        }
-
-        var slimmed = d3
-            .nest()
-            .key(function(d) {
-                if (config.row_per) {
-                    return config.row_per
-                        .map(function(m) {
-                            return d[m];
-                        })
-                        .join(' ');
-                } else {
-                    return d;
-                }
-            })
-            .rollup(function(r) {
-                if (config.dataManipulate) {
-                    r = config.dataManipulate(r);
-                }
-                var nuarr = r.map(function(m) {
-                    var arr = [];
-                    for (var x in m) {
-                        arr.push({ col: x, text: m[x] });
-                    }
-                    arr.sort(function(a, b) {
-                        return config.cols.indexOf(a.col) - config.cols.indexOf(b.col);
-                    });
-                    return { cells: arr, raw: m };
-                });
-                return nuarr;
-            })
-            .entries(filtered);
-
-        this.data.current = slimmed;
-
-        //Reset pagination.
-        this.pagination.wrap.selectAll('*').remove();
-
-        this.events.onDatatransform.call(this);
-
-        return this.data.current;
-    }
-
     var _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
         ? function(obj) {
               return typeof obj;
@@ -3429,11 +3063,9 @@
             });
 
             if (!this.currentFilters.equals(this.previousFilters)) {
-                this.pagination.settings.activePage = 0;
-                this.pagination.settings.startIndex =
-                    this.pagination.settings.activePage * this.pagination.settings.nRowsPerPage; // first row shown
-                this.pagination.settings.endIndex =
-                    this.pagination.settings.startIndex + this.pagination.settings.nRowsPerPage; // last row shown
+                this.config.activePage = 0;
+                this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+                this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
             }
 
             this.previousFilters = this.filters.map(function(filter) {
@@ -3445,9 +3077,7 @@
         this.data.filtered = processed_data || this.transformData(this.data.raw);
         this.data.paginated = clone(this.data.filtered);
         this.data.paginated[0].values = this.data.paginated[0].values.filter(function(d, i) {
-            return (
-                _this.pagination.settings.startIndex <= i && i < _this.pagination.settings.endIndex
-            );
+            return _this.config.startIndex <= i && i < _this.config.endIndex;
         });
 
         var data = config.pagination ? this.data.paginated : this.data.filtered;
@@ -3582,11 +3212,386 @@
         this.events.onDraw.call(this);
     }
 
+    function layout$2() {
+        this.pagination.wrap = this.wrap.append('div').classed('pagination-container', true);
+    }
+
+    function updatePagination() {
+        var _this = this;
+
+        //Reset pagination.
+        this.pagination.links.classed('active', false);
+
+        //Set to active the selected page link.
+        var activePage = this.pagination.links
+            .filter(function(link) {
+                return +link.rel === +_this.config.activePage;
+            })
+            .classed('active', true);
+
+        //Define and draw selected page.
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
+        this.draw();
+    }
+
+    function addLinks() {
+        var _this = this;
+
+        //Count rows.
+        this.config.nRows = this.data.filtered[0].values.length;
+
+        //Calculate number of pages needed and create a link for each page.
+        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
+        this.pagination.wrap.selectAll('a,span').remove();
+
+        var _loop = function _loop(i) {
+            _this.pagination.wrap
+                .append('a')
+                .datum({ rel: i })
+                .attr({
+                    href: '#',
+                    rel: i
+                })
+                .text(i + 1)
+                .classed('page-link', true)
+                .classed('active', function(d) {
+                    return d.rel == _this.config.activePage;
+                })
+                .classed('hidden', function() {
+                    return _this.config.activePage < _this.config.nPageLinksDisplayed
+                        ? i >= _this.config.nPageLinksDisplayed // first nPageLinksDisplayed pages
+                        : _this.config.activePage >=
+                              _this.config.nPages - _this.config.nPageLinksDisplayed
+                          ? i < _this.config.nPages - _this.config.nPageLinksDisplayed // last nPageLinksDisplayed pages
+                          : i <
+                                _this.config.activePage -
+                                    (Math.ceil(_this.config.nPageLinksDisplayed / 2) - 1) ||
+                                _this.config.activePage + _this.config.nPageLinksDisplayed / 2 < i; // nPageLinksDisplayed < activePage or activePage < (nPages - nPageLinksDisplayed)
+                });
+        };
+
+        for (var i = 0; i < this.config.nPages; i++) {
+            _loop(i);
+        }
+
+        this.pagination.links = this.pagination.wrap.selectAll('a.page-link');
+    }
+
+    function addArrows() {
+        var prev = this.config.activePage - 1,
+            next = this.config.activePage + 1;
+        if (prev < 0) prev = 0; // nothing before the first page
+        if (next >= this.config.nPages) next = this.config.nPages - 1; // nothing after the last page
+
+        /**-------------------------------------------------------------------------------------------\
+      Left side
+    \-------------------------------------------------------------------------------------------**/
+
+        this.pagination.wrap
+            .insert('span', ':first-child')
+            .classed('dot-dot-dot', true)
+            .text('...')
+            .classed('hidden', this.config.activePage < this.config.nPageLinksDisplayed);
+
+        this.pagination.prev = this.pagination.wrap
+            .insert('a', ':first-child')
+            .classed('left arrow-link', true)
+            .attr({
+                href: '#',
+                rel: prev
+            })
+            .text('<');
+
+        this.pagination.doublePrev = this.pagination.wrap
+            .insert('a', ':first-child')
+            .classed('left double-arrow-link', true)
+            .attr({
+                href: '#',
+                rel: 0
+            })
+            .text('<<');
+
+        /**-------------------------------------------------------------------------------------------\
+      Right side
+    \-------------------------------------------------------------------------------------------**/
+
+        this.pagination.wrap
+            .append('span')
+            .classed('dot-dot-dot', true)
+            .text('...')
+            .classed(
+                'hidden',
+                this.config.activePage >=
+                    Math.max(
+                        this.config.nPageLinksDisplayed,
+                        this.config.nPages - this.config.nPageLinksDisplayed
+                    ) || this.config.nPages < this.config.nPageLinksDisplayed
+            );
+
+        this.pagination.next = this.pagination.wrap
+            .append('a')
+            .classed('right arrow-link', true)
+            .attr({
+                href: '#',
+                rel: next
+            })
+            .text('>');
+
+        this.pagination.doubleNext = this.pagination.wrap
+            .append('a')
+            .classed('right double-arrow-link', true)
+            .attr({
+                href: '#',
+                rel: this.config.nPages - 1
+            })
+            .text('>>');
+
+        this.pagination.arrows = this.pagination.wrap.selectAll('a.arrow-link');
+        this.pagination.doubleArrows = this.pagination.wrap.selectAll('a.double-arrow-link');
+    }
+
+    function addPagination() {
+        var listing = this;
+
+        //Render page links.
+        addLinks.call(this);
+
+        //Render a different page on click.
+        this.pagination.links.on('click', function() {
+            listing.config.activePage = +d3.select(this).attr('rel');
+            updatePagination.call(listing);
+        });
+
+        //Render arrow links.
+        addArrows.call(this);
+
+        //Render a different page on click.
+        this.pagination.arrows.on('click', function() {
+            if (listing.config.activePage !== +d3.select(this).attr('rel')) {
+                listing.config.activePage = +d3.select(this).attr('rel');
+                listing.pagination.prev.attr(
+                    'rel',
+                    listing.config.activePage > 0 ? listing.config.activePage - 1 : 0
+                );
+                listing.pagination.next.attr(
+                    'rel',
+                    listing.config.activePage < listing.config.nPages
+                        ? listing.config.activePage + 1
+                        : listing.config.nPages - 1
+                );
+                updatePagination.call(listing);
+            }
+        });
+
+        //Render a different page on click.
+        this.pagination.doubleArrows.on('click', function() {
+            listing.config.activePage = +d3.select(this).attr('rel');
+            updatePagination.call(listing);
+        });
+    }
+
+    function pagination() {
+        this.config.nRows = this.data.raw.length; // total number of rows, i.e. the length of the data file
+        this.config.nPages = this.config.nRows / this.config.nRowsPerPage; // total number of pages given number of rows
+        this.config.activePage = 0; // current page, 0-indexed
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+
+        return {
+            layout: layout$2,
+            addPagination: addPagination
+        };
+    }
+
+    function init$2(data) {
+        var _this = this;
+
+        var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+        if (d3.select(this.div).select('.loader').empty()) {
+            d3
+                .select(this.div)
+                .insert('div', ':first-child')
+                .attr('class', 'loader')
+                .selectAll('.blockG')
+                .data(d3.range(8))
+                .enter()
+                .append('div')
+                .attr('class', function(d) {
+                    return 'blockG rotate' + (d + 1);
+                });
+        }
+
+        this.wrap.attr('class', 'wc-chart wc-table');
+
+        //Define default settings.
+        this.setDefaults();
+
+        //Define data object.
+        this.data = {
+            raw: data,
+            passed: data,
+            filtered: data,
+            paginated: data.filter(function(d, i) {
+                return i < _this.config.nRowsPerPage;
+            })
+        };
+
+        //Attach pagination object to table object.
+        this.pagination = pagination.call(this);
+
+        var startup = function startup(data) {
+            //connect this table and its controls, if any
+            if (_this.controls) {
+                _this.controls.targets.push(_this);
+                if (!_this.controls.ready) {
+                    _this.controls.init(_this.data.raw);
+                } else {
+                    _this.controls.layout();
+                }
+            }
+
+            //make sure container is visible (has height and width) before trying to initialize
+            var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
+            if (!visible) {
+                console.warn(
+                    'The table cannot be initialized inside an element with 0 width. The table will be initialized as soon as the container element is given a width > 0.'
+                );
+                var onVisible = setInterval(function(i) {
+                    var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
+                    if (visible_now) {
+                        _this.layout();
+                        _this.wrap.datum(_this);
+                        _this.draw();
+                        clearInterval(onVisible);
+                    }
+                }, 500);
+            } else {
+                _this.layout();
+                _this.wrap.datum(_this);
+                _this.draw();
+            }
+        };
+
+        this.events.onInit.call(this);
+        if (this.data.raw.length) {
+            this.checkRequired(this.data.raw);
+        }
+        startup(data);
+
+        return this;
+    }
+
+    function layout$3() {
+        d3.select(this.div).select('.loader').remove();
+        var table = this.wrap.append('table');
+        table.append('thead').append('tr').attr('class', 'headers');
+        this.table = table;
+
+        //Define pagination container.
+        this.pagination.layout.call(this);
+
+        //Call layout callback.
+        this.events.onLayout.call(this);
+    }
+
+    function setDefaults$1() {
+        //Pagination settings
+        this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
+        this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 10; // number of rows displayed per page
+
+        //Chart settings we probably don't need.
+        this.config.margin = this.config.margin || {};
+        this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
+        this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
+        this.config.resizable = this.config.resizable !== undefined ? this.config.resizable : true;
+        this.config.aspect = this.config.aspect || 1.33;
+        this.config.scale_text = this.config.scale_text === undefined
+            ? true
+            : this.config.scale_text;
+        this.config.transitions = this.config.transitions === undefined
+            ? true
+            : this.config.transitions;
+    }
+
+    function transformData$1(data) {
+        if (!data) {
+            return;
+        }
+        var config = this.config;
+        var colList = config.cols || d3.keys(data[0]);
+        if (config.keep) {
+            config.keep.forEach(function(e) {
+                if (colList.indexOf(e) === -1) {
+                    colList.unshift(e);
+                }
+            });
+        }
+        this.config.cols = colList;
+
+        var filtered = data;
+
+        if (this.filters.length) {
+            this.filters.forEach(function(e) {
+                var is_array = e.val instanceof Array;
+                filtered = filtered.filter(function(d) {
+                    if (is_array) {
+                        return e.val.indexOf(d[e.col]) !== -1;
+                    } else {
+                        return e.val !== 'All' ? d[e.col] === e.val : d;
+                    }
+                });
+            });
+        }
+
+        var slimmed = d3
+            .nest()
+            .key(function(d) {
+                if (config.row_per) {
+                    return config.row_per
+                        .map(function(m) {
+                            return d[m];
+                        })
+                        .join(' ');
+                } else {
+                    return d;
+                }
+            })
+            .rollup(function(r) {
+                if (config.dataManipulate) {
+                    r = config.dataManipulate(r);
+                }
+                var nuarr = r.map(function(m) {
+                    var arr = [];
+                    for (var x in m) {
+                        arr.push({ col: x, text: m[x] });
+                    }
+                    arr.sort(function(a, b) {
+                        return config.cols.indexOf(a.col) - config.cols.indexOf(b.col);
+                    });
+                    return { cells: arr, raw: m };
+                });
+                return nuarr;
+            })
+            .entries(filtered);
+
+        this.data.current = slimmed;
+
+        //Reset pagination.
+        this.pagination.wrap.selectAll('*').remove();
+
+        this.events.onDatatransform.call(this);
+
+        return this.data.current;
+    }
+
     var table = Object.create(chart, {
+        draw: { value: draw$1 },
         init: { value: init$2 },
         layout: { value: layout$3 },
-        transformData: { value: transformData$1 },
-        draw: { value: draw$1 }
+        setDefaults: { value: setDefaults$1 },
+        transformData: { value: transformData$1 }
     });
 
     function createTable() {

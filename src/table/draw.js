@@ -12,11 +12,9 @@ export default function draw(passed_data, processed_data) {
         this.currentFilters = this.filters.map(filter => filter.val);
 
         if (!this.currentFilters.equals(this.previousFilters)) {
-            this.pagination.settings.activePage = 0;
-            this.pagination.settings.startIndex =
-                this.pagination.settings.activePage * this.pagination.settings.nRowsPerPage; // first row shown
-            this.pagination.settings.endIndex =
-                this.pagination.settings.startIndex + this.pagination.settings.nRowsPerPage; // last row shown
+            this.config.activePage = 0;
+            this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+            this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
         }
 
         this.previousFilters = this.filters.map(filter => filter.val);
@@ -26,7 +24,7 @@ export default function draw(passed_data, processed_data) {
     this.data.filtered = processed_data || this.transformData(this.data.raw);
     this.data.paginated = clone(this.data.filtered);
     this.data.paginated[0].values = this.data.paginated[0].values.filter(
-        (d, i) => this.pagination.settings.startIndex <= i && i < this.pagination.settings.endIndex
+        (d, i) => this.config.startIndex <= i && i < this.config.endIndex
     );
 
     const data = config.pagination ? this.data.paginated : this.data.filtered;
