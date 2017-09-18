@@ -1,0 +1,10 @@
+
+[
+  {
+    "label": "Simple Table - using all defaults",
+	  "notes": "Basic Table",
+    "tests": [],
+    "settings": {},
+    "filename": "ChickWeight.csv"
+  }
+]
