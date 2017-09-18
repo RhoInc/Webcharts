@@ -12,7 +12,9 @@ import testRendering from '../chart/rendering';
 
 var settingsList = [];
 var numLoaded = 0;
-testSettingList.forEach(function(d) {
+testSettingList
+.filter(function(f){return f.type=="charts"})
+.forEach(function(d) {
   var path = require('path');
   var jsonPath = path.join(
     __dirname,
