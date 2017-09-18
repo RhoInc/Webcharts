@@ -29,22 +29,21 @@ export default function testCreateChart(settings, full=true) {
               expect(Object.keys(table).sort()).toEqual(properties.sort());
           });
 
-          if(full){
-            it('table div property is equal to first argument to createTable()', () => {
-                expect(table.div).toEqual(container);
-            });
+          it('table div property is equal to first argument to createTable()', () => {
+              expect(table.div).toEqual(container);
+          });
 
-            it('table wrap property is d3 selection of first argument to createTable()', () => {
-                expect(table.wrap.node()).toEqual(container.querySelector('div'));
-            });
+          it('table wrap property is d3 selection of first argument to createTable()', () => {
+              expect(table.wrap.node()).toEqual(container.querySelector('div'));
+          });
 
-            it('table config property matches second argument to createTable()', () => {
-                let settings = {},
-                    property;
-                for (property in settings)
-                    expect(table.config[property]).toEqual(settings[property]);
-            });
-          }  
+          it('table config property matches second argument to createTable()', () => {
+              let settings = {},
+                  property;
+              for (property in settings)
+                  expect(table.config[property]).toEqual(settings[property]);
+          });
+
       });
   });
 }

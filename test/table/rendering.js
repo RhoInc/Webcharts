@@ -1,12 +1,12 @@
 import jsdom from 'jsdom';
-import createChart from '../../src/createTable';
+import createTable from '../../src/createTable';
 import expect from 'expect';
 import d3 from 'd3';
 
 export default function testRendering(settings, data) {
   describe('table rendering', () => {
     const { JSDOM } = jsdom;
-    let dom, container, chart, supergroups, groups;
+    let dom, container, table;
 
     before(() => {
         dom = new JSDOM('<!DOCTYPE html>');
@@ -16,16 +16,28 @@ export default function testRendering(settings, data) {
 
     after(() => {
         container.children[0].remove();
-        chart = null;
+        table = null;
     });
-
 
     it('table to be created when .init() is called. ', () => {
       expect(table.table).toExist();
     });
 
-    //rows to exist for each record
-    //headers to exist
-    
+    it('thead to exist', () => {
+      expect(table.table.select("thead").size()).toEqual(1)
+    })
+
+    it('thead to have exactly one tr', () => {
+      expect(table.table.select("thead").selectAll("tr").size()).toEqual(1)
+    })
+
+    it('tbody to exist', () => {
+      expect(table.table.select("tbody").size()).toBeGreaterThan(0)
+    })
+
+    it('tbody to have at least one tr', () => {
+      expect(table.table.select("tbody").selectAll("tr").size()).toBeGreaterThan(0)
+    })
+
   });
 }

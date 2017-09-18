@@ -1,10 +1,50 @@
 
 [
   {
-    "label": "Simple Table - using all defaults",
+    "label": "Simple Table without pagination (using all defaults)",
 	  "notes": "Basic Table",
     "tests": [],
     "settings": {},
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Simple Table with pagination",
+    "notes": "Basic Table",
+    "tests": [],
+    "settings": {
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Simple Table with pagination with big pages (n=50)",
+    "notes": "Basic Table",
+    "tests": [],
+    "settings": {
+      "pagination":true,
+      "nRowsPerPage":50
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Simple Table with pagination with small pages (n=5)",
+    "notes": "Basic Table",
+    "tests": [],
+    "settings": {
+      "pagination":true,
+      "nRowsPerPage":5
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Simple Table with pagination with small pages (n=5) and lots of page (n=10) links shown",
+    "notes": "Basic Table",
+    "tests": [],
+    "settings": {
+      "pagination":true,
+      "nRowsPerPage":5,
+      "nPageLinksDisplayed":10
+    },
     "filename": "ChickWeight.csv"
   }
 ]

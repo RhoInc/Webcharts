@@ -12,8 +12,10 @@ import testRendering from '../chart/rendering';
 
 var settingsList = [];
 var numLoaded = 0;
-testSettingList
-.filter(function(f){return f.type=="charts"})
+
+var testSettingList_charts=testSettingList.filter(function(d){return d.type=="charts"})
+
+testSettingList_charts
 .forEach(function(d) {
   var path = require('path');
   var jsonPath = path.join(
@@ -27,17 +29,18 @@ testSettingList
   var jsonData = JSON.parse(jsonRaw);
   settingsList = merge([settingsList, jsonData]);
   numLoaded = numLoaded + 1;
-  if (numLoaded == testSettingList.length) runTests(settingsList);
+  if (numLoaded == testSettingList_charts.length) runTests(settingsList);
   //if (numLoaded == 1) runTests(settingsList);
 });
 
 function runTests(settingsList) {
   it('run tests once for each settings object', done => {
-    settingsList.forEach((settings, i) => {
+    settingsList
+    .forEach((settings, i) => {
       const dataFile = `./test/samples/data/${settings.filename}`,
         raw = readFileSync(dataFile, 'utf8'),
         data = d3.csv.parse(raw);
-      describe(`Test ${i + 1} of ${settingsList.length}: ${settings.label}. `, () => {
+      describe(`Chart Test ${i + 1} of ${settingsList.length}: ${settings.label}. `, () => {
         describe('Create Chart. ', () => {
           testCreateChart(settings.settings, false);
         });
