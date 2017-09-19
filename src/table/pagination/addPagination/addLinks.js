@@ -3,7 +3,7 @@ import { select } from 'd3';
 
 export default function addLinks() {
     //Count rows.
-  
+
     this.pagination.wrap.selectAll('a,span').remove();
 
     for (let i = 0; i < this.config.nPages; i++) {
@@ -11,7 +11,6 @@ export default function addLinks() {
             .append('a')
             .datum({ rel: i })
             .attr({
-                href: '#',
                 rel: i
             })
             .text(i + 1)

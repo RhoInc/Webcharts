@@ -3251,7 +3251,6 @@
                 .append('a')
                 .datum({ rel: i })
                 .attr({
-                    href: '#',
                     rel: i
                 })
                 .text(i + 1)
