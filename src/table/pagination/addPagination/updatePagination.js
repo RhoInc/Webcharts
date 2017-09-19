@@ -1,4 +1,6 @@
 export default function updatePagination() {
+
+
     //Reset pagination.
     this.pagination.links.classed('active', false);
 
@@ -10,5 +12,6 @@ export default function updatePagination() {
     //Define and draw selected page.
     this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
     this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
+
     this.draw();
 }

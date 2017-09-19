@@ -273,6 +273,11 @@ div.wc-layout.wc-small-multiples::after {
     .wc-table .pagination-container {
         padding-top: 10px;
     }
+
+		.wc-table .pagination-container.hidden {
+				display:none;
+		}
+
     .wc-table .pagination-container a {
         text-decoration: none;
         padding: 5px 10px;
@@ -346,7 +351,7 @@ div.wc-layout.wc-small-multiples::after {
     -o-animation-delay:0.18s;
     -o-transform:rotate(-90deg);
     animation-delay:0.18s;
-    transform:rotate(-90deg); 
+    transform:rotate(-90deg);
     }
 
     .rotate2{

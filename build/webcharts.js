@@ -3213,7 +3213,10 @@
     }
 
     function layout$2() {
-        this.pagination.wrap = this.wrap.append('div').classed('pagination-container', true);
+        this.pagination.wrap = this.wrap
+            .append('div')
+            .classed('pagination-container', true)
+            .classed('hidden', this.config.paginationHidden);
     }
 
     function updatePagination() {
@@ -3232,6 +3235,7 @@
         //Define and draw selected page.
         this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
         this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
+
         this.draw();
     }
 
@@ -3239,10 +3243,7 @@
         var _this = this;
 
         //Count rows.
-        this.config.nRows = this.data.filtered[0].values.length;
 
-        //Calculate number of pages needed and create a link for each page.
-        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
         this.pagination.wrap.selectAll('a,span').remove();
 
         var _loop = function _loop(i) {
@@ -3353,6 +3354,13 @@
 
     function addPagination() {
         var listing = this;
+        //Calculate number of pages needed and create a link for each page.
+        this.config.nRows = this.data.filtered[0].values.length;
+        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
+
+        //hide the pagination if there is only one page
+        this.config.paginationHidden = this.config.nPages == 1;
+        this.pagination.wrap.classed('hidden', this.config.paginationHidden);
 
         //Render page links.
         addLinks.call(this);
@@ -3392,12 +3400,13 @@
     }
 
     function pagination() {
+        console.log(this);
         this.config.nRows = this.data.raw.length; // total number of rows, i.e. the length of the data file
-        this.config.nPages = this.config.nRows / this.config.nRowsPerPage; // total number of pages given number of rows
+        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage); // total number of pages given number of rows
         this.config.activePage = 0; // current page, 0-indexed
         this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
         this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-
+        this.config.paginationHidden = this.config.nPages == 1;
         return {
             layout: layout$2,
             addPagination: addPagination

@@ -3,10 +3,7 @@ import { select } from 'd3';
 
 export default function addLinks() {
     //Count rows.
-    this.config.nRows = this.data.filtered[0].values.length;
-
-    //Calculate number of pages needed and create a link for each page.
-    this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
+  
     this.pagination.wrap.selectAll('a,span').remove();
 
     for (let i = 0; i < this.config.nPages; i++) {
