@@ -27,6 +27,16 @@
     "filename": "ChickWeight.csv"
   },
   {
+    "label": "Simple Table with pagination with huge pages (n=100)",
+    "notes": "Basic Table",
+    "tests": [],
+    "settings": {
+      "pagination":true,
+      "nRowsPerPage":100
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
     "label": "Simple Table with pagination with small pages (n=5)",
     "notes": "Basic Table",
     "tests": [],
