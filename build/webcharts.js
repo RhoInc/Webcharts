@@ -3326,7 +3326,7 @@
                     Math.max(
                         this.config.nPageLinksDisplayed,
                         this.config.nPages - this.config.nPageLinksDisplayed
-                    ) || this.config.nPages < this.config.nPageLinksDisplayed
+                    ) || this.config.nPages <= this.config.nPageLinksDisplayed
             );
 
         this.pagination.next = this.pagination.wrap
