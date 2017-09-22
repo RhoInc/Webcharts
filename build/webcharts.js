@@ -3073,7 +3073,7 @@
             });
         }
 
-        this.data.passed = passed_data || this.data.raw;
+        this.data.passed = passed_data || this.data.searched || this.data.raw;
         this.data.filtered = processed_data || this.transformData(this.data.passed);
         this.data.paginated = clone(this.data.filtered);
         this.data.paginated[0].values = this.data.paginated[0].values.filter(function(d, i) {
@@ -3409,29 +3409,31 @@
 
         this.search.wrap = this.wrap
             .insert('div', ':first-child')
-            .classed('search-container', true);
+            .classed('search-container', true)
+            .classed('hidden', !this.config.searchable);
         this.search.wrap.append('span').classed('description', true).text('Search:');
         this.search.wrap.append('input').classed('search-box', true).on('input', function() {
             var inputText = this.value.toLowerCase();
             console.log(inputText);
 
             //Determine which rows contain input text.
-            context.data.search = context.data.raw.filter(function(d) {
-                var match = false;
+            context.data.searched = inputText !== ''
+                ? context.data.raw.filter(function(d) {
+                      var match = false;
 
-                Object.keys(d).forEach(function(key) {
-                    if (match === false) {
-                        var cellText = '' + d[key];
-                        match = cellText.toLowerCase().indexOf(inputText) > -1;
-                    }
-                });
+                      Object.keys(d).forEach(function(key) {
+                          if (match === false) {
+                              var cellText = '' + d[key];
+                              match = cellText.toLowerCase().indexOf(inputText) > -1;
+                          }
+                      });
 
-                return match;
-            });
-            console.log(context.data.search.length);
+                      return match;
+                  })
+                : null;
 
             context.config.activeLink = 0;
-            context.draw(context.data.search);
+            context.draw();
         });
     }
 
@@ -3643,7 +3645,7 @@
             })
             .entries(filtered);
 
-        this.data.current = slimmed;
+        this.data.current = slimmed.length ? slimmed : [{ key: null, values: [] }]; // dummy nested data array
 
         //Reset pagination.
         this.pagination.wrap.selectAll('*').remove();

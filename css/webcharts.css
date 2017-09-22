@@ -248,6 +248,9 @@ div.wc-layout.wc-small-multiples::after {
   Tables
 \------------------------------------------------------------------------------------------------*/
 
+    .wc-table .hidden {
+        display: none !important;
+    }
     .wc-table table:not(.table){
         font-size: .9em;
         border-collapse: collapse;
@@ -270,6 +273,12 @@ div.wc-layout.wc-small-multiples::after {
     }
     .wc-table table:not(.table) td:last-child{
     }
+    .wc-table .search-container {
+        padding-bottom: 10px;
+    }
+    .wc-table .search-container input {
+        margin-left: 10px;
+    }
     .wc-table .pagination-container {
         padding-top: 10px;
     }
@@ -280,12 +289,6 @@ div.wc-layout.wc-small-multiples::after {
     .wc-table a.active {
         border: 2px solid gray;
         border-radius: 4px;
-    }
-    .wc-table a.hidden {
-        display: none;
-    }
-    .wc-table .dot-dot-dot.hidden {
-        display: none;
     }
 
 /*------------------------------------------------------------------------------------------------\

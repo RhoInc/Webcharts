@@ -54,7 +54,7 @@ export default function transformData(data) {
         })
         .entries(filtered);
 
-    this.data.current = slimmed;
+    this.data.current = slimmed.length ? slimmed : [{ key: null, values: [] }]; // dummy nested data array
 
     //Reset pagination.
     this.pagination.wrap.selectAll('*').remove();
