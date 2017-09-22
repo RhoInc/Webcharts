@@ -3504,6 +3504,23 @@
         this.events.onLayout.call(this);
     }
 
+    function destroy$2() {
+        var destroyControls = arguments.length > 0 && arguments[0] !== undefined
+            ? arguments[0]
+            : false;
+
+        //run onDestroy callback
+        this.events.onDestroy.call(this);
+
+        //destroy controls
+        if (destroyControls && this.controls) {
+            this.controls.destroy();
+        }
+
+        //unmount chart wrapper
+        this.wrap.remove();
+    }
+
     function setDefaults$1() {
         //Pagination settings
         this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
@@ -3599,7 +3616,8 @@
         init: { value: init$2 },
         layout: { value: layout$3 },
         setDefaults: { value: setDefaults$1 },
-        transformData: { value: transformData$1 }
+        transformData: { value: transformData$1 },
+        destroy: { value: destroy$2 }
     });
 
     function createTable() {
