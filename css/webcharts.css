@@ -273,18 +273,24 @@ div.wc-layout.wc-small-multiples::after {
     .wc-table .pagination-container {
         padding-top: 10px;
     }
+
+		.wc-table .pagination-container.hidden {
+				display:none;
+		}
+
     .wc-table .pagination-container a {
         text-decoration: none;
+				cursor: pointer;
         padding: 5px 10px;
     }
-    .wc-table a.active {
+    .wc-table .pagination-container a.active {
         border: 2px solid gray;
         border-radius: 4px;
     }
-    .wc-table a.hidden {
+    .wc-table .pagination-container a.hidden {
         display: none;
     }
-    .wc-table .dot-dot-dot.hidden {
+    .wc-table .pagination-container .dot-dot-dot.hidden {
         display: none;
     }
 
@@ -346,7 +352,7 @@ div.wc-layout.wc-small-multiples::after {
     -o-animation-delay:0.18s;
     -o-transform:rotate(-90deg);
     animation-delay:0.18s;
-    transform:rotate(-90deg); 
+    transform:rotate(-90deg);
     }
 
     .rotate2{
