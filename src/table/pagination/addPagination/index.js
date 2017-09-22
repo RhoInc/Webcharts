@@ -5,6 +5,13 @@ import { select } from 'd3';
 
 export default function addPagination() {
     const listing = this;
+    //Calculate number of pages needed and create a link for each page.
+    this.config.nRows = this.data.filtered[0].values.length;
+    this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
+
+    //hide the pagination if there is only one page
+    this.config.paginationHidden = this.config.nPages == 1
+    this.pagination.wrap.classed('hidden',this.config.paginationHidden);
 
     //Render page links.
     addLinks.call(this);
