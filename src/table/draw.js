@@ -15,6 +15,7 @@ export default function draw(passed_data, processed_data) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+            this.search.wrap.select('input').property('value', '');
         }
 
         this.previousFilters = this.filters.map(filter => filter.val);
