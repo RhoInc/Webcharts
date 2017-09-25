@@ -1,3 +1,5 @@
+import updatePagination from '../../pagination/addPagination/updatePagination';
+
 export default function filterRows(table) {
         const inputText = this.value.toLowerCase();
         //Determine which rows contain input text.
@@ -13,6 +15,8 @@ export default function filterRows(table) {
 
             return match;
         });
-        table.config.activeLink = 0;
+        table.config.activePage = 0;
+        table.config.startIndex = table.config.activePage * table.config.nRowsPerPage; // first row shown
+        table.config.endIndex = table.config.startIndex + table.config.nRowsPerPage; // last row shown
         table.draw(table.data.search);
 }

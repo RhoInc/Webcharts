@@ -3440,7 +3440,9 @@
 
             return match;
         });
-        table.config.activeLink = 0;
+        table.config.activePage = 0;
+        table.config.startIndex = table.config.activePage * table.config.nRowsPerPage; // first row shown
+        table.config.endIndex = table.config.startIndex + table.config.nRowsPerPage; // last row shown
         table.draw(table.data.search);
     }
 
