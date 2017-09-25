@@ -48,7 +48,6 @@ export default function addArrows() {
                     this.config.nPages - this.config.nPageLinksDisplayed
                 ) || this.config.nPages <= this.config.nPageLinksDisplayed
         );
-    console.log(this.config.nPages)
     this.pagination.next = this.pagination.wrap
         .append('a')
         .classed('right arrow-link', true)

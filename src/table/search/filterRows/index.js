@@ -1,9 +1,9 @@
 import updatePagination from '../../pagination/addPagination/updatePagination';
 
-export default function filterRows(table) {
-        const inputText = this.value.toLowerCase();
+export default function filterRows(string) {
+        const inputText = string.value.toLowerCase();
         //Determine which rows contain input text.
-        table.data.search = table.data.raw.filter(d => {
+        this.data.search = this.data.raw.filter(d => {
             let match = false;
 
             Object.keys(d).forEach(var_name => {
@@ -15,8 +15,8 @@ export default function filterRows(table) {
 
             return match;
         });
-        table.config.activePage = 0;
-        table.config.startIndex = table.config.activePage * table.config.nRowsPerPage; // first row shown
-        table.config.endIndex = table.config.startIndex + table.config.nRowsPerPage; // last row shown
-        table.draw(table.data.search);
+        this.config.activePage = 0;
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+        this.draw(this.data.search);
 }
