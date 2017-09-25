@@ -53,6 +53,12 @@ export default function draw(passed_data, processed_data) {
     headers.enter().append('th');
     headers.text(d => d);
 
+    //Print a note that no data was selected for empty tables
+    table.selectAll('tr.NoDataRow').remove();
+    if (data[0].values.length == 0) {
+        table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+    }
+
     //Define table bodies? Not sure why there would be more than one.
     const tbodies = table.selectAll('tbody').data(data, d => d.key);
 

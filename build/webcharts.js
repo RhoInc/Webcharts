@@ -3108,6 +3108,12 @@
             return d;
         });
 
+        //Print a note that no data was selected for empty tables
+        table.selectAll('tr.NoDataRow').remove();
+        if (data[0].values.length == 0) {
+            table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+        }
+
         //Define table bodies? Not sure why there would be more than one.
         var tbodies = table.selectAll('tbody').data(data, function(d) {
             return d.key;
