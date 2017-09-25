@@ -1,4 +1,9 @@
 export default function setDefaults() {
+    //Export settings
+    this.config.export = this.config.export !== undefined
+        ? this.config.export
+        : ['csv', 'xlsx'];
+
     //Styling setting
     this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
 
