@@ -17,8 +17,8 @@ export default function addArrows() {
     this.pagination.prev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('left arrow-link', true)
+        .classed("hidden",this.config.activePage==0)
         .attr({
-            href: '#',
             rel: prev
         })
         .text('<');
@@ -26,8 +26,8 @@ export default function addArrows() {
     this.pagination.doublePrev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('left double-arrow-link', true)
+        .classed("hidden",this.config.activePage==0)
         .attr({
-            href: '#',
             rel: 0
         })
         .text('<<');
@@ -46,14 +46,14 @@ export default function addArrows() {
                 Math.max(
                     this.config.nPageLinksDisplayed,
                     this.config.nPages - this.config.nPageLinksDisplayed
-                ) || this.config.nPages < this.config.nPageLinksDisplayed
+                ) || this.config.nPages <= this.config.nPageLinksDisplayed
         );
 
     this.pagination.next = this.pagination.wrap
         .append('a')
         .classed('right arrow-link', true)
+        .classed("hidden",this.config.activePage==this.config.nPages - 1)
         .attr({
-            href: '#',
             rel: next
         })
         .text('>');
@@ -61,8 +61,9 @@ export default function addArrows() {
     this.pagination.doubleNext = this.pagination.wrap
         .append('a')
         .classed('right double-arrow-link', true)
+        .classed("hidden",this.config.activePage==this.config.nPages - 1)
+
         .attr({
-            href: '#',
             rel: this.config.nPages - 1
         })
         .text('>>');

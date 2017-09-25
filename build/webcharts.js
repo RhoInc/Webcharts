@@ -3213,7 +3213,10 @@
     }
 
     function layout$2() {
-        this.pagination.wrap = this.wrap.append('div').classed('pagination-container', true);
+        this.pagination.wrap = this.wrap
+            .append('div')
+            .classed('pagination-container', true)
+            .classed('hidden', this.config.paginationHidden);
     }
 
     function updatePagination() {
@@ -3232,6 +3235,7 @@
         //Define and draw selected page.
         this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
         this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
+
         this.draw();
     }
 
@@ -3239,10 +3243,7 @@
         var _this = this;
 
         //Count rows.
-        this.config.nRows = this.data.filtered[0].values.length;
 
-        //Calculate number of pages needed and create a link for each page.
-        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
         this.pagination.wrap.selectAll('a,span').remove();
 
         var _loop = function _loop(i) {
@@ -3250,7 +3251,6 @@
                 .append('a')
                 .datum({ rel: i })
                 .attr({
-                    href: '#',
                     rel: i
                 })
                 .text(i + 1)
@@ -3297,8 +3297,8 @@
         this.pagination.prev = this.pagination.wrap
             .insert('a', ':first-child')
             .classed('left arrow-link', true)
+            .classed('hidden', this.config.activePage == 0)
             .attr({
-                href: '#',
                 rel: prev
             })
             .text('<');
@@ -3306,8 +3306,8 @@
         this.pagination.doublePrev = this.pagination.wrap
             .insert('a', ':first-child')
             .classed('left double-arrow-link', true)
+            .classed('hidden', this.config.activePage == 0)
             .attr({
-                href: '#',
                 rel: 0
             })
             .text('<<');
@@ -3326,14 +3326,14 @@
                     Math.max(
                         this.config.nPageLinksDisplayed,
                         this.config.nPages - this.config.nPageLinksDisplayed
-                    ) || this.config.nPages < this.config.nPageLinksDisplayed
+                    ) || this.config.nPages <= this.config.nPageLinksDisplayed
             );
 
         this.pagination.next = this.pagination.wrap
             .append('a')
             .classed('right arrow-link', true)
+            .classed('hidden', this.config.activePage == this.config.nPages - 1)
             .attr({
-                href: '#',
                 rel: next
             })
             .text('>');
@@ -3341,8 +3341,8 @@
         this.pagination.doubleNext = this.pagination.wrap
             .append('a')
             .classed('right double-arrow-link', true)
+            .classed('hidden', this.config.activePage == this.config.nPages - 1)
             .attr({
-                href: '#',
                 rel: this.config.nPages - 1
             })
             .text('>>');
@@ -3353,6 +3353,13 @@
 
     function addPagination() {
         var listing = this;
+        //Calculate number of pages needed and create a link for each page.
+        this.config.nRows = this.data.filtered[0].values.length;
+        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
+
+        //hide the pagination if there is only one page
+        this.config.paginationHidden = this.config.nPages == 1;
+        this.pagination.wrap.classed('hidden', this.config.paginationHidden);
 
         //Render page links.
         addLinks.call(this);
@@ -3392,12 +3399,13 @@
     }
 
     function pagination() {
+        console.log(this);
         this.config.nRows = this.data.raw.length; // total number of rows, i.e. the length of the data file
-        this.config.nPages = this.config.nRows / this.config.nRowsPerPage; // total number of pages given number of rows
+        this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage); // total number of pages given number of rows
         this.config.activePage = 0; // current page, 0-indexed
         this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
         this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-
+        this.config.paginationHidden = this.config.nPages == 1;
         return {
             layout: layout$2,
             addPagination: addPagination
@@ -3565,6 +3573,23 @@
         this.events.onLayout.call(this);
     }
 
+    function destroy$2() {
+        var destroyControls = arguments.length > 0 && arguments[0] !== undefined
+            ? arguments[0]
+            : false;
+
+        //run onDestroy callback
+        this.events.onDestroy.call(this);
+
+        //destroy controls
+        if (destroyControls && this.controls) {
+            this.controls.destroy();
+        }
+
+        //unmount chart wrapper
+        this.wrap.remove();
+    }
+
     function setDefaults$1() {
         //Pagination settings
         this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
@@ -3660,7 +3685,8 @@
         init: { value: init$2 },
         layout: { value: layout$4 },
         setDefaults: { value: setDefaults$1 },
-        transformData: { value: transformData$1 }
+        transformData: { value: transformData$1 },
+        destroy: { value: destroy$2 }
     });
 
     function createTable() {
