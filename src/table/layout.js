@@ -9,6 +9,9 @@ export default function layout() {
     //Define pagination container.
     this.pagination.layout.call(this);
 
+    //Define search container.
+    this.search.layout.call(this);
+
     //Call layout callback.
     this.events.onLayout.call(this);
 }

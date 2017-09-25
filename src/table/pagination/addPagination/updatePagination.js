@@ -11,5 +11,5 @@ export default function updatePagination() {
     this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
     this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
 
-    this.draw();
+    this.draw(this.data.search);
 }

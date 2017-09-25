@@ -48,11 +48,13 @@ export default function addArrows() {
                     this.config.nPages - this.config.nPageLinksDisplayed
                 ) || this.config.nPages <= this.config.nPageLinksDisplayed
         );
-
     this.pagination.next = this.pagination.wrap
         .append('a')
         .classed('right arrow-link', true)
-        .classed('hidden', this.config.activePage == this.config.nPages - 1)
+        .classed(
+            'hidden',
+            this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
+        )
         .attr({
             rel: next
         })
@@ -61,7 +63,10 @@ export default function addArrows() {
     this.pagination.doubleNext = this.pagination.wrap
         .append('a')
         .classed('right double-arrow-link', true)
-        .classed('hidden', this.config.activePage == this.config.nPages - 1)
+        .classed(
+            'hidden',
+            this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
+        )
         .attr({
             rel: this.config.nPages - 1
         })

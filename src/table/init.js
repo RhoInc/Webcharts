@@ -1,5 +1,6 @@
 import { select, range } from 'd3';
 import pagination from './pagination/index';
+import search from './search/index';
 
 export default function init(data, test = false) {
     if (select(this.div).select('.loader').empty()) {
@@ -29,6 +30,9 @@ export default function init(data, test = false) {
 
     //Attach pagination object to table object.
     this.pagination = pagination.call(this);
+
+    //Attach search object to table object.
+    this.search = search.call(this);
 
     let startup = data => {
         //connect this table and its controls, if any

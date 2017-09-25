@@ -15,13 +15,14 @@ export default function draw(passed_data, processed_data) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+            this.search.wrap.select('input').property('value', '');
         }
 
         this.previousFilters = this.filters.map(filter => filter.val);
     }
 
-    this.data.passed = passed_data || this.data.raw;
-    this.data.filtered = processed_data || this.transformData(this.data.raw);
+    this.data.passed = passed_data || this.data.searched || this.data.raw;
+    this.data.filtered = processed_data || this.transformData(this.data.passed);
     this.data.paginated = clone(this.data.filtered);
     this.data.paginated[0].values = this.data.paginated[0].values.filter(
         (d, i) => this.config.startIndex <= i && i < this.config.endIndex
@@ -52,6 +53,12 @@ export default function draw(passed_data, processed_data) {
     headers.exit().remove();
     headers.enter().append('th');
     headers.text(d => d);
+
+    //Print a note that no data was selected for empty tables
+    table.selectAll('tr.NoDataRow').remove();
+    if (data[0].values.length == 0) {
+        table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+    }
 
     //Define table bodies? Not sure why there would be more than one.
     const tbodies = table.selectAll('tbody').data(data, d => d.key);

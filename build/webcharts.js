@@ -3066,6 +3066,7 @@
                 this.config.activePage = 0;
                 this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
                 this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+                this.search.wrap.select('input').property('value', '');
             }
 
             this.previousFilters = this.filters.map(function(filter) {
@@ -3073,8 +3074,8 @@
             });
         }
 
-        this.data.passed = passed_data || this.data.raw;
-        this.data.filtered = processed_data || this.transformData(this.data.raw);
+        this.data.passed = passed_data || this.data.searched || this.data.raw;
+        this.data.filtered = processed_data || this.transformData(this.data.passed);
         this.data.paginated = clone(this.data.filtered);
         this.data.paginated[0].values = this.data.paginated[0].values.filter(function(d, i) {
             return _this.config.startIndex <= i && i < _this.config.endIndex;
@@ -3107,6 +3108,12 @@
         headers.text(function(d) {
             return d;
         });
+
+        //Print a note that no data was selected for empty tables
+        table.selectAll('tr.NoDataRow').remove();
+        if (data[0].values.length == 0) {
+            table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+        }
 
         //Define table bodies? Not sure why there would be more than one.
         var tbodies = table.selectAll('tbody').data(data, function(d) {
@@ -3236,7 +3243,7 @@
         this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
         this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
 
-        this.draw();
+        this.draw(this.data.search);
     }
 
     function addLinks() {
@@ -3328,11 +3335,13 @@
                         this.config.nPages - this.config.nPageLinksDisplayed
                     ) || this.config.nPages <= this.config.nPageLinksDisplayed
             );
-
         this.pagination.next = this.pagination.wrap
             .append('a')
             .classed('right arrow-link', true)
-            .classed('hidden', this.config.activePage == this.config.nPages - 1)
+            .classed(
+                'hidden',
+                this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
+            )
             .attr({
                 rel: next
             })
@@ -3341,7 +3350,10 @@
         this.pagination.doubleNext = this.pagination.wrap
             .append('a')
             .classed('right double-arrow-link', true)
-            .classed('hidden', this.config.activePage == this.config.nPages - 1)
+            .classed(
+                'hidden',
+                this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
+            )
             .attr({
                 rel: this.config.nPages - 1
             })
@@ -3411,6 +3423,47 @@
         };
     }
 
+    function layout$3() {
+        var table = this;
+
+        this.search.wrap = this.wrap
+            .insert('div', ':first-child')
+            .classed('search-container', true)
+            .classed('hidden', !this.config.searchable);
+        this.search.wrap.append('span').classed('description', true).text('Search:');
+        this.search.wrap.append('input').classed('search-box', true).on('input', function() {
+            table.search.filterRows.call(table, this);
+        });
+    }
+
+    function filterRows(string) {
+        var inputText = string.value.toLowerCase();
+        //Determine which rows contain input text.
+        this.data.search = this.data.raw.filter(function(d) {
+            var match = false;
+
+            Object.keys(d).forEach(function(var_name) {
+                if (match === false) {
+                    var cellText = '' + d[var_name];
+                    match = cellText.toLowerCase().indexOf(inputText) > -1;
+                }
+            });
+
+            return match;
+        });
+        this.config.activePage = 0;
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+        this.draw(this.data.search);
+    }
+
+    function search() {
+        return {
+            layout: layout$3,
+            filterRows: filterRows
+        };
+    }
+
     function init$2(data) {
         var _this = this;
 
@@ -3448,6 +3501,9 @@
 
         //Attach pagination object to table object.
         this.pagination = pagination.call(this);
+
+        //Attach search object to table object.
+        this.search = search.call(this);
 
         var startup = function startup(data) {
             //connect this table and its controls, if any
@@ -3491,7 +3547,7 @@
         return this;
     }
 
-    function layout$3() {
+    function layout$4() {
         d3.select(this.div).select('.loader').remove();
         var table = this.wrap.append('table');
         table.append('thead').append('tr').attr('class', 'headers');
@@ -3499,6 +3555,9 @@
 
         //Define pagination container.
         this.pagination.layout.call(this);
+
+        //Define search container.
+        this.search.layout.call(this);
 
         //Call layout callback.
         this.events.onLayout.call(this);
@@ -3604,7 +3663,7 @@
             })
             .entries(filtered);
 
-        this.data.current = slimmed;
+        this.data.current = slimmed.length ? slimmed : [{ key: null, values: [] }]; // dummy nested data array
 
         //Reset pagination.
         this.pagination.wrap.selectAll('*').remove();
@@ -3617,7 +3676,7 @@
     var table = Object.create(chart, {
         draw: { value: draw$1 },
         init: { value: init$2 },
-        layout: { value: layout$3 },
+        layout: { value: layout$4 },
         setDefaults: { value: setDefaults$1 },
         transformData: { value: transformData$1 },
         destroy: { value: destroy$2 }

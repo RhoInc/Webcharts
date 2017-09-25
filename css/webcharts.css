@@ -248,6 +248,9 @@ div.wc-layout.wc-small-multiples::after {
   Tables
 \------------------------------------------------------------------------------------------------*/
 
+    .wc-table .hidden {
+        display: none !important;
+    }
     .wc-table table:not(.table){
         font-size: .9em;
         border-collapse: collapse;
@@ -269,6 +272,12 @@ div.wc-layout.wc-small-multiples::after {
         padding: .25em .5em;
     }
     .wc-table table:not(.table) td:last-child{
+    }
+    .wc-table .search-container {
+        padding-bottom: 10px;
+    }
+    .wc-table .search-container input {
+        margin-left: 10px;
     }
     .wc-table .pagination-container {
         padding-top: 10px;
