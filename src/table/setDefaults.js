@@ -1,4 +1,7 @@
 export default function setDefaults() {
+    //Styling setting
+    this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
+
     //Pagination settings
     this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
     this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page

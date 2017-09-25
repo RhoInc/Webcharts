@@ -3399,7 +3399,6 @@
     }
 
     function pagination() {
-        console.log(this);
         this.config.nRows = this.data.raw.length; // total number of rows, i.e. the length of the data file
         this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage); // total number of pages given number of rows
         this.config.activePage = 0; // current page, 0-indexed
@@ -3431,10 +3430,11 @@
                 });
         }
 
-        this.wrap.attr('class', 'wc-chart wc-table');
-
         //Define default settings.
         this.setDefaults();
+
+        //Assign classes to container element.
+        this.wrap.classed('wc-chart', true).classed('wc-table', this.config.applyCSS);
 
         //Define data object.
         this.data = {
@@ -3522,6 +3522,9 @@
     }
 
     function setDefaults$1() {
+        //Styling setting
+        this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
+
         //Pagination settings
         this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
         this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page
