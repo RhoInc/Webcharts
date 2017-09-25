@@ -3413,7 +3413,7 @@
     }
 
     function layout$3() {
-        var context = this;
+        var table = this;
 
         this.search.wrap = this.wrap
             .insert('div', ':first-child')
@@ -3421,57 +3421,33 @@
             .classed('hidden', !this.config.searchable);
         this.search.wrap.append('span').classed('description', true).text('Search:');
         this.search.wrap.append('input').classed('search-box', true).on('input', function() {
-            var inputText = this.value.toLowerCase();
-            console.log(inputText);
-
-            //Determine which rows contain input text.
-            context.data.searched = inputText !== ''
-                ? context.data.raw.filter(function(d) {
-                      var match = false;
-
-                      Object.keys(d).forEach(function(key) {
-                          if (match === false) {
-                              var cellText = '' + d[key];
-                              match = cellText.toLowerCase().indexOf(inputText) > -1;
-                          }
-                      });
-
-                      return match;
-                  })
-                : null;
-
-            context.config.activeLink = 0;
-            context.draw();
+            table.search.filterRows.call(this, table);
         });
     }
 
-    function addSearch() {
-        this.search.wrap.select('.search-box').on('input', function() {
-            var inputText = this.value.toLowerCase();
+    function filterRows(table) {
+        var inputText = this.value.toLowerCase();
+        //Determine which rows contain input text.
+        table.data.search = table.data.raw.filter(function(d) {
+            var match = false;
 
-            //Determine which rows contain input text.
-            this.data.search = this.data.filtered.filter(function(d) {
-                var match = false;
-
-                Object.keys(d).forEach(function(key) {
-                    if (match === false) {
-                        var cellText = '' + d[var_name];
-                        match = cellText.toLowerCase().indexOf(inputText) > -1;
-                    }
-                });
-
-                return match;
+            Object.keys(d).forEach(function(var_name) {
+                if (match === false) {
+                    var cellText = '' + d[var_name];
+                    match = cellText.toLowerCase().indexOf(inputText) > -1;
+                }
             });
 
-            this.config.activeLink = 0;
-            this.draw(this.data.search);
+            return match;
         });
+        table.config.activeLink = 0;
+        table.draw(table.data.search);
     }
 
     function search() {
         return {
             layout: layout$3,
-            addSearch: addSearch
+            filterRows: filterRows
         };
     }
 

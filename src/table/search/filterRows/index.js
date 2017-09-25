@@ -1,12 +1,10 @@
-export default function addSearch() {
-    this.search.wrap.select('.search-box').on('input', function() {
+export default function filterRows(table) {
         const inputText = this.value.toLowerCase();
-
         //Determine which rows contain input text.
-        this.data.search = this.data.filtered.filter(d => {
+        table.data.search = table.data.raw.filter(d => {
             let match = false;
 
-            Object.keys(d).forEach(key => {
+            Object.keys(d).forEach(var_name => {
                 if (match === false) {
                     const cellText = '' + d[var_name];
                     match = cellText.toLowerCase().indexOf(inputText) > -1;
@@ -15,8 +13,6 @@ export default function addSearch() {
 
             return match;
         });
-
-        this.config.activeLink = 0;
-        this.draw(this.data.search);
-    });
+        table.config.activeLink = 0;
+        table.draw(table.data.search);
 }

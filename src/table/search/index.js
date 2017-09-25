@@ -1,9 +1,9 @@
 import layout from './layout';
-import addSearch from './addSearch/index';
+import filterRows from './filterRows/index';
 
 export default function search() {
     return {
         layout: layout,
-        addSearch: addSearch
+        filterRows: filterRows
     };
 }
