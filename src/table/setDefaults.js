@@ -1,13 +1,9 @@
 export default function setDefaults() {
     //Sort settings
-    this.config.sort = this.config.sort !== undefined
-        ? this.config.sort
-        : true;
+    this.config.sort = this.config.sort !== undefined ? this.config.sort : true;
 
     //Pagination settings
-    this.config.pagination = this.config.pagination !== undefined
-        ? this.config.pagination
-        : true;
+    this.config.pagination = this.config.pagination !== undefined ? this.config.pagination : true;
     this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
     this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page
 

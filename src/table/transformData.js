@@ -5,10 +5,9 @@ export default function transformData(data) {
         return;
     }
 
-    const
-        config = this.config;
+    const config = this.config;
 
-  //Define columns and headers if not specified in settings object.
+    //Define columns and headers if not specified in settings object.
     config.cols = config.cols || keys(data[0]);
     config.headers = config.headers || config.cols;
 
