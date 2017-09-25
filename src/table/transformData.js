@@ -1,19 +1,24 @@
 import { keys, nest } from 'd3';
 
 export default function transformData(data) {
-    if (!data) {
+    if (!data || !data.length) {
         return;
     }
-    let config = this.config;
-    let colList = config.cols || keys(data[0]);
+
+    const
+        config = this.config;
+
+  //Define columns and headers if not specified in settings object.
+    config.cols = config.cols || keys(data[0]);
+    config.headers = config.headers || config.cols;
+
     if (config.keep) {
         config.keep.forEach(e => {
-            if (colList.indexOf(e) === -1) {
-                colList.unshift(e);
+            if (config.cols.indexOf(e) === -1) {
+                config.cols.unshift(e);
             }
         });
     }
-    this.config.cols = colList;
 
     let filtered = data;
 

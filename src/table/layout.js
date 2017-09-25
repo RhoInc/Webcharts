@@ -7,6 +7,9 @@ export default function layout() {
     this.table = table;
 
     //Define pagination container.
+    this.sort.layout.call(this);
+
+    //Define pagination container.
     this.pagination.layout.call(this);
 
     //Call layout callback.
