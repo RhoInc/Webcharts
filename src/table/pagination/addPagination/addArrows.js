@@ -17,7 +17,7 @@ export default function addArrows() {
     this.pagination.prev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('left arrow-link', true)
-        .classed("hidden",this.config.activePage==0)
+        .classed('hidden', this.config.activePage == 0)
         .attr({
             rel: prev
         })
@@ -26,7 +26,7 @@ export default function addArrows() {
     this.pagination.doublePrev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('left double-arrow-link', true)
-        .classed("hidden",this.config.activePage==0)
+        .classed('hidden', this.config.activePage == 0)
         .attr({
             rel: 0
         })

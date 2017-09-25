@@ -10,8 +10,8 @@ export default function addPagination() {
     this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
 
     //hide the pagination if there is only one page
-    this.config.paginationHidden = this.config.nPages == 1
-    this.pagination.wrap.classed('hidden',this.config.paginationHidden);
+    this.config.paginationHidden = this.config.nPages == 1;
+    this.pagination.wrap.classed('hidden', this.config.paginationHidden);
 
     //Render page links.
     addLinks.call(this);

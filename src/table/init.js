@@ -14,10 +14,11 @@ export default function init(data, test = false) {
             .attr('class', d => 'blockG rotate' + (d + 1));
     }
 
-    this.wrap.attr('class', 'wc-chart wc-table');
-
     //Define default settings.
     this.setDefaults();
+
+    //Assign classes to container element.
+    this.wrap.classed('wc-chart', true).classed('wc-table', this.config.applyCSS);
 
     //Define data object.
     this.data = {
