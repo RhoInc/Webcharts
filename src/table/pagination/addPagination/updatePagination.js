@@ -1,5 +1,4 @@
 export default function updatePagination() {
-
     //Reset pagination.
     this.pagination.links.classed('active', false);
 
