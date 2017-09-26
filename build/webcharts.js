@@ -3108,7 +3108,7 @@
 
         //Print a note that no data was selected for empty tables
         table.selectAll('tr.NoDataRow').remove();
-        if (data[0].values.length == 0) {
+        if (this.data.passed.length == 0) {
             table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
         }
 
@@ -3745,7 +3745,7 @@
     }
 
     function transformData$1(data) {
-        if (!data || !data.length) {
+        if (!data) {
             return;
         }
 

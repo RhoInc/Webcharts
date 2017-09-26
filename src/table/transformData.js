@@ -1,7 +1,7 @@
 import { keys, nest } from 'd3';
 
 export default function transformData(data) {
-    if (!data || !data.length) {
+    if (!data) {
         return;
     }
 
