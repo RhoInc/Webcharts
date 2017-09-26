@@ -3074,7 +3074,10 @@
             });
         }
 
+        if (this.sort.order.length) passed_data = this.sort.sortData.call(this, passed_data);
         this.data.passed = passed_data || this.data.searched || this.data.raw;
+        if (this.sort.order.length)
+            this.data.passed = this.sort.sortData.call(this, this.data.passed);
         this.data.filtered = processed_data || this.transformData(this.data.passed);
         this.data.paginated = clone(this.data.filtered);
         this.data.paginated[0].values = this.data.paginated[0].values.filter(function(d, i) {
@@ -3083,11 +3086,8 @@
 
         var data = config.pagination ? this.data.paginated : this.data.filtered;
 
+        //Bind table data to table container.
         this.wrap.datum(data);
-
-        var col_list = config.cols.length
-            ? config.cols
-            : data.length ? d3.keys(data[0].values[0].raw) : [];
 
         //for bootstrap table styling
         if (config.bootstrap) {
@@ -3097,11 +3097,8 @@
         }
 
         //Define header, header row, and header cells.
-        var header_data = !data.length
-            ? []
-            : config.headers && config.headers.length ? config.headers : col_list,
-            headerRow = table.select('thead').select('tr.headers'),
-            headers = headerRow.selectAll('th').data(header_data);
+        var headerRow = table.select('thead').select('tr.headers'),
+            headers = headerRow.selectAll('th').data(this.config.headers);
 
         headers.exit().remove();
         headers.enter().append('th');
@@ -3111,7 +3108,7 @@
 
         //Print a note that no data was selected for empty tables
         table.selectAll('tr.NoDataRow').remove();
-        if (data[0].values.length == 0) {
+        if (this.data.passed.length == 0) {
             table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
         }
 
@@ -3163,7 +3160,7 @@
         //Define table body cells.
         var tds = rows.selectAll('td').data(function(d) {
             return d.cells.filter(function(f) {
-                return col_list.indexOf(f.col) > -1;
+                return _this.config.cols.indexOf(f.col) > -1;
             });
         });
 
@@ -3213,6 +3210,9 @@
             }
         }
 
+        //Add sort.
+        if (this.config.sort) this.sort.addSort.call(this);
+
         //Add pagination.
         if (this.config.pagination) this.pagination.addPagination.call(this);
 
@@ -3220,6 +3220,136 @@
     }
 
     function layout$2() {
+        var context = this;
+
+        //Add sort container.
+        this.sort.wrap = this.wrap.insert('div', ':first-child').classed('sort-container', true);
+        this.sort.wrap
+            .append('span')
+            .classed('instruction', true)
+            .text('Click any column header to sort that column.');
+    }
+
+    function sortData(data) {
+        var _this = this;
+
+        var sortedData = data ? clone(data) : clone(this.data.raw);
+        sortedData = sortedData.sort(function(a, b) {
+            var order = 0;
+
+            _this.sort.order.forEach(function(item) {
+                var aCell = a[item.col],
+                    bCell = b[item.col];
+
+                if (order === 0) {
+                    if (
+                        (item.direction === 'ascending' && aCell < bCell) ||
+                        (item.direction === 'descending' && aCell > bCell)
+                    )
+                        order = -1;
+                    else if (
+                        (item.direction === 'ascending' && aCell > bCell) ||
+                        (item.direction === 'descending' && aCell < bCell)
+                    )
+                        order = 1;
+                }
+            });
+
+            return order;
+        });
+
+        this.data.sorted = sortedData;
+
+        return sortedData;
+    }
+
+    function onClick(th, header) {
+        var context = this,
+            selection = d3.select(th),
+            col = this.config.cols[this.config.headers.indexOf(header)];
+
+        //Check if column is already a part of current sort order.
+        var sortItem = this.sort.order.filter(function(item) {
+            return item.col === col;
+        })[0];
+
+        //If it isn't, add it to sort order.
+        if (!sortItem) {
+            sortItem = {
+                col: col,
+                direction: 'ascending',
+                wrap: this.sort.wrap
+                    .append('div')
+                    .datum({ key: col })
+                    .classed('sort-box', true)
+                    .text(col)
+            };
+            sortItem.wrap.append('span').classed('sort-direction', true).html('&darr;');
+            sortItem.wrap.append('span').classed('remove-sort', true).html('&#10060;');
+            this.sort.order.push(sortItem);
+        } else {
+            //Otherwise reverse its sort direction.
+            sortItem.direction = sortItem.direction === 'ascending' ? 'descending' : 'ascending';
+            sortItem.wrap
+                .select('span.sort-direction')
+                .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
+        }
+
+        //Sort data.
+        sortData.call(this, this.data.search);
+        this.draw(this.data.sorted);
+
+        //Hide sort instructions.
+        this.sort.wrap.select('.instruction').classed('hidden', true);
+
+        //Add sort container deletion functionality.
+        this.sort.order.forEach(function(item, i) {
+            item.wrap.on('click', function(d) {
+                //Remove sort container.
+                d3.select(this).remove();
+
+                //Remove column from sort.
+                context.sort.order.splice(
+                    context.sort.order
+                        .map(function(d) {
+                            return d.col;
+                        })
+                        .indexOf(d.key),
+                    1
+                );
+
+                //Sort data.
+                if (context.sort.order.length) {
+                    sortData.call(context, context.data.search);
+                    context.draw(context.data.sorted);
+                } else {
+                    //Display sort instructions.
+                    context.sort.wrap.select('.instruction').classed('hidden', false);
+                    context.draw(context.data.search);
+                }
+            });
+        });
+    }
+
+    function addSort() {
+        var context = this;
+
+        //Add click listener to headers.
+        var headers = this.table.selectAll('thead th').on('click', function(header) {
+            onClick.call(context, this, header);
+        });
+    }
+
+    function sort() {
+        return {
+            layout: layout$2,
+            addSort: addSort,
+            sortData: sortData,
+            order: []
+        };
+    }
+
+    function layout$3() {
         this.pagination.wrap = this.wrap
             .append('div')
             .classed('pagination-container', true)
@@ -3418,12 +3548,12 @@
         this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
         this.config.paginationHidden = this.config.nPages == 1;
         return {
-            layout: layout$2,
+            layout: layout$3,
             addPagination: addPagination
         };
     }
 
-    function layout$3() {
+    function layout$4() {
         var table = this;
 
         this.search.wrap = this.wrap
@@ -3459,7 +3589,7 @@
 
     function search() {
         return {
-            layout: layout$3,
+            layout: layout$4,
             filterRows: filterRows
         };
     }
@@ -3494,10 +3624,14 @@
             raw: data,
             passed: data,
             filtered: data,
+            sorted: [],
             paginated: data.filter(function(d, i) {
                 return i < _this.config.nRowsPerPage;
             })
         };
+
+        //Attach pagination object to table object.
+        this.sort = sort.call(this);
 
         //Attach pagination object to table object.
         this.pagination = pagination.call(this);
@@ -3547,11 +3681,14 @@
         return this;
     }
 
-    function layout$4() {
+    function layout$5() {
         d3.select(this.div).select('.loader').remove();
         var table = this.wrap.append('table');
         table.append('thead').append('tr').attr('class', 'headers');
         this.table = table;
+
+        //Define pagination container.
+        this.sort.layout.call(this);
 
         //Define pagination container.
         this.pagination.layout.call(this);
@@ -3583,8 +3720,13 @@
     function setDefaults$1() {
         //Styling setting
         this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
+        //Sort settings
+        this.config.sort = this.config.sort !== undefined ? this.config.sort : true;
 
         //Pagination settings
+        this.config.pagination = this.config.pagination !== undefined
+            ? this.config.pagination
+            : true;
         this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
         this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page
 
@@ -3606,16 +3748,20 @@
         if (!data) {
             return;
         }
+
         var config = this.config;
-        var colList = config.cols || d3.keys(data[0]);
+
+        //Define columns and headers if not specified in settings object.
+        config.cols = config.cols || d3.keys(data[0]);
+        config.headers = config.headers || config.cols;
+
         if (config.keep) {
             config.keep.forEach(function(e) {
-                if (colList.indexOf(e) === -1) {
-                    colList.unshift(e);
+                if (config.cols.indexOf(e) === -1) {
+                    config.cols.unshift(e);
                 }
             });
         }
-        this.config.cols = colList;
 
         var filtered = data;
 
@@ -3676,7 +3822,7 @@
     var table = Object.create(chart, {
         draw: { value: draw$1 },
         init: { value: init$2 },
-        layout: { value: layout$4 },
+        layout: { value: layout$5 },
         setDefaults: { value: setDefaults$1 },
         transformData: { value: transformData$1 },
         destroy: { value: destroy$2 }
