@@ -48,6 +48,4 @@ export default function csv(data) {
             link.node().setAttribute('download', fileName);
         }
     }
-
-    return CSVarray;
 }

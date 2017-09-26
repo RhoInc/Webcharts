@@ -2419,11 +2419,70 @@ function csv(data) {
             link.node().setAttribute('download', fileName);
         }
     }
-
-    return CSVarray;
 }
 
-function xlsx() {}
+function xlsx(data) {
+    var _this = this;
+
+    if (!data) data = this.data.filtered[0].values.map(function (d) {
+        return d.raw;
+    });
+
+    var options = {
+        bookType: 'xlsx',
+        bookSST: false,
+        type: 'binary'
+    },
+        arrayOfArrays = data.map(function (d) {
+        return Object.keys(d).filter(function (key) {
+            return _this.config.cols.indexOf(key) > -1;
+        }).map(function (key) {
+            return d[key];
+        });
+    }),
+        workbook = {
+        SheetNames: ['Selected Data'],
+        Sheets: { 'Selected Data': XLSX.utils.aoa_to_sheet([this.config.headers].concat(arrayOfArrays)) }
+    };
+
+    //Add filters to workbook.
+    workbook['!autofilter'] = { ref: 'A1:' + String.fromCharCode(64 + this.config.cols.length) + (data.length + 1) };
+    console.log(workbook);
+
+    var xlsx = XLSX.write(workbook, options),
+        s2ab = function s2ab(s) {
+        var buffer = new ArrayBuffer(s.length),
+            view = new Uint8Array(buffer);
+
+        for (var i = 0; i !== s.length; ++i) {
+            view[i] = s.charCodeAt(i) & 0xFF;
+        }return buffer;
+    };
+
+    //transform CSV array into CSV string
+    var blob = new Blob([s2ab(xlsx)], { type: 'application/octet-stream;' }),
+        fileName = 'Selected Data.xlsx',
+        link = this.wrap.select('.download#xlsx');
+
+    if (navigator.msSaveBlob) {
+        // IE 10+
+        link.style({
+            cursor: 'pointer',
+            'text-decoration': 'underline',
+            color: 'blue'
+        });
+        link.on('click', function () {
+            navigator.msSaveBlob(blob, fileName);
+        });
+    } else {
+        // Browsers that support HTML5 download attribute
+        if (link.node().download !== undefined) {
+            var url = URL.createObjectURL(blob);
+            link.node().setAttribute('href', url);
+            link.node().setAttribute('download', fileName);
+        }
+    }
+}
 
 var formats = {
     csv: csv,
