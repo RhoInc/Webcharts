@@ -1,4 +1,6 @@
 export default function setDefaults() {
+    //Styling setting
+    this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
     //Sort settings
     this.config.sort = this.config.sort !== undefined ? this.config.sort : true;
 

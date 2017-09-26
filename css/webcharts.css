@@ -269,7 +269,14 @@ div.wc-layout.wc-small-multiples::after {
     }
     .wc-table table thead tr th:first-child {
     }
-    .wc-table table thead tr th:last-child {
+    .wc-table .search-container {
+        padding-bottom: 10px;
+    }
+    .wc-table .search-container input {
+        margin-left: 10px;
+    }
+    .wc-table .pagination-container {
+        padding-top: 10px;
     }
 
     .wc-table table tbody tr {

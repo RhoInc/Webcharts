@@ -8,7 +8,6 @@ export default function pagination() {
     this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
     this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
     this.config.paginationHidden = this.config.nPages == 1;
-
     return {
         layout: layout,
         addPagination: addPagination
