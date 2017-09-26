@@ -32,7 +32,7 @@ export default function onClick(th, header) {
     }
 
     //Sort data.
-    sortData.call(this);
+    sortData.call(this, this.data.search);
     this.draw(this.data.sorted);
 
     //Hide sort instructions.
@@ -49,12 +49,12 @@ export default function onClick(th, header) {
 
             //Sort data.
             if (context.sort.order.length) {
-                sortData.call(context);
+                sortData.call(context, context.data.search);
                 context.draw(context.data.sorted);
             } else {
                 //Display sort instructions.
                 context.sort.wrap.select('.instruction').classed('hidden', false);
-                context.draw(context.data.raw);
+                context.draw(context.data.search);
             }
         });
     });
