@@ -2238,9 +2238,8 @@ function draw$1(passed_data, processed_data) {
     }
 
     //Define header, header row, and header cells.
-    var header_data = !data.length ? [] : config.headers && config.headers.length ? config.headers : col_list,
-        headerRow = table.select('thead').select('tr.headers'),
-        headers = headerRow.selectAll('th').data(header_data);
+    var headerRow = table.select('thead').select('tr.headers'),
+        headers = headerRow.selectAll('th').data(this.config.headers);
 
     headers.exit().remove();
     headers.enter().append('th');
@@ -2343,12 +2342,102 @@ function draw$1(passed_data, processed_data) {
     }
 
     //Add pagination.
+    if (this.config.exportData) this.config.exportFormats.forEach(function (fmt) {
+        _this.exportData.formats[fmt].call(_this);
+    });
+
+    //Add pagination.
     if (this.config.pagination) this.pagination.addPagination.call(this);
 
     this.events.onDraw.call(this);
 }
 
 function layout$2() {
+    var _this = this;
+
+    this.exportData.wrap = this.wrap.insert('div', ':first-child').classed('export-data-container', true);
+
+    this.exportData.wrap.append('span').text('Download data:');
+
+    if (this.config.exportFormats && this.config.exportFormats.length) this.config.exportFormats.forEach(function (fmt) {
+        _this.exportData.wrap.append('a').classed('download', true).attr({
+            id: fmt
+        }).text(fmt.toUpperCase());
+    });
+}
+
+function csv(data) {
+    var _this = this;
+
+    if (!data) data = this.data.filtered[0].values.map(function (d) {
+        return d.raw;
+    });
+
+    var CSVarray = [];
+
+    data.forEach(function (d, i) {
+        //add headers to CSV array
+        if (i === 0) {
+            var headers = _this.config.headers.map(function (header) {
+                return '"' + header.replace(/"/g, '""') + '"';
+            });
+            CSVarray.push(headers);
+        }
+
+        //add rows to CSV array
+        var row = _this.config.cols.map(function (col) {
+            var value = d[col];
+
+            if (typeof value === 'string') value = value.replace(/"/g, '""');
+
+            return '"' + value + '"';
+        });
+
+        CSVarray.push(row);
+    });
+
+    //transform CSV array into CSV string
+    var CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
+        fileName = 'Selected Data.csv',
+        link = this.wrap.select('.download#csv');
+
+    if (navigator.msSaveBlob) {
+        // IE 10+
+        link.style({
+            cursor: 'pointer',
+            'text-decoration': 'underline',
+            color: 'blue'
+        });
+        link.on('click', function () {
+            navigator.msSaveBlob(CSV, fileName);
+        });
+    } else {
+        // Browsers that support HTML5 download attribute
+        if (link.node().download !== undefined) {
+            var url = URL.createObjectURL(CSV);
+            link.node().setAttribute('href', url);
+            link.node().setAttribute('download', fileName);
+        }
+    }
+
+    return CSVarray;
+}
+
+function xlsx() {}
+
+var formats = {
+    csv: csv,
+    xlsx: xlsx
+};
+
+function exportData() {
+    return {
+        layout: layout$2,
+        formats: formats
+    };
+}
+
+function layout$3() {
     this.pagination.wrap = this.wrap.append('div').classed('pagination-container', true).classed('hidden', this.config.paginationHidden);
 }
 
@@ -2481,7 +2570,7 @@ function pagination() {
     this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
     this.config.paginationHidden = this.config.nPages == 1;
     return {
-        layout: layout$2,
+        layout: layout$3,
         addPagination: addPagination
     };
 }
@@ -2512,6 +2601,9 @@ function init$2(data) {
             return i < _this.config.nRowsPerPage;
         })
     };
+
+    //Attach pagination object to table object.
+    this.exportData = exportData.call(this);
 
     //Attach pagination object to table object.
     this.pagination = pagination.call(this);
@@ -2556,11 +2648,14 @@ function init$2(data) {
     return this;
 }
 
-function layout$3() {
+function layout$4() {
     d3.select(this.div).select('.loader').remove();
     var table = this.wrap.append('table');
     table.append('thead').append('tr').attr('class', 'headers');
     this.table = table;
+
+    //Define pagination container.
+    this.exportData.layout.call(this);
 
     //Define pagination container.
     this.pagination.layout.call(this);
@@ -2586,12 +2681,16 @@ function destroy$2() {
 
 function setDefaults$1() {
     //Export settings
-    this.config.export = this.config.export !== undefined ? this.config.export : ['csv', 'xlsx'];
+    this.config.exportData = this.config.exportData !== undefined ? this.config.exportData : true;
+    this.config.exportFormats = this.config.exportFormats !== undefined ? this.config.exportFormats.map(function (fmt) {
+        return fmt.toLowerCase();
+    }) : ['csv'];
 
     //Styling setting
     this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
 
     //Pagination settings
+    this.config.pagination = this.config.pagination !== undefined ? this.config.pagination : true;
     this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
     this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page
 
@@ -2606,19 +2705,22 @@ function setDefaults$1() {
 }
 
 function transformData$1(data) {
+    var _this = this;
+
     if (!data) {
         return;
     }
-    var config = this.config;
-    var colList = config.cols || d3.keys(data[0]);
-    if (config.keep) {
-        config.keep.forEach(function (e) {
-            if (colList.indexOf(e) === -1) {
-                colList.unshift(e);
+
+    this.config.cols = this.config.cols || d3.keys(data[0]);
+    this.config.headers = this.config.headers || this.config.cols;
+
+    if (this.config.keep) {
+        this.config.keep.forEach(function (e) {
+            if (_this.config.cols.indexOf(e) === -1) {
+                _this.config.cols.unshift(e);
             }
         });
     }
-    this.config.cols = colList;
 
     var filtered = data;
 
@@ -2636,16 +2738,16 @@ function transformData$1(data) {
     }
 
     var slimmed = d3.nest().key(function (d) {
-        if (config.row_per) {
-            return config.row_per.map(function (m) {
+        if (_this.config.row_per) {
+            return _this.config.row_per.map(function (m) {
                 return d[m];
             }).join(' ');
         } else {
             return d;
         }
     }).rollup(function (r) {
-        if (config.dataManipulate) {
-            r = config.dataManipulate(r);
+        if (_this.config.dataManipulate) {
+            r = _this.config.dataManipulate(r);
         }
         var nuarr = r.map(function (m) {
             var arr = [];
@@ -2653,7 +2755,7 @@ function transformData$1(data) {
                 arr.push({ col: x, text: m[x] });
             }
             arr.sort(function (a, b) {
-                return config.cols.indexOf(a.col) - config.cols.indexOf(b.col);
+                return _this.config.cols.indexOf(a.col) - _this.config.cols.indexOf(b.col);
             });
             return { cells: arr, raw: m };
         });
@@ -2673,7 +2775,7 @@ function transformData$1(data) {
 var table = Object.create(chart, {
     draw: { value: draw$1 },
     init: { value: init$2 },
-    layout: { value: layout$3 },
+    layout: { value: layout$4 },
     setDefaults: { value: setDefaults$1 },
     transformData: { value: transformData$1 },
     destroy: { value: destroy$2 }

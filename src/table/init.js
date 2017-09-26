@@ -1,4 +1,5 @@
 import { select, range } from 'd3';
+import exportData from './exportData/index';
 import pagination from './pagination/index';
 
 export default function init(data, test = false) {
@@ -26,6 +27,9 @@ export default function init(data, test = false) {
         filtered: data,
         paginated: data.filter((d, i) => i < this.config.nRowsPerPage)
     };
+
+    //Attach pagination object to table object.
+    this.exportData = exportData.call(this);
 
     //Attach pagination object to table object.
     this.pagination = pagination.call(this);

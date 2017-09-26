@@ -1,13 +1,17 @@
 export default function setDefaults() {
     //Export settings
-    this.config.export = this.config.export !== undefined
-        ? this.config.export
-        : ['csv', 'xlsx'];
+    this.config.exportData = this.config.exportData !== undefined
+        ? this.config.exportData
+        : true;
+    this.config.exportFormats = this.config.exportFormats !== undefined
+        ? this.config.exportFormats.map(fmt => fmt.toLowerCase())
+        : ['csv'];
 
     //Styling setting
     this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
 
     //Pagination settings
+    this.config.pagination = this.config.pagination !== undefined ? this.config.pagination : true;
     this.config.nRowsPerPage = this.config.nRowsPerPage || 10; // number of rows displayed per page
     this.config.nPageLinksDisplayed = this.config.nPageLinksDisplayed || 5; // number of rows displayed per page
 

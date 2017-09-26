@@ -43,11 +43,9 @@ export default function draw(passed_data, processed_data) {
     }
 
     //Define header, header row, and header cells.
-    const header_data = !data.length
-        ? []
-        : config.headers && config.headers.length ? config.headers : col_list,
+    const
         headerRow = table.select('thead').select('tr.headers'),
-        headers = headerRow.selectAll('th').data(header_data);
+        headers = headerRow.selectAll('th').data(this.config.headers);
 
     headers.exit().remove();
     headers.enter().append('th');
@@ -130,6 +128,13 @@ export default function draw(passed_data, processed_data) {
             throw new Error('dataTables jQuery plugin not available');
         }
     }
+
+    //Add pagination.
+    if (this.config.exportData)
+        this.config.exportFormats
+            .forEach(fmt => {
+                this.exportData.formats[fmt].call(this);
+            });
 
     //Add pagination.
     if (this.config.pagination) this.pagination.addPagination.call(this);

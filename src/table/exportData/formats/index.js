@@ -1,7 +1,7 @@
 import csv from './csv';
 import xlsx from './xlsx';
 
-export default formats = {
+export default {
     csv: csv,
     xlsx: xlsx
 };
