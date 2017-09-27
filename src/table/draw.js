@@ -15,15 +15,16 @@ export default function draw(passed_data, processed_data) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-            this.search.wrap.select('input').property('value', '');
+            this.searchable.wrap.select('input').property('value', '');
         }
 
         this.previousFilters = this.filters.map(filter => filter.val);
     }
 
-    if (this.sort.order.length) passed_data = this.sort.sortData.call(this, passed_data);
+    if (this.sortable.order.length) passed_data = this.sortable.sortData.call(this, passed_data);
     this.data.passed = passed_data || this.data.searched || this.data.raw;
-    if (this.sort.order.length) this.data.passed = this.sort.sortData.call(this, this.data.passed);
+    if (this.sortable.order.length)
+        this.data.passed = this.sortable.sortData.call(this, this.data.passed);
     this.data.filtered = processed_data || this.transformData(this.data.passed);
     this.data.paginated = clone(this.data.filtered);
     this.data.paginated[0].values = this.data.paginated[0].values.filter(
@@ -137,7 +138,13 @@ export default function draw(passed_data, processed_data) {
     }
 
     //Add sort.
-    if (this.config.sort) this.sort.addSort.call(this);
+    if (this.config.sortable) this.sortable.addSort.call(this);
+
+    //Add pagination.
+    if (this.config.exportable)
+        this.config.exports.forEach(fmt => {
+            this.exportable.exports[fmt].call(this);
+        });
 
     //Add pagination.
     if (this.config.pagination) this.pagination.addPagination.call(this);
