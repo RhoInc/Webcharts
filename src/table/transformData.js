@@ -48,7 +48,9 @@ export default function transformData(data) {
                 for (let x in m) {
                     arr.push({ col: x, text: m[x] });
                 }
-                arr.sort((a, b) => this.config.cols.indexOf(a.col) - this.config.cols.indexOf(b.col));
+                arr.sort(
+                    (a, b) => this.config.cols.indexOf(a.col) - this.config.cols.indexOf(b.col)
+                );
                 return { cells: arr, raw: m };
             });
             return nuarr;

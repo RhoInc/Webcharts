@@ -1,8 +1,6 @@
 export default function setDefaults() {
     //Export settings
-    this.config.exportData = this.config.exportData !== undefined
-        ? this.config.exportData
-        : true;
+    this.config.exportData = this.config.exportData !== undefined ? this.config.exportData : true;
     this.config.exportFormats = this.config.exportFormats !== undefined
         ? this.config.exportFormats.map(fmt => fmt.toLowerCase())
         : ['csv'];

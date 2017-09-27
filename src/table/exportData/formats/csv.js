@@ -1,9 +1,7 @@
 export default function csv(data) {
-    if (!data)
-        data = this.data.filtered[0].values.map(d => d.raw);
+    if (!data) data = this.data.filtered[0].values.map(d => d.raw);
 
-    const
-        CSVarray = [];
+    const CSVarray = [];
 
     data.forEach((d, i) => {
         //add headers to CSV array
@@ -16,8 +14,7 @@ export default function csv(data) {
         const row = this.config.cols.map(col => {
             let value = d[col];
 
-            if (typeof value === 'string')
-                value = value.replace(/"/g, '""');
+            if (typeof value === 'string') value = value.replace(/"/g, '""');
 
             return `"${value}"`;
         });

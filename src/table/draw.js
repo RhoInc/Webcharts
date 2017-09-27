@@ -43,8 +43,7 @@ export default function draw(passed_data, processed_data) {
     }
 
     //Define header, header row, and header cells.
-    const
-        headerRow = table.select('thead').select('tr.headers'),
+    const headerRow = table.select('thead').select('tr.headers'),
         headers = headerRow.selectAll('th').data(this.config.headers);
 
     headers.exit().remove();
@@ -131,10 +130,9 @@ export default function draw(passed_data, processed_data) {
 
     //Add pagination.
     if (this.config.exportData)
-        this.config.exportFormats
-            .forEach(fmt => {
-                this.exportData.formats[fmt].call(this);
-            });
+        this.config.exportFormats.forEach(fmt => {
+            this.exportData.formats[fmt].call(this);
+        });
 
     //Add pagination.
     if (this.config.pagination) this.pagination.addPagination.call(this);
