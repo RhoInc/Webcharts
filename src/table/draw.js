@@ -15,13 +15,16 @@ export default function draw(passed_data, processed_data) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+            this.search.wrap.select('input').property('value', '');
         }
 
         this.previousFilters = this.filters.map(filter => filter.val);
     }
 
-    this.data.passed = passed_data || this.data.raw;
-    this.data.filtered = processed_data || this.transformData(this.data.raw);
+    if (this.sort.order.length) passed_data = this.sort.sortData.call(this, passed_data);
+    this.data.passed = passed_data || this.data.searched || this.data.raw;
+    if (this.sort.order.length) this.data.passed = this.sort.sortData.call(this, this.data.passed);
+    this.data.filtered = processed_data || this.transformData(this.data.passed);
     this.data.paginated = clone(this.data.filtered);
     this.data.paginated[0].values = this.data.paginated[0].values.filter(
         (d, i) => this.config.startIndex <= i && i < this.config.endIndex
@@ -29,11 +32,8 @@ export default function draw(passed_data, processed_data) {
 
     const data = config.pagination ? this.data.paginated : this.data.filtered;
 
+    //Bind table data to table container.
     this.wrap.datum(data);
-
-    let col_list = config.cols.length
-        ? config.cols
-        : data.length ? keys(data[0].values[0].raw) : [];
 
     //for bootstrap table styling
     if (config.bootstrap) {
@@ -49,6 +49,12 @@ export default function draw(passed_data, processed_data) {
     headers.exit().remove();
     headers.enter().append('th');
     headers.text(d => d);
+
+    //Print a note that no data was selected for empty tables
+    table.selectAll('tr.NoDataRow').remove();
+    if (this.data.passed.length == 0) {
+        table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+    }
 
     //Define table bodies? Not sure why there would be more than one.
     const tbodies = table.selectAll('tbody').data(data, d => d.key);
@@ -90,7 +96,9 @@ export default function draw(passed_data, processed_data) {
     }
 
     //Define table body cells.
-    const tds = rows.selectAll('td').data(d => d.cells.filter(f => col_list.indexOf(f.col) > -1));
+    const tds = rows
+        .selectAll('td')
+        .data(d => d.cells.filter(f => this.config.cols.indexOf(f.col) > -1));
 
     tds.exit().remove();
     tds.enter().append('td');
@@ -127,6 +135,9 @@ export default function draw(passed_data, processed_data) {
             throw new Error('dataTables jQuery plugin not available');
         }
     }
+
+    //Add sort.
+    if (this.config.sort) this.sort.addSort.call(this);
 
     //Add pagination.
     if (this.config.exportData)

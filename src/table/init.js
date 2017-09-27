@@ -1,5 +1,7 @@
 import { select, range } from 'd3';
+import search from './search/index';
 import exportData from './exportData/index';
+import sort from './sort/index';
 import pagination from './pagination/index';
 
 export default function init(data, test = false) {
@@ -25,11 +27,18 @@ export default function init(data, test = false) {
         raw: data,
         passed: data,
         filtered: data,
+        sorted: [],
         paginated: data.filter((d, i) => i < this.config.nRowsPerPage)
     };
 
+    //Attach search object to table object.
+    this.search = search.call(this);
+
     //Attach pagination object to table object.
     this.exportData = exportData.call(this);
+
+    //Attach sort object to table object.
+    this.sort = sort.call(this);
 
     //Attach pagination object to table object.
     this.pagination = pagination.call(this);

@@ -7,6 +7,8 @@ export default function setDefaults() {
 
     //Styling setting
     this.config.applyCSS = this.config.applyCSS !== undefined ? this.config.applyCSS : true;
+    //Sort settings
+    this.config.sort = this.config.sort !== undefined ? this.config.sort : true;
 
     //Pagination settings
     this.config.pagination = this.config.pagination !== undefined ? this.config.pagination : true;

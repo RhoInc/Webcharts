@@ -6,8 +6,14 @@ export default function layout() {
     table.append('thead').append('tr').attr('class', 'headers');
     this.table = table;
 
-    //Define pagination container.
+    //Define search container.
+    this.search.layout.call(this);
+
+    //Define data export container.
     this.exportData.layout.call(this);
+
+    //Define sort container.
+    this.sort.layout.call(this);
 
     //Define pagination container.
     this.pagination.layout.call(this);

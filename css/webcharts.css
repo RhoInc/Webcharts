@@ -254,6 +254,9 @@ div.wc-layout.wc-small-multiples::after {
     .wc-table > * {
         display: block;
     }
+    .wc-table .hidden {
+        display: none !important;
+    }
     .wc-table table {
         font-size: .9em;
         border-collapse: collapse;
@@ -265,6 +268,11 @@ div.wc-layout.wc-small-multiples::after {
         background: #ccc;
     }
     .wc-table table th {
+    }
+    .wc-table table thead tr {
+    }
+    .wc-table table thead tr th {
+        cursor: pointer;
         padding: .5em .5em;
         border-bottom: 1px solid #ccc;
         text-align: left;
@@ -287,6 +295,17 @@ div.wc-layout.wc-small-multiples::after {
         padding: 2px 5px;
         margin-left: 5px;
     }
+    .wc-table table thead tr th:hover {
+        background: #eee;
+    }
+    .wc-table table thead tr th:first-child {
+    }
+    .wc-table .search-container {
+        padding-bottom: 10px;
+    }
+    .wc-table .search-container input {
+        margin-left: 10px;
+    }
     .wc-table .pagination-container {
         padding-top: 10px;
         float: right;
@@ -299,16 +318,81 @@ div.wc-layout.wc-small-multiples::after {
         cursor: pointer;
         padding: 5px 10px;
     }
-    .wc-table .pagination-container a.active {
-        border: 2px solid gray;
-        border-radius: 4px;
+    .wc-table table tbody tr {
     }
-    .wc-table .pagination-container a.hidden {
-        display: none;
+    .wc-table table tbody tr:nth-child(even) {
+        background: #eee;
     }
-    .wc-table .pagination-container .dot-dot-dot.hidden {
-        display: none;
+    .wc-table table tbody tr:hover {
+        background: #ccc;
     }
+    .wc-table table tbody td {
+        padding: .25em .5em;
+    }
+    .wc-table table tbody td:first-child {
+    }
+    .wc-table table tbody td:last-child {
+    }
+
+    /**-------------------------------------------------------------------------------------------\
+        Sort container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .sort-container {
+            float: left;
+            width: 100%;
+        }
+
+        .wc-table .sort-container .description {
+            font-style: italic;
+        }
+
+        .wc-table .sort-container .sort-box {
+            display: inline-block;
+            border: 2px solid #008CBA;
+            border-radius: 4px;
+            padding: 2px;
+            margin-left: 3px;
+        }
+
+        .wc-table .sort-container .sort-box .remove-sort {
+            float: right;
+            border: 1px solid gray;
+            padding: 1px 2px 1px 2px;
+            font-size: 25%;
+        }
+
+        .wc-table .sort-container .sort-box .remove-sort:hover {
+            cursor: pointer;
+            background-color: #008CBA;
+            color: white;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+        Pagination container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .pagination-container {
+            padding-top: 10px;
+        }
+        .wc-table .pagination-container.hidden {
+                display:none;
+        }
+        .wc-table .pagination-container a {
+            text-decoration: none;
+                    cursor: pointer;
+            padding: 5px 10px;
+        }
+        .wc-table .pagination-container a.active {
+            border: 2px solid gray;
+            border-radius: 4px;
+        }
+        .wc-table .pagination-container a.hidden {
+            display: none;
+        }
+        .wc-table .pagination-container .dot-dot-dot.hidden {
+            display: none;
+        }
 
 /*------------------------------------------------------------------------------------------------\
   Miscellaneous
