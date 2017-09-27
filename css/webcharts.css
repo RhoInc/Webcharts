@@ -251,147 +251,151 @@ div.wc-layout.wc-small-multiples::after {
     .wc-table {
         display: table;
     }
-    .wc-table > * {
-        display: block;
-    }
     .wc-table .hidden {
         display: none !important;
     }
-    .wc-table table {
-        font-size: .9em;
-        border-collapse: collapse;
+    .wc-table .invisible {
+        visibility: hidden !important;
     }
-    .wc-table table tbody tr:nth-child(even) {
-        background: #eee;
+    .wc-table > * {
+        display: block;
     }
-    .wc-table table tbody tr:hover {
-        background: #ccc;
+    .wc-table .table-top {
     }
-    .wc-table table th {
+    .wc-table .table-bottom {
     }
-    .wc-table table thead tr {
-    }
-    .wc-table table thead tr th {
-        cursor: pointer;
-        padding: .5em .5em;
-        border-bottom: 1px solid #ccc;
-        text-align: left;
-    }
-    .wc-table table th:last-child {
-    }
-    .wc-table table td {
-        padding: .25em .5em;
-    }
-    .wc-table table td:last-child {
-    }
-    .wc-table .export-data-container {
-        float: right;
-    }
-    .wc-table .export-data-container a {
-        border: 2px solid gray;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-        padding: 2px 5px;
-        margin-left: 5px;
-    }
-    .wc-table table thead tr th:hover {
-        background: #eee;
-    }
-    .wc-table table thead tr th:first-child {
-    }
-    .wc-table .search-container {
-        padding-bottom: 10px;
-    }
-    .wc-table .search-container input {
-        margin-left: 10px;
-    }
-    .wc-table .pagination-container {
-        padding-top: 10px;
-        float: right;
-    }
-    .wc-table .pagination-container.hidden {
-        display: none;
-    }
-    .wc-table .pagination-container a {
-        text-decoration: none;
-        cursor: pointer;
-        padding: 5px 10px;
-    }
-    .wc-table table tbody tr {
-    }
-    .wc-table table tbody tr:nth-child(even) {
-        background: #eee;
-    }
-    .wc-table table tbody tr:hover {
-        background: #ccc;
-    }
-    .wc-table table tbody td {
-        padding: .25em .5em;
-    }
-    .wc-table table tbody td:first-child {
-    }
-    .wc-table table tbody td:last-child {
+    .wc-table .interactivity {
+        display: inline-block;
+        margin: 10px 0;
+        padding: 0;
     }
 
     /**-------------------------------------------------------------------------------------------\
-        Sort container
+      Sortable container
     \-------------------------------------------------------------------------------------------**/
 
-        .wc-table .sort-container {
+        .wc-table .sortable-container {
             float: left;
-            width: 100%;
         }
 
-        .wc-table .sort-container .description {
+        .wc-table .sortable-container .description {
             font-style: italic;
         }
 
-        .wc-table .sort-container .sort-box {
+        .wc-table .sortable-container .sort-box {
             display: inline-block;
             border: 2px solid #008CBA;
             border-radius: 4px;
             padding: 2px;
             margin-left: 3px;
+            cursor: default;
         }
 
-        .wc-table .sort-container .sort-box .remove-sort {
+        .wc-table .sortable-container .sort-box .remove-sort {
             float: right;
             border: 1px solid gray;
-            padding: 1px 2px 1px 2px;
-            font-size: 25%;
+            padding: 2px 3px;
+            font-size: 8px;
         }
 
-        .wc-table .sort-container .sort-box .remove-sort:hover {
+        .wc-table .sortable-container .sort-box .remove-sort:hover {
             cursor: pointer;
             background-color: #008CBA;
             color: white;
         }
 
     /**-------------------------------------------------------------------------------------------\
-        Pagination container
+      Searchable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .searchable-container {
+            float: right;
+        }
+        .wc-table .searchable-container input {
+            margin-left: 10px;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Table
+    \-------------------------------------------------------------------------------------------**/
+
+		.wc-table table {
+			font-size: .9em;
+			border-collapse: collapse;
+		}
+
+        /***--------------------------------------------------------------------------------------\
+		  Table header
+        \--------------------------------------------------------------------------------------***/
+
+            .wc-table table thead {
+            }
+            .wc-table table thead tr {
+            }
+            .wc-table table thead tr th {
+                cursor: pointer;
+                padding: .75em 1em;
+                border-bottom: 1px solid #ccc;
+                text-align: left;
+            }
+            .wc-table table thead tr th:first-child {
+            }
+            .wc-table table thead tr th:last-child {
+            }
+
+        /***--------------------------------------------------------------------------------------\
+		  Table body
+        \--------------------------------------------------------------------------------------***/
+
+            .wc-table table tbody {
+            }
+            .wc-table table tbody tr {
+            }
+            .wc-table table tbody tr:nth-child(even) {
+                background: #eee;
+            }
+            .wc-table table tbody tr:hover {
+                background: #ccc;
+            }
+            .wc-table table tbody tr td {
+                padding: .5em 1em;
+            }
+            .wc-table table tbody tr td:first-child {
+            }
+            .wc-table table tbody tr td:last-child {
+            }
+
+    /**-------------------------------------------------------------------------------------------\
+      Exportable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .exportable-container {
+            float: left;
+        }
+        .wc-table .exportable-container a {
+            border: 2px solid gray;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 5px;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Pagination container
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .pagination-container {
-            padding-top: 10px;
-        }
-        .wc-table .pagination-container.hidden {
-                display:none;
+            float: right;
         }
         .wc-table .pagination-container a {
             text-decoration: none;
-                    cursor: pointer;
+            cursor: pointer;
             padding: 5px 10px;
         }
         .wc-table .pagination-container a.active {
             border: 2px solid gray;
             border-radius: 4px;
-        }
-        .wc-table .pagination-container a.hidden {
-            display: none;
-        }
-        .wc-table .pagination-container .dot-dot-dot.hidden {
-            display: none;
         }
 
 /*------------------------------------------------------------------------------------------------\

@@ -5,7 +5,7 @@ export default function sortData(data) {
     sortedData = sortedData.sort((a, b) => {
         let order = 0;
 
-        this.sort.order.forEach(item => {
+        this.sortable.order.forEach(item => {
             const aCell = a[item.col],
                 bCell = b[item.col];
 

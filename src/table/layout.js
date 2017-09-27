@@ -1,22 +1,33 @@
 import { select } from 'd3';
 
 export default function layout() {
+    //Clear loading indicator.
     select(this.div).select('.loader').remove();
-    let table = this.wrap.append('table');
-    table.append('thead').append('tr').attr('class', 'headers');
-    this.table = table;
 
-    //Define search container.
-    this.search.layout.call(this);
+    this.wrap.append('div')
+        .classed('table-top', true);
 
-    //Define data export container.
-    this.exportData.layout.call(this);
+        //Attach sort container.
+        this.sortable.layout.call(this);
 
-    //Define sort container.
-    this.sort.layout.call(this);
+        //Attach search container.
+        this.searchable.layout.call(this);
 
-    //Define pagination container.
-    this.pagination.layout.call(this);
+    //Attach table to DOM.
+    this.table = this.wrap.append('table');
+    this.table
+        .append('thead')
+        .append('tr')
+        .classed('headers', true);
+
+    this.wrap.append('div')
+        .classed('table-bottom', true);
+
+        //Attach data export container.
+        this.exportable.layout.call(this);
+
+        //Attach pagination container.
+        this.pagination.layout.call(this);
 
     //Call layout callback.
     this.events.onLayout.call(this);

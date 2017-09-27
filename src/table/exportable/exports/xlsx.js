@@ -45,7 +45,7 @@ export default function xlsx(data) {
     //transform CSV array into CSV string
     const blob = new Blob([s2ab(xlsx)], { type: 'application/octet-stream;' }),
         fileName = `Selected Data.xlsx`,
-        link = this.wrap.select('.download#xlsx');
+        link = this.wrap.select('.export#xlsx');
 
     if (navigator.msSaveBlob) {
         // IE 10+

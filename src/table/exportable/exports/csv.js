@@ -25,7 +25,7 @@ export default function csv(data) {
     //transform CSV array into CSV string
     const CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
         fileName = `Selected Data.csv`,
-        link = this.wrap.select('.download#csv');
+        link = this.wrap.select('.export#csv');
 
     if (navigator.msSaveBlob) {
         // IE 10+

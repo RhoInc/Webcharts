@@ -4,8 +4,11 @@ export default function layout() {
     const context = this;
 
     //Add sort container.
-    this.sort.wrap = this.wrap.insert('div', ':first-child').classed('sort-container', true);
-    this.sort.wrap
+    this.sortable.wrap = this.wrap.select('.table-top')
+        .append('div')
+        .classed('interactivity sortable-container', true)
+        .classed('hidden', !this.config.sortable);
+    this.sortable.wrap
         .append('span')
         .classed('instruction', true)
         .text('Click any column header to sort that column.');
