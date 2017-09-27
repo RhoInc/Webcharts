@@ -2821,14 +2821,7 @@ function init$2(data) {
 
     //Define data object.
     this.data = {
-        raw: data,
-        passed: data,
-        filtered: data,
-        sorted: null,
-        searched: null,
-        paginated: data.filter(function (d, i) {
-            return i < _this.config.nRowsPerPage;
-        })
+        raw: data
     };
 
     //Attach searchable object to table object.

@@ -1,21 +1,27 @@
-import { keys } from 'd3';
-import clone from '../util/clone';
+import applyFilters from './draw/applyFilters';
 import '../util/array-equals';
+import clone from '../util/clone';
 
 export default function draw(passed_data, processed_data) {
-    const context = this,
+    const
+        context = this,
         config = this.config,
         table = this.table;
 
-    //Reset pagination if filters have changed.
+  //Apply filters.
+    applyFilters.call(this)
     if (this.filters) {
+        if (!passed_data)
+            applyFilters.call(this);
+        else
         this.currentFilters = this.filters.map(filter => filter.val);
 
+      //Reset pagination if filters have changed.
         if (!this.currentFilters.equals(this.previousFilters)) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-            this.searchable.wrap.select('input').property('value', '');
+            this.searchable.wrap.select('input').property('value', ''); // reset search box
         }
 
         this.previousFilters = this.filters.map(filter => filter.val);
