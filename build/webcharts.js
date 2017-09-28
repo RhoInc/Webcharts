@@ -2,7 +2,7 @@
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3')) :
 	typeof define === 'function' && define.amd ? define(['d3'], factory) :
 	(global.webCharts = factory(global.d3));
-}(this, (function (d3) { 'use strict';
+}(this, (function (d3$1) { 'use strict';
 
 var version = '1.9.0';
 
@@ -47,7 +47,7 @@ function checkRequired(data) {
     requiredCols.forEach(function (e, i) {
         if (colnames.indexOf(e) < 0) {
             missingDataField = true;
-            d3.select(_this.div).select('.loader').remove();
+            d3$1.select(_this.div).select('.loader').remove();
             _this.wrap.append('div').style('color', 'red').html('The value "' + e + '" for the <code>' + requiredVars[i] + '</code> setting does not match any column in the provided dataset.');
             throw new Error('Error in settings object: The value "' + e + '" for the ' + requiredVars[i] + ' setting does not match any column in the provided dataset.');
         }
@@ -128,13 +128,13 @@ function consolidateData(raw) {
         if (config.x.domain) {
             this.x_dom = config.x.domain;
         } else if (config.x.order) {
-            this.x_dom = d3.set(d3.merge(all_x)).values().sort(function (a, b) {
-                return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
+            this.x_dom = d3$1.set(d3$1.merge(all_x)).values().sort(function (a, b) {
+                return d3$1.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
             });
         } else if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
-            this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
+            this.x_dom = d3$1.set(d3$1.merge(all_x)).values().sort(naturalSorter);
         } else if (config.y.type === 'time' && config.x.sort === 'earliest') {
-            this.x_dom = d3.nest().key(function (d) {
+            this.x_dom = d3$1.nest().key(function (d) {
                 return d[config.x.column];
             }).rollup(function (d) {
                 return d.map(function (m) {
@@ -143,34 +143,34 @@ function consolidateData(raw) {
                     return f instanceof Date;
                 });
             }).entries(this.raw_data).sort(function (a, b) {
-                return d3.min(b.values) - d3.min(a.values);
+                return d3$1.min(b.values) - d3$1.min(a.values);
             }).map(function (m) {
                 return m.key;
             });
         } else if (!config.x.sort || config.x.sort === 'alphabetical-descending') {
-            this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
+            this.x_dom = d3$1.set(d3$1.merge(all_x)).values().sort(naturalSorter);
         } else {
-            this.x_dom = d3.set(d3.merge(all_x)).values();
+            this.x_dom = d3$1.set(d3$1.merge(all_x)).values();
         }
     } else if (config.marks.map(function (m) {
         return m.summarizeX === 'percent';
     }).indexOf(true) > -1) {
         this.x_dom = [0, 1];
     } else {
-        this.x_dom = d3.extent(d3.merge(all_x));
+        this.x_dom = d3$1.extent(d3$1.merge(all_x));
     }
 
     if (config.y.type === 'ordinal') {
         if (config.y.domain) {
             this.y_dom = config.y.domain;
         } else if (config.y.order) {
-            this.y_dom = d3.set(d3.merge(all_y)).values().sort(function (a, b) {
-                return d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
+            this.y_dom = d3$1.set(d3$1.merge(all_y)).values().sort(function (a, b) {
+                return d3$1.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
             });
         } else if (config.y.sort && config.y.sort === 'alphabetical-ascending') {
-            this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter);
+            this.y_dom = d3$1.set(d3$1.merge(all_y)).values().sort(naturalSorter);
         } else if (config.x.type === 'time' && config.y.sort === 'earliest') {
-            this.y_dom = d3.nest().key(function (d) {
+            this.y_dom = d3$1.nest().key(function (d) {
                 return d[config.y.column];
             }).rollup(function (d) {
                 return d.map(function (m) {
@@ -179,21 +179,21 @@ function consolidateData(raw) {
                     return f instanceof Date;
                 });
             }).entries(this.raw_data).sort(function (a, b) {
-                return d3.min(b.values) - d3.min(a.values);
+                return d3$1.min(b.values) - d3$1.min(a.values);
             }).map(function (m) {
                 return m.key;
             });
         } else if (!config.y.sort || config.y.sort === 'alphabetical-descending') {
-            this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter).reverse();
+            this.y_dom = d3$1.set(d3$1.merge(all_y)).values().sort(naturalSorter).reverse();
         } else {
-            this.y_dom = d3.set(d3.merge(all_y)).values();
+            this.y_dom = d3$1.set(d3$1.merge(all_y)).values();
         }
     } else if (config.marks.map(function (m) {
         return m.summarizeY === 'percent';
     }).indexOf(true) > -1) {
         this.y_dom = [0, 1];
     } else {
-        this.y_dom = d3.extent(d3.merge(all_y));
+        this.y_dom = d3$1.extent(d3$1.merge(all_y));
     }
 }
 
@@ -205,7 +205,7 @@ function destroy() {
 
     //remove resize event listener
     var context = this;
-    d3.select(window).on('resize.' + context.element + context.id, null);
+    d3$1.select(window).on('resize.' + context.element + context.id, null);
 
     //destroy controls
     if (destroyControls && this.controls) {
@@ -252,11 +252,11 @@ function draw(raw_data, processed_data) {
     this.yScaleAxis(pseudo_height);
 
     if (config.resizable && typeof window !== 'undefined') {
-        d3.select(window).on('resize.' + context.element + context.id, function () {
+        d3$1.select(window).on('resize.' + context.element + context.id, function () {
             context.resize();
         });
     } else if (typeof window !== 'undefined') {
-        d3.select(window).on('resize.' + context.element + context.id, null);
+        d3$1.select(window).on('resize.' + context.element + context.id, null);
     }
 
     this.events.onDraw.call(this);
@@ -348,21 +348,21 @@ function drawBars(marks) {
         });
 
         bars.each(function (d) {
-            var mark = d3.select(this.parentNode.parentNode).datum();
+            var mark = d3$1.select(this.parentNode.parentNode).datum();
             d.tooltip = mark.tooltip;
             d.arrange = mark.split ? mark.arrange : null;
-            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3$1.set(rawData.map(function (m) {
                 return m[mark.split];
             })).values();
-            d3.select(this).attr(mark.attributes);
+            d3$1.select(this).attr(mark.attributes);
         });
 
         var xformat = config.marks.map(function (m) {
             return m.summarizeX === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.x.format);
         var yformat = config.marks.map(function (m) {
             return m.summarizeY === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.y.format);
         bars.select('title').text(function (d) {
             var tt = d.tooltip || '';
             return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
@@ -432,9 +432,9 @@ function drawBars(marks) {
         });
 
         bars.each(function (d) {
-            var mark = d3.select(this.parentNode.parentNode).datum();
+            var mark = d3$1.select(this.parentNode.parentNode).datum();
             d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3$1.set(rawData.map(function (m) {
                 return m[mark.split];
             })).values();
             d.tooltip = mark.tooltip;
@@ -442,10 +442,10 @@ function drawBars(marks) {
 
         var _xformat = config.marks.map(function (m) {
             return m.summarizeX === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.x.format);
         var _yformat = config.marks.map(function (m) {
             return m.summarizeY === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.y.format);
         bars.select('title').text(function (d) {
             var tt = d.tooltip || '';
             return tt.replace(/\$x/g, _xformat(d.values.x)).replace(/\$y/g, _yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
@@ -514,27 +514,27 @@ function drawBars(marks) {
         });
 
         bars.each(function (d) {
-            var mark = d3.select(this.parentNode.parentNode).datum();
+            var mark = d3$1.select(this.parentNode.parentNode).datum();
             d.arrange = mark.split ? mark.arrange : null;
-            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3$1.set(rawData.map(function (m) {
                 return m[mark.split];
             })).values();
-            d3.select(this).attr(mark.attributes);
-            var parent = d3.select(this.parentNode).datum();
+            d3$1.select(this).attr(mark.attributes);
+            var parent = d3$1.select(this.parentNode).datum();
             var rangeSet = parent.key.split(',').map(function (m) {
                 return +m;
             });
-            d.rangeLow = d3.min(rangeSet);
-            d.rangeHigh = d3.max(rangeSet);
+            d.rangeLow = d3$1.min(rangeSet);
+            d.rangeHigh = d3$1.max(rangeSet);
             d.tooltip = mark.tooltip;
         });
 
         var _xformat2 = config.marks.map(function (m) {
             return m.summarizeX === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.x.format);
         var _yformat2 = config.marks.map(function (m) {
             return m.summarizeY === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.y.format);
         bars.select('title').text(function (d) {
             var tt = d.tooltip || '';
             return tt.replace(/\$x/g, _xformat2(d.values.x)).replace(/\$y/g, _yformat2(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
@@ -584,26 +584,26 @@ function drawBars(marks) {
         });
 
         bars.each(function (d) {
-            var mark = d3.select(this.parentNode.parentNode).datum();
+            var mark = d3$1.select(this.parentNode.parentNode).datum();
             d.arrange = mark.split ? mark.arrange : null;
-            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3.set(rawData.map(function (m) {
+            d.subcats = config.legend.order ? config.legend.order.slice().reverse() : mark.values && mark.values[mark.split] ? mark.values[mark.split] : d3$1.set(rawData.map(function (m) {
                 return m[mark.split];
             })).values();
-            var parent = d3.select(this.parentNode).datum();
+            var parent = d3$1.select(this.parentNode).datum();
             var rangeSet = parent.key.split(',').map(function (m) {
                 return +m;
             });
-            d.rangeLow = d3.min(rangeSet);
-            d.rangeHigh = d3.max(rangeSet);
+            d.rangeLow = d3$1.min(rangeSet);
+            d.rangeHigh = d3$1.max(rangeSet);
             d.tooltip = mark.tooltip;
         });
 
         var _xformat3 = config.marks.map(function (m) {
             return m.summarizeX === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.x.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.x.format);
         var _yformat3 = config.marks.map(function (m) {
             return m.summarizeY === 'percent';
-        }).indexOf(true) > -1 ? d3.format('0%') : d3.format(config.y.format);
+        }).indexOf(true) > -1 ? d3$1.format('0%') : d3$1.format(config.y.format);
         bars.select('title').text(function (d) {
             var tt = d.tooltip || '';
             return tt.replace(/\$x/g, _xformat3(d.values.x)).replace(/\$y/g, _yformat3(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
@@ -649,7 +649,7 @@ function drawLines(marks) {
     var _this = this;
 
     var config = this.config;
-    var line = d3.svg.line().interpolate(config.interpolate).x(function (d) {
+    var line = d3$1.svg.line().interpolate(config.interpolate).x(function (d) {
         return config.x.type === 'linear' || config.x.type == 'log' ? _this.x(+d.values.x) : config.x.type === 'time' ? _this.x(new Date(d.values.x)) : _this.x(d.values.x) + _this.x.rangeBand() / 2;
     }).y(function (d) {
         return config.y.type === 'linear' || config.y.type == 'log' ? _this.y(+d.values.y) : config.y.type === 'time' ? _this.y(new Date(d.values.y)) : _this.y(d.values.y) + _this.y.rangeBand() / 2;
@@ -682,15 +682,15 @@ function drawLines(marks) {
     linePathsTrans.attr('d', line);
 
     line_grps.each(function (d) {
-        var mark = d3.select(this.parentNode).datum();
+        var mark = d3$1.select(this.parentNode).datum();
         d.tooltip = mark.tooltip;
-        d3.select(this).select('path').attr(mark.attributes);
+        d3$1.select(this).select('path').attr(mark.attributes);
     });
 
     line_grps.select('title').text(function (d) {
         var tt = d.tooltip || '';
-        var xformat = config.x.summary === 'percent' ? d3.format('0%') : d3.format(config.x.format);
-        var yformat = config.y.summary === 'percent' ? d3.format('0%') : d3.format(config.y.format);
+        var xformat = config.x.summary === 'percent' ? d3$1.format('0%') : d3$1.format(config.x.format);
+        var yformat = config.y.summary === 'percent' ? d3$1.format('0%') : d3$1.format(config.y.format);
         return tt.replace(/\$x/g, xformat(d.values.x)).replace(/\$y/g, yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
             return d.values[0].values.raw[0][orig];
         });
@@ -736,9 +736,9 @@ function drawPoints(marks) {
     });
     //attach mark info
     points.each(function (d) {
-        var mark = d3.select(this.parentNode).datum();
+        var mark = d3$1.select(this.parentNode).datum();
         d.mark = mark;
-        d3.select(this).select('circle').attr(mark.attributes);
+        d3$1.select(this).select('circle').attr(mark.attributes);
     });
     //animated attributes
     var pointsTrans = config.transitions ? points.select('circle').transition() : points.select('circle');
@@ -754,8 +754,8 @@ function drawPoints(marks) {
 
     points.select('title').text(function (d) {
         var tt = d.mark.tooltip || '';
-        var xformat = config.x.summary === 'percent' ? d3.format('0%') : config.x.type === 'time' ? d3.time.format(config.x.format) : d3.format(config.x.format);
-        var yformat = config.y.summary === 'percent' ? d3.format('0%') : config.y.type === 'time' ? d3.time.format(config.y.format) : d3.format(config.y.format);
+        var xformat = config.x.summary === 'percent' ? d3$1.format('0%') : config.x.type === 'time' ? d3$1.time.format(config.x.format) : d3$1.format(config.x.format);
+        var yformat = config.y.summary === 'percent' ? d3$1.format('0%') : config.y.type === 'time' ? d3$1.time.format(config.y.format) : d3$1.format(config.y.format);
         return tt.replace(/\$x/g, config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)).replace(/\$y/g, config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
             return d.values.raw[0][orig];
         });
@@ -796,16 +796,16 @@ function drawText(marks) {
 
     // attach mark info
     function attachMarks(d) {
-        d.mark = d3.select(this.parentNode).datum();
-        d3.select(this).select('text').attr(d.mark.attributes);
+        d.mark = d3$1.select(this.parentNode).datum();
+        d3$1.select(this).select('text').attr(d.mark.attributes);
     }
     texts.each(attachMarks);
 
     // parse text like tooltips
     texts.select('text').text(function (d) {
         var tt = d.mark.text || '';
-        var xformat = config.x.summary === 'percent' ? d3.format('0%') : config.x.type === 'time' ? d3.time.format(config.x.format) : d3.format(config.x.format);
-        var yformat = config.y.summary === 'percent' ? d3.format('0%') : config.y.type === 'time' ? d3.time.format(config.y.format) : d3.format(config.y.format);
+        var xformat = config.x.summary === 'percent' ? d3$1.format('0%') : config.x.type === 'time' ? d3$1.time.format(config.x.format) : d3$1.format(config.x.format);
+        var yformat = config.y.summary === 'percent' ? d3$1.format('0%') : config.y.type === 'time' ? d3$1.time.format(config.y.format) : d3$1.format(config.y.format);
         return tt.replace(/\$x/g, config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)).replace(/\$y/g, config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)).replace(/\[(.+?)\]/g, function (str, orig) {
             return d.values.raw[0][orig];
         });
@@ -828,8 +828,8 @@ function init(data) {
 
     var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-    if (d3.select(this.div).select('.loader').empty()) {
-        d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
+    if (d3$1.select(this.div).select('.loader').empty()) {
+        d3$1.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3$1.range(8)).enter().append('div').attr('class', function (d) {
             return 'blockG rotate' + (d + 1);
         });
     }
@@ -852,11 +852,11 @@ function init(data) {
         }
 
         //make sure container is visible (has height and width) before trying to initialize
-        var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
+        var visible = d3$1.select(_this.div).property('offsetWidth') > 0 || test;
         if (!visible) {
             console.warn('The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.');
             var onVisible = setInterval(function (i) {
-                var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
+                var visible_now = d3$1.select(_this.div).property('offsetWidth') > 0;
                 if (visible_now) {
                     _this.layout();
                     _this.wrap.datum(_this);
@@ -911,7 +911,7 @@ function layout() {
     var legend = this.wrap.append('ul');
     legend.attr('class', 'legend').style('vertical-align', 'top').append('span').attr('class', 'legend-title');
 
-    d3.select(this.div).select('.loader').remove();
+    d3$1.select(this.div).select('.loader').remove();
 
     this.events.onLayout.call(this);
 }
@@ -965,13 +965,13 @@ function makeLegend() {
 
     if (config.legend.order) {
         leg_parts.sort(function (a, b) {
-            return d3.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label));
+            return d3$1.ascending(config.legend.order.indexOf(a.label), config.legend.order.indexOf(b.label));
         });
     }
 
     leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
     leg_parts.selectAll('.legend-color-block').each(function (e) {
-        var svg$$1 = d3.select(this);
+        var svg$$1 = d3$1.select(this);
         if (e.mark === 'circle') {
             svg$$1.append('circle').attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
         } else if (e.mark === 'line') {
@@ -998,7 +998,7 @@ function makeLegend() {
     }).attr('stroke', function (d) {
         return d.color || scale$$1(d.label);
     }).each(function (e) {
-        d3.select(this).attr(e.attributes);
+        d3$1.select(this).attr(e.attributes);
     });
 
     new_parts.append('span').attr('class', 'legend-label').style('margin-left', '0.25em').text(function (d) {
@@ -1032,7 +1032,7 @@ function resize() {
     var svg_height = config.y.type === 'ordinal' && +config.range_band ? this.raw_height + this.margin.top + this.margin.bottom : !config.resizable && config.height ? config.height : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
     this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
-    d3.select(this.svg.node().parentNode).attr('width', svg_width).attr('height', svg_height).select('g').attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
+    d3$1.select(this.svg.node().parentNode).attr('width', svg_width).attr('height', svg_height).select('g').attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
     this.svg.select('.overlay').attr('width', this.plot_width).attr('height', this.plot_height).classed('zoomable', config.zoomable);
 
@@ -1074,7 +1074,7 @@ function resize() {
 function setColorScale() {
     var config = this.config;
     var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
-    var colordom = config.color_dom || d3.set(data.map(function (m) {
+    var colordom = config.color_dom || d3$1.set(data.map(function (m) {
         return m[config.color_by];
     })).values().filter(function (f) {
         return f && f !== 'undefined';
@@ -1082,13 +1082,13 @@ function setColorScale() {
 
     if (config.legend.order) {
         colordom = colordom.sort(function (a, b) {
-            return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
+            return d3$1.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
         });
     } else {
         colordom = colordom.sort(naturalSorter);
     }
 
-    this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
+    this.colorScale = d3$1.scale.ordinal().domain(colordom).range(config.colors);
 }
 
 function setDefaults() {
@@ -1132,7 +1132,7 @@ function setMargins() {
         return _this.yAxis.tickFormat()(m);
     }) : this.y.domain();
 
-    var max_y_text_length = d3.max(y_ticks.map(function (m) {
+    var max_y_text_length = d3$1.max(y_ticks.map(function (m) {
         return String(m).length;
     }));
     if (this.config.y_format && this.config.y_format.indexOf('%') > -1) {
@@ -1190,11 +1190,11 @@ function textSize(width) {
 }
 
 var stats = {
-    mean: d3.mean,
-    min: d3.min,
-    max: d3.max,
-    median: d3.median,
-    sum: d3.sum
+    mean: d3$1.mean,
+    min: d3$1.min,
+    max: d3$1.max,
+    median: d3$1.median,
+    sum: d3$1.sum
 };
 
 function summarize(vals) {
@@ -1222,12 +1222,12 @@ function transformData(raw, mark) {
     var x_behavior = config.x.behavior || 'raw';
     var y_behavior = config.y.behavior || 'raw';
     var sublevel = mark.type === 'line' ? config.x.column : mark.type === 'bar' && mark.split ? mark.split : null;
-    var dateConvert = d3.time.format(config.date_format);
+    var dateConvert = d3$1.time.format(config.date_format);
     var totalOrder = void 0;
 
     function calcStartTotal(e) {
         var axis = config.x.type === 'ordinal' || config.x.type === 'linear' && config.x.bin ? 'y' : 'x';
-        e.total = d3.sum(e.values.map(function (m) {
+        e.total = d3$1.sum(e.values.map(function (m) {
             return +m.values[axis];
         }));
         var counter = 0;
@@ -1295,33 +1295,33 @@ function transformData(raw, mark) {
         raw_nest = makeNest(raw);
     }
 
-    var raw_dom_x = mark.summarizeX === 'cumulative' ? [0, raw.length] : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
+    var raw_dom_x = mark.summarizeX === 'cumulative' ? [0, raw.length] : config.x.type === 'ordinal' ? d3$1.set(raw.map(function (m) {
         return m[config.x.column];
     })).values().filter(function (f) {
         return f;
-    }) : mark.split && mark.arrange !== 'stacked' ? d3.extent(d3.merge(raw_nest.nested.map(function (m) {
+    }) : mark.split && mark.arrange !== 'stacked' ? d3$1.extent(d3$1.merge(raw_nest.nested.map(function (m) {
         return m.values.map(function (p) {
             return p.values.raw.length;
         });
-    }))) : mark.summarizeX === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
+    }))) : mark.summarizeX === 'count' ? d3$1.extent(raw_nest.nested.map(function (m) {
         return m.values.raw.length;
-    })) : d3.extent(raw.map(function (m) {
+    })) : d3$1.extent(raw.map(function (m) {
         return +m[config.x.column];
     }).filter(function (f) {
         return +f || +f === 0;
     }));
 
-    var raw_dom_y = mark.summarizeY === 'cumulative' ? [0, raw.length] : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
+    var raw_dom_y = mark.summarizeY === 'cumulative' ? [0, raw.length] : config.y.type === 'ordinal' ? d3$1.set(raw.map(function (m) {
         return m[config.y.column];
     })).values().filter(function (f) {
         return f;
-    }) : mark.split && mark.arrange !== 'stacked' ? d3.extent(d3.merge(raw_nest.nested.map(function (m) {
+    }) : mark.split && mark.arrange !== 'stacked' ? d3$1.extent(d3$1.merge(raw_nest.nested.map(function (m) {
         return m.values.map(function (p) {
             return p.values.raw.length;
         });
-    }))) : mark.summarizeY === 'count' ? d3.extent(raw_nest.nested.map(function (m) {
+    }))) : mark.summarizeY === 'count' ? d3$1.extent(raw_nest.nested.map(function (m) {
         return m.values.raw.length;
-    })) : d3.extent(raw.map(function (m) {
+    })) : d3$1.extent(raw.map(function (m) {
         return +m[config.y.column];
     }).filter(function (f) {
         return +f || +f === 0;
@@ -1332,13 +1332,13 @@ function transformData(raw, mark) {
     function makeNest(entries, sublevel) {
         var dom_xs = [];
         var dom_ys = [];
-        var this_nest = d3.nest();
+        var this_nest = d3$1.nest();
 
         if (config.x.type === 'linear' && config.x.bin || config.y.type === 'linear' && config.y.bin) {
             var xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
-            var quant = d3.scale.quantile().domain(d3.extent(entries.map(function (m) {
+            var quant = d3$1.scale.quantile().domain(d3$1.extent(entries.map(function (m) {
                 return +m[config[xy].column];
-            }))).range(d3.range(+config[xy].bin));
+            }))).range(d3$1.range(+config[xy].bin));
 
             entries.forEach(function (e) {
                 return e.wc_bin = quant(e[config[xy].column]);
@@ -1360,24 +1360,24 @@ function transformData(raw, mark) {
                 return d[sublevel];
             });
             this_nest.sortKeys(function (a, b) {
-                return config.x.type === 'time' ? d3.ascending(new Date(a), new Date(b)) : config.x.order ? d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) : sublevel === config.color_by && config.legend.order ? d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) : config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a, b) : d3.ascending(+a, +b);
+                return config.x.type === 'time' ? d3$1.ascending(new Date(a), new Date(b)) : config.x.order ? d3$1.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b)) : sublevel === config.color_by && config.legend.order ? d3$1.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b)) : config.x.type === 'ordinal' || config.y.type === 'ordinal' ? naturalSorter(a, b) : d3$1.ascending(+a, +b);
             });
         }
         this_nest.rollup(function (r) {
             var obj = { raw: r };
             var y_vals = r.map(function (m) {
                 return m[config.y.column];
-            }).sort(d3.ascending);
+            }).sort(d3$1.ascending);
             var x_vals = r.map(function (m) {
                 return m[config.x.column];
-            }).sort(d3.ascending);
+            }).sort(d3$1.ascending);
             obj.x = config.x.type === 'ordinal' ? r[0][config.x.column] : summarize(x_vals, mark.summarizeX);
             obj.y = config.y.type === 'ordinal' ? r[0][config.y.column] : summarize(y_vals, mark.summarizeY);
 
-            obj.x_q25 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.25) : obj.x;
-            obj.x_q75 = config.error_bars && config.y.type === 'ordinal' ? d3.quantile(x_vals, 0.75) : obj.x;
-            obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
-            obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
+            obj.x_q25 = config.error_bars && config.y.type === 'ordinal' ? d3$1.quantile(x_vals, 0.25) : obj.x;
+            obj.x_q75 = config.error_bars && config.y.type === 'ordinal' ? d3$1.quantile(x_vals, 0.75) : obj.x;
+            obj.y_q25 = config.error_bars ? d3$1.quantile(y_vals, 0.25) : obj.y;
+            obj.y_q75 = config.error_bars ? d3$1.quantile(y_vals, 0.75) : obj.y;
             dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
             dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
 
@@ -1391,7 +1391,7 @@ function transformData(raw, mark) {
                     });
                 }
 
-                var cumul = config.x.type === 'time' ? interm.length : d3.sum(interm.map(function (m) {
+                var cumul = config.x.type === 'time' ? interm.length : d3$1.sum(interm.map(function (m) {
                     return +m[config.y.column] || +m[config.y.column] === 0 ? +m[config.y.column] : 1;
                 }));
                 dom_ys.push([cumul]);
@@ -1415,18 +1415,18 @@ function transformData(raw, mark) {
 
         var test = this_nest.entries(entries);
 
-        var dom_x = d3.extent(d3.merge(dom_xs));
-        var dom_y = d3.extent(d3.merge(dom_ys));
+        var dom_x = d3$1.extent(d3$1.merge(dom_xs));
+        var dom_y = d3$1.extent(d3$1.merge(dom_ys));
 
         if (sublevel && mark.type === 'bar' && mark.arrange === 'stacked') {
             test.forEach(calcStartTotal);
             if (config.x.type === 'ordinal' || config.x.type === 'linear' && config.x.bin) {
-                dom_y = d3.extent(test.map(function (m) {
+                dom_y = d3$1.extent(test.map(function (m) {
                     return m.total;
                 }));
             }
             if (config.y.type === 'ordinal' || config.y.type === 'linear' && config.y.bin) {
-                dom_x = d3.extent(test.map(function (m) {
+                dom_x = d3$1.extent(test.map(function (m) {
                     return m.total;
                 }));
             }
@@ -1441,13 +1441,13 @@ function transformData(raw, mark) {
 
         if (config.x.sort === 'total-ascending' && config.x.type == 'ordinal' || config.y.sort === 'total-descending' && config.y.type == 'ordinal') {
             totalOrder = test.sort(function (a, b) {
-                return d3.ascending(a.total, b.total);
+                return d3$1.ascending(a.total, b.total);
             }).map(function (m) {
                 return m.key;
             });
         } else if (config.x.sort === 'total-descending' && config.x.type == 'ordinal' || config.y.sort === 'total-ascending' && config.y.type == 'ordinal') {
             totalOrder = test.sort(function (a, b) {
-                return d3.descending(+a.total, +b.total);
+                return d3$1.descending(+a.total, +b.total);
             }).map(function (m) {
                 return m.key;
             });
@@ -1492,8 +1492,8 @@ function transformData(raw, mark) {
         }
     }
 
-    var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
-    var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
+    var filt1_dom_x = d3$1.extent(d3$1.merge(filt1_xs));
+    var filt1_dom_y = d3$1.extent(d3$1.merge(filt1_ys));
 
     this.filtered_data = filtered;
 
@@ -1518,17 +1518,17 @@ function transformData(raw, mark) {
     var pre_x_dom = !this.filters.length ? flex_dom_x : x_behavior === 'raw' ? raw_dom_x : nonall && x_behavior === 'firstfilter' ? filt1_dom_x : flex_dom_x;
     var pre_y_dom = !this.filters.length ? flex_dom_y : y_behavior === 'raw' ? raw_dom_y : nonall && y_behavior === 'firstfilter' ? filt1_dom_y : flex_dom_y;
 
-    var x_dom = config.x_dom ? config.x_dom : config.x.type === 'ordinal' && config.x.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+    var x_dom = config.x_dom ? config.x_dom : config.x.type === 'ordinal' && config.x.behavior === 'flex' ? d3$1.set(filtered.map(function (m) {
         return m[config.x.column];
-    })).values() : config.x.type === 'ordinal' ? d3.set(raw.map(function (m) {
+    })).values() : config.x.type === 'ordinal' ? d3$1.set(raw.map(function (m) {
         return m[config.x.column];
-    })).values() : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
+    })).values() : config.x_from0 ? [0, d3$1.max(pre_x_dom)] : pre_x_dom;
 
-    var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3.set(filtered.map(function (m) {
+    var y_dom = config.y_dom ? config.y_dom : config.y.type === 'ordinal' && config.y.behavior === 'flex' ? d3$1.set(filtered.map(function (m) {
         return m[config.y.column];
-    })).values() : config.y.type === 'ordinal' ? d3.set(raw.map(function (m) {
+    })).values() : config.y.type === 'ordinal' ? d3$1.set(raw.map(function (m) {
         return m[config.y.column];
-    })).values() : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
+    })).values() : config.y_from0 ? [0, d3$1.max(pre_y_dom)] : pre_y_dom;
 
     if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
         x_dom[0] = config.x.domain[0];
@@ -1586,13 +1586,13 @@ function xScaleAxis(max_range, domain, type) {
     var x = void 0;
 
     if (type === 'log') {
-        x = d3.scale.log();
+        x = d3$1.scale.log();
     } else if (type === 'ordinal') {
-        x = d3.scale.ordinal();
+        x = d3$1.scale.ordinal();
     } else if (type === 'time') {
-        x = d3.time.scale();
+        x = d3$1.time.scale();
     } else {
-        x = d3.scale.linear();
+        x = d3$1.scale.linear();
     }
 
     x.domain(domain);
@@ -1607,7 +1607,7 @@ function xScaleAxis(max_range, domain, type) {
         return m.summarizeX === 'percent';
     }).indexOf(true) > -1 ? '0%' : type === 'time' ? '%x' : '.0f';
     var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-    var xAxis = d3.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(xFormat) : d3.format(xFormat)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
+    var xAxis = d3$1.svg.axis().scale(x).orient(config.x.location).ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3$1.time.format(xFormat) : d3$1.format(xFormat)).tickValues(config.x.ticks ? config.x.ticks : null).innerTickSize(6).outerTickSize(3);
 
     this.svg.select('g.x.axis').attr('class', 'x axis ' + type);
     this.x = x;
@@ -1627,13 +1627,13 @@ function yScaleAxis(max_range, domain, type) {
     var config = this.config;
     var y = void 0;
     if (type === 'log') {
-        y = d3.scale.log();
+        y = d3$1.scale.log();
     } else if (type === 'ordinal') {
-        y = d3.scale.ordinal();
+        y = d3$1.scale.ordinal();
     } else if (type === 'time') {
-        y = d3.time.scale();
+        y = d3$1.time.scale();
     } else {
-        y = d3.scale.linear();
+        y = d3$1.scale.linear();
     }
 
     y.domain(domain);
@@ -1648,7 +1648,7 @@ function yScaleAxis(max_range, domain, type) {
         return m.summarizeY === 'percent';
     }).indexOf(true) > -1 ? '0%' : '.0f';
     var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-    var yAxis = d3.svg.axis().scale(y).orient('left').ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3.time.format(yFormat) : d3.format(yFormat)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
+    var yAxis = d3$1.svg.axis().scale(y).orient('left').ticks(tick_count).tickFormat(type === 'ordinal' ? null : type === 'time' ? d3$1.time.format(yFormat) : d3$1.format(yFormat)).tickValues(config.y.ticks ? config.y.ticks : null).innerTickSize(6).outerTickSize(3);
 
     this.svg.select('g.y.axis').attr('class', 'y axis ' + type);
 
@@ -1707,7 +1707,7 @@ function createChart() {
 
     thisChart.marks = [];
 
-    thisChart.wrap = d3.select(thisChart.div).append('div');
+    thisChart.wrap = d3$1.select(thisChart.div).append('div');
 
     thisChart.events = {
         onInit: function onInit() {},
@@ -1760,7 +1760,7 @@ function checkRequired$1(dataset) {
     if (!dataset[0] || !this.config.inputs) {
         return;
     }
-    var colnames = d3.keys(dataset[0]);
+    var colnames = d3$1.keys(dataset[0]);
     this.config.inputs.forEach(function (e, i) {
         if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
             throw new Error('Error in settings object: the value "' + e.value_col + '" does not match any column in the provided dataset.');
@@ -1829,7 +1829,7 @@ function makeControlItem(control) {
 function makeBtnGroupControl(control, control_wrap) {
     var _this = this;
 
-    var option_data = control.values ? control.values : d3.keys(this.data[0]);
+    var option_data = control.values ? control.values : d3$1.keys(this.data[0]);
 
     var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
 
@@ -1841,7 +1841,7 @@ function makeBtnGroupControl(control, control_wrap) {
 
     changers.on('click', function (d) {
         changers.each(function (e) {
-            d3.select(this).classed('btn-primary', e === d);
+            d3$1.select(this).classed('btn-primary', e === d);
         });
         _this.changeOption(control.option, d, control.callback);
     });
@@ -1866,9 +1866,9 @@ function makeDropdownControl(control, control_wrap) {
     var mainOption = control.option || control.options[0];
     var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
-    var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3.set(this.data.map(function (m) {
+    var opt_values = control.values && control.values instanceof Array ? control.values : control.values ? d3$1.set(this.data.map(function (m) {
         return m[_this.targets[0].config[control.values]];
-    })).values() : d3.keys(this.data[0]);
+    })).values() : d3$1.keys(this.data[0]);
 
     if (!control.require || control.none) {
         opt_values.unshift('None');
@@ -1885,9 +1885,9 @@ function makeDropdownControl(control, control_wrap) {
 
         if (control.multiple) {
             value = options.filter(function (f) {
-                return d3.select(this).property('selected');
+                return d3$1.select(this).property('selected');
             })[0].map(function (m) {
-                return d3.select(m).property('value');
+                return d3$1.select(m).property('value');
             }).filter(function (f) {
                 return f !== 'None';
             });
@@ -1934,7 +1934,7 @@ function makeNumberControl(control, control_wrap) {
 function makeRadioControl(control, control_wrap) {
     var _this = this;
 
-    var changers = control_wrap.selectAll('label').data(control.values || d3.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
+    var changers = control_wrap.selectAll('label').data(control.values || d3$1.keys(this.data[0])).enter().append('label').attr('class', 'radio').text(function (d, i) {
         return control.relabels ? control.relabels[i] : d;
     }).append('input').attr('type', 'radio').attr('class', 'changer').attr('name', control.option.replace('.', '-') + '-' + this.targets[0].id).property('value', function (d) {
         return d;
@@ -1945,8 +1945,8 @@ function makeRadioControl(control, control_wrap) {
     changers.on('change', function (d) {
         var value = null;
         changers.each(function (c) {
-            if (d3.select(this).property('checked')) {
-                value = d3.select(this).property('value') === 'none' ? null : c;
+            if (d3$1.select(this).property('checked')) {
+                value = d3$1.select(this).property('value') === 'none' ? null : c;
             }
         });
         _this.changeOption(control.option, value, control.callback);
@@ -1957,7 +1957,7 @@ function makeSubsetterControl(control, control_wrap) {
     var targets = this.targets;
     var changer = control_wrap.append('select').attr('class', 'changer').attr('multiple', control.multiple ? true : null).datum(control);
 
-    var option_data = control.values ? control.values : d3.set(this.data.map(function (m) {
+    var option_data = control.values ? control.values : d3$1.set(this.data.map(function (m) {
         return m[control.value_col];
     }).filter(function (f) {
         return f;
@@ -2014,9 +2014,9 @@ function makeSubsetterControl(control, control_wrap) {
     changer.on('change', function (d) {
         if (control.multiple) {
             var values = options.filter(function (f) {
-                return d3.select(this).property('selected');
+                return d3$1.select(this).property('selected');
             })[0].map(function (m) {
-                return d3.select(m).property('text');
+                return d3$1.select(m).property('text');
             });
 
             var new_filter = {
@@ -2034,7 +2034,7 @@ function makeSubsetterControl(control, control_wrap) {
                 e.draw();
             });
         } else {
-            var value = d3.select(this).select('option:checked').property('text');
+            var value = d3$1.select(this).select('option:checked').property('text');
             var _new_filter = {
                 col: control.value_col,
                 val: value,
@@ -2116,9 +2116,9 @@ function createControls() {
     thisControls.targets = [];
 
     if (config.location === 'bottom') {
-        thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
+        thisControls.wrap = d3$1.select(element).append('div').attr('class', 'wc-controls');
     } else {
-        thisControls.wrap = d3.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
+        thisControls.wrap = d3$1.select(element).insert('div', ':first-child').attr('class', 'wc-controls');
     }
 
     return thisControls;
@@ -2164,6 +2164,22 @@ function clone(obj) {
     throw new Error('Unable to copy [obj]! Its type is not supported.');
 }
 
+function applyFilters() {
+    var _this = this;
+
+    //If there are filters, return a filtered data array of the raw data.
+    //Otherwise return the raw data.
+    this.data.filtered = this.filters ? clone(this.data.raw).filter(function (d) {
+        var match = false;
+
+        _this.filters.forEach(function (filter) {
+            if (match === false && filter.val !== 'All') match = filter.val instanceof Array ? filter.val.indexOf(d[filter.col]) > -1 : filter.val === d[filter.col];
+        });
+
+        return match;
+    }) : clone(this.data.raw);
+}
+
 /*------------------------------------------------------------------------------------------------\
   Check equality of two arrays (https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript)
 \------------------------------------------------------------------------------------------------*/
@@ -2193,229 +2209,138 @@ Array.prototype.equals = function (array) {
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
 
-function draw$1(passed_data, processed_data) {
+function draw$1(passed_data) {
     var _this = this;
 
     var context = this,
         config = this.config,
         table = this.table;
 
-    //Reset pagination if filters have changed.
+    //Apply filters if data is not passed to table.draw().
+    if (!passed_data) {
+        applyFilters.call(this);
+    }
+    //Otherwise update data object.
+    else {
+            this.data.raw = passed_data;
+            this.data.filtered = passed_data;
+            this.controls.init(passed_data);
+        }
+
+    //Compare current filter settings to previous filter settings, if any.
     if (this.filters) {
         this.currentFilters = this.filters.map(function (filter) {
             return filter.val;
         });
 
+        //Reset pagination if filters have changed.
         if (!this.currentFilters.equals(this.previousFilters)) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-            this.searchable.wrap.select('input').property('value', '');
+            this.searchable.wrap.select('input').property('value', ''); // reset search box
         }
 
-        this.previousFilters = this.filters.map(function (filter) {
-            return filter.val;
-        });
+        this.previousFilters = this.currentFilters;
     }
 
-    if (this.sortable.order.length) passed_data = this.sortable.sortData.call(this, passed_data);
-    this.data.passed = passed_data || this.data.searched || this.data.raw;
-    if (this.sortable.order.length) this.data.passed = this.sortable.sortData.call(this, this.data.passed);
-    this.data.filtered = processed_data || this.transformData(this.data.passed);
-    this.data.paginated = clone(this.data.filtered);
-    this.data.paginated[0].values = this.data.paginated[0].values.filter(function (d, i) {
+    var data = void 0;
+
+    //Filter data on search term if it exists and set data to searched data.
+    if (this.searchable.searchTerm) {
+        applySearchTerm.call(this);
+        data = this.data.searched;
+    }
+    //Otherwise delete previously searched data and set data to filtered data.
+    else {
+            delete this.data.searched;
+            data = this.data.filtered;
+        }
+
+    //Sort data.
+    if (this.sortable.order.length) this.sortable.sortData.call(this, data);
+
+    //Bind table filtered/searched data to table container.
+    this.wrap.datum(clone(data));
+
+    //Apply pagination.
+    if (this.data.paginated) data = data.filter(function (d, i) {
         return _this.config.startIndex <= i && i < _this.config.endIndex;
     });
 
-    var data = config.pagination ? this.data.paginated : this.data.filtered;
-
-    //Bind table data to table container.
-    this.wrap.datum(data);
-
-    //for bootstrap table styling
-    if (config.bootstrap) {
-        table.classed('table', true);
-    } else {
-        table.classed('table', false);
-    }
-
-    //Define header, header row, and header cells.
-    var headerRow = table.select('thead').select('tr.headers'),
-        headers = headerRow.selectAll('th').data(this.config.headers);
-
+    //Define column headers.
+    var headers = this.thead.append('tr').selectAll('th').data(this.config.headers);
     headers.exit().remove();
     headers.enter().append('th');
-    headers.text(function (d) {
+    headers.attr('class', function (d) {
+        return _this.config.cols[_this.config.headers.indexOf(d)];
+    }) // associate column header with column name
+    .text(function (d) {
         return d;
     });
 
-    //Print a note that no data was selected for empty tables
-    table.selectAll('tr.NoDataRow').remove();
-    if (this.data.passed.length == 0) {
-        table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
-    }
-
-    //Define table bodies? Not sure why there would be more than one.
-    var tbodies = table.selectAll('tbody').data(data, function (d) {
-        return d.key;
+    if (this.config.sortable) headers.on('click', function (header) {
+        context.sortable.onClick.call(context, this, header);
     });
 
-    tbodies.exit().remove();
-    tbodies.enter().append('tbody');
+    //Print a note that no data was selected for empty tables.
+    table.selectAll('tbody tr.NoDataRow').remove();
 
-    if (config.row_per) {
-        var rev_order = config.row_per.slice(0).reverse();
-        rev_order.forEach(function (e) {
-            tbodies.sort(function (a, b) {
-                return a.values[0].raw[e] - b.values[0].raw[e];
+    if (data.length === 0) this.tbody.append('tr').attr('class', 'NoDataRow').text('No data selected.');else {
+        //Define table body rows.
+        var rows = this.tbody.selectAll('tr').data(data);
+        rows.exit().remove();
+        rows.enter().append('tr');
+
+        //Define table body cells.
+        var cells = rows.selectAll('td').data(function (d) {
+            return Object.keys(d).filter(function (key) {
+                return _this.config.cols.indexOf(key).map(function (key) {
+                    return d[key];
+                });
             });
         });
-    }
+        cells.exit().remove();
+        cells.enter().append('td');
+        cells.attr('class', function (d) {
+            return d.col;
+        }).each(function (d) {
+            var cell = d3.select(this);
 
-    //Define table body rows.
-    var rows = tbodies.selectAll('tr').data(function (d) {
-        return d.values;
-    });
-
-    rows.exit().remove();
-    rows.enter().append('tr');
-
-    //Sort by an array of columns.
-    if (config.sort_rows) {
-        var row_order = config.sort_rows.slice(0);
-        row_order.unshift('0');
-
-        rows.sort(function (a, b) {
-            var i = 0;
-            while (i < row_order.length && a.raw[row_order[i]] == b.raw[row_order[i]]) {
-                i++;
+            //Apply text in data as html or as plain text.
+            if (config.as_html) {
+                cell.html(d);
+            } else {
+                cell.text(d);
             }
-            if (a.raw[row_order[i]] < b.raw[row_order[i]]) {
-                return -1;
-            }
-            if (a.raw[row_order[i]] > b.raw[row_order[i]]) {
-                return 1;
-            }
-            return 0;
         });
-    }
 
-    //Define table body cells.
-    var tds = rows.selectAll('td').data(function (d) {
-        return d.cells.filter(function (f) {
-            return _this.config.cols.indexOf(f.col) > -1;
+        //Add export.
+        if (this.config.exportable) this.config.exports.forEach(function (fmt) {
+            _this.exportable.exports[fmt].call(_this, data);
         });
-    });
 
-    tds.exit().remove();
-    tds.enter().append('td');
-
-    //Assign column name as class.
-    tds.attr('class', function (d) {
-        return d.col;
-    });
-
-    //Apply text in data as html or as plain text.
-    if (config.as_html) {
-        tds.html(function (d) {
-            return d.text;
-        });
-    } else {
-        tds.text(function (d) {
-            return d.text;
-        });
+        //Add pagination.
+        if (this.config.pagination) this.pagination.addPagination.call(this);
     }
-
-    //Delete text from columns with repeated values?
-    if (config.row_per) {
-        rows.filter(function (f, i) {
-            return i > 0;
-        }).selectAll('td').filter(function (f) {
-            return config.row_per.indexOf(f.col) > -1;
-        }).text('');
-    }
-
-    //for DataTables functionality
-    if (config.data_tables) {
-        if (jQuery() && jQuery().dataTable) {
-            var dt_config = config.data_tables;
-            dt_config.searching = config.searchable ? config.searchable : false;
-            $(table.node()).dataTable(dt_config);
-            var print_btn = $('.print-btn', wrap.node());
-            print_btn.addClass('pull-right');
-            $('.dataTables_wrapper').prepend(print_btn);
-        } else {
-            throw new Error('dataTables jQuery plugin not available');
-        }
-    }
-
-    //Add sort.
-    if (this.config.sortable) this.sortable.addSort.call(this);
-
-    //Add pagination.
-    if (this.config.exportable) this.config.exports.forEach(function (fmt) {
-        _this.exportable.exports[fmt].call(_this);
-    });
-
-    //Add pagination.
-    if (this.config.pagination) this.pagination.addPagination.call(this);
 
     this.events.onDraw.call(this);
 }
 
 function layout$2() {
-    var table = this;
+    var context = this;
 
     this.searchable.wrap = this.wrap.select('.table-top').append('div').classed('interactivity searchable-container', true).classed('hidden', !this.config.searchable);
     this.searchable.wrap.append('span').classed('description', true).text('Search:');
     this.searchable.wrap.append('input').classed('search-box', true).on('input', function () {
-        table.searchable.filterRows.call(table, this);
+        context.searchable.searchTerm = this.value.toLowerCase() || null;
+        this.draw();
     });
-}
-
-function updatePagination() {
-    var _this = this;
-
-    //Reset pagination.
-    this.pagination.links.classed('active', false);
-
-    //Set to active the selected page link.
-    var activePage = this.pagination.links.filter(function (link) {
-        return +link.rel === +_this.config.activePage;
-    }).classed('active', true);
-
-    //Define and draw selected page.
-    this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
-    this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
-
-    this.draw(this.data.search);
-}
-
-function filterRows(string) {
-    var inputText = string.value.toLowerCase();
-    //Determine which rows contain input text.
-    this.data.search = this.data.raw.filter(function (d) {
-        var match = false;
-
-        Object.keys(d).forEach(function (var_name) {
-            if (match === false) {
-                var cellText = '' + d[var_name];
-                match = cellText.toLowerCase().indexOf(inputText) > -1;
-            }
-        });
-
-        return match;
-    });
-    this.config.activePage = 0;
-    this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
-    this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-    this.draw(this.data.search);
 }
 
 function searchable() {
     return {
-        layout: layout$2,
-        filterRows: filterRows
+        layout: layout$2
     };
 }
 
@@ -2435,10 +2360,6 @@ function layout$3() {
 
 function csv(data) {
     var _this = this;
-
-    if (!data) data = this.data.filtered[0].values.map(function (d) {
-        return d.raw;
-    });
 
     var CSVarray = [];
 
@@ -2490,10 +2411,6 @@ function csv(data) {
 
 function xlsx(data) {
     var _this = this;
-
-    if (!data) data = this.data.filtered[0].values.map(function (d) {
-        return d.raw;
-    });
 
     var sheetName = 'Selected Data',
         options = {
@@ -2584,33 +2501,9 @@ function layout$4() {
     this.sortable.wrap.append('span').classed('instruction', true).text('Click any column header to sort that column.');
 }
 
-function sortData(data) {
-    var _this = this;
-
-    var sortedData = data ? clone(data) : clone(this.data.raw);
-    sortedData = sortedData.sort(function (a, b) {
-        var order = 0;
-
-        _this.sortable.order.forEach(function (item) {
-            var aCell = a[item.col],
-                bCell = b[item.col];
-
-            if (order === 0) {
-                if (item.direction === 'ascending' && aCell < bCell || item.direction === 'descending' && aCell > bCell) order = -1;else if (item.direction === 'ascending' && aCell > bCell || item.direction === 'descending' && aCell < bCell) order = 1;
-            }
-        });
-
-        return order;
-    });
-
-    this.data.sorted = sortedData;
-
-    return sortedData;
-}
-
 function onClick(th, header) {
     var context = this,
-        selection = d3.select(th),
+        selection = d3$1.select(th),
         col = this.config.cols[this.config.headers.indexOf(header)];
 
     //Check if column is already a part of current sort order.
@@ -2634,50 +2527,52 @@ function onClick(th, header) {
         sortItem.wrap.select('span.sort-direction').html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
     }
 
-    //Sort data.
-    sortData.call(this, this.data.search);
-    this.draw(this.data.sorted);
-
     //Hide sort instructions.
     this.sortable.wrap.select('.instruction').classed('hidden', true);
 
     //Add sort container deletion functionality.
     this.sortable.order.forEach(function (item, i) {
         item.wrap.on('click', function (d) {
-            //Remove sort container.
-            d3.select(this).remove();
+            //Remove column's sort container.
+            d3$1.select(this).remove();
 
             //Remove column from sort.
             context.sortable.order.splice(context.sortable.order.map(function (d) {
                 return d.col;
             }).indexOf(d.key), 1);
 
-            //Sort data.
-            if (context.sortable.order.length) {
-                sortData.call(context, context.data.search);
-                context.draw(context.data.sorted);
-            } else {
-                //Display sort instructions.
-                context.sortable.wrap.select('.instruction').classed('hidden', false);
-                context.draw(context.data.search);
-            }
+            //Display sorting instruction.
+            context.sortable.wrap.select('.instruction').classed('hidden', context.sortable.order.length);
         });
     });
+
+    //Redraw chart.
+    this.draw();
 }
 
-function addSort() {
-    var context = this;
+function sortData(data) {
+    var _this = this;
 
-    //Add click listener to headers.
-    var headers = this.table.selectAll('thead th').on('click', function (header) {
-        onClick.call(context, this, header);
+    data = data.sort(function (a, b) {
+        var order = 0;
+
+        _this.sortable.order.forEach(function (item) {
+            var aCell = a[item.col],
+                bCell = b[item.col];
+
+            if (order === 0) {
+                if (item.direction === 'ascending' && aCell < bCell || item.direction === 'descending' && aCell > bCell) order = -1;else if (item.direction === 'ascending' && aCell > bCell || item.direction === 'descending' && aCell < bCell) order = 1;
+            }
+        });
+
+        return order;
     });
 }
 
 function sortable() {
     return {
         layout: layout$4,
-        addSort: addSort,
+        onClick: onClick,
         sortData: sortData,
         order: []
     };
@@ -2685,6 +2580,25 @@ function sortable() {
 
 function layout$5() {
     this.pagination.wrap = this.wrap.select('.table-bottom').append('div').classed('interactivity pagination-container', true).classed('hidden', !this.config.pagination);
+}
+
+function updatePagination() {
+    var _this = this;
+
+    //Reset pagination.
+    this.pagination.links.classed('active', false);
+
+    //Set to active the selected page link.
+    var activePage = this.pagination.links.filter(function (link) {
+        return +link.rel === +_this.config.activePage;
+    }).classed('active', true);
+
+    //Define and draw selected page.
+    this.config.startIndex = this.config.activePage * this.config.nRowsPerPage;
+    this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage;
+
+    //Redraw table.
+    this.draw();
 }
 
 function addLinks() {
@@ -2750,14 +2664,15 @@ function addArrows() {
     this.pagination.doubleArrows = this.pagination.wrap.selectAll('a.double-arrow-link');
 }
 
-function addPagination() {
-    var listing = this;
+function addPagination(data) {
+    var context = this;
+
     //Calculate number of pages needed and create a link for each page.
-    this.config.nRows = this.data.filtered[0].values.length;
+    this.config.nRows = data.length;
     this.config.nPages = Math.ceil(this.config.nRows / this.config.nRowsPerPage);
 
     //hide the pagination if there is only one page
-    this.config.paginationHidden = this.config.nPages == 1;
+    this.config.paginationHidden = this.config.nPages === 1;
     this.pagination.wrap.classed('hidden', this.config.paginationHidden);
 
     //Render page links.
@@ -2765,8 +2680,8 @@ function addPagination() {
 
     //Render a different page on click.
     this.pagination.links.on('click', function () {
-        listing.config.activePage = +d3.select(this).attr('rel');
-        updatePagination.call(listing);
+        context.config.activePage = +d3$1.select(this).attr('rel');
+        updatePagination.call(context);
     });
 
     //Render arrow links.
@@ -2774,18 +2689,18 @@ function addPagination() {
 
     //Render a different page on click.
     this.pagination.arrows.on('click', function () {
-        if (listing.config.activePage !== +d3.select(this).attr('rel')) {
-            listing.config.activePage = +d3.select(this).attr('rel');
-            listing.pagination.prev.attr('rel', listing.config.activePage > 0 ? listing.config.activePage - 1 : 0);
-            listing.pagination.next.attr('rel', listing.config.activePage < listing.config.nPages ? listing.config.activePage + 1 : listing.config.nPages - 1);
-            updatePagination.call(listing);
+        if (context.config.activePage !== +d3$1.select(this).attr('rel')) {
+            context.config.activePage = +d3$1.select(this).attr('rel');
+            context.pagination.prev.attr('rel', context.config.activePage > 0 ? context.config.activePage - 1 : 0);
+            context.pagination.next.attr('rel', context.config.activePage < context.config.nPages ? context.config.activePage + 1 : context.config.nPages - 1);
+            updatePagination.call(context);
         }
     });
 
     //Render a different page on click.
     this.pagination.doubleArrows.on('click', function () {
-        listing.config.activePage = +d3.select(this).attr('rel');
-        updatePagination.call(listing);
+        context.config.activePage = +d3$1.select(this).attr('rel');
+        updatePagination.call(context);
     });
 }
 
@@ -2807,8 +2722,8 @@ function init$2(data) {
 
     var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-    if (d3.select(this.div).select('.loader').empty()) {
-        d3.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3.range(8)).enter().append('div').attr('class', function (d) {
+    if (d3$1.select(this.div).select('.loader').empty()) {
+        d3$1.select(this.div).insert('div', ':first-child').attr('class', 'loader').selectAll('.blockG').data(d3$1.range(8)).enter().append('div').attr('class', function (d) {
             return 'blockG rotate' + (d + 1);
         });
     }
@@ -2848,11 +2763,11 @@ function init$2(data) {
         }
 
         //make sure container is visible (has height and width) before trying to initialize
-        var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
+        var visible = d3$1.select(_this.div).property('offsetWidth') > 0 || test;
         if (!visible) {
             console.warn('The table cannot be initialized inside an element with 0 width. The table will be initialized as soon as the container element is given a width > 0.');
             var onVisible = setInterval(function (i) {
-                var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
+                var visible_now = d3$1.select(_this.div).property('offsetWidth') > 0;
                 if (visible_now) {
                     _this.layout();
                     _this.wrap.datum(_this);
@@ -2878,8 +2793,9 @@ function init$2(data) {
 
 function layout$6() {
     //Clear loading indicator.
-    d3.select(this.div).select('.loader').remove();
+    d3$1.select(this.div).select('.loader').remove();
 
+    //Attach container before table.
     this.wrap.append('div').classed('table-top', true);
 
     //Attach sort container.
@@ -2889,9 +2805,11 @@ function layout$6() {
     this.searchable.layout.call(this);
 
     //Attach table to DOM.
-    this.table = this.wrap.append('table');
-    this.table.append('thead').append('tr').classed('headers', true);
+    this.table = this.wrap.append('table').classed('table', this.config.bootstrap); // apply class to incorporate bootstrap styling
+    this.thead = this.table.append('thead');
+    this.tbody = this.table.append('tbody');
 
+    //Attach container after table.
     this.wrap.append('div').classed('table-bottom', true);
 
     //Attach data export container.
@@ -2936,14 +2854,17 @@ function setDefaults$1() {
     setDefault.call(this, 'applyCSS');
 }
 
-function transformData$1(data) {
+function transformData$1(processed_data) {
     var _this = this;
+
+    //Transform data.
+    this.data.processed = this.transformData(this.wrap.datum);
 
     if (!data) {
         return;
     }
 
-    this.config.cols = this.config.cols || d3.keys(data[0]);
+    this.config.cols = this.config.cols || d3$1.keys(data[0]);
     this.config.headers = this.config.headers || this.config.cols;
 
     if (this.config.keep) {
@@ -2969,7 +2890,7 @@ function transformData$1(data) {
         });
     }
 
-    var slimmed = d3.nest().key(function (d) {
+    var slimmed = d3$1.nest().key(function (d) {
         if (_this.config.row_per) {
             return _this.config.row_per.map(function (m) {
                 return d[m];
@@ -3001,6 +2922,28 @@ function transformData$1(data) {
 
     this.events.onDatatransform.call(this);
 
+    /**-------------------------------------------------------------------------------------------\
+       Code below associated with the former paradigm of a d3.nest() data array.
+    \-------------------------------------------------------------------------------------------**/
+
+    if (config.row_per) {
+        var rev_order = config.row_per.slice(0).reverse();
+        rev_order.forEach(function (e) {
+            tbodies.sort(function (a, b) {
+                return a.values[0].raw[e] - b.values[0].raw[e];
+            });
+        });
+    }
+
+    //Delete text from columns with repeated values?
+    if (config.row_per) {
+        rows.filter(function (f, i) {
+            return i > 0;
+        }).selectAll('td').filter(function (f) {
+            return config.row_per.indexOf(f.col) > -1;
+        }).text('');
+    }
+
     return this.data.current;
 }
 
@@ -3030,7 +2973,7 @@ function createTable() {
 
     thisTable.required_cols = [];
 
-    thisTable.wrap = d3.select(thisTable.div).append('div');
+    thisTable.wrap = d3$1.select(thisTable.div).append('div');
 
     thisTable.events = {
         onInit: function onInit() {},
@@ -3064,14 +3007,14 @@ function multiply(chart, data, split_by, order) {
     chart.multiples = [];
 
     function goAhead(data) {
-        var split_vals = d3.set(data.map(function (m) {
+        var split_vals = d3$1.set(data.map(function (m) {
             return m[split_by];
         })).values().filter(function (f) {
             return f;
         });
         if (order) {
             split_vals = split_vals.sort(function (a, b) {
-                return d3.ascending(order.indexOf(a), order.indexOf(b));
+                return d3$1.ascending(order.indexOf(a), order.indexOf(b));
             });
         }
         split_vals.forEach(function (e) {
@@ -3089,7 +3032,7 @@ function multiply(chart, data, split_by, order) {
 }
 
 function getValType(data, variable) {
-    var var_vals = d3.set(data.map(function (m) {
+    var var_vals = d3$1.set(data.map(function (m) {
         return m[variable];
     })).values();
     var vals_numbers = var_vals.filter(function (f) {

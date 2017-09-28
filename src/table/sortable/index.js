@@ -1,11 +1,11 @@
 import layout from './layout';
-import addSort from './addSort';
+import onClick from './onClick';
 import sortData from './sortData';
 
 export default function sortable() {
     return {
         layout: layout,
-        addSort: addSort,
+        onClick: onClick,
         sortData: sortData,
         order: []
     };

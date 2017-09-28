@@ -1,6 +1,9 @@
 import { keys, nest } from 'd3';
 
-export default function transformData(data) {
+export default function transformData(processed_data) {
+  //Transform data.
+    this.data.processed = this.transformData(this.wrap.datum);
+
     if (!data) {
         return;
     }
@@ -63,6 +66,26 @@ export default function transformData(data) {
     this.pagination.wrap.selectAll('*').remove();
 
     this.events.onDatatransform.call(this);
+
+    /**-------------------------------------------------------------------------------------------\
+       Code below associated with the former paradigm of a d3.nest() data array.
+    \-------------------------------------------------------------------------------------------**/
+
+        if (config.row_per) {
+            let rev_order = config.row_per.slice(0).reverse();
+            rev_order.forEach(e => {
+                tbodies.sort((a, b) => a.values[0].raw[e] - b.values[0].raw[e]);
+            });
+        }
+
+        //Delete text from columns with repeated values?
+        if (config.row_per) {
+            rows
+                .filter((f, i) => i > 0)
+                .selectAll('td')
+                .filter(f => config.row_per.indexOf(f.col) > -1)
+                .text('');
+        }
 
     return this.data.current;
 }

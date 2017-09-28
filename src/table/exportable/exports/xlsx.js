@@ -1,6 +1,4 @@
 export default function xlsx(data) {
-    if (!data) data = this.data.filtered[0].values.map(d => d.raw);
-
     const sheetName = 'Selected Data',
         options = {
             bookType: 'xlsx',

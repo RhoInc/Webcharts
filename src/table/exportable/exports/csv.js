@@ -1,6 +1,4 @@
 export default function csv(data) {
-    if (!data) data = this.data.filtered[0].values.map(d => d.raw);
-
     const CSVarray = [];
 
     data.forEach((d, i) => {

@@ -4,6 +4,7 @@ export default function layout() {
     //Clear loading indicator.
     select(this.div).select('.loader').remove();
 
+  //Attach container before table.
     this.wrap.append('div')
         .classed('table-top', true);
 
@@ -14,12 +15,15 @@ export default function layout() {
         this.searchable.layout.call(this);
 
     //Attach table to DOM.
-    this.table = this.wrap.append('table');
-    this.table
-        .append('thead')
-        .append('tr')
-        .classed('headers', true);
+    this.table = this.wrap
+        .append('table')
+        .classed('table', this.config.bootstrap); // apply class to incorporate bootstrap styling
+    this.thead = this.table
+        .append('thead');
+    this.tbody = this.table
+        .append('tbody');
 
+  //Attach container after table.
     this.wrap.append('div')
         .classed('table-bottom', true);
 

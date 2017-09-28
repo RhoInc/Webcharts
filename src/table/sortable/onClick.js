@@ -1,5 +1,4 @@
 import { select } from 'd3';
-import sortData from './sortData';
 
 export default function onClick(th, header) {
     const context = this,
@@ -31,31 +30,23 @@ export default function onClick(th, header) {
             .html(sortItem.direction === 'ascending' ? '&darr;' : '&uarr;');
     }
 
-    //Sort data.
-    sortData.call(this, this.data.search);
-    this.draw(this.data.sorted);
-
     //Hide sort instructions.
     this.sortable.wrap.select('.instruction').classed('hidden', true);
 
     //Add sort container deletion functionality.
     this.sortable.order.forEach((item, i) => {
         item.wrap.on('click', function(d) {
-            //Remove sort container.
+            //Remove column's sort container.
             select(this).remove();
 
             //Remove column from sort.
             context.sortable.order.splice(context.sortable.order.map(d => d.col).indexOf(d.key), 1);
 
-            //Sort data.
-            if (context.sortable.order.length) {
-                sortData.call(context, context.data.search);
-                context.draw(context.data.sorted);
-            } else {
-                //Display sort instructions.
-                context.sortable.wrap.select('.instruction').classed('hidden', false);
-                context.draw(context.data.search);
-            }
+            //Display sorting instruction.
+            context.sortable.wrap.select('.instruction').classed('hidden', context.sortable.order.length);
         });
     });
+
+    //Redraw chart.
+    this.draw();
 }
