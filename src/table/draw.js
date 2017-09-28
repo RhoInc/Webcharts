@@ -38,17 +38,31 @@ export default function draw(passed_data) {
     if (this.searchable.searchTerm) {
         applySearchTerm.call(this);
         data = this.data.searched;
+        this.config.activePage = 0;
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
     } else {
         //Otherwise delete previously searched data and set data to filtered data.
         delete this.data.searched;
         data = this.data.filtered;
     }
 
-    //Print a note that no data was selected for empty tables.
-    table.selectAll('tbody tr.NoDataRow').remove();
+    this.searchable.wrap
+        .select('.nNrecords')
+        .classed('invisible', data.length === this.data.raw.length)
+        .text(`${data.length}/${this.data.raw.length} records displayed`)
 
+    //Clear table body rows.
+    this.tbody.selectAll('tr').remove();
+
+  //Print a note that no data was selected for empty tables.
     if (data.length === 0) {
-        this.tbody.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+        this.tbody
+            .append('tr')
+            .classed('no-data', true)
+                .append('td')
+                .attr('colspan', this.config.cols.length)
+                .text('No data selected.');
     } else {
         //Sort data.
         if (this.config.sortable) {
@@ -77,9 +91,11 @@ export default function draw(passed_data) {
         }
 
         //Define table body rows.
-        const rows = this.tbody.selectAll('tr').data(data);
-        rows.exit().remove();
-        rows.enter().append('tr');
+        const rows = this.tbody
+            .selectAll('tr')
+                .data(data)
+                .enter()
+            .append('tr');
 
         //Define table body cells.
         const cells = rows

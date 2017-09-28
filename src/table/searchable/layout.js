@@ -6,8 +6,10 @@ export default function layout() {
         .append('div')
         .classed('interactivity searchable-container', true)
         .classed('hidden', !this.config.searchable);
-    this.searchable.wrap.append('span').classed('description', true).text('Search:');
-    this.searchable.wrap.append('input').classed('search-box', true).on('input', function() {
+    this.searchable.wrap.append('div').classed('nNrecords', true);
+    this.searchable.wrap.append('div').classed('search', true);
+    this.searchable.wrap.select('.search').append('span').classed('description', true).text('Search:');
+    this.searchable.wrap.select('.search').append('input').classed('search-box', true).on('input', function() {
         context.searchable.searchTerm = this.value.toLowerCase() || null;
         context.draw();
     });
