@@ -17,7 +17,7 @@ export default function init(data, test = false) {
     }
 
     //Define default settings.
-    this.setDefaults();
+    this.setDefaults.call(this, data[0]);
 
     //Assign classes to container element.
     this.wrap.classed('wc-chart', true).classed('wc-table', this.config.applyCSS);

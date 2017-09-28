@@ -4,7 +4,8 @@ export default function layout() {
     const context = this;
 
     //Add sort container.
-    this.sortable.wrap = this.wrap.select('.table-top')
+    this.sortable.wrap = this.wrap
+        .select('.table-top')
         .append('div')
         .classed('interactivity sortable-container', true)
         .classed('hidden', !this.config.sortable);

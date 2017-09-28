@@ -43,7 +43,9 @@ export default function onClick(th, header) {
             context.sortable.order.splice(context.sortable.order.map(d => d.col).indexOf(d.key), 1);
 
             //Display sorting instruction.
-            context.sortable.wrap.select('.instruction').classed('hidden', context.sortable.order.length);
+            context.sortable.wrap
+                .select('.instruction')
+                .classed('hidden', context.sortable.order.length);
         });
     });
 

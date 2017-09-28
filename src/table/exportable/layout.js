@@ -1,5 +1,6 @@
 export default function layout() {
-    this.exportable.wrap = this.wrap.select('.table-bottom')
+    this.exportable.wrap = this.wrap
+        .select('.table-bottom')
         .append('div')
         .classed('interactivity exportable-container', true)
         .classed('hidden', !this.config.exportable);

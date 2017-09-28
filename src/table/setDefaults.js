@@ -1,6 +1,21 @@
+import { keys } from 'd3';
 import setDefault from '../util/setDefault';
 
-export default function setDefaults() {
+export default function setDefaults(firstItem) {
+    //Set data-driven defaults.
+    if (this.config.cols instanceof Array && this.config.headers instanceof Array) {
+        if (this.config.cols.length === 0) delete this.config.cols;
+        if (
+            this.config.headers.length === 0 ||
+            this.config.headers.length !== this.config.cols.length
+        )
+            delete this.config.headers;
+    }
+
+    this.config.cols = this.config.cols || keys(firstItem);
+    this.config.headers = this.config.headers || this.config.cols;
+
+    //Set all other defaults.
     setDefault.call(this, 'searchable');
     setDefault.call(this, 'exportable');
     setDefault.call(this, 'exports', ['csv']);

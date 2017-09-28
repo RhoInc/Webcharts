@@ -1,7 +1,7 @@
+import { select } from 'd3';
 import addLinks from './addLinks';
 import addArrows from './addArrows';
 import updatePagination from './updatePagination';
-import { select } from 'd3';
 
 export default function addPagination(data) {
     const context = this;
@@ -49,4 +49,10 @@ export default function addPagination(data) {
         context.config.activePage = +select(this).attr('rel');
         updatePagination.call(context);
     });
+
+    return {
+        addLinks: addLinks,
+        addArrows: addArrows,
+        updatePagination: updatePagination
+    };
 }
