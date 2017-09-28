@@ -8,9 +8,20 @@ export default function layout() {
         .classed('hidden', !this.config.searchable);
     this.searchable.wrap.append('div').classed('nNrecords', true);
     this.searchable.wrap.append('div').classed('search', true);
-    this.searchable.wrap.select('.search').append('span').classed('description', true).text('Search:');
-    this.searchable.wrap.select('.search').append('input').classed('search-box', true).on('input', function() {
-        context.searchable.searchTerm = this.value.toLowerCase() || null;
-        context.draw();
-    });
+    this.searchable.wrap
+        .select('.search')
+        .append('span')
+        .classed('description', true)
+        .text('Search:');
+    this.searchable.wrap
+        .select('.search')
+        .append('input')
+        .classed('search-box', true)
+        .on('input', function() {
+            context.searchable.searchTerm = this.value.toLowerCase() || null;
+            context.config.activePage = 0;
+            context.config.startIndex = context.config.activePage * context.config.nRowsPerPage; // first row shown
+            context.config.endIndex = context.config.startIndex + context.config.nRowsPerPage; // last row shown
+            context.draw();
+        });
 }
