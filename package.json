@@ -12,7 +12,9 @@
   "main": "lib/webcharts.common.js",
   "jsnext:main": "src/index.js",
   "dependencies": {
-    "d3": "^3",
+    "d3": "^3"
+  },
+  "optionalDependencies": {
     "js-xlsx": "^0.8.22"
   },
   "scripts": {

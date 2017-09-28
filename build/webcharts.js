@@ -3278,7 +3278,8 @@
 
         //transform CSV array into CSV string
         var CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
-            fileName = 'Selected Data.csv',
+            fileName =
+                'webhartsTableExport_' + d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) + '.csv',
             link = this.wrap.select('.export#csv');
 
         if (navigator.msSaveBlob) {
@@ -3355,7 +3356,8 @@
 
         //transform CSV array into CSV string
         var blob = new Blob([s2ab(xlsx)], { type: 'application/octet-stream;' }),
-            fileName = 'Selected Data.xlsx',
+            fileName =
+                'webhartsTableExport_' + d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) + '.xlsx',
             link = this.wrap.select('.export#xlsx');
 
         if (navigator.msSaveBlob) {
