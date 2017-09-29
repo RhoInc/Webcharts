@@ -46,8 +46,12 @@ export default function draw(passed_data) {
 
     this.searchable.wrap
         .select('.nNrecords')
-        .classed('invisible', data.length === this.data.raw.length)
-        .text(`${data.length}/${this.data.raw.length} records displayed`);
+        //.classed('invisible', data.length === this.data.raw.length)
+        .text(
+            data.length === this.data.raw.length
+                ? `${this.data.raw.length} records displayed`
+                : `${data.length}/${this.data.raw.length} records displayed`
+        );
 
     //Clear table body rows.
     this.tbody.selectAll('tr').remove();

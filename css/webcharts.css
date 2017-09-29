@@ -317,9 +317,6 @@ div.wc-layout.wc-small-multiples::after {
             overflow: hidden;
         }
         .wc-table .searchable-container .nNrecords {
-            float: right;
-            display: block;
-            clear: left;
         }
         .wc-table .searchable-container input {
             margin-left: 10px;

@@ -3138,8 +3138,12 @@
 
         this.searchable.wrap
             .select('.nNrecords')
-            .classed('invisible', data.length === this.data.raw.length)
-            .text(data.length + '/' + this.data.raw.length + ' records displayed');
+            //.classed('invisible', data.length === this.data.raw.length)
+            .text(
+                data.length === this.data.raw.length
+                    ? this.data.raw.length + ' records displayed'
+                    : data.length + '/' + this.data.raw.length + ' records displayed'
+            );
 
         //Clear table body rows.
         this.tbody.selectAll('tr').remove();
@@ -3223,17 +3227,13 @@
             .append('div')
             .classed('interactivity searchable-container', true)
             .classed('hidden', !this.config.searchable);
-        this.searchable.wrap.append('div').classed('nNrecords', true);
         this.searchable.wrap.append('div').classed('search', true);
-        this.searchable.wrap
-            .select('.search')
-            .append('span')
-            .classed('description', true)
-            .text('Search:');
+        this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
         this.searchable.wrap
             .select('.search')
             .append('input')
             .classed('search-box', true)
+            .attr('placeholder', 'Search')
             .on('input', function() {
                 context.searchable.searchTerm = this.value.toLowerCase() || null;
                 context.config.activePage = 0;
