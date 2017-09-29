@@ -1,11 +1,10 @@
 import clone from '../../util/clone';
 
 export default function sortData(data) {
-    let sortedData = data ? clone(data) : clone(this.data.raw);
-    sortedData = sortedData.sort((a, b) => {
+    data = data.sort((a, b) => {
         let order = 0;
 
-        this.sort.order.forEach(item => {
+        this.sortable.order.forEach(item => {
             const aCell = a[item.col],
                 bCell = b[item.col];
 
@@ -25,8 +24,4 @@ export default function sortData(data) {
 
         return order;
     });
-
-    this.data.sorted = sortedData;
-
-    return sortedData;
 }

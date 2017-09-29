@@ -1,146 +1,105 @@
-import { keys } from 'd3';
-import clone from '../util/clone';
+import applyFilters from './draw/applyFilters';
+import applySearchTerm from './draw/applySearchTerm';
 import '../util/array-equals';
+import clone from '../util/clone';
 
-export default function draw(passed_data, processed_data) {
+export default function draw(passed_data) {
     const context = this,
         config = this.config,
         table = this.table;
 
-    //Reset pagination if filters have changed.
+    //Apply filters if data is not passed to table.draw().
+    if (!passed_data) {
+        applyFilters.call(this);
+    } else {
+        //Otherwise update data object.
+        this.data.raw = passed_data;
+        this.data.filtered = passed_data;
+        this.controls.init(passed_data);
+    }
+
+    //Compare current filter settings to previous filter settings, if any.
     if (this.filters) {
         this.currentFilters = this.filters.map(filter => filter.val);
 
+        //Reset pagination if filters have changed.
         if (!this.currentFilters.equals(this.previousFilters)) {
             this.config.activePage = 0;
             this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
             this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-            this.search.wrap.select('input').property('value', '');
         }
 
-        this.previousFilters = this.filters.map(filter => filter.val);
+        this.previousFilters = this.currentFilters;
     }
 
-    if (this.sort.order.length) passed_data = this.sort.sortData.call(this, passed_data);
-    this.data.passed = passed_data || this.data.searched || this.data.raw;
-    if (this.sort.order.length) this.data.passed = this.sort.sortData.call(this, this.data.passed);
-    this.data.filtered = processed_data || this.transformData(this.data.passed);
-    this.data.paginated = clone(this.data.filtered);
-    this.data.paginated[0].values = this.data.paginated[0].values.filter(
-        (d, i) => this.config.startIndex <= i && i < this.config.endIndex
-    );
+    let data;
 
-    const data = config.pagination ? this.data.paginated : this.data.filtered;
-
-    //Bind table data to table container.
-    this.wrap.datum(data);
-
-    //for bootstrap table styling
-    if (config.bootstrap) {
-        table.classed('table', true);
+    //Filter data on search term if it exists and set data to searched data.
+    if (this.searchable.searchTerm) {
+        applySearchTerm.call(this);
+        data = this.data.searched;
     } else {
-        table.classed('table', false);
+        //Otherwise delete previously searched data and set data to filtered data.
+        delete this.data.searched;
+        data = this.data.filtered;
     }
 
-    //Define header, header row, and header cells.
-    const headerRow = table.select('thead').select('tr.headers'),
-        headers = headerRow.selectAll('th').data(this.config.headers);
+    //Print a note that no data was selected for empty tables.
+    table.selectAll('tbody tr.NoDataRow').remove();
 
-    headers.exit().remove();
-    headers.enter().append('th');
-    headers.text(d => d);
-
-    //Print a note that no data was selected for empty tables
-    table.selectAll('tr.NoDataRow').remove();
-    if (this.data.passed.length == 0) {
-        table.append('tr').attr('class', 'NoDataRow').text('No data selected.');
-    }
-
-    //Define table bodies? Not sure why there would be more than one.
-    const tbodies = table.selectAll('tbody').data(data, d => d.key);
-
-    tbodies.exit().remove();
-    tbodies.enter().append('tbody');
-
-    if (config.row_per) {
-        let rev_order = config.row_per.slice(0).reverse();
-        rev_order.forEach(e => {
-            tbodies.sort((a, b) => a.values[0].raw[e] - b.values[0].raw[e]);
-        });
-    }
-
-    //Define table body rows.
-    const rows = tbodies.selectAll('tr').data(d => d.values);
-
-    rows.exit().remove();
-    rows.enter().append('tr');
-
-    //Sort by an array of columns.
-    if (config.sort_rows) {
-        let row_order = config.sort_rows.slice(0);
-        row_order.unshift('0');
-
-        rows.sort((a, b) => {
-            let i = 0;
-            while (i < row_order.length && a.raw[row_order[i]] == b.raw[row_order[i]]) {
-                i++;
-            }
-            if (a.raw[row_order[i]] < b.raw[row_order[i]]) {
-                return -1;
-            }
-            if (a.raw[row_order[i]] > b.raw[row_order[i]]) {
-                return 1;
-            }
-            return 0;
-        });
-    }
-
-    //Define table body cells.
-    const tds = rows
-        .selectAll('td')
-        .data(d => d.cells.filter(f => this.config.cols.indexOf(f.col) > -1));
-
-    tds.exit().remove();
-    tds.enter().append('td');
-
-    //Assign column name as class.
-    tds.attr('class', d => d.col);
-
-    //Apply text in data as html or as plain text.
-    if (config.as_html) {
-        tds.html(d => d.text);
+    if (data.length === 0) {
+        this.tbody.append('tr').attr('class', 'NoDataRow').text('No data selected.');
     } else {
-        tds.text(d => d.text);
-    }
+        //Sort data.
+        if (this.config.sortable) {
+            this.thead.selectAll('th').on('click', function(header) {
+                context.sortable.onClick.call(context, this, header);
+            });
 
-    //Delete text from columns with repeated values?
-    if (config.row_per) {
-        rows
-            .filter((f, i) => i > 0)
+            if (this.sortable.order.length) this.sortable.sortData.call(this, data);
+        }
+
+        //Bind table filtered/searched data to table container.
+        this.wrap.datum(clone(data));
+
+        //Add export.
+        if (this.config.exportable)
+            this.config.exports.forEach(fmt => {
+                this.exportable.exports[fmt].call(this, data);
+            });
+
+        //Add pagination.
+        if (this.config.pagination) {
+            this.pagination.addPagination.call(this, data);
+
+            //Apply pagination.
+            data = data.filter((d, i) => this.config.startIndex <= i && i < this.config.endIndex);
+        }
+
+        //Define table body rows.
+        const rows = this.tbody.selectAll('tr').data(data);
+        rows.exit().remove();
+        rows.enter().append('tr');
+
+        //Define table body cells.
+        const cells = rows
             .selectAll('td')
-            .filter(f => config.row_per.indexOf(f.col) > -1)
-            .text('');
+            .data(d =>
+                Object.keys(d).filter(key => this.config.cols.indexOf(key) > -1).map(key => d[key])
+            );
+        cells.exit().remove();
+        cells.enter().append('td');
+        cells.attr('class', d => d.col).each(function(d) {
+            const cell = d3.select(this);
+
+            //Apply text in data as html or as plain text.
+            if (config.as_html) {
+                cell.html(d);
+            } else {
+                cell.text(d);
+            }
+        });
     }
-
-    //for DataTables functionality
-    if (config.data_tables) {
-        if (jQuery() && jQuery().dataTable) {
-            let dt_config = config.data_tables;
-            dt_config.searching = config.searchable ? config.searchable : false;
-            $(table.node()).dataTable(dt_config);
-            let print_btn = $('.print-btn', wrap.node());
-            print_btn.addClass('pull-right');
-            $('.dataTables_wrapper').prepend(print_btn);
-        } else {
-            throw new Error('dataTables jQuery plugin not available');
-        }
-    }
-
-    //Add sort.
-    if (this.config.sort) this.sort.addSort.call(this);
-
-    //Add pagination.
-    if (this.config.pagination) this.pagination.addPagination.call(this);
 
     this.events.onDraw.call(this);
 }

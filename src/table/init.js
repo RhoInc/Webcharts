@@ -1,7 +1,8 @@
 import { select, range } from 'd3';
-import sort from './sort/index';
+import searchable from './searchable/index';
+import exportable from './exportable/index';
+import sortable from './sortable/index';
 import pagination from './pagination/index';
-import search from './search/index';
 
 export default function init(data, test = false) {
     if (select(this.div).select('.loader').empty()) {
@@ -16,28 +17,27 @@ export default function init(data, test = false) {
     }
 
     //Define default settings.
-    this.setDefaults();
+    this.setDefaults.call(this, data[0]);
 
     //Assign classes to container element.
     this.wrap.classed('wc-chart', true).classed('wc-table', this.config.applyCSS);
 
     //Define data object.
     this.data = {
-        raw: data,
-        passed: data,
-        filtered: data,
-        sorted: [],
-        paginated: data.filter((d, i) => i < this.config.nRowsPerPage)
+        raw: data
     };
 
+    //Attach searchable object to table object.
+    this.searchable = searchable.call(this);
+
     //Attach pagination object to table object.
-    this.sort = sort.call(this);
+    this.exportable = exportable.call(this);
+
+    //Attach sortable object to table object.
+    this.sortable = sortable.call(this);
 
     //Attach pagination object to table object.
     this.pagination = pagination.call(this);
-
-    //Attach search object to table object.
-    this.search = search.call(this);
 
     let startup = data => {
         //connect this table and its controls, if any
