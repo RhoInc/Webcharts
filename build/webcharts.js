@@ -3205,7 +3205,7 @@
                     return d.col;
                 })
                 .each(function(d) {
-                    var cell = d3.select(this);
+                    var cell = d3$1.select(this);
 
                     //Apply text in data as html or as plain text.
                     if (config.as_html) {

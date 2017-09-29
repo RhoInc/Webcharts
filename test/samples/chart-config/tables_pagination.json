@@ -4,7 +4,7 @@
     "label": "Simple Table without pagination (using all defaults)",
 	  "notes": "Basic Table",
     "tests": [],
-    "settings": {},
+    "settings": {"exportable":false},
     "filename": "ChickWeight.csv"
   },
   {
@@ -12,7 +12,8 @@
     "notes": "Basic Table",
     "tests": [],
     "settings": {
-      "pagination":true
+      "pagination":true,
+      "exportable":false
     },
     "filename": "ChickWeight.csv"
   },
@@ -22,7 +23,8 @@
     "tests": [],
     "settings": {
       "pagination":true,
-      "nRowsPerPage":50
+      "nRowsPerPage":50,
+      "exportable":false
     },
     "filename": "ChickWeight.csv"
   },
@@ -32,7 +34,8 @@
     "tests": [],
     "settings": {
       "pagination":true,
-      "nRowsPerPage":100
+      "nRowsPerPage":100,
+      "exportable":false
     },
     "filename": "ChickWeight.csv"
   },
@@ -42,7 +45,8 @@
     "tests": [],
     "settings": {
       "pagination":true,
-      "nRowsPerPage":5
+      "nRowsPerPage":5,
+      "exportable":false
     },
     "filename": "ChickWeight.csv"
   },
@@ -53,7 +57,8 @@
     "settings": {
       "pagination":true,
       "nRowsPerPage":5,
-      "nPageLinksDisplayed":10
+      "nPageLinksDisplayed":10,
+      "exportable":false
     },
     "filename": "ChickWeight.csv"
   }
