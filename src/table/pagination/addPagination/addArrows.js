@@ -12,13 +12,13 @@ export default function addArrows() {
         .insert('span', ':first-child')
         .classed('dot-dot-dot', true)
         .text('...')
-        .classed('hidden', this.config.activePage < this.config.nPageLinksDisplayed);
+        .classed('invisible', this.config.activePage < this.config.nPageLinksDisplayed);
 
     this.pagination.prev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('left arrow-link', true)
+        .classed('invisible', this.config.activePage == 0)
         .attr({
-            href: '#',
             rel: prev
         })
         .text('<');
@@ -26,8 +26,8 @@ export default function addArrows() {
     this.pagination.doublePrev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('left double-arrow-link', true)
+        .classed('invisible', this.config.activePage == 0)
         .attr({
-            href: '#',
             rel: 0
         })
         .text('<<');
@@ -41,19 +41,21 @@ export default function addArrows() {
         .classed('dot-dot-dot', true)
         .text('...')
         .classed(
-            'hidden',
+            'invisible',
             this.config.activePage >=
                 Math.max(
                     this.config.nPageLinksDisplayed,
                     this.config.nPages - this.config.nPageLinksDisplayed
-                ) || this.config.nPages < this.config.nPageLinksDisplayed
+                ) || this.config.nPages <= this.config.nPageLinksDisplayed
         );
-
     this.pagination.next = this.pagination.wrap
         .append('a')
         .classed('right arrow-link', true)
+        .classed(
+            'invisible',
+            this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
+        )
         .attr({
-            href: '#',
             rel: next
         })
         .text('>');
@@ -61,8 +63,11 @@ export default function addArrows() {
     this.pagination.doubleNext = this.pagination.wrap
         .append('a')
         .classed('right double-arrow-link', true)
+        .classed(
+            'invisible',
+            this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
+        )
         .attr({
-            href: '#',
             rel: this.config.nPages - 1
         })
         .text('>>');

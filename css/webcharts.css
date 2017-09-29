@@ -6,12 +6,12 @@ div.wc-layout.wc-small-multiples::after {
 	display: block;
 }
 
-.wc-layout.wc-small-multiples > .wc-chart{
+.wc-layout.wc-small-multiples > .wc-chart {
 	float: left;
 	padding: 0 2em 2em 0;
 }
 
-.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title{
+.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
 	display: block;
 	font-weight: bold;
 	text-align: center;
@@ -24,83 +24,83 @@ div.wc-layout.wc-small-multiples::after {
   Charts
 \------------------------------------------------------------------------------------------------*/
 
-    .wc-chart{
+    .wc-chart {
         position: relative;
         font-family: 'Open Sans', Helvetica, Arial, sans-serif;
     }
 
     .wc-chart rect,
-    .wc-chart line{
+    .wc-chart line {
         shape-rendering: crispEdges;
     }
 
     /*next few are rules for d3 brushing stuff*/
-    .wc-chart.brushable .overlay{
+    .wc-chart.brushable .overlay {
         cursor: crosshair;
     }
 
-    .wc-chart rect.background{
+    .wc-chart rect.background {
         display: none;
     }
 
-    .wc-chart rect.extent{
+    .wc-chart rect.extent {
         fill: #ccc;
         fill-opacity: 0.4;
         shape-rendering: crispEdges;
     }
 
-    .wc-chart .axis path.domain{
+    .wc-chart .axis path.domain {
         fill: none;
         stroke: #ccc;
         shape-rendering: crispEdges;
     }
 
-    .wc-chart .axis .tick line{
+    .wc-chart .axis .tick line {
         stroke: #eee;
         shape-rendering: crispEdges;
     }
 
-    .wc-chart .axis .tick text{
+    .wc-chart .axis .tick text {
         font-size: .9em;
     }
 
-    .wc-chart .axis .axis-title{
+    .wc-chart .axis .axis-title {
         fill: #555;
     }
 
-    *[class*="wc-"] .legend{
+    *[class*="wc-"] .legend {
         font-size: .9em;
         padding: 0;
         margin: 0;
     }
 
-    *[class*="wc-"] .legend .legend-title{
+    *[class*="wc-"] .legend .legend-title {
         font-weight: bold;
         margin-right: 1em;
     }
 
-    *[class*="wc-"] .legend .legend-item{
+    *[class*="wc-"] .legend .legend-item {
         display: inline-block;
         margin-right: 1em;
     }
 
-    *[class*="wc-"] .legend .legend-item .legend-color-block{
+    *[class*="wc-"] .legend .legend-item .legend-color-block {
         position: relative;
         top: .2em;
         right: .25em;
         display: inline-block;
     }
-    *[class*="wc-"] .legend .legend-item .legend-mark-text{
+    *[class*="wc-"] .legend .legend-item .legend-mark-text {
         font-weight: bold;
         margin-right: .5em;
     }
 
     .wc-chart .ordinal.axis .tick line,
-    .wc-chart .ordinal.axis path{
+    .wc-chart .ordinal.axis path {
         display: none;
     }
 
-    .wc-chart.gridlines .ordinal.axis .tick line{
+    .wc-chart.gridlines .ordinal.axis .tick line {
         display: block;
     }
 
@@ -108,76 +108,76 @@ div.wc-layout.wc-small-multiples::after {
   Controls
 \------------------------------------------------------------------------------------------------*/
 
-    .wc-controls{
+    .wc-controls {
         display: block;
         font-family: 'Open Sans', Helvetica, Arial, sans-serif;
         font-size: .9em;
         margin-bottom: 10px;
     }
 
-    .wc-controls:empty{
+    .wc-controls:empty {
         display: none;
     }
 
-    .intro > .wc-controls{
+    .intro > .wc-controls {
         display: block;
     }
 
-    .wc-controls .control-group{
+    .wc-controls .control-group {
         display: inline-table;
         max-width: 100%;
         margin: 0px 1em 1em 0;
     }
-    .wc-controls.bottom .control-group{
+    .wc-controls.bottom .control-group {
         display: inline-table;
     }
 
-    .wc-controls .control-group .control-label{
+    .wc-controls .control-group .control-label {
         /*font-weight: bold;*/
         display: block;
     }
 
-    .wc-controls .control-group.inline .control-label{
+    .wc-controls .control-group.inline .control-label {
         display: inline;
         margin-right: .5em;
     }
-    .wc-controls .control-group.inline .changer{
+    .wc-controls .control-group.inline .changer {
         display: inline;
         margin-top: 0;
     }
 
-    .wc-controls .control-group .control-label + .changer{
+    .wc-controls .control-group .control-label + .changer {
         margin-top: 2px;
     }
 
-    .wc-controls .control-group .control-label.inline{
+    .wc-controls .control-group .control-label.inline {
         display: inline;
         margin-right: .5em;
     }
 
-    .wc-controls .control-group .control-label .label-required{
+    .wc-controls .control-group .control-label .label-required {
         color: #de2d26;
         padding: 0 .25em;
         border: 1px solid;
         margin-left: .5em;
     }
 
-    .wc-controls .span-description{
+    .wc-controls .span-description {
         display: block;
         font-size: .75em;
         color: #777;
         margin-bottom: 3px;
     }
-    .wc-controls .span-description:empty{
+    .wc-controls .span-description:empty {
         display: none;
     }
-    .wc-controls .span-description.standout{
+    .wc-controls .span-description.standout {
         font-style: italic;
         color: #d9534f;
     }
 
     .wc-controls .control-group label.radio,
-    .wc-controls .control-group label.filter-values{
+    .wc-controls .control-group label.filter-values {
         display: inline-block;
         cursor: pointer;
         font-weight: normal;
@@ -186,12 +186,12 @@ div.wc-layout.wc-small-multiples::after {
         margin: 5px 10px 0 0;
     }
 
-    .wc-controls .inline{
+    .wc-controls .inline {
         display: inline;
     }
 
     .wc-controls .control-group input[type='text'],
-    .wc-controls select{
+    .wc-controls select {
         display: block;
         width: auto;
         max-width: 100%;
@@ -200,14 +200,14 @@ div.wc-layout.wc-small-multiples::after {
         border-radius: 0;
     }
 
-    .wc-controls .control-group input[type='number']{
+    .wc-controls .control-group input[type='number'] {
         width: 70px;
         text-align: right;
         max-width: 100%;
     }
 
     .wc-controls .control-group input[type='checkbox'],
-    .wc-controls .control-group input[type='radio']{
+    .wc-controls .control-group input[type='radio'] {
         cursor: pointer;
         position: relative;
         top: .1em;
@@ -215,20 +215,20 @@ div.wc-layout.wc-small-multiples::after {
         margin: 0;
     }
 
-    .wc-controls .control-group input[type='radio']{
+    .wc-controls .control-group input[type='radio'] {
         vertical-align: bottom;
         margin-left: .25em;
     }
 
-    .wc-controls .control-group input.inline{
+    .wc-controls .control-group input.inline {
         margin: 0 2px 2px 0;
     }
 
-    .wc-controls .control-group .changer + .changer{
+    .wc-controls .control-group .changer + .changer {
         margin-top: 2px;
     }
 
-    .wc-controls .subsetter-ui{
+    .wc-controls .subsetter-ui {
         position: relative;
         display: inline-block;
         max-width: 100%;
@@ -237,7 +237,7 @@ div.wc-layout.wc-small-multiples::after {
         margin: 5px 5px 0 0;
     }
 
-    .wc-controls .subsetter-ui .remove-btn{
+    .wc-controls .subsetter-ui .remove-btn {
         cursor: pointer;
         position: absolute;
         top: 2px;
@@ -248,56 +248,177 @@ div.wc-layout.wc-small-multiples::after {
   Tables
 \------------------------------------------------------------------------------------------------*/
 
-    .wc-table table:not(.table){
-        font-size: .9em;
-        border-collapse: collapse;
+    .wc-table {
+        display: table;
     }
-    .wc-table table:not(.table) tbody tr:nth-child(even){
-        background: #eee;
+    .wc-table .hidden {
+        display: none !important;
     }
-    .wc-table table:not(.table) tbody tr:hover{
-        background: #ccc;
+    .wc-table .invisible {
+        visibility: hidden !important;
     }
-    .wc-table table:not(.table) th{
-        padding: .5em .5em;
-        border-bottom: 1px solid #ccc;
-        text-align: left;
+    .wc-table > * {
+        display: block;
     }
-    .wc-table table:not(.table) th:last-child{
+    .wc-table .table-top {
+        overflow: hidden;
+        position: relative;
     }
-    .wc-table table:not(.table) td{
-        padding: .25em .5em;
+    .wc-table .table-bottom {
     }
-    .wc-table table:not(.table) td:last-child{
+    .wc-table .interactivity {
+        display: inline-block;
+        margin: 10px 0;
+        padding: 0;
     }
-    .wc-table .pagination-container {
-        padding-top: 10px;
-    }
-    .wc-table .pagination-container a {
-        text-decoration: none;
-        padding: 5px 10px;
-    }
-    .wc-table a.active {
-        border: 2px solid gray;
-        border-radius: 4px;
-    }
-    .wc-table a.hidden {
-        display: none;
-    }
-    .wc-table .dot-dot-dot.hidden {
-        display: none;
-    }
+
+    /**-------------------------------------------------------------------------------------------\
+      Sortable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .sortable-container {
+            position: absolute;
+            bottom: 0;
+            left: .75em;
+        }
+
+        .wc-table .sortable-container .description {
+            font-style: italic;
+        }
+
+        .wc-table .sortable-container .sort-box {
+            display: inline-block;
+            border: 2px solid #008CBA;
+            border-radius: 4px;
+            padding: 2px;
+            margin-left: 3px;
+            cursor: default;
+        }
+
+        .wc-table .sortable-container .sort-box .remove-sort {
+            float: right;
+            border: 1px solid gray;
+            padding: 2px 3px;
+            font-size: 8px;
+        }
+
+        .wc-table .sortable-container .sort-box .remove-sort:hover {
+            cursor: pointer;
+            background-color: #008CBA;
+            color: white;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Searchable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .searchable-container {
+            float: right;
+            overflow: hidden;
+        }
+        .wc-table .searchable-container .nNrecords {
+        }
+        .wc-table .searchable-container input {
+            margin-left: 10px;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Table
+    \-------------------------------------------------------------------------------------------**/
+
+		.wc-table table {
+			font-size: .9em;
+			border-collapse: collapse;
+		}
+
+        /***--------------------------------------------------------------------------------------\
+		  Table header
+        \--------------------------------------------------------------------------------------***/
+
+            .wc-table table thead {
+            }
+            .wc-table table thead tr {
+            }
+            .wc-table table thead tr th {
+                cursor: pointer;
+                padding: .75em 1em;
+                border-bottom: 1px solid #ccc;
+                text-align: left;
+            }
+            .wc-table table thead tr th:first-child {
+            }
+            .wc-table table thead tr th:last-child {
+            }
+
+        /***--------------------------------------------------------------------------------------\
+		  Table body
+        \--------------------------------------------------------------------------------------***/
+
+            .wc-table table tbody {
+            }
+            .wc-table table tbody tr {
+            }
+            .wc-table table tbody tr:nth-child(even) {
+                background: #eee;
+            }
+            .wc-table table tbody tr:hover {
+                background: #ccc;
+            }
+            .wc-table table tbody tr td {
+                padding: .5em 1em;
+            }
+            .wc-table table tbody tr td:first-child {
+            }
+            .wc-table table tbody tr td:last-child {
+            }
+            .wc-table table tbody tr.no-data td {
+                color: red;
+                font-weight: bold;
+            }
+
+    /**-------------------------------------------------------------------------------------------\
+      Exportable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .exportable-container {
+            float: left;
+        }
+        .wc-table .exportable-container a {
+            border: 2px solid gray;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 5px;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Pagination container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .pagination-container {
+            float: right;
+        }
+        .wc-table .pagination-container a {
+            text-decoration: none;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        .wc-table .pagination-container a.active {
+            border: 2px solid gray;
+            border-radius: 4px;
+        }
 
 /*------------------------------------------------------------------------------------------------\
   Miscellaneous
 \------------------------------------------------------------------------------------------------*/
 
-    .loader{
+    .loader {
     position:relative;
     width:20px;
     height:25px}
 
-    .blockG{
+    .blockG {
     position:absolute;
     background-color:#eee;
     width:3px;
@@ -334,7 +455,7 @@ div.wc-layout.wc-small-multiples::after {
     animation-direction:linear;
     }
 
-    .rotate1{
+    .rotate1 {
     left:0;
     top:9px;
     -moz-animation-delay:0.18s;
@@ -346,10 +467,10 @@ div.wc-layout.wc-small-multiples::after {
     -o-animation-delay:0.18s;
     -o-transform:rotate(-90deg);
     animation-delay:0.18s;
-    transform:rotate(-90deg); 
+    transform:rotate(-90deg);
     }
 
-    .rotate2{
+    .rotate2 {
     left:3px;
     top:3px;
     -moz-animation-delay:0.24s;
@@ -364,7 +485,7 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(-45deg);
     }
 
-    .rotate3{
+    .rotate3 {
     left:8px;
     top:1px;
     -moz-animation-delay:0.3s;
@@ -379,7 +500,7 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(0deg);
     }
 
-    .rotate4{
+    .rotate4 {
     right:3px;
     top:3px;
     -moz-animation-delay:0.36s;
@@ -394,7 +515,7 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(45deg);
     }
 
-    .rotate5{
+    .rotate5 {
     right:0;
     top:9px;
     -moz-animation-delay:0.42000000000000004s;
@@ -409,7 +530,7 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(90deg);
     }
 
-    .rotate6{
+    .rotate6 {
     right:3px;
     bottom:2px;
     -moz-animation-delay:0.48s;
@@ -424,7 +545,7 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(135deg);
     }
 
-    .rotate7{
+    .rotate7 {
     bottom:0;
     left:8px;
     -moz-animation-delay:0.5399999999999999s;
@@ -439,7 +560,7 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(180deg);
     }
 
-    .rotate8{
+    .rotate8 {
     left:3px;
     bottom:2px;
     -moz-animation-delay:0.6s;
@@ -454,47 +575,47 @@ div.wc-layout.wc-small-multiples::after {
     transform:rotate(-135deg);
     }
 
-    @-moz-keyframes fadeG{
-    0%{
+    @-moz-keyframes fadeG {
+    0% {
     background-color:#000000}
 
-    100%{
+    100% {
     background-color:#eee}
 
     }
 
-    @-webkit-keyframes fadeG{
-    0%{
+    @-webkit-keyframes fadeG {
+    0% {
     background-color:#000000}
 
-    100%{
+    100% {
     background-color:#eee}
 
     }
 
-    @-ms-keyframes fadeG{
-    0%{
+    @-ms-keyframes fadeG {
+    0% {
     background-color:#000000}
 
-    100%{
+    100% {
     background-color:#eee}
 
     }
 
-    @-o-keyframes fadeG{
-    0%{
+    @-o-keyframes fadeG {
+    0% {
     background-color:#000000}
 
-    100%{
+    100% {
     background-color:#eee}
 
     }
 
-    @keyframes fadeG{
-    0%{
+    @keyframes fadeG {
+    0% {
     background-color:#000000}
 
-    100%{
+    100% {
     background-color:#eee}
 
     }
