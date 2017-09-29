@@ -27,7 +27,7 @@
     "minifyjs": "uglifyjs build/webcharts.js > build/webcharts.min.js",
     "notest": "npm run format && npm run bundle && npm run format-bundle && npm run minify",
     "test": "mocha --timeout 5000 --require babel-register --recursive ./test/**/*.js",
-    "test-tables":"mocha --timeout 5000 --require babel-register --recursive ./test/table/configTester.js",
+    "test-tables":"mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
     "watch": "rollup -c -w"
   },
   "repository": {
