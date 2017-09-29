@@ -261,6 +261,8 @@ div.wc-layout.wc-small-multiples::after {
         display: block;
     }
     .wc-table .table-top {
+        overflow: hidden;
+        position: relative;
     }
     .wc-table .table-bottom {
     }
@@ -275,7 +277,9 @@ div.wc-layout.wc-small-multiples::after {
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .sortable-container {
-            float: left;
+            position: absolute;
+            bottom: 0;
+            left: .75em;
         }
 
         .wc-table .sortable-container .description {
@@ -310,6 +314,9 @@ div.wc-layout.wc-small-multiples::after {
 
         .wc-table .searchable-container {
             float: right;
+            overflow: hidden;
+        }
+        .wc-table .searchable-container .nNrecords {
         }
         .wc-table .searchable-container input {
             margin-left: 10px;
@@ -363,6 +370,10 @@ div.wc-layout.wc-small-multiples::after {
             .wc-table table tbody tr td:first-child {
             }
             .wc-table table tbody tr td:last-child {
+            }
+            .wc-table table tbody tr.no-data td {
+                color: red;
+                font-weight: bold;
             }
 
     /**-------------------------------------------------------------------------------------------\

@@ -3136,11 +3136,26 @@
             data = this.data.filtered;
         }
 
-        //Print a note that no data was selected for empty tables.
-        table.selectAll('tbody tr.NoDataRow').remove();
+        this.searchable.wrap
+            .select('.nNrecords')
+            //.classed('invisible', data.length === this.data.raw.length)
+            .text(
+                data.length === this.data.raw.length
+                    ? this.data.raw.length + ' records displayed'
+                    : data.length + '/' + this.data.raw.length + ' records displayed'
+            );
 
+        //Clear table body rows.
+        this.tbody.selectAll('tr').remove();
+
+        //Print a note that no data was selected for empty tables.
         if (data.length === 0) {
-            this.tbody.append('tr').attr('class', 'NoDataRow').text('No data selected.');
+            this.tbody
+                .append('tr')
+                .classed('no-data', true)
+                .append('td')
+                .attr('colspan', this.config.cols.length)
+                .text('No data selected.');
         } else {
             //Sort data.
             if (this.config.sortable) {
@@ -3171,9 +3186,7 @@
             }
 
             //Define table body rows.
-            var rows = this.tbody.selectAll('tr').data(data);
-            rows.exit().remove();
-            rows.enter().append('tr');
+            var rows = this.tbody.selectAll('tr').data(data).enter().append('tr');
 
             //Define table body cells.
             var cells = rows.selectAll('td').data(function(d) {
@@ -3214,11 +3227,20 @@
             .append('div')
             .classed('interactivity searchable-container', true)
             .classed('hidden', !this.config.searchable);
-        this.searchable.wrap.append('span').classed('description', true).text('Search:');
-        this.searchable.wrap.append('input').classed('search-box', true).on('input', function() {
-            context.searchable.searchTerm = this.value.toLowerCase() || null;
-            context.draw();
-        });
+        this.searchable.wrap.append('div').classed('search', true);
+        this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
+        this.searchable.wrap
+            .select('.search')
+            .append('input')
+            .classed('search-box', true)
+            .attr('placeholder', 'Search')
+            .on('input', function() {
+                context.searchable.searchTerm = this.value.toLowerCase() || null;
+                context.config.activePage = 0;
+                context.config.startIndex = context.config.activePage * context.config.nRowsPerPage; // first row shown
+                context.config.endIndex = context.config.startIndex + context.config.nRowsPerPage; // last row shown
+                context.draw();
+            });
     }
 
     function searchable() {
@@ -3588,12 +3610,12 @@
             .insert('span', ':first-child')
             .classed('dot-dot-dot', true)
             .text('...')
-            .classed('hidden', this.config.activePage < this.config.nPageLinksDisplayed);
+            .classed('invisible', this.config.activePage < this.config.nPageLinksDisplayed);
 
         this.pagination.prev = this.pagination.wrap
             .insert('a', ':first-child')
             .classed('left arrow-link', true)
-            .classed('hidden', this.config.activePage == 0)
+            .classed('invisible', this.config.activePage == 0)
             .attr({
                 rel: prev
             })
@@ -3602,7 +3624,7 @@
         this.pagination.doublePrev = this.pagination.wrap
             .insert('a', ':first-child')
             .classed('left double-arrow-link', true)
-            .classed('hidden', this.config.activePage == 0)
+            .classed('invisible', this.config.activePage == 0)
             .attr({
                 rel: 0
             })
@@ -3617,7 +3639,7 @@
             .classed('dot-dot-dot', true)
             .text('...')
             .classed(
-                'hidden',
+                'invisible',
                 this.config.activePage >=
                     Math.max(
                         this.config.nPageLinksDisplayed,
@@ -3628,7 +3650,7 @@
             .append('a')
             .classed('right arrow-link', true)
             .classed(
-                'hidden',
+                'invisible',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
             )
             .attr({
@@ -3640,7 +3662,7 @@
             .append('a')
             .classed('right double-arrow-link', true)
             .classed(
-                'hidden',
+                'invisible',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
             )
             .attr({
