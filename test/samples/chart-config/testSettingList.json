@@ -9,5 +9,6 @@
   {"label":"Bar Charts: Grouped Bars","filename":"barchart_grouped.json", "type":"charts"},
   {"label":"Bar Charts: Horizontal Bars","filename":"barchart_horizontal.json", "type":"charts"},
   {"label":"Bar Charts: Vertical Bars","filename":"barchart_vertical.json", "type":"charts"},
+  {"label":"Tables: Components", "filename":"tables_components.json", "type":"tables"},
   {"label":"Tables: Pagination", "filename":"tables_pagination.json", "type":"tables"}
 ]
