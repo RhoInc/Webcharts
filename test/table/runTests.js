@@ -1,9 +1,16 @@
+import data from '../samples/irisData';
+
 import testDestroyTable from './destroyTable';
-import destroyData from '../samples/irisData';
-testDestroyTable({ exportable: false }, destroyData);
+testDestroyTable(
+    { exportable: false },
+    data);
 
 import testSearchTable from './searchTable';
-testSearchTable();
+testSearchTable(
+    { sortable: false, searchable: true, exportable: false, pagination: false },
+    data);
 
 import testSortTable from './sortTable';
-testSortTable();
+testSortTable(
+    { sortable: true, searchable: false, exportable: false, pagination: false },
+    data);

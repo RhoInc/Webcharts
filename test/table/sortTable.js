@@ -4,15 +4,14 @@ import expect from 'expect';
 import d3 from 'd3';
 import data from '../samples/irisData';
 
-export default function testSortTable() {
+export default function testSortTable(settings, data) {
     describe('sort table', () => {
         const { JSDOM } = jsdom;
-        let dom, container, chart, svg, svgChildren, table, settings;
+        let dom, container, chart, svg, svgChildren, table;
 
         before(() => {
             dom = new JSDOM('<!DOCTYPE html>');
             container = dom.window.document.createElement('div');
-            settings = { sortable: true, searchable: false, exportable: false, pagination: false };
             table = createTable(container, settings).init(data, true);
             table.first5 = table.table
                 .select('tbody')

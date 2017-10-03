@@ -2,17 +2,15 @@ import jsdom from 'jsdom';
 import createTable from '../../src/createTable';
 import expect from 'expect';
 import d3 from 'd3';
-import data from '../samples/irisData';
 
-export default function testSearchTable() {
+export default function testSearchTable(settings, data) {
     describe('search table', () => {
         const { JSDOM } = jsdom;
-        let dom, container, chart, svg, svgChildren, table, settings;
+        let dom, container, chart, svg, svgChildren, table;
 
         before(() => {
             dom = new JSDOM('<!DOCTYPE html>');
             container = dom.window.document.createElement('div');
-            settings = { sortable: false, searchable: true, exportable: false, pagination: false };
             table = createTable(container, settings).init(data, true);
             table.preSearchRowCount = table.table.selectAll('tr').size();
         });

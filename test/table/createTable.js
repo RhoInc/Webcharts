@@ -2,7 +2,7 @@ import jsdom from 'jsdom';
 import createTable from '../../src/createTable';
 import expect from 'expect';
 
-export default function testCreateChart(settings, full = true) {
+export default function testCreateTable(settings) {
     describe('table object creation', () => {
         const { JSDOM } = jsdom;
         let dom, container, table;

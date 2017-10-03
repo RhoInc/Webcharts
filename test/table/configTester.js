@@ -40,7 +40,7 @@ function runTests(settingsList) {
                     testCreateTable(settings.settings);
                 });
                 describe('Render Table. ', () => {
-                    testRendering(settings.settings, data, false);
+                    testRendering(settings.settings, data);
                 });
             });
         });
