@@ -1,0 +1,98 @@
+
+[
+  {
+    "label": "no search, sort or pagination)",
+    "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":false,
+      "pagination":false
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Pagination only",
+	  "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":false,
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Search only",
+    "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":true,
+      "pagination":false
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Sort only",
+    "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":false,
+      "pagination":false
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Pagination and search (no sort)",
+    "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":true,
+      "pagination":true
+    },
+        "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Pagination and sort (no search)",
+    "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":false,
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Search and sort (no pagination)",
+    "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":true,
+      "pagination":false
+    },    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Search, sort and pagination active",
+	  "notes": "",
+    "tests": [],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":true,
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  }
+]

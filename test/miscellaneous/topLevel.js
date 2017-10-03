@@ -13,8 +13,7 @@ import table from '../../src/table/index';
 
 describe('Top-level API', () => {
     const { JSDOM } = jsdom;
-    let dom,
-        container;
+    let dom, container;
 
     before(() => {
         dom = new JSDOM('<!DOCTYPE html>');
@@ -25,24 +24,21 @@ describe('Top-level API', () => {
     });
 
     it('createChart should return a chart object', () => {
-        const
-            container = dom.window.document.createElement('div'),
+        const container = dom.window.document.createElement('div'),
             createdChart = createChart(container);
 
         expect(Object.getPrototypeOf(createdChart)).toBe(chart);
     });
 
     it('createControls should return a controls object', () => {
-        const
-            container = dom.window.document.createElement('div'),
+        const container = dom.window.document.createElement('div'),
             createdControls = createControls(container);
 
         expect(Object.getPrototypeOf(createdControls)).toBe(controls);
     });
 
     it('createTable should return a table object', () => {
-        const
-            container = dom.window.document.createElement('div'),
+        const container = dom.window.document.createElement('div'),
             createdTable = createTable(container);
 
         expect(Object.getPrototypeOf(createdTable)).toBe(table);

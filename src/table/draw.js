@@ -2,6 +2,7 @@ import applyFilters from './draw/applyFilters';
 import applySearchTerm from './draw/applySearchTerm';
 import '../util/array-equals';
 import clone from '../util/clone';
+import { select } from 'd3';
 
 export default function draw(passed_data) {
     const context = this,
@@ -105,7 +106,7 @@ export default function draw(passed_data) {
         cells.exit().remove();
         cells.enter().append('td');
         cells.attr('class', d => d.col).each(function(d) {
-            const cell = d3.select(this);
+            const cell = select(this);
 
             //Apply text in data as html or as plain text.
             if (config.as_html) {

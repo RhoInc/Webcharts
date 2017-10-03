@@ -7,24 +7,25 @@ import jsdom from 'jsdom';
 import webcharts from '../../build/webcharts';
 import expect from 'expect';
 
-import testCreateChart from '../chart/createChart';
-import testRendering from '../chart/rendering';
+import testCreateTable from '../table/createTable';
+import testRendering from '../table/rendering';
 
 var settingsList = [];
 var numLoaded = 0;
 
-var testSettingList_charts = testSettingList.filter(function(d) {
-    return d.type == 'charts';
+var testSettingList_tables = testSettingList.filter(function(d) {
+    return d.type == 'tables';
 });
 
-testSettingList_charts.forEach(function(d) {
+testSettingList_tables.forEach(function(d) {
     var path = require('path');
     var jsonPath = path.join(__dirname, '..', 'samples', 'chart-config', d.filename);
+
     var jsonRaw = readFileSync(jsonPath, 'utf8');
     var jsonData = JSON.parse(jsonRaw);
     settingsList = merge([settingsList, jsonData]);
     numLoaded = numLoaded + 1;
-    if (numLoaded == testSettingList_charts.length) runTests(settingsList);
+    if (numLoaded == testSettingList_tables.length) runTests(settingsList);
     //if (numLoaded == 1) runTests(settingsList);
 });
 
@@ -34,11 +35,11 @@ function runTests(settingsList) {
             const dataFile = `./test/samples/data/${settings.filename}`,
                 raw = readFileSync(dataFile, 'utf8'),
                 data = d3.csv.parse(raw);
-            describe(`Chart Test ${i + 1} of ${settingsList.length}: ${settings.label}. `, () => {
-                describe('Create Chart. ', () => {
-                    testCreateChart(settings.settings, false);
+            describe(`Table Test ${i + 1} of ${settingsList.length}: ${settings.label}. `, () => {
+                describe('Create Table. ', () => {
+                    testCreateTable(settings.settings);
                 });
-                describe('Render Chart. ', () => {
+                describe('Render Table. ', () => {
                     testRendering(settings.settings, data, false);
                 });
             });
