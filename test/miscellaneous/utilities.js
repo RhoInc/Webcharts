@@ -3,28 +3,27 @@ import naturalSorter from '../../src/dataOps/naturalSorter';
 import summarize from '../../src/dataOps/summarize';
 import stringAccessor from '../../src/controls/stringAccessor';
 
-const
-    mixedArray = ['14', '1', 2, '5.5', '20days', '11', 12, 3, '0.4 weeks'],
+const mixedArray = ['14', '1', 2, '5.5', '20days', '11', 12, 3, '0.4 weeks'],
     sortedArray = ['0.4 weeks', '1', 2, 3, '5.5', '11', 12, '14', '20days'],
     settingsObject = {
-        'max_width':500,
-        'x':{
-            'label':'Protein (g)',
-            'type':'linear',
-            'column':'Protein (g)',
+        max_width: 500,
+        x: {
+            label: 'Protein (g)',
+            type: 'linear',
+            column: 'Protein (g)',
             format: '1f'
         },
-        'y':{
-            'label':'Carbs (g)',
-            'type':'linear',
-            'column':'Carbo(g)',
+        y: {
+            label: 'Carbs (g)',
+            type: 'linear',
+            column: 'Carbo(g)',
             format: '1f'
         },
-        'marks':[
+        marks: [
             {
-                'type':'circle',
-                'per':['Food'],
-                'tooltip':'[Food]\n[Measure]\n$x grams protein\n$y grams carbs'
+                type: 'circle',
+                per: ['Food'],
+                tooltip: '[Food]\n[Measure]\n$x grams protein\n$y grams carbs'
             },
             {
                 type: 'text',
@@ -32,13 +31,13 @@ const
                 per: ['Food'],
                 attributes: {
                     'text-anchor': 'middle',
-                    'dx': '0.25em',
-                    'dy': '-0.25em'
+                    dx: '0.25em',
+                    dy: '-0.25em'
                 }
             }
         ],
-        'aspect':'1',
-        'gridlines':'xy'
+        aspect: '1',
+        gridlines: 'xy'
     };
 
 /*

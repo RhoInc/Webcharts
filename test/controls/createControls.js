@@ -4,9 +4,7 @@ import expect from 'expect';
 
 describe('controls object creation', () => {
     const { JSDOM } = jsdom;
-    let dom,
-        container,
-        controls;
+    let dom, container, controls;
 
     before(() => {
         dom = new JSDOM('<!DOCTYPE html>');
