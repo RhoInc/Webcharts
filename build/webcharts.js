@@ -3483,6 +3483,9 @@
                 context.sortable.wrap
                     .select('.instruction')
                     .classed('hidden', context.sortable.order.length);
+
+                //Redraw chart.
+                context.draw();
             });
         });
 
