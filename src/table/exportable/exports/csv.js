@@ -1,3 +1,5 @@
+import { time } from 'd3';
+
 export default function csv(data) {
     const CSVarray = [];
 
@@ -22,7 +24,7 @@ export default function csv(data) {
 
     //transform CSV array into CSV string
     const CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
-        fileName = `webhartsTableExport_${d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date())}.csv`,
+        fileName = `webhartsTableExport_${time.format('%Y-%m-%dT%H-%M-%S')(new Date())}.csv`,
         link = this.wrap.select('.export#csv');
 
     if (navigator.msSaveBlob) {
