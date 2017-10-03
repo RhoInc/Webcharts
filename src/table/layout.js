@@ -16,15 +16,7 @@ export default function layout() {
     //Attach table to DOM.
     this.table = this.wrap.append('table').classed('table', this.config.bootstrap); // apply class to incorporate bootstrap styling
     this.thead = this.table.append('thead');
-    this.thead
-        .append('tr')
-        .selectAll('th')
-        .data(this.config.headers)
-        .enter()
-        .append('th')
-        .attr('class', d => this.config.cols[this.config.headers.indexOf(d)]) // associate column header with column name
-        .text(d => d);
-
+    this.thead.append('tr');
     this.tbody = this.table.append('tbody');
 
     //Attach container after table.

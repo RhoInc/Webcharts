@@ -56,6 +56,17 @@ export default function draw(passed_data) {
                 : `${data.length}/${this.data.raw.length} records displayed`
         );
 
+    //update table header
+    this.thead_cells = this.thead.select('tr').selectAll('th').data(this.config.headers, d => d);
+
+    this.thead_cells.exit().remove();
+
+    this.thead_cells.enter().append('th');
+
+    this.thead_cells
+        .attr('class', d => this.config.cols[this.config.headers.indexOf(d)]) // associate column header with column name
+        .text(d => d);
+
     //Clear table body rows.
     this.tbody.selectAll('tr').remove();
 
