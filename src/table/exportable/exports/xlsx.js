@@ -44,7 +44,7 @@ export default function xlsx(data) {
 
     //transform CSV array into CSV string
     const blob = new Blob([s2ab(xlsx)], { type: 'application/octet-stream;' }),
-        fileName = `webhartsTableExport_${time.format('%Y-%m-%dT%H-%M-%S')(new Date())}.xlsx`,
+        fileName = `webchartsTableExport_${time.format('%Y-%m-%dT%H-%M-%S')(new Date())}.xlsx`,
         link = this.wrap.select('.export#xlsx');
 
     if (navigator.msSaveBlob) {
