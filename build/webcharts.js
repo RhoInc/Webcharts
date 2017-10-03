@@ -3102,7 +3102,9 @@
             //Otherwise update data object.
             this.data.raw = passed_data;
             this.data.filtered = passed_data;
-            this.controls.init(passed_data);
+            if (this.controls) {
+                this.controls.init(passed_data);
+            }
         }
 
         //Compare current filter settings to previous filter settings, if any.
