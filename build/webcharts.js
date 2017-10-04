@@ -3505,8 +3505,11 @@
                 wrap: this.sortable.wrap
                     .append('div')
                     .datum({ key: col })
+
                     .classed('wc-button sort-box', true)
                     .text(col)
+                    .text(header)
+
             };
             sortItem.wrap.append('span').classed('sort-direction', true).html('&darr;');
             sortItem.wrap.append('span').classed('remove-sort', true).html('&#10060;');
