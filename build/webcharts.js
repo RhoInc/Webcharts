@@ -3045,12 +3045,16 @@
         this.data.searched = this.data.filtered.filter(function(d) {
             var match = false;
 
-            Object.keys(d).forEach(function(var_name) {
-                if (match === false) {
-                    var cellText = '' + d[var_name];
-                    match = cellText.toLowerCase().indexOf(_this.searchable.searchTerm) > -1;
-                }
-            });
+            Object.keys(d)
+                .filter(function(key) {
+                    return _this.config.cols.indexOf(key) > -1;
+                })
+                .forEach(function(var_name) {
+                    if (match === false) {
+                        var cellText = '' + d[var_name];
+                        match = cellText.toLowerCase().indexOf(_this.searchable.searchTerm) > -1;
+                    }
+                });
 
             return match;
         });
@@ -3227,7 +3231,6 @@
             .classed('interactivity searchable-container', true)
             .classed('hidden', !this.config.searchable);
         this.searchable.wrap.append('div').classed('search', true);
-        this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
         this.searchable.wrap
             .select('.search')
             .append('input')
@@ -3240,6 +3243,7 @@
                 context.config.endIndex = context.config.startIndex + context.config.nRowsPerPage; // last row shown
                 context.draw();
             });
+        this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
     }
 
     function searchable() {
@@ -3263,7 +3267,7 @@
             this.config.exports.forEach(function(fmt) {
                 _this.exportable.wrap
                     .append('a')
-                    .classed('export', true)
+                    .classed('wc-button export', true)
                     .attr({
                         id: fmt
                     })
@@ -3423,7 +3427,7 @@
             .classed('interactivity sortable-container', true)
             .classed('hidden', !this.config.sortable);
         this.sortable.wrap
-            .append('span')
+            .append('div')
             .classed('instruction', true)
             .text('Click any column header to sort that column.');
     }
@@ -3446,7 +3450,7 @@
                 wrap: this.sortable.wrap
                     .append('div')
                     .datum({ key: col })
-                    .classed('sort-box', true)
+                    .classed('wc-button sort-box', true)
                     .text(col)
             };
             sortItem.wrap.append('span').classed('sort-direction', true).html('&darr;');
@@ -3483,6 +3487,9 @@
                 context.sortable.wrap
                     .select('.instruction')
                     .classed('hidden', context.sortable.order.length);
+
+                //Redraw chart.
+                context.draw();
             });
         });
 
@@ -3571,7 +3578,7 @@
                     rel: i
                 })
                 .text(i + 1)
-                .classed('page-link', true)
+                .classed('wc-button page-link', true)
                 .classed('active', function(d) {
                     return d.rel == _this.config.activePage;
                 })
@@ -3613,7 +3620,7 @@
 
         this.pagination.prev = this.pagination.wrap
             .insert('a', ':first-child')
-            .classed('left arrow-link', true)
+            .classed('wc-button arrow-link left', true)
             .classed('invisible', this.config.activePage == 0)
             .attr({
                 rel: prev
@@ -3622,7 +3629,7 @@
 
         this.pagination.doublePrev = this.pagination.wrap
             .insert('a', ':first-child')
-            .classed('left double-arrow-link', true)
+            .classed('wc-button arrow-link left double', true)
             .classed('invisible', this.config.activePage == 0)
             .attr({
                 rel: 0
@@ -3647,7 +3654,7 @@
             );
         this.pagination.next = this.pagination.wrap
             .append('a')
-            .classed('right arrow-link', true)
+            .classed('wc-button arrow-link right', true)
             .classed(
                 'invisible',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
@@ -3659,7 +3666,7 @@
 
         this.pagination.doubleNext = this.pagination.wrap
             .append('a')
-            .classed('right double-arrow-link', true)
+            .classed('wc-button arrow-link right double', true)
             .classed(
                 'invisible',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
@@ -3773,14 +3780,14 @@
         //Attach searchable object to table object.
         this.searchable = searchable.call(this);
 
-        //Attach pagination object to table object.
-        this.exportable = exportable.call(this);
-
         //Attach sortable object to table object.
         this.sortable = sortable.call(this);
 
         //Attach pagination object to table object.
         this.pagination = pagination.call(this);
+
+        //Attach pagination object to table object.
+        this.exportable = exportable.call(this);
 
         var startup = function startup(data) {
             //connect this table and its controls, if any
@@ -3833,11 +3840,11 @@
         //Attach container before table.
         this.wrap.append('div').classed('table-top', true);
 
-        //Attach sort container.
-        this.sortable.layout.call(this);
-
         //Attach search container.
         this.searchable.layout.call(this);
+
+        //Attach sort container.
+        this.sortable.layout.call(this);
 
         //Attach table to DOM.
         this.table = this.wrap.append('table').classed('table', this.config.bootstrap); // apply class to incorporate bootstrap styling
@@ -3860,11 +3867,11 @@
         //Attach container after table.
         this.wrap.append('div').classed('table-bottom', true);
 
-        //Attach data export container.
-        this.exportable.layout.call(this);
-
         //Attach pagination container.
         this.pagination.layout.call(this);
+
+        //Attach data export container.
+        this.exportable.layout.call(this);
 
         //Call layout callback.
         this.events.onLayout.call(this);
