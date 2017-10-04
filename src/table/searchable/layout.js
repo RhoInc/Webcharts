@@ -7,7 +7,6 @@ export default function layout() {
         .classed('interactivity searchable-container', true)
         .classed('hidden', !this.config.searchable);
     this.searchable.wrap.append('div').classed('search', true);
-    this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
     this.searchable.wrap
         .select('.search')
         .append('input')
@@ -20,4 +19,5 @@ export default function layout() {
             context.config.endIndex = context.config.startIndex + context.config.nRowsPerPage; // last row shown
             context.draw();
         });
+    this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
 }

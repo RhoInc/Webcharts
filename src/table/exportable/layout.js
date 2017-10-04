@@ -11,7 +11,7 @@ export default function layout() {
         this.config.exports.forEach(fmt => {
             this.exportable.wrap
                 .append('a')
-                .classed('export', true)
+                .classed('wc-button export', true)
                 .attr({
                     id: fmt
                 })

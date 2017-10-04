@@ -119,5 +119,50 @@ export default function draw(passed_data) {
         });
     }
 
+    //Alter table layout if table is narrower than table top or bottom.
+    const widths = {
+        table: this.table.select('thead').node().offsetWidth,
+        top:
+            this.wrap.select('.table-top .searchable-container').node().offsetWidth +
+                this.wrap.select('.table-top .sortable-container').node().offsetWidth,
+        bottom:
+            this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
+                this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
+    };
+
+    if (widths.table < Math.max(widths.top, widths.bottom) && this.config.layout === 'horizontal') {
+        this.config.layout = 'vertical';
+        this.wrap
+            .style('display', 'inline-block')
+            .selectAll('.table-top,.table-bottom')
+            .style('display', 'inline-block')
+            .selectAll('.interactivity')
+            .style({
+                display: 'block',
+                float: 'left',
+                clear: 'both'
+            });
+    } else if (
+        widths.table >= Math.max(widths.top, widths.bottom) &&
+        this.config.layout === 'vertical'
+    ) {
+        this.config.layout = 'horizontal';
+        this.wrap
+            .style('display', 'table')
+            .selectAll('.table-top,.table-bottom')
+            .style('display', 'block')
+            .selectAll('.interactivity')
+            .style({
+                display: 'inline-block',
+                float: function() {
+                    return d3.select(this).classed('searchable-container') ||
+                        d3.select(this).classed('pagination-container')
+                        ? 'right'
+                        : 'left';
+                },
+                clear: null
+            });
+    }
+
     this.events.onDraw.call(this);
 }
