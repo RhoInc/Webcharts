@@ -101,7 +101,9 @@ export default function draw(passed_data) {
         const cells = rows
             .selectAll('td')
             .data(d =>
-                Object.keys(d).filter(key => this.config.cols.indexOf(key) > -1).map(key => d[key])
+                Object.keys(d)
+                    .filter(key => this.config.cols.indexOf(key) > -1)
+                    .map(key => ({ col: key, text: d[key] }))
             );
         cells.exit().remove();
         cells.enter().append('td');
@@ -110,9 +112,9 @@ export default function draw(passed_data) {
 
             //Apply text in data as html or as plain text.
             if (config.as_html) {
-                cell.html(d);
+                cell.html(d.text);
             } else {
-                cell.text(d);
+                cell.text(d.text);
             }
         });
     }

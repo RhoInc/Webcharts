@@ -3201,7 +3201,7 @@
                         return _this.config.cols.indexOf(key) > -1;
                     })
                     .map(function(key) {
-                        return d[key];
+                        return { col: key, text: d[key] };
                     });
             });
             cells.exit().remove();
@@ -3215,9 +3215,9 @@
 
                     //Apply text in data as html or as plain text.
                     if (config.as_html) {
-                        cell.html(d);
+                        cell.html(d.text);
                     } else {
-                        cell.text(d);
+                        cell.text(d.text);
                     }
                 });
         }
