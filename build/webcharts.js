@@ -3225,8 +3225,12 @@
         //Alter table layout if table is narrower than table top or bottom.
         var widths = {
             table: this.table.select('thead').node().offsetWidth,
-            top: this.wrap.select('.table-top').node().offsetWidth,
-            bottom: this.wrap.select('.table-bottom').node().offsetWidth
+            top:
+                this.wrap.select('.table-top .searchable-container').node().offsetWidth +
+                    this.wrap.select('.table-top .sortable-container').node().offsetWidth,
+            bottom:
+                this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
+                    this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
         };
 
         if (
@@ -3244,7 +3248,10 @@
                     float: 'left',
                     clear: 'both'
                 });
-        } else if (this.config.layout === 'vertical') {
+        } else if (
+            widths.table >= Math.max(widths.top, widths.bottom) &&
+            this.config.layout === 'vertical'
+        ) {
             this.config.layout = 'horizontal';
             this.wrap
                 .style('display', 'table')
