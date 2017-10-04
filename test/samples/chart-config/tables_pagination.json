@@ -3,8 +3,9 @@
   {
     "label": "Simple Table without pagination (using all defaults)",
 	  "notes": "Basic Table",
-    "tests": [],
-    "settings": {"exportable":false},
+    "tests": ["Make sure no pagination links appear below the chart"],
+    "settings": {"exportable":false,
+		"pagination":false},
     "filename": "ChickWeight.csv"
   },
   {
