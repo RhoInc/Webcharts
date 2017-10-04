@@ -1,24 +1,27 @@
-@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);
+		@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);
+/*------------------------------------------------------------------------------------------------\
+  Small Multiple Layout
+\------------------------------------------------------------------------------------------------*/
 
-div.wc-layout.wc-small-multiples::after {
-	content: "";
-	clear: both;
-	display: block;
-}
+		div.wc-layout.wc-small-multiples::after {
+			content: "";
+			clear: both;
+			display: block;
+		}
 
-.wc-layout.wc-small-multiples > .wc-chart {
-	float: left;
-	padding: 0 2em 2em 0;
-}
+		.wc-layout.wc-small-multiples > .wc-chart {
+			float: left;
+			padding: 0 2em 2em 0;
+		}
 
-.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
-	display: block;
-	font-weight: bold;
-	text-align: center;
-}
-.wc-small-multiples .wc-chart > .legend {
-  display: none;
-}
+		.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
+			display: block;
+			font-weight: bold;
+			text-align: center;
+		}
+		.wc-small-multiples .wc-chart > .legend {
+		  display: none;
+		}
 
 /*------------------------------------------------------------------------------------------------\
   Charts
@@ -264,8 +267,10 @@ div.wc-layout.wc-small-multiples::after {
         overflow: hidden;
         position: relative;
     }
+
     .wc-table .table-bottom {
     }
+
     .wc-table .interactivity {
         display: inline-block;
         margin: 10px 0;
@@ -341,8 +346,8 @@ div.wc-layout.wc-small-multiples::after {
             }
             .wc-table table thead tr th {
                 cursor: pointer;
-                padding: .75em 1em;
-                border-bottom: 1px solid #ccc;
+                padding: 2px 5px;
+                border-bottom: 2px solid black;
                 text-align: left;
             }
             .wc-table table thead tr th:first-child {
@@ -365,12 +370,16 @@ div.wc-layout.wc-small-multiples::after {
                 background: #ccc;
             }
             .wc-table table tbody tr td {
-                padding: .5em 1em;
+                padding: 2px 5px;
             }
             .wc-table table tbody tr td:first-child {
             }
             .wc-table table tbody tr td:last-child {
             }
+
+						.wc-table table tbody tr:last-child {
+							border-bottom:1px solid black
+						}
             .wc-table table tbody tr.no-data td {
                 color: red;
                 font-weight: bold;
