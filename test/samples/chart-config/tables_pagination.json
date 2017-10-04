@@ -11,7 +11,10 @@
   {
     "label": "Simple Table with pagination",
     "notes": "Basic Table",
-    "tests": [],
+    "tests": ["Confirm > pagination arrows link data records to the next page"
+ "Confirm < pagination arrows link data records to the previous page"
+ "Confirm pagination >> double arrows link data to the last pages of the data record"
+ "Confirm pagination << double arrows link data to the first pages of the data record"],
     "settings": {
       "pagination":true,
       "exportable":false
