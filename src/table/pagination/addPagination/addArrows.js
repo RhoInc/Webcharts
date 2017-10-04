@@ -12,12 +12,12 @@ export default function addArrows() {
         .insert('span', ':first-child')
         .classed('dot-dot-dot', true)
         .text('...')
-        .classed('invisible', this.config.activePage < this.config.nPageLinksDisplayed);
+        .classed('hidden', this.config.activePage < this.config.nPageLinksDisplayed);
 
     this.pagination.prev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('wc-button arrow-link left', true)
-        .classed('invisible', this.config.activePage == 0)
+        .classed('hidden', this.config.activePage == 0)
         .attr({
             rel: prev
         })
@@ -26,7 +26,7 @@ export default function addArrows() {
     this.pagination.doublePrev = this.pagination.wrap
         .insert('a', ':first-child')
         .classed('wc-button arrow-link left double', true)
-        .classed('invisible', this.config.activePage == 0)
+        .classed('hidden', this.config.activePage == 0)
         .attr({
             rel: 0
         })
@@ -41,7 +41,7 @@ export default function addArrows() {
         .classed('dot-dot-dot', true)
         .text('...')
         .classed(
-            'invisible',
+            'hidden',
             this.config.activePage >=
                 Math.max(
                     this.config.nPageLinksDisplayed,
@@ -52,7 +52,7 @@ export default function addArrows() {
         .append('a')
         .classed('wc-button arrow-link right', true)
         .classed(
-            'invisible',
+            'hidden',
             this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
         )
         .attr({
@@ -64,7 +64,7 @@ export default function addArrows() {
         .append('a')
         .classed('wc-button arrow-link right double', true)
         .classed(
-            'invisible',
+            'hidden',
             this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
         )
         .attr({

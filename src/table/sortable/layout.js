@@ -12,5 +12,5 @@ export default function layout() {
     this.sortable.wrap
         .append('div')
         .classed('instruction', true)
-        .text('Click any column header to sort that column.');
+        .text('Click column headers to sort.');
 }

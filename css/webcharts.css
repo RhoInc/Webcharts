@@ -296,7 +296,7 @@ div.wc-layout.wc-small-multiples::after {
         .wc-table .searchable-container .nNrecords {
         }
         .wc-table .searchable-container input {
-            margin: 0 10px;
+            margin: 0 10px 0 0;
             padding: 4px;
         }
 
@@ -305,6 +305,7 @@ div.wc-layout.wc-small-multiples::after {
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .sortable-container {
+            margin-right: 10px;
         }
         .wc-table .sortable-container .instruction {
             margin-top: 4px;
