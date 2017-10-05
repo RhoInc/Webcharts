@@ -10,7 +10,7 @@ export default function layout() {
         .classed('interactivity sortable-container', true)
         .classed('hidden', !this.config.sortable);
     this.sortable.wrap
-        .append('span')
+        .append('div')
         .classed('instruction', true)
-        .text('Click any column header to sort that column.');
+        .text('Click column headers to sort.');
 }

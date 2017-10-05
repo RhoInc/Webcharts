@@ -30,14 +30,14 @@ export default function init(data, test = false) {
     //Attach searchable object to table object.
     this.searchable = searchable.call(this);
 
-    //Attach pagination object to table object.
-    this.exportable = exportable.call(this);
-
     //Attach sortable object to table object.
     this.sortable = sortable.call(this);
 
     //Attach pagination object to table object.
     this.pagination = pagination.call(this);
+
+    //Attach pagination object to table object.
+    this.exportable = exportable.call(this);
 
     let startup = data => {
         //connect this table and its controls, if any

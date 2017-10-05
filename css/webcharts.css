@@ -1,24 +1,27 @@
-@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);
+		@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);
+/*------------------------------------------------------------------------------------------------\
+  Small Multiple Layout
+\------------------------------------------------------------------------------------------------*/
 
-div.wc-layout.wc-small-multiples::after {
-	content: "";
-	clear: both;
-	display: block;
-}
+		div.wc-layout.wc-small-multiples::after {
+			content: "";
+			clear: both;
+			display: block;
+		}
 
-.wc-layout.wc-small-multiples > .wc-chart {
-	float: left;
-	padding: 0 2em 2em 0;
-}
+		.wc-layout.wc-small-multiples > .wc-chart {
+			float: left;
+			padding: 0 2em 2em 0;
+		}
 
-.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
-	display: block;
-	font-weight: bold;
-	text-align: center;
-}
-.wc-small-multiples .wc-chart > .legend {
-  display: none;
-}
+		.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
+			display: block;
+			font-weight: bold;
+			text-align: center;
+		}
+		.wc-small-multiples .wc-chart > .legend {
+		  display: none;
+		}
 
 /*------------------------------------------------------------------------------------------------\
   Charts
@@ -261,52 +264,31 @@ div.wc-layout.wc-small-multiples::after {
         display: block;
     }
     .wc-table .table-top {
-        overflow: hidden;
-        position: relative;
     }
+
     .wc-table .table-bottom {
     }
+
     .wc-table .interactivity {
         display: inline-block;
+        vertical-align: middle;
         margin: 10px 0;
         padding: 0;
     }
-
-    /**-------------------------------------------------------------------------------------------\
-      Sortable container
-    \-------------------------------------------------------------------------------------------**/
-
-        .wc-table .sortable-container {
-            position: absolute;
-            bottom: 0;
-            left: .75em;
-        }
-
-        .wc-table .sortable-container .description {
-            font-style: italic;
-        }
-
-        .wc-table .sortable-container .sort-box {
-            display: inline-block;
-            border: 2px solid #008CBA;
-            border-radius: 4px;
-            padding: 2px;
-            margin-left: 3px;
-            cursor: default;
-        }
-
-        .wc-table .sortable-container .sort-box .remove-sort {
-            float: right;
-            border: 1px solid gray;
-            padding: 2px 3px;
-            font-size: 8px;
-        }
-
-        .wc-table .sortable-container .sort-box .remove-sort:hover {
-            cursor: pointer;
-            background-color: #008CBA;
-            color: white;
-        }
+    .wc-table .interactivity .wc-button {
+        display: inline-block;
+        border: 2px solid gray;
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin: 0 2px;
+        cursor: pointer;
+        background: white;
+        color: black;
+    }
+    .wc-table .interactivity .wc-button:hover {
+        background: black;
+        color: white;
+    }
 
     /**-------------------------------------------------------------------------------------------\
       Searchable container
@@ -319,7 +301,42 @@ div.wc-layout.wc-small-multiples::after {
         .wc-table .searchable-container .nNrecords {
         }
         .wc-table .searchable-container input {
-            margin-left: 10px;
+            margin: 0 10px 0 0;
+            padding: 4px;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Sortable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .sortable-container {
+            margin-right: 10px;
+        }
+        .wc-table .sortable-container .instruction {
+            margin-top: 4px;
+        }
+        .wc-table .sortable-container .sort-box {
+            cursor: default;
+            padding: 2px 4px;
+        }
+        .wc-table .sortable-container .sort-direction {
+            font-weight: bold;
+            margin: 3px;
+        }
+        .wc-table .sortable-container .sort-box .remove-sort {
+            font-weight: bold;
+            float: right;
+            border: 1px solid gray;
+            margin-top: 3px;
+            padding: 2px 3px;
+            font-size: 8px;
+            background: white;
+            color: red;
+        }
+        .wc-table .sortable-container .sort-box .remove-sort:hover {
+            cursor: pointer;
+            background: red;
+            color: white;
         }
 
     /**-------------------------------------------------------------------------------------------\
@@ -341,8 +358,8 @@ div.wc-layout.wc-small-multiples::after {
             }
             .wc-table table thead tr th {
                 cursor: pointer;
-                padding: .75em 1em;
-                border-bottom: 1px solid #ccc;
+                padding: 2px 5px;
+                border-bottom: 2px solid black;
                 text-align: left;
             }
             .wc-table table thead tr th:first-child {
@@ -365,32 +382,20 @@ div.wc-layout.wc-small-multiples::after {
                 background: #ccc;
             }
             .wc-table table tbody tr td {
-                padding: .5em 1em;
+                padding: 2px 5px;
             }
             .wc-table table tbody tr td:first-child {
             }
             .wc-table table tbody tr td:last-child {
             }
+
+						.wc-table table tbody tr:last-child {
+							border-bottom:1px solid black
+						}
             .wc-table table tbody tr.no-data td {
                 color: red;
                 font-weight: bold;
             }
-
-    /**-------------------------------------------------------------------------------------------\
-      Exportable container
-    \-------------------------------------------------------------------------------------------**/
-
-        .wc-table .exportable-container {
-            float: left;
-        }
-        .wc-table .exportable-container a {
-            border: 2px solid gray;
-            border-radius: 4px;
-            text-decoration: none;
-            cursor: pointer;
-            padding: 2px 5px;
-            margin-left: 5px;
-        }
 
     /**-------------------------------------------------------------------------------------------\
       Pagination container
@@ -401,12 +406,20 @@ div.wc-layout.wc-small-multiples::after {
         }
         .wc-table .pagination-container a {
             text-decoration: none;
-            cursor: pointer;
-            padding: 5px 10px;
         }
-        .wc-table .pagination-container a.active {
-            border: 2px solid gray;
-            border-radius: 4px;
+        .wc-table .pagination-container a:not(.active) {
+            border: none;
+        }
+
+    /**-------------------------------------------------------------------------------------------\
+      Exportable container
+    \-------------------------------------------------------------------------------------------**/
+
+        .wc-table .exportable-container {
+            float: left;
+        }
+        .wc-table .exportable-container a {
+            text-decoration: none;
         }
 
 /*------------------------------------------------------------------------------------------------\

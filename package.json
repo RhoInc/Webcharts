@@ -22,6 +22,8 @@
 
     "bundle": "rollup -c",
 
+    "bunfor": "npm run bundle && npm run format",
+
     "format": "npm run format-src && npm run format-build",
         "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
         "format-build": "prettier --print-width=100 --tab-width=4 --single-quote --write build/webcharts.js",
@@ -30,9 +32,7 @@
     "minify": "npm run minify-css && npm run minify-js",
         "minify-css": "cleancss -o css/webcharts.min.css css/webcharts.css",
         "minify-js": "uglifyjs build/webcharts.js > build/webcharts.min.js",
-
     "notest": "npm run bundle && npm run format && npm run minify",
-
     "test": "npm run test-chart && npm run test-controls && npm run test-miscellaneous && npm run test-multiply && npm run test-table",
         "test-chart":"mocha --timeout 5000 --require babel-register --recursive ./test/chart/*.js",
         "test-controls":"mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",

@@ -14,6 +14,7 @@ export default function setDefaults(firstItem) {
 
     this.config.cols = this.config.cols || keys(firstItem);
     this.config.headers = this.config.headers || this.config.cols;
+    this.config.layout = 'horizontal'; // placeholder setting to align table components vertically or horizontally
 
     //Set all other defaults.
     setDefault.call(this, 'searchable');

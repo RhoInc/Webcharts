@@ -14,7 +14,7 @@ export default function addLinks() {
                 rel: i
             })
             .text(i + 1)
-            .classed('page-link', true)
+            .classed('wc-button page-link', true)
             .classed('active', d => d.rel == this.config.activePage)
             .classed('hidden', () => {
                 return this.config.activePage < this.config.nPageLinksDisplayed
