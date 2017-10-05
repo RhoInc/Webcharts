@@ -78,7 +78,7 @@
   {
     "label": "Search and sort (no pagination)",
     "notes": "",
-    "tests": ["Confirm there are no pagination links","Confirm user can search for data in the data listing""Confirm user can sort data in the data listing"],
+    "tests": ["Confirm there are no pagination links","Confirm user can search for data in the data listing","Confirm user can sort data in the data listing"],
     "settings": {
       "exportable":false,
       "sortable":true,
@@ -89,7 +89,7 @@
   {
     "label": "Search, sort and pagination active",
 	  "notes": "",
-    "tests": [],
+    "tests": ["Confirm pagination links are functioning", "Confirm user can search the data listing", "Confirm user can sort the data"],
     "settings": {
       "exportable":false,
       "sortable":true,
