@@ -3144,12 +3144,32 @@
 
         this.searchable.wrap
             .select('.nNrecords')
-            //.classed('invisible', data.length === this.data.raw.length)
             .text(
                 data.length === this.data.raw.length
                     ? this.data.raw.length + ' records displayed'
                     : data.length + '/' + this.data.raw.length + ' records displayed'
             );
+
+        //update table header
+        this.thead_cells = this.thead
+            .select('tr')
+            .selectAll('th')
+            .data(this.config.headers, function(d) {
+                return d;
+            });
+        this.thead_cells.exit().remove();
+        this.thead_cells.enter().append('th');
+
+        this.thead_cells
+            .sort(function(a, b) {
+                return _this.config.headers.indexOf(a) - _this.config.headers.indexOf(b);
+            })
+            .attr('class', function(d) {
+                return _this.config.cols[_this.config.headers.indexOf(d)];
+            }) // associate column header with column name
+            .text(function(d) {
+                return d;
+            });
 
         //Clear table body rows.
         this.tbody.selectAll('tr').remove();
@@ -3196,17 +3216,16 @@
 
             //Define table body cells.
             var cells = rows.selectAll('td').data(function(d) {
-                return Object.keys(d)
-                    .filter(function(key) {
-                        return _this.config.cols.indexOf(key) > -1;
-                    })
-                    .map(function(key) {
-                        return { col: key, text: d[key] };
-                    });
+                return _this.config.cols.map(function(key) {
+                    return { col: key, text: d[key] };
+                });
             });
             cells.exit().remove();
             cells.enter().append('td');
             cells
+                .sort(function(a, b) {
+                    return _this.config.cols.indexOf(a.col) - _this.config.cols.indexOf(b.col);
+                })
                 .attr('class', function(d) {
                     return d.col;
                 })
@@ -3890,8 +3909,6 @@
     }
 
     function layout$6() {
-        var _this = this;
-
         //Clear loading indicator.
         d3$1.select(this.div).select('.loader').remove();
 
@@ -3907,19 +3924,7 @@
         //Attach table to DOM.
         this.table = this.wrap.append('table').classed('table', this.config.bootstrap); // apply class to incorporate bootstrap styling
         this.thead = this.table.append('thead');
-        this.thead
-            .append('tr')
-            .selectAll('th')
-            .data(this.config.headers)
-            .enter()
-            .append('th')
-            .attr('class', function(d) {
-                return _this.config.cols[_this.config.headers.indexOf(d)];
-            }) // associate column header with column name
-            .text(function(d) {
-                return d;
-            });
-
+        this.thead.append('tr');
         this.tbody = this.table.append('tbody');
 
         //Attach container after table.
