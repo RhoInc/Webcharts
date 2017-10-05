@@ -3137,7 +3137,6 @@
 
         this.searchable.wrap
             .select('.nNrecords')
-            //.classed('invisible', data.length === this.data.raw.length)
             .text(
                 data.length === this.data.raw.length
                     ? this.data.raw.length + ' records displayed'
@@ -3151,12 +3150,13 @@
             .data(this.config.headers, function(d) {
                 return d;
             });
-
         this.thead_cells.exit().remove();
-
         this.thead_cells.enter().append('th');
 
         this.thead_cells
+            .sort(function(a, b) {
+                return _this.config.headers.indexOf(a) - _this.config.headers.indexOf(b);
+            })
             .attr('class', function(d) {
                 return _this.config.cols[_this.config.headers.indexOf(d)];
             }) // associate column header with column name
@@ -3209,17 +3209,16 @@
 
             //Define table body cells.
             var cells = rows.selectAll('td').data(function(d) {
-                return Object.keys(d)
-                    .filter(function(key) {
-                        return _this.config.cols.indexOf(key) > -1;
-                    })
-                    .map(function(key) {
-                        return d[key];
-                    });
+                return _this.config.cols.map(function(key) {
+                    return { col: key, value: d[key] };
+                });
             });
             cells.exit().remove();
             cells.enter().append('td');
             cells
+                .sort(function(a, b) {
+                    return _this.config.cols.indexOf(a.col) - _this.config.cols.indexOf(b.col);
+                })
                 .attr('class', function(d) {
                     return d.col;
                 })
@@ -3228,9 +3227,9 @@
 
                     //Apply text in data as html or as plain text.
                     if (config.as_html) {
-                        cell.html(d);
+                        cell.html(d.value);
                     } else {
-                        cell.text(d);
+                        cell.text(d.value);
                     }
                 });
         }

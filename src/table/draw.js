@@ -49,7 +49,6 @@ export default function draw(passed_data) {
 
     this.searchable.wrap
         .select('.nNrecords')
-        //.classed('invisible', data.length === this.data.raw.length)
         .text(
             data.length === this.data.raw.length
                 ? `${this.data.raw.length} records displayed`
@@ -58,12 +57,11 @@ export default function draw(passed_data) {
 
     //update table header
     this.thead_cells = this.thead.select('tr').selectAll('th').data(this.config.headers, d => d);
-
     this.thead_cells.exit().remove();
-
     this.thead_cells.enter().append('th');
 
     this.thead_cells
+        .sort((a, b) => this.config.headers.indexOf(a) - this.config.headers.indexOf(b))
         .attr('class', d => this.config.cols[this.config.headers.indexOf(d)]) // associate column header with column name
         .text(d => d);
 
@@ -109,23 +107,26 @@ export default function draw(passed_data) {
         const rows = this.tbody.selectAll('tr').data(data).enter().append('tr');
 
         //Define table body cells.
-        const cells = rows
-            .selectAll('td')
-            .data(d =>
-                Object.keys(d).filter(key => this.config.cols.indexOf(key) > -1).map(key => d[key])
-            );
+        const cells = rows.selectAll('td').data(d =>
+            this.config.cols.map(key => {
+                return { col: key, value: d[key] };
+            })
+        );
         cells.exit().remove();
         cells.enter().append('td');
-        cells.attr('class', d => d.col).each(function(d) {
-            const cell = select(this);
+        cells
+            .sort((a, b) => this.config.cols.indexOf(a.col) - this.config.cols.indexOf(b.col))
+            .attr('class', d => d.col)
+            .each(function(d) {
+                const cell = select(this);
 
-            //Apply text in data as html or as plain text.
-            if (config.as_html) {
-                cell.html(d);
-            } else {
-                cell.text(d);
-            }
-        });
+                //Apply text in data as html or as plain text.
+                if (config.as_html) {
+                    cell.html(d.value);
+                } else {
+                    cell.text(d.value);
+                }
+            });
     }
 
     this.events.onDraw.call(this);
