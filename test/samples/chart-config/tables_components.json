@@ -3,7 +3,7 @@
   {
     "label": "no search, sort or pagination",
     "notes": "",
-    "tests": ["Confirm there is no pagination feature", "Confirm there is no sort feature" "Confirm there is no search option"],
+    "tests": ["Confirm there is no pagination feature", "Confirm there is no sort feature", "Confirm there is no search option"],
     "settings": {
       "exportable":false,
       "sortable":false,
