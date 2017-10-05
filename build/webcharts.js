@@ -4187,6 +4187,7 @@
                 chart.multiples.push(mchart);
             });
         }
+
         goAhead(data);
     }
 

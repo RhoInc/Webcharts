@@ -14,13 +14,13 @@ export default function multiply(chart, data, split_by, order, test = false) {
         }
         split_vals.forEach(e => {
             var mchart = createChart(chart.wrap.node(), config, chart.controls);
+            chart.multiples.push(mchart);
+            mchart.parent = chart;
             mchart.events = chart.events;
             mchart.legend = master_legend;
             mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
             mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
             mchart.init(data, test);
-            mchart.parent = chart;
-            chart.multiples.push(mchart);
         });
     }
     goAhead(data);
