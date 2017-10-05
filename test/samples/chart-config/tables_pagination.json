@@ -12,7 +12,7 @@
     "label": "Simple Table with pagination",
     "notes": "Basic Table",
     "tests": ["Confirm > pagination arrows link data records to the next page"
- ,"Confirm “<” pagination arrows link data records to the previous page",
+ ,"Confirm < pagination arrows link data records to the previous page",
  "Confirm pagination >> double arrows link data to the last pages of the data record",
  "Confirm pagination << double arrows link data to the first pages of the data record"],
     "settings": {
@@ -24,7 +24,7 @@
   {
     "label": "Simple Table with pagination with big pages (n=50)",
     "notes": "Basic Table",
-    "tests": [],
+    "tests": ["Confirm pagination links are linking the data to the next page", "Confirm table is displaying 50 items per page"],
     "settings": {
       "pagination":true,
       "nRowsPerPage":50,
@@ -35,7 +35,7 @@
   {
     "label": "Simple Table with pagination with huge pages (n=100)",
     "notes": "Basic Table",
-    "tests": [],
+    "tests": ["Confirm pagination links are linking the data to the next page", "Confirm table is displaying 100 items per page"],
     "settings": {
       "pagination":true,
       "nRowsPerPage":100,
@@ -46,7 +46,7 @@
   {
     "label": "Simple Table with pagination with small pages (n=5)",
     "notes": "Basic Table",
-    "tests": [],
+    "tests": ["Confirm pagination links are linking the data to the next page", "Confirm table is displaying 5 items per page"],
     "settings": {
       "pagination":true,
       "nRowsPerPage":5,
@@ -57,7 +57,7 @@
   {
     "label": "Simple Table with pagination with small pages (n=5) and lots of page (n=10) links shown",
     "notes": "Basic Table",
-    "tests": [],
+    "tests": ["Confirm pagination links are linking the data to the next page", "Confirm table is displaying 5 items per page"],
     "settings": {
       "pagination":true,
       "nRowsPerPage":5,
