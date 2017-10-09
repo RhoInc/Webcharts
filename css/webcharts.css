@@ -252,7 +252,7 @@
 \------------------------------------------------------------------------------------------------*/
 
     .wc-table {
-        display: table;
+        display: block;
     }
     .wc-table .hidden {
         display: none !important;
