@@ -158,7 +158,6 @@ export default function draw(passed_data) {
             .selectAll('.interactivity')
             .style({
                 display: 'block',
-                float: 'left',
                 clear: 'both'
             });
     } else if (
@@ -177,7 +176,7 @@ export default function draw(passed_data) {
                     return d3.select(this).classed('searchable-container') ||
                         d3.select(this).classed('pagination-container')
                         ? 'right'
-                        : 'left';
+                        : null;
                 },
                 clear: null
             });
