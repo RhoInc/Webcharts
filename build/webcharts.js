@@ -3279,7 +3279,7 @@
                         return d3.select(this).classed('searchable-container') ||
                             d3.select(this).classed('pagination-container')
                             ? 'right'
-                            : 'left';
+                            : null;
                     },
                     clear: null
                 });
