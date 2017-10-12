@@ -3261,7 +3261,6 @@
                 .selectAll('.interactivity')
                 .style({
                     display: 'block',
-                    float: 'left',
                     clear: 'both'
                 });
         } else if (

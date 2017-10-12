@@ -146,7 +146,6 @@ export default function draw(passed_data) {
             .selectAll('.interactivity')
             .style({
                 display: 'block',
-                float: 'left',
                 clear: 'both'
             });
     } else if (
