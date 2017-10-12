@@ -16,6 +16,9 @@ export default function draw(passed_data) {
         //Otherwise update data object.
         this.data.raw = passed_data;
         this.data.filtered = passed_data;
+        this.config.activePage = 0;
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
     }
 
     //Compare current filter settings to previous filter settings, if any.
@@ -73,6 +76,15 @@ export default function draw(passed_data) {
             .append('td')
             .attr('colspan', this.config.cols.length)
             .text('No data selected.');
+
+        //Add export.
+        if (this.config.exportable)
+            this.config.exports.forEach(fmt => {
+                this.exportable.exports[fmt].call(this, data);
+            });
+
+        //Add pagination.
+        if (this.config.pagination) this.pagination.addPagination.call(this, data);
     } else {
         //Sort data.
         if (this.config.sortable) {
