@@ -1,19 +1,23 @@
 import { keys, nest } from 'd3';
 
-export default function transformData(data) {
+export default function transformData(processed_data) {
+    //Transform data.
+    this.data.processed = this.transformData(this.wrap.datum);
+
     if (!data) {
         return;
     }
-    let config = this.config;
-    let colList = config.cols || keys(data[0]);
-    if (config.keep) {
-        config.keep.forEach(e => {
-            if (colList.indexOf(e) === -1) {
-                colList.unshift(e);
+
+    this.config.cols = this.config.cols || keys(data[0]);
+    this.config.headers = this.config.headers || this.config.cols;
+
+    if (this.config.keep) {
+        this.config.keep.forEach(e => {
+            if (this.config.cols.indexOf(e) === -1) {
+                this.config.cols.unshift(e);
             }
         });
     }
-    this.config.cols = colList;
 
     let filtered = data;
 
@@ -32,31 +36,56 @@ export default function transformData(data) {
 
     let slimmed = nest()
         .key(d => {
-            if (config.row_per) {
-                return config.row_per.map(m => d[m]).join(' ');
+            if (this.config.row_per) {
+                return this.config.row_per.map(m => d[m]).join(' ');
             } else {
                 return d;
             }
         })
         .rollup(r => {
-            if (config.dataManipulate) {
-                r = config.dataManipulate(r);
+            if (this.config.dataManipulate) {
+                r = this.config.dataManipulate(r);
             }
             let nuarr = r.map(m => {
                 let arr = [];
                 for (let x in m) {
                     arr.push({ col: x, text: m[x] });
                 }
-                arr.sort((a, b) => config.cols.indexOf(a.col) - config.cols.indexOf(b.col));
+                arr.sort(
+                    (a, b) => this.config.cols.indexOf(a.col) - this.config.cols.indexOf(b.col)
+                );
                 return { cells: arr, raw: m };
             });
             return nuarr;
         })
         .entries(filtered);
 
-    this.current_data = slimmed;
+    this.data.current = slimmed.length ? slimmed : [{ key: null, values: [] }]; // dummy nested data array
+
+    //Reset pagination.
+    this.pagination.wrap.selectAll('*').remove();
 
     this.events.onDatatransform.call(this);
 
-    return this.current_data;
+    /**-------------------------------------------------------------------------------------------\
+       Code below associated with the former paradigm of a d3.nest() data array.
+    \-------------------------------------------------------------------------------------------**/
+
+    if (config.row_per) {
+        let rev_order = config.row_per.slice(0).reverse();
+        rev_order.forEach(e => {
+            tbodies.sort((a, b) => a.values[0].raw[e] - b.values[0].raw[e]);
+        });
+    }
+
+    //Delete text from columns with repeated values?
+    if (config.row_per) {
+        rows
+            .filter((f, i) => i > 0)
+            .selectAll('td')
+            .filter(f => config.row_per.indexOf(f.col) > -1)
+            .text('');
+    }
+
+    return this.data.current;
 }

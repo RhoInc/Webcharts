@@ -4,11 +4,11 @@ export default function checkRequired(data) {
     let colnames = Object.keys(data[0]);
     let requiredVars = [];
     let requiredCols = [];
-    if (this.config.x.column) {
+    if (this.config.x && this.config.x.column) {
         requiredVars.push('this.config.x.column');
         requiredCols.push(this.config.x.column);
     }
-    if (this.config.y.column) {
+    if (this.config.y && this.config.y.column) {
         requiredVars.push('this.config.y.column');
         requiredCols.push(this.config.y.column);
     }
@@ -16,24 +16,25 @@ export default function checkRequired(data) {
         requiredVars.push('this.config.color_by');
         requiredCols.push(this.config.color_by);
     }
-    this.config.marks.forEach((e, i) => {
-        if (e.per && e.per.length) {
-            e.per.forEach((p, j) => {
-                requiredVars.push('this.config.marks[' + i + '].per[' + j + ']');
-                requiredCols.push(p);
-            });
-        }
-        if (e.split) {
-            requiredVars.push('this.config.marks[' + i + '].split');
-            requiredCols.push(e.split);
-        }
-        if (e.values) {
-            for (const value in e.values) {
-                requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
-                requiredCols.push(value);
+    if (this.config.marks)
+        this.config.marks.forEach((e, i) => {
+            if (e.per && e.per.length) {
+                e.per.forEach((p, j) => {
+                    requiredVars.push('this.config.marks[' + i + '].per[' + j + ']');
+                    requiredCols.push(p);
+                });
             }
-        }
-    });
+            if (e.split) {
+                requiredVars.push('this.config.marks[' + i + '].split');
+                requiredCols.push(e.split);
+            }
+            if (e.values) {
+                for (const value in e.values) {
+                    requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
+                    requiredCols.push(value);
+                }
+            }
+        });
 
     let missingDataField = false;
     requiredCols.forEach((e, i) => {

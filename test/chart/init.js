@@ -2,12 +2,10 @@ import jsdom from 'jsdom';
 import createChart from '../../src/createChart';
 import expect from 'expect';
 
-export default function testInit(settings,data) {
+export default function testInit(settings, data) {
     describe('chart initialization and lifecycle', () => {
         const { JSDOM } = jsdom;
-        let dom,
-            container,
-            chart;
+        let dom, container, chart;
 
         before(() => {
             dom = new JSDOM('<!DOCTYPE html>');
@@ -22,7 +20,7 @@ export default function testInit(settings,data) {
             expect.spyOn(chart.events, 'onPreprocess');
             expect.spyOn(chart.events, 'onDatatransform');
             expect.spyOn(chart.events, 'onDraw');
-            expect.spyOn(chart.events, 'onResize'); 
+            expect.spyOn(chart.events, 'onResize');
 
             chart.init(data, true);
         });
@@ -69,7 +67,9 @@ export default function testInit(settings,data) {
             });
             it('onDatatransform has been called twice for each set of marks', () => {
                 expect(chart.events.onDatatransform).toHaveBeenCalled();
-                expect(chart.events.onDatatransform.calls.length).toEqual(settings.marks.length * 2);
+                expect(chart.events.onDatatransform.calls.length).toEqual(
+                    settings.marks.length * 2
+                );
             });
             it('onDraw has been called twice', () => {
                 expect(chart.events.onDraw).toHaveBeenCalled();

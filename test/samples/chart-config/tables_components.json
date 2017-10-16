@@ -1,0 +1,101 @@
+
+[
+  {
+    "label": "no search, sort or pagination",
+    "notes": "",
+    "tests": ["Confirm there is no pagination feature", "Confirm there is no sort feature", "Confirm there is no search option"],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":false,
+      "pagination":false
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Pagination only",
+	  "notes": "",
+    "tests": ["Confirm > pagination arrows link data records to the next page"
+ ,"Confirm < pagination arrows link data records to the previous page",
+ "Confirm pagination >> double arrows link data to the last pages of the data record",
+ "Confirm pagination << double arrows link data to the first pages of the data record"],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":false,
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Search only",
+    "notes": "",
+    "tests": ["Confirm there is no sort feature", "Confirm there are no pagination links","Confirm user can search for data in the listing"],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":true,
+      "pagination":false
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Sort only",
+    "notes": "",
+    "tests": ["Confirm there is no search feature", "Confirm there are no pagination links","Confirm user can sort data"],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":false,
+      "pagination":false
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Pagination and search (no sort)",
+    "notes": "",
+    "tests": ["Confirm there is no sort feature", "Confirm pagination links are functioning", "Confirm user can search for data in the data listing"],
+    "settings": {
+      "exportable":false,
+      "sortable":false,
+      "searchable":true,
+      "pagination":true
+    },
+        "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Pagination and sort (no search)",
+    "notes": "",
+    "tests": ["Confirm there is no search feature","Confirm pagination links are functioning", "Confirm user can sort data in the data listing"],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":false,
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Search and sort (no pagination)",
+    "notes": "",
+    "tests": ["Confirm there are no pagination links","Confirm user can search for data in the data listing","Confirm user can sort data in the data listing"],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":true,
+      "pagination":false
+    },    "filename": "ChickWeight.csv"
+  },
+  {
+    "label": "Search, sort and pagination active",
+	  "notes": "",
+    "tests": ["Confirm pagination links are functioning", "Confirm user can search the data listing", "Confirm user can sort the data"],
+    "settings": {
+      "exportable":false,
+      "sortable":true,
+      "searchable":true,
+      "pagination":true
+    },
+    "filename": "ChickWeight.csv"
+  }
+]
