@@ -254,7 +254,8 @@
     .wc-table {
         display: block;
     }
-    .wc-table .hidden {
+    .wc-table .hidden,
+    .interactivity.hidden {
         display: none !important;
     }
     .wc-table .invisible {
