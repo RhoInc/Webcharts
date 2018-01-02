@@ -173,8 +173,8 @@ export default function draw(passed_data) {
             .style({
                 display: 'inline-block',
                 float: function() {
-                    return d3.select(this).classed('searchable-container') ||
-                        d3.select(this).classed('pagination-container')
+                    return select(this).classed('searchable-container') ||
+                        select(this).classed('pagination-container')
                         ? 'right'
                         : null;
                 },
