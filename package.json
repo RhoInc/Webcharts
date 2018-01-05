@@ -1,7 +1,7 @@
 {
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "keywords": [
     "charts",
     "javascript",
@@ -9,8 +9,8 @@
     "data visualization"
   ],
   "homepage": "https://github.com/RhoInc/Webcharts",
-  "main": "lib/webcharts.common.js",
-  "jsnext:main": "src/index.js",
+  "main": "./build/webcharts.js",
+  "module": "./src/index.js",
   "dependencies": {
     "d3": "^3"
   },
@@ -19,27 +19,21 @@
   },
   "scripts": {
     "build": "npm run bundle && npm run format && npm run minify && npm run test",
-
     "bundle": "rollup -c",
-
     "bunfor": "npm run bundle && npm run format",
-
     "format": "npm run format-src && npm run format-build",
-        "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
-        "format-build": "prettier --print-width=100 --tab-width=4 --single-quote --write build/webcharts.js",
-        "format-test": "prettier --print-width=100 --tab-width=4 --single-quote --write test/**/*.js",
-
+    "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
+    "format-build": "prettier --print-width=100 --tab-width=4 --single-quote --write build/webcharts.js",
+    "format-test": "prettier --print-width=100 --tab-width=4 --single-quote --write test/**/*.js",
     "minify": "npm run minify-css && npm run minify-js",
-        "minify-css": "cleancss -o css/webcharts.min.css css/webcharts.css",
-        "minify-js": "uglifyjs build/webcharts.js > build/webcharts.min.js",
-
+    "minify-css": "cleancss -o css/webcharts.min.css css/webcharts.css",
+    "minify-js": "uglifyjs build/webcharts.js > build/webcharts.min.js",
     "test": "npm run test-chart && npm run test-controls && npm run test-miscellaneous && npm run test-multiply && npm run test-table",
-        "test-chart":"mocha --timeout 5000 --require babel-register --recursive ./test/chart/*.js",
-        "test-controls":"mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",
-        "test-miscellaneous":"mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
-        "test-multiply":"mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
-        "test-table":"mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
-
+    "test-chart": "mocha --timeout 5000 --require babel-register --recursive ./test/chart/*.js",
+    "test-controls": "mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",
+    "test-miscellaneous": "mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
+    "test-multiply": "mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
+    "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
     "watch": "rollup -c -w"
   },
   "repository": {
@@ -60,7 +54,7 @@
     "jsdom": "10",
     "mocha": "3",
     "prettier": "1.4.4",
-    "rollup": "^0.41.6",
+    "rollup": "^0.53.3",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-watch": "^3.2.2",
     "uglify-js": "^2.5.0"
