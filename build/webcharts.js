@@ -2550,7 +2550,7 @@
             .datum(control);
         var ctrl_label = control_wrap
             .append('span')
-            .attr('class', 'control-label')
+            .attr('class', 'wc-control-label')
             .text(control.label);
         if (control.required) {
             ctrl_label.append('span').attr('class', 'label label-required').text('Required');
