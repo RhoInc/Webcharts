@@ -1,4 +1,5 @@
 import naturalSorter from '../dataOps/naturalSorter';
+import makeFilteredData from '../dataOps/makeFilteredData';
 import { set, merge, ascending, nest, min, extent } from 'd3';
 
 export default function consolidateData(raw) {
@@ -9,6 +10,19 @@ export default function consolidateData(raw) {
 
     this.setDefaults();
 
+    //apply filters from associated controls objects
+    let this.filtered_data = raw;
+    if (this.filters.length) {
+        this.filters.forEach(e => {
+            filtered = filtered.filter(d => {
+                return e.val === 'All'
+                    ? d
+                    : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
+            });
+        });
+    })
+
+    //create data for each set of marks 
     config.marks.forEach((e, i) => {
         if (e.type !== 'bar') {
             e.arrange = null;

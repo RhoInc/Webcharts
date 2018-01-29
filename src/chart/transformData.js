@@ -15,7 +15,21 @@ import {
     max
 } from 'd3';
 
+
+//////////////////////////////////////////////////////////
+// transformData(raw, mark) provides specifications and data for
+// each set of marks. As such, it is called once for each
+// item specified in the config.marks array.
+//
+// parameters
+// raw - the raw data for use in the mark. Filters from controls
+//       are typically already applied.
+// mark - a single mark object from config.marks
+////////////////////////////////////////////////////////
+
 export default function transformData(raw, mark) {
+
+    //convenience mappings
     let config = this.config;
     let x_behavior = config.x.behavior || 'raw';
     let y_behavior = config.y.behavior || 'raw';
@@ -25,6 +39,9 @@ export default function transformData(raw, mark) {
     let dateConvert = time.format(config.date_format);
     let totalOrder;
 
+    ///////////////////////////////////////////////
+    // calcStartTotal() - method to calculate percentages in bars
+    //////////////////////////////////////////////
     function calcStartTotal(e) {
         let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
             ? 'y'
@@ -43,89 +60,6 @@ export default function transformData(raw, mark) {
             }
         });
     }
-
-    raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]]) : raw;
-
-    //make sure data has x and y values
-    if (config.x.column) {
-        raw = raw.filter(f => f[config.x.column] !== undefined);
-    }
-    if (config.y.column) {
-        raw = raw.filter(f => f[config.y.column] !== undefined);
-    }
-
-    if (config.x.type === 'time') {
-        raw = raw.filter(
-            f =>
-                f[config.x.column] instanceof Date
-                    ? f[config.x.column]
-                    : dateConvert.parse(f[config.x.column])
-        );
-        raw.forEach(
-            e =>
-                (e[config.x.column] = e[config.x.column] instanceof Date
-                    ? e[config.x.column]
-                    : dateConvert.parse(e[config.x.column]))
-        );
-    }
-    if (config.y.type === 'time') {
-        raw = raw.filter(
-            f =>
-                f[config.y.column] instanceof Date
-                    ? f[config.y.column]
-                    : dateConvert.parse(f[config.y.column])
-        );
-        raw.forEach(
-            e =>
-                (e[config.y.column] = e[config.y.column] instanceof Date
-                    ? e[config.y.column]
-                    : dateConvert.parse(e[config.y.column]))
-        );
-    }
-
-    if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
-        raw = raw.filter(f => {
-            return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
-                ? +f[config.x.column] || +f[config.x.column] === 0
-                : f;
-        });
-    }
-    if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
-        raw = raw.filter(f => {
-            return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
-                ? +f[config.y.column] || +f[config.y.column] === 0
-                : f;
-        });
-    }
-
-    let raw_nest;
-    if (mark.type === 'bar') {
-        raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
-    } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-        raw_nest = makeNest(raw);
-    }
-
-    let raw_dom_x = mark.summarizeX === 'cumulative'
-        ? [0, raw.length]
-        : config.x.type === 'ordinal'
-          ? set(raw.map(m => m[config.x.column])).values().filter(f => f)
-          : mark.split && mark.arrange !== 'stacked'
-            ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
-            : mark.summarizeX === 'count'
-              ? extent(raw_nest.nested.map(m => m.values.raw.length))
-              : extent(raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
-
-    let raw_dom_y = mark.summarizeY === 'cumulative'
-        ? [0, raw.length]
-        : config.y.type === 'ordinal'
-          ? set(raw.map(m => m[config.y.column])).values().filter(f => f)
-          : mark.split && mark.arrange !== 'stacked'
-            ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
-            : mark.summarizeY === 'count'
-              ? extent(raw_nest.nested.map(m => m.values.raw.length))
-              : extent(raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
-
-    let filtered = raw;
 
     function makeNest(entries, sublevel) {
         let dom_xs = [];
@@ -261,6 +195,98 @@ export default function transformData(raw, mark) {
         return { nested: test, dom_x: dom_x, dom_y: dom_y };
     }
 
+    //////////////////////////////////////////////////////////////////////////////////
+    // DATA PREP
+    // prepare data based on the properties of the mark - drop missing records, etc
+    //////////////////////////////////////////////////////////////////////////////////
+
+    // only use data for the current mark
+    raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]]) : raw;
+
+    // Make sure data has x and y values
+    if (config.x.column) {
+        raw = raw.filter(f => f[config.x.column] !== undefined);
+    }
+    if (config.y.column) {
+        raw = raw.filter(f => f[config.y.column] !== undefined);
+    }
+
+    //check that x and y have the correct formats
+    if (config.x.type === 'time') {
+        raw = raw.filter(
+            f =>
+                f[config.x.column] instanceof Date
+                    ? f[config.x.column]
+                    : dateConvert.parse(f[config.x.column])
+        );
+        raw.forEach(
+            e =>
+                (e[config.x.column] = e[config.x.column] instanceof Date
+                    ? e[config.x.column]
+                    : dateConvert.parse(e[config.x.column]))
+        );
+    }
+    if (config.y.type === 'time') {
+        raw = raw.filter(
+            f =>
+                f[config.y.column] instanceof Date
+                    ? f[config.y.column]
+                    : dateConvert.parse(f[config.y.column])
+        );
+        raw.forEach(
+            e =>
+                (e[config.y.column] = e[config.y.column] instanceof Date
+                    ? e[config.y.column]
+                    : dateConvert.parse(e[config.y.column]))
+        );
+    }
+
+    if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
+        raw = raw.filter(f => {
+            return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
+                ? +f[config.x.column] || +f[config.x.column] === 0
+                : f;
+        });
+    }
+    if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
+        raw = raw.filter(f => {
+            return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
+                ? +f[config.y.column] || +f[config.y.column] === 0
+                : f;
+        });
+    }
+
+    //prepare nested data required for bar charts
+    let raw_nest;
+    if (mark.type === 'bar') {
+        raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
+    } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
+        raw_nest = makeNest(raw);
+    }
+
+    // Get the domain for the mark based on the raw data
+    let raw_dom_x = mark.summarizeX === 'cumulative'
+        ? [0, raw.length]
+        : config.x.type === 'ordinal'
+          ? set(raw.map(m => m[config.x.column])).values().filter(f => f)
+          : mark.split && mark.arrange !== 'stacked'
+            ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
+            : mark.summarizeX === 'count'
+              ? extent(raw_nest.nested.map(m => m.values.raw.length))
+              : extent(raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
+
+    let raw_dom_y = mark.summarizeY === 'cumulative'
+        ? [0, raw.length]
+        : config.y.type === 'ordinal'
+          ? set(raw.map(m => m[config.y.column])).values().filter(f => f)
+          : mark.split && mark.arrange !== 'stacked'
+            ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
+            : mark.summarizeY === 'count'
+              ? extent(raw_nest.nested.map(m => m.values.raw.length))
+              : extent(raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
+
+    let filtered = raw;
+
     let filt1_xs = [];
     let filt1_ys = [];
     if (this.filters.length) {
@@ -290,11 +316,8 @@ export default function transformData(raw, mark) {
             });
         }
     }
-
     let filt1_dom_x = extent(merge(filt1_xs));
     let filt1_dom_y = extent(merge(filt1_ys));
-
-    this.filtered_data = filtered;
 
     let current_nested = makeNest(filtered, sublevel);
 
