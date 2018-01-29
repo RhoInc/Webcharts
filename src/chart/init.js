@@ -17,7 +17,7 @@ export default function init(data, test = false) {
     this.setDefaults();
 
     this.raw_data = data;
-    this.initial_data = data; 
+    this.initial_data = data;
 
     let startup = data => {
         //connect this chart and its controls, if any

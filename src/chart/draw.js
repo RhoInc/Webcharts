@@ -16,8 +16,10 @@ export default function draw(raw_data, processed_data) {
     let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
 
     // warn the user about the perils of "processed_data"
-    if(processed_data){
-      console.warn("Drawing the chart using user-defined 'processed_data', this is an experimental, untested feature.")
+    if (processed_data) {
+        console.warn(
+            "Drawing the chart using user-defined 'processed_data', this is an experimental, untested feature."
+        );
     }
 
     //Call consolidateData - this applies filters from controls and prepares data for each set of marks.

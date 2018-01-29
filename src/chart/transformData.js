@@ -15,7 +15,6 @@ import {
     max
 } from 'd3';
 
-
 //////////////////////////////////////////////////////////
 // transformData(raw, mark) provides specifications and data for
 // each set of marks. As such, it is called once for each
@@ -28,7 +27,6 @@ import {
 ////////////////////////////////////////////////////////
 
 export default function transformData(raw, mark) {
-
     //convenience mappings
     let config = this.config;
     let x_behavior = config.x.behavior || 'raw';

@@ -6,7 +6,7 @@
           : (global.webCharts = factory(global.d3));
 })(this, function(d3) {
     'use strict';
-    var version = '1.9.1';
+    var version = '1.10.0';
 
     function checkRequired(data) {
         var _this = this;
@@ -127,6 +127,21 @@
 
         this.setDefaults();
 
+        //apply filters from associated controls objects
+        this.filtered_data = raw;
+        if (this.filters.length) {
+            this.filters.forEach(function(e) {
+                _this.filtered_data = _this.filtered_data.filter(function(d) {
+                    return e.val === 'All'
+                        ? d
+                        : e.val instanceof Array
+                          ? e.val.indexOf(d[e.col]) > -1
+                          : d[e.col] === e.val;
+                });
+            });
+        }
+
+        //create data for each set of marks
         config.marks.forEach(function(e, i) {
             if (e.type !== 'bar') {
                 e.arrange = null;
@@ -268,13 +283,32 @@
         var context = this;
         var config = this.config;
         var aspect2 = 1 / config.aspect;
+
+        /////////////////////////
+        // Data prep  pipeline //
+        /////////////////////////
+
         //if pre-processing callback, run it now
         this.events.onPreprocess.call(this);
-        //then do normal processing
+
+        // if user passed raw_data to chart.draw(), use that, otherwise use chart.raw_data
         var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
+
+        // warn the user about the perils of "processed_data"
+        if (processed_data) {
+            console.warn(
+                "Drawing the chart using user-defined 'processed_data', this is an experimental, untested feature."
+            );
+        }
+
+        //Call consolidateData - this applies filters from controls and prepares data for each set of marks.
         var data = processed_data || this.consolidateData(raw);
 
-        this.wrap.datum(data);
+        //this.wrap.datum(data);
+
+        /////////////////////////////
+        // Prepare scales and axes //
+        /////////////////////////////
 
         var div_width = parseInt(this.wrap.style('width'));
 
@@ -320,6 +354,10 @@
         }
 
         this.events.onDraw.call(this);
+
+        //////////////////////////////////////////////////////////////////////
+        // Call resize - updates marks on the chart (amongst other things) //
+        /////////////////////////////////////////////////////////////////////
         this.resize();
     }
 
@@ -1194,6 +1232,7 @@
         this.setDefaults();
 
         this.raw_data = data;
+        this.initial_data = data;
 
         var startup = function startup(data) {
             //connect this chart and its controls, if any
@@ -1725,9 +1764,21 @@
         return mathed;
     }
 
+    //////////////////////////////////////////////////////////
+    // transformData(raw, mark) provides specifications and data for
+    // each set of marks. As such, it is called once for each
+    // item specified in the config.marks array.
+    //
+    // parameters
+    // raw - the raw data for use in the mark. Filters from controls
+    //       are typically already applied.
+    // mark - a single mark object from config.marks
+    ////////////////////////////////////////////////////////
+
     function transformData(raw, mark) {
         var _this = this;
 
+        //convenience mappings
         var config = this.config;
         var x_behavior = config.x.behavior || 'raw';
         var y_behavior = config.y.behavior || 'raw';
@@ -1737,6 +1788,9 @@
         var dateConvert = d3.time.format(config.date_format);
         var totalOrder = void 0;
 
+        ///////////////////////////////////////////////
+        // calcStartTotal() - method to calculate percentages in bars
+        //////////////////////////////////////////////
         function calcStartTotal(e) {
             var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
                 ? 'y'
@@ -1763,151 +1817,6 @@
                 }
             });
         }
-
-        raw = mark.per && mark.per.length
-            ? raw.filter(function(f) {
-                  return f[mark.per[0]];
-              })
-            : raw;
-
-        //make sure data has x and y values
-        if (config.x.column) {
-            raw = raw.filter(function(f) {
-                return f[config.x.column] !== undefined;
-            });
-        }
-        if (config.y.column) {
-            raw = raw.filter(function(f) {
-                return f[config.y.column] !== undefined;
-            });
-        }
-
-        if (config.x.type === 'time') {
-            raw = raw.filter(function(f) {
-                return f[config.x.column] instanceof Date
-                    ? f[config.x.column]
-                    : dateConvert.parse(f[config.x.column]);
-            });
-            raw.forEach(function(e) {
-                return (e[config.x.column] = e[config.x.column] instanceof Date
-                    ? e[config.x.column]
-                    : dateConvert.parse(e[config.x.column]));
-            });
-        }
-        if (config.y.type === 'time') {
-            raw = raw.filter(function(f) {
-                return f[config.y.column] instanceof Date
-                    ? f[config.y.column]
-                    : dateConvert.parse(f[config.y.column]);
-            });
-            raw.forEach(function(e) {
-                return (e[config.y.column] = e[config.y.column] instanceof Date
-                    ? e[config.y.column]
-                    : dateConvert.parse(e[config.y.column]));
-            });
-        }
-
-        if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
-            raw = raw.filter(function(f) {
-                return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
-                    ? +f[config.x.column] || +f[config.x.column] === 0
-                    : f;
-            });
-        }
-        if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
-            raw = raw.filter(function(f) {
-                return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
-                    ? +f[config.y.column] || +f[config.y.column] === 0
-                    : f;
-            });
-        }
-
-        var raw_nest = void 0;
-        if (mark.type === 'bar') {
-            raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
-        } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-            raw_nest = makeNest(raw);
-        }
-
-        var raw_dom_x = mark.summarizeX === 'cumulative'
-            ? [0, raw.length]
-            : config.x.type === 'ordinal'
-              ? d3
-                    .set(
-                        raw.map(function(m) {
-                            return m[config.x.column];
-                        })
-                    )
-                    .values()
-                    .filter(function(f) {
-                        return f;
-                    })
-              : mark.split && mark.arrange !== 'stacked'
-                ? d3.extent(
-                      d3.merge(
-                          raw_nest.nested.map(function(m) {
-                              return m.values.map(function(p) {
-                                  return p.values.raw.length;
-                              });
-                          })
-                      )
-                  )
-                : mark.summarizeX === 'count'
-                  ? d3.extent(
-                        raw_nest.nested.map(function(m) {
-                            return m.values.raw.length;
-                        })
-                    )
-                  : d3.extent(
-                        raw
-                            .map(function(m) {
-                                return +m[config.x.column];
-                            })
-                            .filter(function(f) {
-                                return +f || +f === 0;
-                            })
-                    );
-
-        var raw_dom_y = mark.summarizeY === 'cumulative'
-            ? [0, raw.length]
-            : config.y.type === 'ordinal'
-              ? d3
-                    .set(
-                        raw.map(function(m) {
-                            return m[config.y.column];
-                        })
-                    )
-                    .values()
-                    .filter(function(f) {
-                        return f;
-                    })
-              : mark.split && mark.arrange !== 'stacked'
-                ? d3.extent(
-                      d3.merge(
-                          raw_nest.nested.map(function(m) {
-                              return m.values.map(function(p) {
-                                  return p.values.raw.length;
-                              });
-                          })
-                      )
-                  )
-                : mark.summarizeY === 'count'
-                  ? d3.extent(
-                        raw_nest.nested.map(function(m) {
-                            return m.values.raw.length;
-                        })
-                    )
-                  : d3.extent(
-                        raw
-                            .map(function(m) {
-                                return +m[config.y.column];
-                            })
-                            .filter(function(f) {
-                                return +f || +f === 0;
-                            })
-                    );
-
-        var filtered = raw;
 
         function makeNest(entries, sublevel) {
             var dom_xs = [];
@@ -2098,6 +2007,160 @@
             return { nested: test, dom_x: dom_x, dom_y: dom_y };
         }
 
+        //////////////////////////////////////////////////////////////////////////////////
+        // DATA PREP
+        // prepare data based on the properties of the mark - drop missing records, etc
+        //////////////////////////////////////////////////////////////////////////////////
+
+        // only use data for the current mark
+        raw = mark.per && mark.per.length
+            ? raw.filter(function(f) {
+                  return f[mark.per[0]];
+              })
+            : raw;
+
+        // Make sure data has x and y values
+        if (config.x.column) {
+            raw = raw.filter(function(f) {
+                return f[config.x.column] !== undefined;
+            });
+        }
+        if (config.y.column) {
+            raw = raw.filter(function(f) {
+                return f[config.y.column] !== undefined;
+            });
+        }
+
+        //check that x and y have the correct formats
+        if (config.x.type === 'time') {
+            raw = raw.filter(function(f) {
+                return f[config.x.column] instanceof Date
+                    ? f[config.x.column]
+                    : dateConvert.parse(f[config.x.column]);
+            });
+            raw.forEach(function(e) {
+                return (e[config.x.column] = e[config.x.column] instanceof Date
+                    ? e[config.x.column]
+                    : dateConvert.parse(e[config.x.column]));
+            });
+        }
+        if (config.y.type === 'time') {
+            raw = raw.filter(function(f) {
+                return f[config.y.column] instanceof Date
+                    ? f[config.y.column]
+                    : dateConvert.parse(f[config.y.column]);
+            });
+            raw.forEach(function(e) {
+                return (e[config.y.column] = e[config.y.column] instanceof Date
+                    ? e[config.y.column]
+                    : dateConvert.parse(e[config.y.column]));
+            });
+        }
+
+        if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
+            raw = raw.filter(function(f) {
+                return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
+                    ? +f[config.x.column] || +f[config.x.column] === 0
+                    : f;
+            });
+        }
+        if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
+            raw = raw.filter(function(f) {
+                return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
+                    ? +f[config.y.column] || +f[config.y.column] === 0
+                    : f;
+            });
+        }
+
+        //prepare nested data required for bar charts
+        var raw_nest = void 0;
+        if (mark.type === 'bar') {
+            raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
+        } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
+            raw_nest = makeNest(raw);
+        }
+
+        // Get the domain for the mark based on the raw data
+        var raw_dom_x = mark.summarizeX === 'cumulative'
+            ? [0, raw.length]
+            : config.x.type === 'ordinal'
+              ? d3
+                    .set(
+                        raw.map(function(m) {
+                            return m[config.x.column];
+                        })
+                    )
+                    .values()
+                    .filter(function(f) {
+                        return f;
+                    })
+              : mark.split && mark.arrange !== 'stacked'
+                ? d3.extent(
+                      d3.merge(
+                          raw_nest.nested.map(function(m) {
+                              return m.values.map(function(p) {
+                                  return p.values.raw.length;
+                              });
+                          })
+                      )
+                  )
+                : mark.summarizeX === 'count'
+                  ? d3.extent(
+                        raw_nest.nested.map(function(m) {
+                            return m.values.raw.length;
+                        })
+                    )
+                  : d3.extent(
+                        raw
+                            .map(function(m) {
+                                return +m[config.x.column];
+                            })
+                            .filter(function(f) {
+                                return +f || +f === 0;
+                            })
+                    );
+
+        var raw_dom_y = mark.summarizeY === 'cumulative'
+            ? [0, raw.length]
+            : config.y.type === 'ordinal'
+              ? d3
+                    .set(
+                        raw.map(function(m) {
+                            return m[config.y.column];
+                        })
+                    )
+                    .values()
+                    .filter(function(f) {
+                        return f;
+                    })
+              : mark.split && mark.arrange !== 'stacked'
+                ? d3.extent(
+                      d3.merge(
+                          raw_nest.nested.map(function(m) {
+                              return m.values.map(function(p) {
+                                  return p.values.raw.length;
+                              });
+                          })
+                      )
+                  )
+                : mark.summarizeY === 'count'
+                  ? d3.extent(
+                        raw_nest.nested.map(function(m) {
+                            return m.values.raw.length;
+                        })
+                    )
+                  : d3.extent(
+                        raw
+                            .map(function(m) {
+                                return +m[config.y.column];
+                            })
+                            .filter(function(f) {
+                                return +f || +f === 0;
+                            })
+                    );
+
+        var filtered = raw;
+
         var filt1_xs = [];
         var filt1_ys = [];
         if (this.filters.length) {
@@ -2139,11 +2202,8 @@
                 _loop(a);
             }
         }
-
         var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
         var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
-
-        this.filtered_data = filtered;
 
         var current_nested = makeNest(filtered, sublevel);
 
