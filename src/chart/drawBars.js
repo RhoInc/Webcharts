@@ -367,7 +367,7 @@ export default function drawBars(marks) {
 
     //Link to the d3.selection from the data
     bar_supergroups.each(function(d) {
-        d.supergroup = d3.select(this);
+        d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('.bar-group');
     });
 }

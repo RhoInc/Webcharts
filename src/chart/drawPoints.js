@@ -77,7 +77,7 @@ export default function drawPoints(marks) {
 
     //Link to the d3.selection from the data
     point_supergroups.each(function(d) {
-        d.supergroup = d3.select(this);
+        d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.point');
         d.points = d.groups.select('circle');
     });

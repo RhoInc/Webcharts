@@ -66,7 +66,7 @@ export default function drawText(marks) {
         });
     //add a reference to the selection from it's data
     textSupergroups.each(function(d) {
-        d.supergroup = d3.select(this);
+        d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.text');
         d.texts = d.groups.select('text');
     });

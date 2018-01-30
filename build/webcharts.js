@@ -4,7 +4,7 @@
         : typeof define === 'function' && define.amd
           ? define(['d3'], factory)
           : (global.webCharts = factory(global.d3));
-})(this, function(d3$1) {
+})(this, function(d3) {
     'use strict';
     var version = '1.10.0';
 
@@ -50,7 +50,7 @@
         requiredCols.forEach(function(e, i) {
             if (colnames.indexOf(e) < 0) {
                 missingDataField = true;
-                d3$1.select(_this.div).select('.loader').remove();
+                d3.select(_this.div).select('.loader').remove();
                 _this.wrap
                     .append('div')
                     .style('color', 'red')
@@ -175,13 +175,13 @@
             if (config.x.domain) {
                 this.x_dom = config.x.domain;
             } else if (config.x.order) {
-                this.x_dom = d3$1.set(d3$1.merge(all_x)).values().sort(function(a, b) {
-                    return d3$1.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
+                this.x_dom = d3.set(d3.merge(all_x)).values().sort(function(a, b) {
+                    return d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b));
                 });
             } else if (config.x.sort && config.x.sort === 'alphabetical-ascending') {
-                this.x_dom = d3$1.set(d3$1.merge(all_x)).values().sort(naturalSorter);
+                this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
             } else if (config.y.type === 'time' && config.x.sort === 'earliest') {
-                this.x_dom = d3$1
+                this.x_dom = d3
                     .nest()
                     .key(function(d) {
                         return d[config.x.column];
@@ -197,15 +197,15 @@
                     })
                     .entries(this.raw_data)
                     .sort(function(a, b) {
-                        return d3$1.min(b.values) - d3$1.min(a.values);
+                        return d3.min(b.values) - d3.min(a.values);
                     })
                     .map(function(m) {
                         return m.key;
                     });
             } else if (!config.x.sort || config.x.sort === 'alphabetical-descending') {
-                this.x_dom = d3$1.set(d3$1.merge(all_x)).values().sort(naturalSorter);
+                this.x_dom = d3.set(d3.merge(all_x)).values().sort(naturalSorter);
             } else {
-                this.x_dom = d3$1.set(d3$1.merge(all_x)).values();
+                this.x_dom = d3.set(d3.merge(all_x)).values();
             }
         } else if (
             config.marks
@@ -216,20 +216,20 @@
         ) {
             this.x_dom = [0, 1];
         } else {
-            this.x_dom = d3$1.extent(d3$1.merge(all_x));
+            this.x_dom = d3.extent(d3.merge(all_x));
         }
 
         if (config.y.type === 'ordinal') {
             if (config.y.domain) {
                 this.y_dom = config.y.domain;
             } else if (config.y.order) {
-                this.y_dom = d3$1.set(d3$1.merge(all_y)).values().sort(function(a, b) {
-                    return d3$1.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
+                this.y_dom = d3.set(d3.merge(all_y)).values().sort(function(a, b) {
+                    return d3.ascending(config.y.order.indexOf(a), config.y.order.indexOf(b));
                 });
             } else if (config.y.sort && config.y.sort === 'alphabetical-ascending') {
-                this.y_dom = d3$1.set(d3$1.merge(all_y)).values().sort(naturalSorter);
+                this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter);
             } else if (config.x.type === 'time' && config.y.sort === 'earliest') {
-                this.y_dom = d3$1
+                this.y_dom = d3
                     .nest()
                     .key(function(d) {
                         return d[config.y.column];
@@ -245,15 +245,15 @@
                     })
                     .entries(this.raw_data)
                     .sort(function(a, b) {
-                        return d3$1.min(b.values) - d3$1.min(a.values);
+                        return d3.min(b.values) - d3.min(a.values);
                     })
                     .map(function(m) {
                         return m.key;
                     });
             } else if (!config.y.sort || config.y.sort === 'alphabetical-descending') {
-                this.y_dom = d3$1.set(d3$1.merge(all_y)).values().sort(naturalSorter).reverse();
+                this.y_dom = d3.set(d3.merge(all_y)).values().sort(naturalSorter).reverse();
             } else {
-                this.y_dom = d3$1.set(d3$1.merge(all_y)).values();
+                this.y_dom = d3.set(d3.merge(all_y)).values();
             }
         } else if (
             config.marks
@@ -264,7 +264,7 @@
         ) {
             this.y_dom = [0, 1];
         } else {
-            this.y_dom = d3$1.extent(d3$1.merge(all_y));
+            this.y_dom = d3.extent(d3.merge(all_y));
         }
     }
 
@@ -278,7 +278,7 @@
 
         //remove resize event listener
         var context = this;
-        d3$1.select(window).on('resize.' + context.element + context.id, null);
+        d3.select(window).on('resize.' + context.element + context.id, null);
 
         //destroy controls
         if (destroyControls && this.controls) {
@@ -358,11 +358,11 @@
         this.yScaleAxis(pseudo_height);
 
         if (config.resizable && typeof window !== 'undefined') {
-            d3$1.select(window).on('resize.' + context.element + context.id, function() {
+            d3.select(window).on('resize.' + context.element + context.id, function() {
                 context.resize();
             });
         } else if (typeof window !== 'undefined') {
-            d3$1.select(window).on('resize.' + context.element + context.id, null);
+            d3.select(window).on('resize.' + context.element + context.id, null);
         }
 
         this.events.onDraw.call(this);
@@ -502,21 +502,21 @@
                 });
 
             bars.each(function(d) {
-                var mark = d3$1.select(this.parentNode.parentNode).datum();
+                var mark = d3.select(this.parentNode.parentNode).datum();
                 d.tooltip = mark.tooltip;
                 d.arrange = mark.split ? mark.arrange : null;
                 d.subcats = config.legend.order
                     ? config.legend.order.slice().reverse()
                     : mark.values && mark.values[mark.split]
                       ? mark.values[mark.split]
-                      : d3$1
+                      : d3
                             .set(
                                 rawData.map(function(m) {
                                     return m[mark.split];
                                 })
                             )
                             .values();
-                d3$1.select(this).attr(mark.attributes);
+                d3.select(this).attr(mark.attributes);
             });
 
             var xformat = config.marks
@@ -524,15 +524,15 @@
                     return m.summarizeX === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.x.format);
+                ? d3.format('0%')
+                : d3.format(config.x.format);
             var yformat = config.marks
                 .map(function(m) {
                     return m.summarizeY === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.y.format);
+                ? d3.format('0%')
+                : d3.format(config.y.format);
             bars.select('title').text(function(d) {
                 var tt = d.tooltip || '';
                 return tt
@@ -633,7 +633,7 @@
                 });
 
             bars.each(function(d) {
-                var mark = d3$1.select(this.parentNode.parentNode).datum();
+                var mark = d3.select(this.parentNode.parentNode).datum();
                 d.arrange = mark.split && mark.arrange
                     ? mark.arrange
                     : mark.split ? 'grouped' : null;
@@ -641,7 +641,7 @@
                     ? config.legend.order.slice().reverse()
                     : mark.values && mark.values[mark.split]
                       ? mark.values[mark.split]
-                      : d3$1
+                      : d3
                             .set(
                                 rawData.map(function(m) {
                                     return m[mark.split];
@@ -656,15 +656,15 @@
                     return m.summarizeX === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.x.format);
+                ? d3.format('0%')
+                : d3.format(config.x.format);
             var _yformat = config.marks
                 .map(function(m) {
                     return m.summarizeY === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.y.format);
+                ? d3.format('0%')
+                : d3.format(config.y.format);
             bars.select('title').text(function(d) {
                 var tt = d.tooltip || '';
                 return tt
@@ -760,26 +760,26 @@
                 });
 
             bars.each(function(d) {
-                var mark = d3$1.select(this.parentNode.parentNode).datum();
+                var mark = d3.select(this.parentNode.parentNode).datum();
                 d.arrange = mark.split ? mark.arrange : null;
                 d.subcats = config.legend.order
                     ? config.legend.order.slice().reverse()
                     : mark.values && mark.values[mark.split]
                       ? mark.values[mark.split]
-                      : d3$1
+                      : d3
                             .set(
                                 rawData.map(function(m) {
                                     return m[mark.split];
                                 })
                             )
                             .values();
-                d3$1.select(this).attr(mark.attributes);
-                var parent = d3$1.select(this.parentNode).datum();
+                d3.select(this).attr(mark.attributes);
+                var parent = d3.select(this.parentNode).datum();
                 var rangeSet = parent.key.split(',').map(function(m) {
                     return +m;
                 });
-                d.rangeLow = d3$1.min(rangeSet);
-                d.rangeHigh = d3$1.max(rangeSet);
+                d.rangeLow = d3.min(rangeSet);
+                d.rangeHigh = d3.max(rangeSet);
                 d.tooltip = mark.tooltip;
             });
 
@@ -788,15 +788,15 @@
                     return m.summarizeX === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.x.format);
+                ? d3.format('0%')
+                : d3.format(config.x.format);
             var _yformat2 = config.marks
                 .map(function(m) {
                     return m.summarizeY === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.y.format);
+                ? d3.format('0%')
+                : d3.format(config.y.format);
             bars.select('title').text(function(d) {
                 var tt = d.tooltip || '';
                 return tt
@@ -870,25 +870,25 @@
                 });
 
             bars.each(function(d) {
-                var mark = d3$1.select(this.parentNode.parentNode).datum();
+                var mark = d3.select(this.parentNode.parentNode).datum();
                 d.arrange = mark.split ? mark.arrange : null;
                 d.subcats = config.legend.order
                     ? config.legend.order.slice().reverse()
                     : mark.values && mark.values[mark.split]
                       ? mark.values[mark.split]
-                      : d3$1
+                      : d3
                             .set(
                                 rawData.map(function(m) {
                                     return m[mark.split];
                                 })
                             )
                             .values();
-                var parent = d3$1.select(this.parentNode).datum();
+                var parent = d3.select(this.parentNode).datum();
                 var rangeSet = parent.key.split(',').map(function(m) {
                     return +m;
                 });
-                d.rangeLow = d3$1.min(rangeSet);
-                d.rangeHigh = d3$1.max(rangeSet);
+                d.rangeLow = d3.min(rangeSet);
+                d.rangeHigh = d3.max(rangeSet);
                 d.tooltip = mark.tooltip;
             });
 
@@ -897,15 +897,15 @@
                     return m.summarizeX === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.x.format);
+                ? d3.format('0%')
+                : d3.format(config.x.format);
             var _yformat3 = config.marks
                 .map(function(m) {
                     return m.summarizeY === 'percent';
                 })
                 .indexOf(true) > -1
-                ? d3$1.format('0%')
-                : d3$1.format(config.y.format);
+                ? d3.format('0%')
+                : d3.format(config.y.format);
             bars.select('title').text(function(d) {
                 var tt = d.tooltip || '';
                 return tt
@@ -966,7 +966,7 @@
         var _this = this;
 
         var config = this.config;
-        var line = d3$1.svg
+        var line = d3.svg
             .line()
             .interpolate(config.interpolate)
             .x(function(d) {
@@ -1028,19 +1028,19 @@
         linePathsTrans.attr('d', line);
 
         line_grps.each(function(d) {
-            var mark = d3$1.select(this.parentNode).datum();
+            var mark = d3.select(this.parentNode).datum();
             d.tooltip = mark.tooltip;
-            d3$1.select(this).select('path').attr(mark.attributes);
+            d3.select(this).select('path').attr(mark.attributes);
         });
 
         line_grps.select('title').text(function(d) {
             var tt = d.tooltip || '';
             var xformat = config.x.summary === 'percent'
-                ? d3$1.format('0%')
-                : d3$1.format(config.x.format);
+                ? d3.format('0%')
+                : d3.format(config.x.format);
             var yformat = config.y.summary === 'percent'
-                ? d3$1.format('0%')
-                : d3$1.format(config.y.format);
+                ? d3.format('0%')
+                : d3.format(config.y.format);
             return tt
                 .replace(/\$x/g, xformat(d.values.x))
                 .replace(/\$y/g, yformat(d.values.y))
@@ -1111,9 +1111,9 @@
             });
         //attach mark info
         points.each(function(d) {
-            var mark = d3$1.select(this.parentNode).datum();
+            var mark = d3.select(this.parentNode).datum();
             d.mark = mark;
-            d3$1.select(this).select('circle').attr(mark.attributes);
+            d3.select(this).select('circle').attr(mark.attributes);
         });
         //animated attributes
         var pointsTrans = config.transitions
@@ -1135,15 +1135,15 @@
         points.select('title').text(function(d) {
             var tt = d.mark.tooltip || '';
             var xformat = config.x.summary === 'percent'
-                ? d3$1.format('0%')
+                ? d3.format('0%')
                 : config.x.type === 'time'
-                  ? d3$1.time.format(config.x.format)
-                  : d3$1.format(config.x.format);
+                  ? d3.time.format(config.x.format)
+                  : d3.format(config.x.format);
             var yformat = config.y.summary === 'percent'
-                ? d3$1.format('0%')
+                ? d3.format('0%')
                 : config.y.type === 'time'
-                  ? d3$1.time.format(config.y.format)
-                  : d3$1.format(config.y.format);
+                  ? d3.time.format(config.y.format)
+                  : d3.format(config.y.format);
             return tt
                 .replace(
                     /\$x/g,
@@ -1207,8 +1207,8 @@
 
         // attach mark info
         function attachMarks(d) {
-            d.mark = d3$1.select(this.parentNode).datum();
-            d3$1.select(this).select('text').attr(d.mark.attributes);
+            d.mark = d3.select(this.parentNode).datum();
+            d3.select(this).select('text').attr(d.mark.attributes);
         }
         texts.each(attachMarks);
 
@@ -1216,15 +1216,15 @@
         texts.select('text').text(function(d) {
             var tt = d.mark.text || '';
             var xformat = config.x.summary === 'percent'
-                ? d3$1.format('0%')
+                ? d3.format('0%')
                 : config.x.type === 'time'
-                  ? d3$1.time.format(config.x.format)
-                  : d3$1.format(config.x.format);
+                  ? d3.time.format(config.x.format)
+                  : d3.format(config.x.format);
             var yformat = config.y.summary === 'percent'
-                ? d3$1.format('0%')
+                ? d3.format('0%')
                 : config.y.type === 'time'
-                  ? d3$1.time.format(config.y.format)
-                  : d3$1.format(config.y.format);
+                  ? d3.time.format(config.y.format)
+                  : d3.format(config.y.format);
             return tt
                 .replace(
                     /\$x/g,
@@ -1265,13 +1265,13 @@
 
         var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-        if (d3$1.select(this.div).select('.loader').empty()) {
-            d3$1
+        if (d3.select(this.div).select('.loader').empty()) {
+            d3
                 .select(this.div)
                 .insert('div', ':first-child')
                 .attr('class', 'loader')
                 .selectAll('.blockG')
-                .data(d3$1.range(8))
+                .data(d3.range(8))
                 .enter()
                 .append('div')
                 .attr('class', function(d) {
@@ -1298,13 +1298,13 @@
             }
 
             //make sure container is visible (has height and width) before trying to initialize
-            var visible = d3$1.select(_this.div).property('offsetWidth') > 0 || test;
+            var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
             if (!visible) {
                 console.warn(
                     'The chart cannot be initialized inside an element with 0 width. The chart will be initialized as soon as the container element is given a width > 0.'
                 );
                 var onVisible = setInterval(function(i) {
-                    var visible_now = d3$1.select(_this.div).property('offsetWidth') > 0;
+                    var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
                     if (visible_now) {
                         _this.layout();
                         _this.wrap.datum(_this);
@@ -1389,7 +1389,7 @@
             .append('span')
             .attr('class', 'legend-title');
 
-        d3$1.select(this.div).select('.loader').remove();
+        d3.select(this.div).select('.loader').remove();
 
         this.events.onLayout.call(this);
     }
@@ -1473,7 +1473,7 @@
 
         if (config.legend.order) {
             leg_parts.sort(function(a, b) {
-                return d3$1.ascending(
+                return d3.ascending(
                     config.legend.order.indexOf(a.label),
                     config.legend.order.indexOf(b.label)
                 );
@@ -1482,7 +1482,7 @@
 
         leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
         leg_parts.selectAll('.legend-color-block').each(function(e) {
-            var svg$$1 = d3$1.select(this);
+            var svg$$1 = d3.select(this);
             if (e.mark === 'circle') {
                 svg$$1
                     .append('circle')
@@ -1516,7 +1516,7 @@
                 return d.color || scale$$1(d.label);
             })
             .each(function(e) {
-                d3$1.select(this).attr(e.attributes);
+                d3.select(this).attr(e.attributes);
             });
 
         new_parts
@@ -1567,7 +1567,7 @@
               : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
         this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
-        d3$1
+        d3
             .select(this.svg.node().parentNode)
             .attr('width', svg_width)
             .attr('height', svg_height)
@@ -1636,7 +1636,7 @@
         var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
         var colordom =
             config.color_dom ||
-            d3$1
+            d3
                 .set(
                     data.map(function(m) {
                         return m[config.color_by];
@@ -1649,16 +1649,13 @@
 
         if (config.legend.order) {
             colordom = colordom.sort(function(a, b) {
-                return d3$1.ascending(
-                    config.legend.order.indexOf(a),
-                    config.legend.order.indexOf(b)
-                );
+                return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
             });
         } else {
             colordom = colordom.sort(naturalSorter);
         }
 
-        this.colorScale = d3$1.scale.ordinal().domain(colordom).range(config.colors);
+        this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
     }
 
     function setDefaults() {
@@ -1730,7 +1727,7 @@
               })
             : this.y.domain();
 
-        var max_y_text_length = d3$1.max(
+        var max_y_text_length = d3.max(
             y_ticks.map(function(m) {
                 return String(m).length;
             })
@@ -1793,11 +1790,11 @@
     }
 
     var stats = {
-        mean: d3$1.mean,
-        min: d3$1.min,
-        max: d3$1.max,
-        median: d3$1.median,
-        sum: d3$1.sum
+        mean: d3.mean,
+        min: d3.min,
+        max: d3.max,
+        median: d3.median,
+        sum: d3.sum
     };
 
     function summarize(vals) {
@@ -1843,7 +1840,7 @@
         var sublevel = mark.type === 'line'
             ? config.x.column
             : mark.type === 'bar' && mark.split ? mark.split : null;
-        var dateConvert = d3$1.time.format(config.date_format);
+        var dateConvert = d3.time.format(config.date_format);
         var totalOrder = void 0;
 
         ///////////////////////////////////////////////
@@ -1853,7 +1850,7 @@
             var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
                 ? 'y'
                 : 'x';
-            e.total = d3$1.sum(
+            e.total = d3.sum(
                 e.values.map(function(m) {
                     return +m.values[axis];
                 })
@@ -1879,23 +1876,23 @@
         function makeNest(entries, sublevel) {
             var dom_xs = [];
             var dom_ys = [];
-            var this_nest = d3$1.nest();
+            var this_nest = d3.nest();
 
             if (
                 (config.x.type === 'linear' && config.x.bin) ||
                 (config.y.type === 'linear' && config.y.bin)
             ) {
                 var xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
-                var quant = d3$1.scale
+                var quant = d3.scale
                     .quantile()
                     .domain(
-                        d3$1.extent(
+                        d3.extent(
                             entries.map(function(m) {
                                 return +m[config[xy].column];
                             })
                         )
                     )
-                    .range(d3$1.range(+config[xy].bin));
+                    .range(d3.range(+config[xy].bin));
 
                 entries.forEach(function(e) {
                     return (e.wc_bin = quant(e[config[xy].column]));
@@ -1920,17 +1917,17 @@
                 });
                 this_nest.sortKeys(function(a, b) {
                     return config.x.type === 'time'
-                        ? d3$1.ascending(new Date(a), new Date(b))
+                        ? d3.ascending(new Date(a), new Date(b))
                         : config.x.order
-                          ? d3$1.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
+                          ? d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
                           : sublevel === config.color_by && config.legend.order
-                            ? d3$1.ascending(
+                            ? d3.ascending(
                                   config.legend.order.indexOf(a),
                                   config.legend.order.indexOf(b)
                               )
                             : config.x.type === 'ordinal' || config.y.type === 'ordinal'
                               ? naturalSorter(a, b)
-                              : d3$1.ascending(+a, +b);
+                              : d3.ascending(+a, +b);
                 });
             }
             this_nest.rollup(function(r) {
@@ -1939,12 +1936,12 @@
                     .map(function(m) {
                         return m[config.y.column];
                     })
-                    .sort(d3$1.ascending);
+                    .sort(d3.ascending);
                 var x_vals = r
                     .map(function(m) {
                         return m[config.x.column];
                     })
-                    .sort(d3$1.ascending);
+                    .sort(d3.ascending);
                 obj.x = config.x.type === 'ordinal'
                     ? r[0][config.x.column]
                     : summarize(x_vals, mark.summarizeX);
@@ -1953,13 +1950,13 @@
                     : summarize(y_vals, mark.summarizeY);
 
                 obj.x_q25 = config.error_bars && config.y.type === 'ordinal'
-                    ? d3$1.quantile(x_vals, 0.25)
+                    ? d3.quantile(x_vals, 0.25)
                     : obj.x;
                 obj.x_q75 = config.error_bars && config.y.type === 'ordinal'
-                    ? d3$1.quantile(x_vals, 0.75)
+                    ? d3.quantile(x_vals, 0.75)
                     : obj.x;
-                obj.y_q25 = config.error_bars ? d3$1.quantile(y_vals, 0.25) : obj.y;
-                obj.y_q75 = config.error_bars ? d3$1.quantile(y_vals, 0.75) : obj.y;
+                obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
+                obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
                 dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
                 dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
 
@@ -1977,7 +1974,7 @@
 
                     var cumul = config.x.type === 'time'
                         ? interm.length
-                        : d3$1.sum(
+                        : d3.sum(
                               interm.map(function(m) {
                                   return +m[config.y.column] || +m[config.y.column] === 0
                                       ? +m[config.y.column]
@@ -2007,20 +2004,20 @@
 
             var test = this_nest.entries(entries);
 
-            var dom_x = d3$1.extent(d3$1.merge(dom_xs));
-            var dom_y = d3$1.extent(d3$1.merge(dom_ys));
+            var dom_x = d3.extent(d3.merge(dom_xs));
+            var dom_y = d3.extent(d3.merge(dom_ys));
 
             if (sublevel && mark.type === 'bar' && mark.arrange === 'stacked') {
                 test.forEach(calcStartTotal);
                 if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
-                    dom_y = d3$1.extent(
+                    dom_y = d3.extent(
                         test.map(function(m) {
                             return m.total;
                         })
                     );
                 }
                 if (config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin)) {
-                    dom_x = d3$1.extent(
+                    dom_x = d3.extent(
                         test.map(function(m) {
                             return m.total;
                         })
@@ -2044,7 +2041,7 @@
             ) {
                 totalOrder = test
                     .sort(function(a, b) {
-                        return d3$1.ascending(a.total, b.total);
+                        return d3.ascending(a.total, b.total);
                     })
                     .map(function(m) {
                         return m.key;
@@ -2055,7 +2052,7 @@
             ) {
                 totalOrder = test
                     .sort(function(a, b) {
-                        return d3$1.descending(+a.total, +b.total);
+                        return d3.descending(+a.total, +b.total);
                     })
                     .map(function(m) {
                         return m.key;
@@ -2142,7 +2139,7 @@
         var raw_dom_x = mark.summarizeX === 'cumulative'
             ? [0, raw.length]
             : config.x.type === 'ordinal'
-              ? d3$1
+              ? d3
                     .set(
                         raw.map(function(m) {
                             return m[config.x.column];
@@ -2153,8 +2150,8 @@
                         return f;
                     })
               : mark.split && mark.arrange !== 'stacked'
-                ? d3$1.extent(
-                      d3$1.merge(
+                ? d3.extent(
+                      d3.merge(
                           raw_nest.nested.map(function(m) {
                               return m.values.map(function(p) {
                                   return p.values.raw.length;
@@ -2163,12 +2160,12 @@
                       )
                   )
                 : mark.summarizeX === 'count'
-                  ? d3$1.extent(
+                  ? d3.extent(
                         raw_nest.nested.map(function(m) {
                             return m.values.raw.length;
                         })
                     )
-                  : d3$1.extent(
+                  : d3.extent(
                         raw
                             .map(function(m) {
                                 return +m[config.x.column];
@@ -2181,7 +2178,7 @@
         var raw_dom_y = mark.summarizeY === 'cumulative'
             ? [0, raw.length]
             : config.y.type === 'ordinal'
-              ? d3$1
+              ? d3
                     .set(
                         raw.map(function(m) {
                             return m[config.y.column];
@@ -2192,8 +2189,8 @@
                         return f;
                     })
               : mark.split && mark.arrange !== 'stacked'
-                ? d3$1.extent(
-                      d3$1.merge(
+                ? d3.extent(
+                      d3.merge(
                           raw_nest.nested.map(function(m) {
                               return m.values.map(function(p) {
                                   return p.values.raw.length;
@@ -2202,12 +2199,12 @@
                       )
                   )
                 : mark.summarizeY === 'count'
-                  ? d3$1.extent(
+                  ? d3.extent(
                         raw_nest.nested.map(function(m) {
                             return m.values.raw.length;
                         })
                     )
-                  : d3$1.extent(
+                  : d3.extent(
                         raw
                             .map(function(m) {
                                 return +m[config.y.column];
@@ -2260,8 +2257,8 @@
                 _loop(a);
             }
         }
-        var filt1_dom_x = d3$1.extent(d3$1.merge(filt1_xs));
-        var filt1_dom_y = d3$1.extent(d3$1.merge(filt1_ys));
+        var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
+        var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
 
         var current_nested = makeNest(filtered, sublevel);
 
@@ -2300,7 +2297,7 @@
         var x_dom = config.x_dom
             ? config.x_dom
             : config.x.type === 'ordinal' && config.x.behavior === 'flex'
-              ? d3$1
+              ? d3
                     .set(
                         filtered.map(function(m) {
                             return m[config.x.column];
@@ -2308,19 +2305,19 @@
                     )
                     .values()
               : config.x.type === 'ordinal'
-                ? d3$1
+                ? d3
                       .set(
                           raw.map(function(m) {
                               return m[config.x.column];
                           })
                       )
                       .values()
-                : config.x_from0 ? [0, d3$1.max(pre_x_dom)] : pre_x_dom;
+                : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
 
         var y_dom = config.y_dom
             ? config.y_dom
             : config.y.type === 'ordinal' && config.y.behavior === 'flex'
-              ? d3$1
+              ? d3
                     .set(
                         filtered.map(function(m) {
                             return m[config.y.column];
@@ -2328,14 +2325,14 @@
                     )
                     .values()
               : config.y.type === 'ordinal'
-                ? d3$1
+                ? d3
                       .set(
                           raw.map(function(m) {
                               return m[config.y.column];
                           })
                       )
                       .values()
-                : config.y_from0 ? [0, d3$1.max(pre_y_dom)] : pre_y_dom;
+                : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
 
         if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
             x_dom[0] = config.x.domain[0];
@@ -2403,13 +2400,13 @@
         var x = void 0;
 
         if (type === 'log') {
-            x = d3$1.scale.log();
+            x = d3.scale.log();
         } else if (type === 'ordinal') {
-            x = d3$1.scale.ordinal();
+            x = d3.scale.ordinal();
         } else if (type === 'time') {
-            x = d3$1.time.scale();
+            x = d3.time.scale();
         } else {
-            x = d3$1.scale.linear();
+            x = d3.scale.linear();
         }
 
         x.domain(domain);
@@ -2430,7 +2427,7 @@
               ? '0%'
               : type === 'time' ? '%x' : '.0f';
         var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-        var xAxis = d3$1.svg
+        var xAxis = d3.svg
             .axis()
             .scale(x)
             .orient(config.x.location)
@@ -2438,7 +2435,7 @@
             .tickFormat(
                 type === 'ordinal'
                     ? null
-                    : type === 'time' ? d3$1.time.format(xFormat) : d3$1.format(xFormat)
+                    : type === 'time' ? d3.time.format(xFormat) : d3.format(xFormat)
             )
             .tickValues(config.x.ticks ? config.x.ticks : null)
             .innerTickSize(6)
@@ -2462,13 +2459,13 @@
         var config = this.config;
         var y = void 0;
         if (type === 'log') {
-            y = d3$1.scale.log();
+            y = d3.scale.log();
         } else if (type === 'ordinal') {
-            y = d3$1.scale.ordinal();
+            y = d3.scale.ordinal();
         } else if (type === 'time') {
-            y = d3$1.time.scale();
+            y = d3.time.scale();
         } else {
-            y = d3$1.scale.linear();
+            y = d3.scale.linear();
         }
 
         y.domain(domain);
@@ -2489,7 +2486,7 @@
               ? '0%'
               : '.0f';
         var tick_count = Math.max(2, Math.min(max_range / 80, 8));
-        var yAxis = d3$1.svg
+        var yAxis = d3.svg
             .axis()
             .scale(y)
             .orient('left')
@@ -2497,7 +2494,7 @@
             .tickFormat(
                 type === 'ordinal'
                     ? null
-                    : type === 'time' ? d3$1.time.format(yFormat) : d3$1.format(yFormat)
+                    : type === 'time' ? d3.time.format(yFormat) : d3.format(yFormat)
             )
             .tickValues(config.y.ticks ? config.y.ticks : null)
             .innerTickSize(6)
@@ -2560,7 +2557,7 @@
 
         thisChart.marks = [];
 
-        thisChart.wrap = d3$1.select(thisChart.div).append('div');
+        thisChart.wrap = d3.select(thisChart.div).append('div');
 
         thisChart.events = {
             onInit: function onInit() {},
@@ -2621,7 +2618,7 @@
         if (!dataset[0] || !this.config.inputs) {
             return;
         }
-        var colnames = d3$1.keys(dataset[0]);
+        var colnames = d3.keys(dataset[0]);
         this.config.inputs.forEach(function(e, i) {
             if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
                 throw new Error(
@@ -2703,7 +2700,7 @@
     function makeBtnGroupControl(control, control_wrap) {
         var _this = this;
 
-        var option_data = control.values ? control.values : d3$1.keys(this.data[0]);
+        var option_data = control.values ? control.values : d3.keys(this.data[0]);
 
         var btn_wrap = control_wrap.append('div').attr('class', 'btn-group');
 
@@ -2722,7 +2719,7 @@
 
         changers.on('click', function(d) {
             changers.each(function(e) {
-                d3$1.select(this).classed('btn-primary', e === d);
+                d3.select(this).classed('btn-primary', e === d);
             });
             _this.changeOption(control.option, d, control.callback);
         });
@@ -2759,14 +2756,14 @@
         var opt_values = control.values && control.values instanceof Array
             ? control.values
             : control.values
-              ? d3$1
+              ? d3
                     .set(
                         this.data.map(function(m) {
                             return m[_this.targets[0].config[control.values]];
                         })
                     )
                     .values()
-              : d3$1.keys(this.data[0]);
+              : d3.keys(this.data[0]);
 
         if (!control.require || control.none) {
             opt_values.unshift('None');
@@ -2790,10 +2787,10 @@
             if (control.multiple) {
                 value = options
                     .filter(function(f) {
-                        return d3$1.select(this).property('selected');
+                        return d3.select(this).property('selected');
                     })[0]
                     .map(function(m) {
-                        return d3$1.select(m).property('value');
+                        return d3.select(m).property('value');
                     })
                     .filter(function(f) {
                         return f !== 'None';
@@ -2858,7 +2855,7 @@
 
         var changers = control_wrap
             .selectAll('label')
-            .data(control.values || d3$1.keys(this.data[0]))
+            .data(control.values || d3.keys(this.data[0]))
             .enter()
             .append('label')
             .attr('class', 'radio')
@@ -2879,8 +2876,8 @@
         changers.on('change', function(d) {
             var value = null;
             changers.each(function(c) {
-                if (d3$1.select(this).property('checked')) {
-                    value = d3$1.select(this).property('value') === 'none' ? null : c;
+                if (d3.select(this).property('checked')) {
+                    value = d3.select(this).property('value') === 'none' ? null : c;
                 }
             });
             _this.changeOption(control.option, value, control.callback);
@@ -2897,7 +2894,7 @@
 
         var option_data = control.values
             ? control.values
-            : d3$1
+            : d3
                   .set(
                       this.data
                           .map(function(m) {
@@ -2970,10 +2967,10 @@
             if (control.multiple) {
                 var values = options
                     .filter(function(f) {
-                        return d3$1.select(this).property('selected');
+                        return d3.select(this).property('selected');
                     })[0]
                     .map(function(m) {
-                        return d3$1.select(m).property('text');
+                        return d3.select(m).property('text');
                     });
 
                 var new_filter = {
@@ -2991,7 +2988,7 @@
                     e.draw();
                 });
             } else {
-                var value = d3$1.select(this).select('option:checked').property('text');
+                var value = d3.select(this).select('option:checked').property('text');
                 var _new_filter = {
                     col: control.value_col,
                     val: value,
@@ -3078,9 +3075,9 @@
         thisControls.targets = [];
 
         if (config.location === 'bottom') {
-            thisControls.wrap = d3$1.select(element).append('div').attr('class', 'wc-controls');
+            thisControls.wrap = d3.select(element).append('div').attr('class', 'wc-controls');
         } else {
-            thisControls.wrap = d3$1
+            thisControls.wrap = d3
                 .select(element)
                 .insert('div', ':first-child')
                 .attr('class', 'wc-controls');
@@ -3356,7 +3353,7 @@
                     return d.col;
                 })
                 .each(function(d) {
-                    var cell = d3$1.select(this);
+                    var cell = d3.select(this);
 
                     //Apply text in data as html or as plain text.
                     if (config.as_html) {
@@ -3405,8 +3402,8 @@
                 .style({
                     display: 'inline-block',
                     float: function float() {
-                        return d3$1.select(this).classed('searchable-container') ||
-                            d3$1.select(this).classed('pagination-container')
+                        return d3.select(this).classed('searchable-container') ||
+                            d3.select(this).classed('pagination-container')
                             ? 'right'
                             : null;
                     },
@@ -3499,9 +3496,7 @@
         //transform CSV array into CSV string
         var CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
             fileName =
-                'webchartsTableExport_' +
-                d3$1.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) +
-                '.csv',
+                'webchartsTableExport_' + d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) + '.csv',
             link = this.wrap.select('.export#csv');
 
         if (navigator.msSaveBlob) {
@@ -3579,9 +3574,7 @@
         //transform CSV array into CSV string
         var blob = new Blob([s2ab(xlsx)], { type: 'application/octet-stream;' }),
             fileName =
-                'webchartsTableExport_' +
-                d3$1.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) +
-                '.xlsx',
+                'webchartsTableExport_' + d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) + '.xlsx',
             link = this.wrap.select('.export#xlsx');
 
         if (navigator.msSaveBlob) {
@@ -3630,7 +3623,7 @@
 
     function onClick(th, header) {
         var context = this,
-            selection = d3$1.select(th),
+            selection = d3.select(th),
             col = this.config.cols[this.config.headers.indexOf(header)];
 
         //Check if column is already a part of current sort order.
@@ -3667,7 +3660,7 @@
         this.sortable.order.forEach(function(item, i) {
             item.wrap.on('click', function(d) {
                 //Remove column's sort container.
-                d3$1.select(this).remove();
+                d3.select(this).remove();
 
                 //Remove column from sort.
                 context.sortable.order.splice(
@@ -3892,7 +3885,7 @@
 
         //Render a different page on click.
         this.pagination.links.on('click', function() {
-            context.config.activePage = +d3$1.select(this).attr('rel');
+            context.config.activePage = +d3.select(this).attr('rel');
             updatePagination.call(context);
         });
 
@@ -3901,8 +3894,8 @@
 
         //Render a different page on click.
         this.pagination.arrows.on('click', function() {
-            if (context.config.activePage !== +d3$1.select(this).attr('rel')) {
-                context.config.activePage = +d3$1.select(this).attr('rel');
+            if (context.config.activePage !== +d3.select(this).attr('rel')) {
+                context.config.activePage = +d3.select(this).attr('rel');
                 context.pagination.prev.attr(
                     'rel',
                     context.config.activePage > 0 ? context.config.activePage - 1 : 0
@@ -3919,7 +3912,7 @@
 
         //Render a different page on click.
         this.pagination.doubleArrows.on('click', function() {
-            context.config.activePage = +d3$1.select(this).attr('rel');
+            context.config.activePage = +d3.select(this).attr('rel');
             updatePagination.call(context);
         });
 
@@ -3948,13 +3941,13 @@
 
         var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-        if (d3$1.select(this.div).select('.loader').empty()) {
-            d3$1
+        if (d3.select(this.div).select('.loader').empty()) {
+            d3
                 .select(this.div)
                 .insert('div', ':first-child')
                 .attr('class', 'loader')
                 .selectAll('.blockG')
-                .data(d3$1.range(8))
+                .data(d3.range(8))
                 .enter()
                 .append('div')
                 .attr('class', function(d) {
@@ -3997,13 +3990,13 @@
             }
 
             //make sure container is visible (has height and width) before trying to initialize
-            var visible = d3$1.select(_this.div).property('offsetWidth') > 0 || test;
+            var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
             if (!visible) {
                 console.warn(
                     'The table cannot be initialized inside an element with 0 width. The table will be initialized as soon as the container element is given a width > 0.'
                 );
                 var onVisible = setInterval(function(i) {
-                    var visible_now = d3$1.select(_this.div).property('offsetWidth') > 0;
+                    var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
                     if (visible_now) {
                         _this.layout();
                         _this.wrap.datum(_this);
@@ -4029,7 +4022,7 @@
 
     function layout$6() {
         //Clear loading indicator.
-        d3$1.select(this.div).select('.loader').remove();
+        d3.select(this.div).select('.loader').remove();
 
         //Attach container before table.
         this.wrap.append('div').classed('table-top', true);
@@ -4095,7 +4088,7 @@
                 delete this.config.headers;
         }
 
-        this.config.cols = this.config.cols || d3$1.keys(firstItem);
+        this.config.cols = this.config.cols || d3.keys(firstItem);
         this.config.headers = this.config.headers || this.config.cols;
         this.config.layout = 'horizontal'; // placeholder setting to align table components vertically or horizontally
 
@@ -4120,7 +4113,7 @@
             return;
         }
 
-        this.config.cols = this.config.cols || d3$1.keys(data[0]);
+        this.config.cols = this.config.cols || d3.keys(data[0]);
         this.config.headers = this.config.headers || this.config.cols;
 
         if (this.config.keep) {
@@ -4146,7 +4139,7 @@
             });
         }
 
-        var slimmed = d3$1
+        var slimmed = d3
             .nest()
             .key(function(d) {
                 if (_this.config.row_per) {
@@ -4239,7 +4232,7 @@
 
         thisTable.required_cols = [];
 
-        thisTable.wrap = d3$1.select(thisTable.div).append('div');
+        thisTable.wrap = d3.select(thisTable.div).append('div');
 
         thisTable.events = {
             onInit: function onInit() {},
@@ -4283,7 +4276,7 @@
         chart.multiples = [];
 
         function goAhead(data) {
-            var split_vals = d3$1
+            var split_vals = d3
                 .set(
                     data.map(function(m) {
                         return m[split_by];
@@ -4295,7 +4288,7 @@
                 });
             if (order) {
                 split_vals = split_vals.sort(function(a, b) {
-                    return d3$1.ascending(order.indexOf(a), order.indexOf(b));
+                    return d3.ascending(order.indexOf(a), order.indexOf(b));
                 });
             }
             split_vals.forEach(function(e) {
@@ -4313,7 +4306,7 @@
     }
 
     function getValType(data, variable) {
-        var var_vals = d3$1
+        var var_vals = d3
             .set(
                 data.map(function(m) {
                     return m[variable];
