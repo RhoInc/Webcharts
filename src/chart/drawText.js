@@ -7,7 +7,7 @@ export default function drawText(marks) {
         .selectAll('.text-supergroup')
         .data(marks, (d, i) => `${i}-${d.per.join('-')}`);
 
-    textSupergroups.enter().append('g').attr('class', d => 'text-supergroup ' + d.id);
+    textSupergroups.enter().append('g').attr('class', d => 'supergroup text-supergroup ' + d.id);
 
     textSupergroups.exit().remove();
 
@@ -64,6 +64,11 @@ export default function drawText(marks) {
             const yPos = this.y(d.values.y) || 0;
             return config.y.type === 'ordinal' ? yPos + this.y.rangeBand() / 2 : yPos;
         });
-
+    //add a reference to the selection from it's data
+    textSupergroups.each(function(d) {
+        d.supergroup = d3.select(this);
+        d.groups = d.supergroup.selectAll('g.text');
+        d.texts = d.groups.select('text');
+    });
     return texts;
 }

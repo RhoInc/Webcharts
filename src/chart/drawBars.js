@@ -8,7 +8,7 @@ export default function drawBars(marks) {
         .selectAll('.bar-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
 
-    bar_supergroups.enter().append('g').attr('class', d => 'bar-supergroup ' + d.id);
+    bar_supergroups.enter().append('g').attr('class', d => 'supergroup bar-supergroup ' + d.id);
 
     bar_supergroups.exit().remove();
 
@@ -364,4 +364,10 @@ export default function drawBars(marks) {
         oldBarGroupsTrans.remove();
         bar_supergroups.remove();
     }
+
+    //Link to the d3.selection from the data
+    bar_supergroups.each(function(d) {
+        d.supergroup = d3.select(this);
+        d.groups = d.supergroup.selectAll('.bar-group');
+    });
 }

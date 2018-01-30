@@ -24,7 +24,7 @@ export default function drawLines(marks) {
         .selectAll('.line-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
 
-    line_supergroups.enter().append('g').attr('class', d => 'line-supergroup ' + d.id);
+    line_supergroups.enter().append('g').attr('class', d => 'supergroup line-supergroup ' + d.id);
 
     line_supergroups.exit().remove();
 
@@ -61,5 +61,11 @@ export default function drawLines(marks) {
             .replace(/\[(.+?)\]/g, (str, orig) => d.values[0].values.raw[0][orig]);
     });
 
+    //Link to the d3.selection from the data
+    line_supergroups.each(function(d) {
+        d.supergroup = d3.select(this);
+        d.groups = d.supergroup.selectAll('g.line');
+        d.lines = d.groups.select('path');
+    });
     return line_grps;
 }
