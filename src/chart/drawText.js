@@ -6,7 +6,9 @@ export default function drawText(marks) {
     const textSupergroups = this.svg
         .selectAll('.text-supergroup')
         .data(marks, (d, i) => `${i}-${d.per.join('-')}`);
-    textSupergroups.enter().append('g').attr('class', 'text-supergroup');
+
+    textSupergroups.enter().append('g').attr('class', d => 'text-supergroup ' + d.id);
+
     textSupergroups.exit().remove();
 
     const texts = textSupergroups.selectAll('.text').data(d => d.data, d => d.key);

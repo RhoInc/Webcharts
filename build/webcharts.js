@@ -428,7 +428,11 @@
         var bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
+
+        bar_supergroups.enter().append('g').attr('class', function(d) {
+            return 'bar-supergroup ' + d.id;
+        });
+
         bar_supergroups.exit().remove();
 
         var bar_groups = bar_supergroups.selectAll('.bar-group').data(
@@ -977,7 +981,11 @@
         var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        line_supergroups.enter().append('g').attr('class', 'line-supergroup');
+
+        line_supergroups.enter().append('g').attr('class', function(d) {
+            return 'line-supergroup ' + d.id;
+        });
+
         line_supergroups.exit().remove();
 
         var line_grps = line_supergroups.selectAll('.line').data(
@@ -1046,7 +1054,11 @@
         var point_supergroups = this.svg.selectAll('.point-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        point_supergroups.enter().append('g').attr('class', 'point-supergroup');
+
+        point_supergroups.enter().append('g').attr('class', function(d) {
+            return 'point-supergroup ' + d.id;
+        });
+
         point_supergroups.exit().remove();
 
         var points = point_supergroups.selectAll('.point').data(
@@ -1145,7 +1157,11 @@
         var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        textSupergroups.enter().append('g').attr('class', 'text-supergroup');
+
+        textSupergroups.enter().append('g').attr('class', function(d) {
+            return 'text-supergroup ' + d.id;
+        });
+
         textSupergroups.exit().remove();
 
         var texts = textSupergroups.selectAll('.text').data(

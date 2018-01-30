@@ -23,7 +23,9 @@ export default function drawLines(marks) {
     let line_supergroups = this.svg
         .selectAll('.line-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
-    line_supergroups.enter().append('g').attr('class', 'line-supergroup');
+
+    line_supergroups.enter().append('g').attr('class', d => 'line-supergroup ' + d.id);
+
     line_supergroups.exit().remove();
 
     let line_grps = line_supergroups.selectAll('.line').data(d => d.data, d => d.key);

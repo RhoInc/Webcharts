@@ -6,7 +6,9 @@ export default function drawPoints(marks) {
     let point_supergroups = this.svg
         .selectAll('.point-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
-    point_supergroups.enter().append('g').attr('class', 'point-supergroup');
+
+    point_supergroups.enter().append('g').attr('class', d => 'point-supergroup ' + d.id);
+
     point_supergroups.exit().remove();
 
     let points = point_supergroups.selectAll('.point').data(d => d.data, d => d.key);
