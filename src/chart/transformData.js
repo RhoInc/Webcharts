@@ -388,5 +388,5 @@ export default function transformData(raw, mark) {
 
     this.events.onDatatransform.call(this);
 
-    return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
+    return { config: mark, data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
 }

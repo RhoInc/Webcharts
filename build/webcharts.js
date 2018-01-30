@@ -154,9 +154,21 @@
             all_data.push(mark_info.data);
             all_x.push(mark_info.x_dom);
             all_y.push(mark_info.y_dom);
-            _this.marks[i] = Object.create(e);
-            _this.marks[i].data = mark_info.data;
-            //this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, summarizeX: e.summarizeX, summarizeY: e.summarizeY, tooltip: e.tooltip, radius: e.radius, attributes: e.attributes};
+            _this.marks[i] = {
+                id: e.id,
+                type: e.type,
+                per: e.per,
+                data: mark_info.data,
+                split: e.split,
+                arrange: e.arrange,
+                order: e.order,
+                summarizeX: e.summarizeX,
+                summarizeY: e.summarizeY,
+                tooltip: e.tooltip,
+                radius: e.radius,
+                attributes: e.attributes,
+                values: e.values
+            };
         });
 
         if (config.x.type === 'ordinal') {
@@ -1634,6 +1646,9 @@
         this.config.marks = this.config.marks && this.config.marks.length
             ? this.config.marks
             : [{}];
+        this.config.marks.forEach(function(m, i) {
+            m.id = m.id ? m.id : 'mark' + (i + 1);
+        });
 
         this.config.date_format = this.config.date_format || '%x';
 
@@ -2303,7 +2318,7 @@
 
         this.events.onDatatransform.call(this);
 
-        return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
+        return { config: mark, data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
     }
 
     function updateDataMarks() {

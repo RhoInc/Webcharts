@@ -32,9 +32,21 @@ export default function consolidateData(raw) {
         all_data.push(mark_info.data);
         all_x.push(mark_info.x_dom);
         all_y.push(mark_info.y_dom);
-        this.marks[i] = Object.create(e);
-        this.marks[i].data = mark_info.data;
-        //this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, summarizeX: e.summarizeX, summarizeY: e.summarizeY, tooltip: e.tooltip, radius: e.radius, attributes: e.attributes};
+        this.marks[i] = {
+            id: e.id,
+            type: e.type,
+            per: e.per,
+            data: mark_info.data,
+            split: e.split,
+            arrange: e.arrange,
+            order: e.order,
+            summarizeX: e.summarizeX,
+            summarizeY: e.summarizeY,
+            tooltip: e.tooltip,
+            radius: e.radius,
+            attributes: e.attributes,
+            values: e.values
+        };
     });
 
     if (config.x.type === 'ordinal') {
