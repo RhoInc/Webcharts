@@ -154,9 +154,21 @@
             all_data.push(mark_info.data);
             all_x.push(mark_info.x_dom);
             all_y.push(mark_info.y_dom);
-            _this.marks[i] = Object.create(e);
-            _this.marks[i].data = mark_info.data;
-            //this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, summarizeX: e.summarizeX, summarizeY: e.summarizeY, tooltip: e.tooltip, radius: e.radius, attributes: e.attributes};
+            _this.marks[i] = {
+                id: e.id,
+                type: e.type,
+                per: e.per,
+                data: mark_info.data,
+                split: e.split,
+                arrange: e.arrange,
+                order: e.order,
+                summarizeX: e.summarizeX,
+                summarizeY: e.summarizeY,
+                tooltip: e.tooltip,
+                radius: e.radius,
+                attributes: e.attributes,
+                values: e.values
+            };
         });
 
         if (config.x.type === 'ordinal') {
@@ -416,7 +428,11 @@
         var bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
+
+        bar_supergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup bar-supergroup ' + d.id;
+        });
+
         bar_supergroups.exit().remove();
 
         var bar_groups = bar_supergroups.selectAll('.bar-group').data(
@@ -923,6 +939,12 @@
             oldBarGroupsTrans.remove();
             bar_supergroups.remove();
         }
+
+        //Link to the d3.selection from the data
+        bar_supergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('.bar-group');
+        });
     }
 
     function drawGridLines() {
@@ -965,7 +987,11 @@
         var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        line_supergroups.enter().append('g').attr('class', 'line-supergroup');
+
+        line_supergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup line-supergroup ' + d.id;
+        });
+
         line_supergroups.exit().remove();
 
         var line_grps = line_supergroups.selectAll('.line').data(
@@ -1023,6 +1049,12 @@
                 });
         });
 
+        //Link to the d3.selection from the data
+        line_supergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('g.line');
+            d.lines = d.groups.select('path');
+        });
         return line_grps;
     }
 
@@ -1034,7 +1066,11 @@
         var point_supergroups = this.svg.selectAll('.point-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        point_supergroups.enter().append('g').attr('class', 'point-supergroup');
+
+        point_supergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup point-supergroup ' + d.id;
+        });
+
         point_supergroups.exit().remove();
 
         var points = point_supergroups.selectAll('.point').data(
@@ -1122,6 +1158,13 @@
                 });
         });
 
+        //Link to the d3.selection from the data
+        point_supergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('g.point');
+            d.points = d.groups.select('circle');
+        });
+
         return points;
     }
 
@@ -1133,7 +1176,11 @@
         var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        textSupergroups.enter().append('g').attr('class', 'text-supergroup');
+
+        textSupergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup text-supergroup ' + d.id;
+        });
+
         textSupergroups.exit().remove();
 
         var texts = textSupergroups.selectAll('.text').data(
@@ -1204,7 +1251,12 @@
                 var yPos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? yPos + _this.y.rangeBand() / 2 : yPos;
             });
-
+        //add a reference to the selection from it's data
+        textSupergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('g.text');
+            d.texts = d.groups.select('text');
+        });
         return texts;
     }
 
@@ -1634,6 +1686,9 @@
         this.config.marks = this.config.marks && this.config.marks.length
             ? this.config.marks
             : [{}];
+        this.config.marks.forEach(function(m, i) {
+            m.id = m.id ? m.id : 'mark' + (i + 1);
+        });
 
         this.config.date_format = this.config.date_format || '%x';
 
@@ -2303,7 +2358,7 @@
 
         this.events.onDatatransform.call(this);
 
-        return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
+        return { config: mark, data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
     }
 
     function updateDataMarks() {
@@ -2327,6 +2382,8 @@
                 return f.type === 'text';
             })
         );
+
+        this.marks.supergroups = this.svg.selectAll('g.supergroup');
     }
 
     function xScaleAxis(max_range, domain, type) {

@@ -28,11 +28,12 @@ export default function testRendering(settings, data) {
         });
 
         it('g.supergroup elements are present for each specified mark type. ', () => {
-            const markTypes = settings.marks.map(
-                m => (m.type == 'circle' ? 'point-supergroup' : m.type + '-supergroup')
-            );
-            const superGroupTypes = supergroups[0].map(m => d3.select(m).attr('class'));
-            expect(markTypes.sort()).toEqual(superGroupTypes.sort());
+            var supergroupsFound = 0;
+            chart.marks.forEach(function(mark){
+              const markType = mark.type == 'circle' ? 'point-supergroup' : mark.type + '-supergroup'
+              if(mark.supergroup.classed(markType)) supergroupsFound = supergroupsFound+1;
+            })
+            expect(supergroupsFound).toEqual(supergroups[0].length);
         });
 
         it('1+ g elements are present in each g.supergroup. ', () => {
