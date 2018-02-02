@@ -6,7 +6,7 @@
           : (global.webCharts = factory(global.d3));
 })(this, function(d3) {
     'use strict';
-    var version = '1.9.1';
+    var version = '1.10.0';
 
     function checkRequired(data) {
         var _this = this;
@@ -2440,7 +2440,7 @@
 
         thisChart.marks = [];
 
-        thisChart.wrap = d3.select(thisChart.div).append('div');
+        thisChart.wrap = d3.select(thisChart.div).append('div').datum(this);
 
         thisChart.events = {
             onInit: function onInit() {},
