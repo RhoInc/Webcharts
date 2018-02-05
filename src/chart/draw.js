@@ -10,8 +10,6 @@ export default function draw(raw_data, processed_data) {
     let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
     let data = processed_data || this.consolidateData(raw);
 
-    this.wrap.datum(data);
-
     let div_width = parseInt(this.wrap.style('width'));
 
     this.setColorScale();

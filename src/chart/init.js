@@ -39,14 +39,12 @@ export default function init(data, test = false) {
                 let visible_now = select(this.div).property('offsetWidth') > 0;
                 if (visible_now) {
                     this.layout();
-                    this.wrap.datum(this);
                     this.draw();
                     clearInterval(onVisible);
                 }
             }, 500);
         } else {
             this.layout();
-            this.wrap.datum(this);
             this.draw();
         }
     };

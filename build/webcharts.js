@@ -274,8 +274,6 @@
         var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
         var data = processed_data || this.consolidateData(raw);
 
-        this.wrap.datum(data);
-
         var div_width = parseInt(this.wrap.style('width'));
 
         this.setColorScale();
@@ -1216,14 +1214,12 @@
                     var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
                     if (visible_now) {
                         _this.layout();
-                        _this.wrap.datum(_this);
                         _this.draw();
                         clearInterval(onVisible);
                     }
                 }, 500);
             } else {
                 _this.layout();
-                _this.wrap.datum(_this);
                 _this.draw();
             }
         };
@@ -2440,7 +2436,7 @@
 
         thisChart.marks = [];
 
-        thisChart.wrap = d3.select(thisChart.div).append('div').datum(this);
+        thisChart.wrap = d3.select(thisChart.div).append('div').datum(thisChart);
 
         thisChart.events = {
             onInit: function onInit() {},
@@ -2965,6 +2961,8 @@
                 .insert('div', ':first-child')
                 .attr('class', 'wc-controls');
         }
+
+        thisControls.wrap.datum(thisControls);
 
         return thisControls;
     }
