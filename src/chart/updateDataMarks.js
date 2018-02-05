@@ -3,4 +3,6 @@ export default function updateDataMarks() {
     this.drawLines(this.marks.filter(f => f.type === 'line'));
     this.drawPoints(this.marks.filter(f => f.type === 'circle'));
     this.drawText(this.marks.filter(f => f.type === 'text'));
+
+    this.marks.supergroups = this.svg.selectAll('g.supergroup');
 }

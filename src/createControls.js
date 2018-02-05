@@ -19,7 +19,7 @@ export default function createControls(element = 'body', config = {}) {
             .attr('class', 'wc-controls');
     }
 
-    thisControls.wrap.datum(thisControls)
-    
+    thisControls.wrap.datum(thisControls);
+
     return thisControls;
 }

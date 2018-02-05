@@ -127,6 +127,21 @@
 
         this.setDefaults();
 
+        //apply filters from associated controls objects
+        this.filtered_data = raw;
+        if (this.filters.length) {
+            this.filters.forEach(function(e) {
+                _this.filtered_data = _this.filtered_data.filter(function(d) {
+                    return e.val === 'All'
+                        ? d
+                        : e.val instanceof Array
+                          ? e.val.indexOf(d[e.col]) > -1
+                          : d[e.col] === e.val;
+                });
+            });
+        }
+
+        //create data for each set of marks
         config.marks.forEach(function(e, i) {
             if (e.type !== 'bar') {
                 e.arrange = null;
@@ -139,9 +154,21 @@
             all_data.push(mark_info.data);
             all_x.push(mark_info.x_dom);
             all_y.push(mark_info.y_dom);
-            _this.marks[i] = Object.create(e);
-            _this.marks[i].data = mark_info.data;
-            //this.marks[i] = {type: e.type, per: e.per, data: mark_info.data, split: e.split, arrange: e.arrange, order: e.order, summarizeX: e.summarizeX, summarizeY: e.summarizeY, tooltip: e.tooltip, radius: e.radius, attributes: e.attributes};
+            _this.marks[i] = {
+                id: e.id,
+                type: e.type,
+                per: e.per,
+                data: mark_info.data,
+                split: e.split,
+                arrange: e.arrange,
+                order: e.order,
+                summarizeX: e.summarizeX,
+                summarizeY: e.summarizeY,
+                tooltip: e.tooltip,
+                radius: e.radius,
+                attributes: e.attributes,
+                values: e.values
+            };
         });
 
         if (config.x.type === 'ordinal') {
@@ -268,11 +295,30 @@
         var context = this;
         var config = this.config;
         var aspect2 = 1 / config.aspect;
+
+        /////////////////////////
+        // Data prep  pipeline //
+        /////////////////////////
+
         //if pre-processing callback, run it now
         this.events.onPreprocess.call(this);
-        //then do normal processing
+
+        // if user passed raw_data to chart.draw(), use that, otherwise use chart.raw_data
         var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
+
+        // warn the user about the perils of "processed_data"
+        if (processed_data) {
+            console.warn(
+                "Drawing the chart using user-defined 'processed_data', this is an experimental, untested feature."
+            );
+        }
+
+        //Call consolidateData - this applies filters from controls and prepares data for each set of marks.
         var data = processed_data || this.consolidateData(raw);
+
+        /////////////////////////////
+        // Prepare scales and axes //
+        /////////////////////////////
 
         var div_width = parseInt(this.wrap.style('width'));
 
@@ -318,6 +364,10 @@
         }
 
         this.events.onDraw.call(this);
+
+        //////////////////////////////////////////////////////////////////////
+        // Call resize - updates marks on the chart (amongst other things) //
+        /////////////////////////////////////////////////////////////////////
         this.resize();
     }
 
@@ -376,7 +426,11 @@
         var bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        bar_supergroups.enter().append('g').attr('class', 'bar-supergroup');
+
+        bar_supergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup bar-supergroup ' + d.id;
+        });
+
         bar_supergroups.exit().remove();
 
         var bar_groups = bar_supergroups.selectAll('.bar-group').data(
@@ -883,6 +937,12 @@
             oldBarGroupsTrans.remove();
             bar_supergroups.remove();
         }
+
+        //Link to the d3.selection from the data
+        bar_supergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('.bar-group');
+        });
     }
 
     function drawGridLines() {
@@ -925,7 +985,11 @@
         var line_supergroups = this.svg.selectAll('.line-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        line_supergroups.enter().append('g').attr('class', 'line-supergroup');
+
+        line_supergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup line-supergroup ' + d.id;
+        });
+
         line_supergroups.exit().remove();
 
         var line_grps = line_supergroups.selectAll('.line').data(
@@ -983,6 +1047,12 @@
                 });
         });
 
+        //Link to the d3.selection from the data
+        line_supergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('g.line');
+            d.lines = d.groups.select('path');
+        });
         return line_grps;
     }
 
@@ -994,7 +1064,11 @@
         var point_supergroups = this.svg.selectAll('.point-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        point_supergroups.enter().append('g').attr('class', 'point-supergroup');
+
+        point_supergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup point-supergroup ' + d.id;
+        });
+
         point_supergroups.exit().remove();
 
         var points = point_supergroups.selectAll('.point').data(
@@ -1082,6 +1156,13 @@
                 });
         });
 
+        //Link to the d3.selection from the data
+        point_supergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('g.point');
+            d.points = d.groups.select('circle');
+        });
+
         return points;
     }
 
@@ -1093,7 +1174,11 @@
         var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
-        textSupergroups.enter().append('g').attr('class', 'text-supergroup');
+
+        textSupergroups.enter().append('g').attr('class', function(d) {
+            return 'supergroup text-supergroup ' + d.id;
+        });
+
         textSupergroups.exit().remove();
 
         var texts = textSupergroups.selectAll('.text').data(
@@ -1164,7 +1249,12 @@
                 var yPos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? yPos + _this.y.rangeBand() / 2 : yPos;
             });
-
+        //add a reference to the selection from it's data
+        textSupergroups.each(function(d) {
+            d.supergroup = d3.select(this);
+            d.groups = d.supergroup.selectAll('g.text');
+            d.texts = d.groups.select('text');
+        });
         return texts;
     }
 
@@ -1192,6 +1282,7 @@
         this.setDefaults();
 
         this.raw_data = data;
+        this.initial_data = data;
 
         var startup = function startup(data) {
             //connect this chart and its controls, if any
@@ -1591,6 +1682,9 @@
         this.config.marks = this.config.marks && this.config.marks.length
             ? this.config.marks
             : [{}];
+        this.config.marks.forEach(function(m, i) {
+            m.id = m.id ? m.id : 'mark' + (i + 1);
+        });
 
         this.config.date_format = this.config.date_format || '%x';
 
@@ -1721,9 +1815,21 @@
         return mathed;
     }
 
+    //////////////////////////////////////////////////////////
+    // transformData(raw, mark) provides specifications and data for
+    // each set of marks. As such, it is called once for each
+    // item specified in the config.marks array.
+    //
+    // parameters
+    // raw - the raw data for use in the mark. Filters from controls
+    //       are typically already applied.
+    // mark - a single mark object from config.marks
+    ////////////////////////////////////////////////////////
+
     function transformData(raw, mark) {
         var _this = this;
 
+        //convenience mappings
         var config = this.config;
         var x_behavior = config.x.behavior || 'raw';
         var y_behavior = config.y.behavior || 'raw';
@@ -1733,6 +1839,9 @@
         var dateConvert = d3.time.format(config.date_format);
         var totalOrder = void 0;
 
+        ///////////////////////////////////////////////
+        // calcStartTotal() - method to calculate percentages in bars
+        //////////////////////////////////////////////
         function calcStartTotal(e) {
             var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
                 ? 'y'
@@ -1759,151 +1868,6 @@
                 }
             });
         }
-
-        raw = mark.per && mark.per.length
-            ? raw.filter(function(f) {
-                  return f[mark.per[0]];
-              })
-            : raw;
-
-        //make sure data has x and y values
-        if (config.x.column) {
-            raw = raw.filter(function(f) {
-                return f[config.x.column] !== undefined;
-            });
-        }
-        if (config.y.column) {
-            raw = raw.filter(function(f) {
-                return f[config.y.column] !== undefined;
-            });
-        }
-
-        if (config.x.type === 'time') {
-            raw = raw.filter(function(f) {
-                return f[config.x.column] instanceof Date
-                    ? f[config.x.column]
-                    : dateConvert.parse(f[config.x.column]);
-            });
-            raw.forEach(function(e) {
-                return (e[config.x.column] = e[config.x.column] instanceof Date
-                    ? e[config.x.column]
-                    : dateConvert.parse(e[config.x.column]));
-            });
-        }
-        if (config.y.type === 'time') {
-            raw = raw.filter(function(f) {
-                return f[config.y.column] instanceof Date
-                    ? f[config.y.column]
-                    : dateConvert.parse(f[config.y.column]);
-            });
-            raw.forEach(function(e) {
-                return (e[config.y.column] = e[config.y.column] instanceof Date
-                    ? e[config.y.column]
-                    : dateConvert.parse(e[config.y.column]));
-            });
-        }
-
-        if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
-            raw = raw.filter(function(f) {
-                return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
-                    ? +f[config.x.column] || +f[config.x.column] === 0
-                    : f;
-            });
-        }
-        if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
-            raw = raw.filter(function(f) {
-                return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
-                    ? +f[config.y.column] || +f[config.y.column] === 0
-                    : f;
-            });
-        }
-
-        var raw_nest = void 0;
-        if (mark.type === 'bar') {
-            raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
-        } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-            raw_nest = makeNest(raw);
-        }
-
-        var raw_dom_x = mark.summarizeX === 'cumulative'
-            ? [0, raw.length]
-            : config.x.type === 'ordinal'
-              ? d3
-                    .set(
-                        raw.map(function(m) {
-                            return m[config.x.column];
-                        })
-                    )
-                    .values()
-                    .filter(function(f) {
-                        return f;
-                    })
-              : mark.split && mark.arrange !== 'stacked'
-                ? d3.extent(
-                      d3.merge(
-                          raw_nest.nested.map(function(m) {
-                              return m.values.map(function(p) {
-                                  return p.values.raw.length;
-                              });
-                          })
-                      )
-                  )
-                : mark.summarizeX === 'count'
-                  ? d3.extent(
-                        raw_nest.nested.map(function(m) {
-                            return m.values.raw.length;
-                        })
-                    )
-                  : d3.extent(
-                        raw
-                            .map(function(m) {
-                                return +m[config.x.column];
-                            })
-                            .filter(function(f) {
-                                return +f || +f === 0;
-                            })
-                    );
-
-        var raw_dom_y = mark.summarizeY === 'cumulative'
-            ? [0, raw.length]
-            : config.y.type === 'ordinal'
-              ? d3
-                    .set(
-                        raw.map(function(m) {
-                            return m[config.y.column];
-                        })
-                    )
-                    .values()
-                    .filter(function(f) {
-                        return f;
-                    })
-              : mark.split && mark.arrange !== 'stacked'
-                ? d3.extent(
-                      d3.merge(
-                          raw_nest.nested.map(function(m) {
-                              return m.values.map(function(p) {
-                                  return p.values.raw.length;
-                              });
-                          })
-                      )
-                  )
-                : mark.summarizeY === 'count'
-                  ? d3.extent(
-                        raw_nest.nested.map(function(m) {
-                            return m.values.raw.length;
-                        })
-                    )
-                  : d3.extent(
-                        raw
-                            .map(function(m) {
-                                return +m[config.y.column];
-                            })
-                            .filter(function(f) {
-                                return +f || +f === 0;
-                            })
-                    );
-
-        var filtered = raw;
 
         function makeNest(entries, sublevel) {
             var dom_xs = [];
@@ -2094,6 +2058,160 @@
             return { nested: test, dom_x: dom_x, dom_y: dom_y };
         }
 
+        //////////////////////////////////////////////////////////////////////////////////
+        // DATA PREP
+        // prepare data based on the properties of the mark - drop missing records, etc
+        //////////////////////////////////////////////////////////////////////////////////
+
+        // only use data for the current mark
+        raw = mark.per && mark.per.length
+            ? raw.filter(function(f) {
+                  return f[mark.per[0]];
+              })
+            : raw;
+
+        // Make sure data has x and y values
+        if (config.x.column) {
+            raw = raw.filter(function(f) {
+                return f[config.x.column] !== undefined;
+            });
+        }
+        if (config.y.column) {
+            raw = raw.filter(function(f) {
+                return f[config.y.column] !== undefined;
+            });
+        }
+
+        //check that x and y have the correct formats
+        if (config.x.type === 'time') {
+            raw = raw.filter(function(f) {
+                return f[config.x.column] instanceof Date
+                    ? f[config.x.column]
+                    : dateConvert.parse(f[config.x.column]);
+            });
+            raw.forEach(function(e) {
+                return (e[config.x.column] = e[config.x.column] instanceof Date
+                    ? e[config.x.column]
+                    : dateConvert.parse(e[config.x.column]));
+            });
+        }
+        if (config.y.type === 'time') {
+            raw = raw.filter(function(f) {
+                return f[config.y.column] instanceof Date
+                    ? f[config.y.column]
+                    : dateConvert.parse(f[config.y.column]);
+            });
+            raw.forEach(function(e) {
+                return (e[config.y.column] = e[config.y.column] instanceof Date
+                    ? e[config.y.column]
+                    : dateConvert.parse(e[config.y.column]));
+            });
+        }
+
+        if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
+            raw = raw.filter(function(f) {
+                return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
+                    ? +f[config.x.column] || +f[config.x.column] === 0
+                    : f;
+            });
+        }
+        if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
+            raw = raw.filter(function(f) {
+                return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
+                    ? +f[config.y.column] || +f[config.y.column] === 0
+                    : f;
+            });
+        }
+
+        //prepare nested data required for bar charts
+        var raw_nest = void 0;
+        if (mark.type === 'bar') {
+            raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
+        } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
+            raw_nest = makeNest(raw);
+        }
+
+        // Get the domain for the mark based on the raw data
+        var raw_dom_x = mark.summarizeX === 'cumulative'
+            ? [0, raw.length]
+            : config.x.type === 'ordinal'
+              ? d3
+                    .set(
+                        raw.map(function(m) {
+                            return m[config.x.column];
+                        })
+                    )
+                    .values()
+                    .filter(function(f) {
+                        return f;
+                    })
+              : mark.split && mark.arrange !== 'stacked'
+                ? d3.extent(
+                      d3.merge(
+                          raw_nest.nested.map(function(m) {
+                              return m.values.map(function(p) {
+                                  return p.values.raw.length;
+                              });
+                          })
+                      )
+                  )
+                : mark.summarizeX === 'count'
+                  ? d3.extent(
+                        raw_nest.nested.map(function(m) {
+                            return m.values.raw.length;
+                        })
+                    )
+                  : d3.extent(
+                        raw
+                            .map(function(m) {
+                                return +m[config.x.column];
+                            })
+                            .filter(function(f) {
+                                return +f || +f === 0;
+                            })
+                    );
+
+        var raw_dom_y = mark.summarizeY === 'cumulative'
+            ? [0, raw.length]
+            : config.y.type === 'ordinal'
+              ? d3
+                    .set(
+                        raw.map(function(m) {
+                            return m[config.y.column];
+                        })
+                    )
+                    .values()
+                    .filter(function(f) {
+                        return f;
+                    })
+              : mark.split && mark.arrange !== 'stacked'
+                ? d3.extent(
+                      d3.merge(
+                          raw_nest.nested.map(function(m) {
+                              return m.values.map(function(p) {
+                                  return p.values.raw.length;
+                              });
+                          })
+                      )
+                  )
+                : mark.summarizeY === 'count'
+                  ? d3.extent(
+                        raw_nest.nested.map(function(m) {
+                            return m.values.raw.length;
+                        })
+                    )
+                  : d3.extent(
+                        raw
+                            .map(function(m) {
+                                return +m[config.y.column];
+                            })
+                            .filter(function(f) {
+                                return +f || +f === 0;
+                            })
+                    );
+
+        var filtered = raw;
+
         var filt1_xs = [];
         var filt1_ys = [];
         if (this.filters.length) {
@@ -2135,11 +2253,8 @@
                 _loop(a);
             }
         }
-
         var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
         var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
-
-        this.filtered_data = filtered;
 
         var current_nested = makeNest(filtered, sublevel);
 
@@ -2239,7 +2354,7 @@
 
         this.events.onDatatransform.call(this);
 
-        return { data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
+        return { config: mark, data: current_nested.nested, x_dom: x_dom, y_dom: y_dom };
     }
 
     function updateDataMarks() {
@@ -2263,6 +2378,8 @@
                 return f.type === 'text';
             })
         );
+
+        this.marks.supergroups = this.svg.selectAll('g.supergroup');
     }
 
     function xScaleAxis(max_range, domain, type) {

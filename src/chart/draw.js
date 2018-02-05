@@ -4,11 +4,30 @@ export default function draw(raw_data, processed_data) {
     var context = this;
     let config = this.config;
     let aspect2 = 1 / config.aspect;
+
+    /////////////////////////
+    // Data prep  pipeline //
+    /////////////////////////
+
     //if pre-processing callback, run it now
     this.events.onPreprocess.call(this);
-    //then do normal processing
+
+    // if user passed raw_data to chart.draw(), use that, otherwise use chart.raw_data
     let raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
+
+    // warn the user about the perils of "processed_data"
+    if (processed_data) {
+        console.warn(
+            "Drawing the chart using user-defined 'processed_data', this is an experimental, untested feature."
+        );
+    }
+
+    //Call consolidateData - this applies filters from controls and prepares data for each set of marks.
     let data = processed_data || this.consolidateData(raw);
+
+    /////////////////////////////
+    // Prepare scales and axes //
+    /////////////////////////////
 
     let div_width = parseInt(this.wrap.style('width'));
 
@@ -54,5 +73,9 @@ export default function draw(raw_data, processed_data) {
     }
 
     this.events.onDraw.call(this);
+
+    //////////////////////////////////////////////////////////////////////
+    // Call resize - updates marks on the chart (amongst other things) //
+    /////////////////////////////////////////////////////////////////////
     this.resize();
 }

@@ -45,9 +45,9 @@ describe('data transformation', () => {
                     .entries(data);
             });
 
-            it('returns an object containing a nested data array, an x-domain, and a y-domain', () => {
+            it('returns an object containing a config, a nested data array, an x-domain, and a y-domain', () => {
                 console.log(`\n    Testing ${mark.summarizeX}:\n`);
-                expect(Object.keys(transformedData)).toEqual(['data', 'x_dom', 'y_dom']);
+                expect(Object.keys(transformedData)).toEqual(['config','data', 'x_dom', 'y_dom']);
             });
 
             it('nests raw data by mark.per', () => {

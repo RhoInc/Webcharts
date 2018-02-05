@@ -6,7 +6,9 @@ export default function drawPoints(marks) {
     let point_supergroups = this.svg
         .selectAll('.point-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
-    point_supergroups.enter().append('g').attr('class', 'point-supergroup');
+
+    point_supergroups.enter().append('g').attr('class', d => 'supergroup point-supergroup ' + d.id);
+
     point_supergroups.exit().remove();
 
     let points = point_supergroups.selectAll('.point').data(d => d.data, d => d.key);
@@ -71,6 +73,13 @@ export default function drawPoints(marks) {
                 config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
             )
             .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
+    });
+
+    //Link to the d3.selection from the data
+    point_supergroups.each(function(d) {
+        d.supergroup = select(this);
+        d.groups = d.supergroup.selectAll('g.point');
+        d.points = d.groups.select('circle');
     });
 
     return points;
