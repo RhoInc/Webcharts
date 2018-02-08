@@ -3807,7 +3807,7 @@
 
         this.pagination.prev = this.pagination.wrap
             .insert('a', ':first-child')
-            .classed('wc-button arrow-link left', true)
+            .classed('wc-button arrow-link wc-left', true)
             .classed('hidden', this.config.activePage == 0)
             .attr({
                 rel: prev
@@ -3816,7 +3816,7 @@
 
         this.pagination.doublePrev = this.pagination.wrap
             .insert('a', ':first-child')
-            .classed('wc-button arrow-link left double', true)
+            .classed('wc-button arrow-link wc-left double', true)
             .classed('hidden', this.config.activePage == 0)
             .attr({
                 rel: 0
@@ -3841,7 +3841,7 @@
             );
         this.pagination.next = this.pagination.wrap
             .append('a')
-            .classed('wc-button arrow-link right', true)
+            .classed('wc-button arrow-link wc-right', true)
             .classed(
                 'hidden',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
@@ -3853,7 +3853,7 @@
 
         this.pagination.doubleNext = this.pagination.wrap
             .append('a')
-            .classed('wc-button arrow-link right double', true)
+            .classed('wc-button arrow-link wc-right double', true)
             .classed(
                 'hidden',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
