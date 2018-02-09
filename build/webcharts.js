@@ -160,6 +160,7 @@
                 per: e.per,
                 data: mark_info.data,
                 split: e.split,
+                text: e.text,
                 arrange: e.arrange,
                 order: e.order,
                 summarizeX: e.summarizeX,
@@ -1051,7 +1052,7 @@
         line_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.line');
-            d.lines = d.groups.select('path');
+            d.paths = d.groups.select('path');
         });
         return line_grps;
     }
@@ -1160,7 +1161,7 @@
         point_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.point');
-            d.points = d.groups.select('circle');
+            d.circles = d.groups.select('circle');
         });
 
         return points;
