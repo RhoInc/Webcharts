@@ -20,7 +20,7 @@
 		},
 	  "margin": {
 	    "top":"100"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -30,7 +30,7 @@
     },
     "filename": "../data/ChickWeight.csv"
   },
-  
+
 {
     "label": "Margin:top = 200",
 	"notes": "Testing various config settings (seen in label)",
@@ -50,7 +50,7 @@
 		},
 	  "margin": {
 	    "top":"200"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -79,7 +79,7 @@
 		},
 	  "margin": {
 	    "bottom":"100"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -108,7 +108,7 @@
 		},
 	  "margin": {
 	    "bottom":"200"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -137,7 +137,7 @@
 		},
 	  "margin": {
 	    "left":"100"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -168,7 +168,7 @@
 		},
 	  "margin": {
 	    "left":"200"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -197,7 +197,7 @@
 		},
 	  "margin": {
 	    "right":"100"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -228,7 +228,7 @@
 		},
 	  "margin": {
 	    "right":"200"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",
@@ -296,7 +296,7 @@
 	    "bottom":"100",
 	    "left":"150",
 	    "right":"200"
-      },      
+      },
 	  "marks": [
         {
           "type": "bar",

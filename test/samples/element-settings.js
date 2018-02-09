@@ -8,16 +8,14 @@ export default {
             per: ['Group'],
             summarizeY: 'mean',
             tooltip: '[Name]',
-            attributes: { 'fill-opacity': 1, fill: 'black', stroke: 'black' },
-            size: 4
+            attributes: { 'fill-opacity': 1, fill: 'black', stroke: 'black' }
         },
         {
             type: 'line',
             per: ['Period'],
             summarizeY: 'mean',
             tooltip: '[Name]',
-            attributes: { 'fill-opacity': 1, fill: 'black', stroke: 'black' },
-            size: 4
+            attributes: { 'fill-opacity': 1, fill: 'black', stroke: 'black' }
         },
         {
             type: 'text',

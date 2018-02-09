@@ -12,9 +12,10 @@ export default function testRendering(settings, data) {
             dom = new JSDOM('<!DOCTYPE html>');
             container = dom.window.document.createElement('div');
             chart = createChart(container, settings).init(data, true);
-            supergroups = chart.svg.selectAll(
+            /* supergroups = chart.svg.selectAll(
                 '.point-supergroup, .bar-supergroup, .line-supergroup, .text-supergroup'
-            );
+            );*/
+            supergroups = chart.marks.supergroups,
             groups = supergroups.selectAll('.point, .bar-group, .line, .text');
         });
 
@@ -35,6 +36,39 @@ export default function testRendering(settings, data) {
             })
             expect(supergroupsFound).toEqual(supergroups[0].length);
         });
+
+        it('Each mark group has an ID attached as a class ', () => {
+          chart.marks.forEach(function(mark,i){
+              expect(mark.supergroup.classed(mark.id)).toEqual(true);
+          })
+        });
+
+        it('config marks is copied to chart.marks', () => {
+          chart.marks.forEach(function(mark,i){
+            let property;
+            for (property in chart.config.marks[i]){
+              expect(chart.config.marks[i][property]).toEqual(mark[property]);
+            }
+
+          });
+        });
+
+        it('d3.selection for g.supergroup element bound to each item in chart.marks array', () => {
+
+        });
+
+        it('d3.selection for g.groups elements bound to each item in chart.marks array', () => {
+
+        });
+
+        it('d3.selection for specific d3 marks (circles, paths, etc) bound to each item in chart.marks array expect for when type=bar', () => {
+
+        });
+
+        it('d3.selection containing all mark supergroups bound as property to the chart.marks array object', () => {
+
+        });
+
 
         it('1+ g elements are present in each g.supergroup. ', () => {
             const groupCounts = groups.map(m => m.length);
