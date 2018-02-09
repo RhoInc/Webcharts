@@ -49,24 +49,55 @@ export default function testRendering(settings, data) {
             for (property in chart.config.marks[i]){
               expect(chart.config.marks[i][property]).toEqual(mark[property]);
             }
-
           });
         });
 
         it('d3.selection for g.supergroup element bound to each item in chart.marks array', () => {
-
+          chart.marks.forEach(function(mark,i){
+              let match = chart.svg.selectAll("g.supergroup").filter(function(f){return f.id == mark.id})
+              expect(mark.supergroup).toEqual(match);
+          });
         });
 
         it('d3.selection for g.groups elements bound to each item in chart.marks array', () => {
-
+          chart.marks.forEach(function(mark,i){
+              let groupType = mark.type == "bar" ? "bar-group" :
+                mark.type =="circle" ? "point" :
+                mark.type =="text" ? "text" :
+                mark.type =="line" ? "line" :
+                "mark type not found"
+              let matches = chart.svg.selectAll("g.supergroup").filter(function(f){return f.id == mark.id}).selectAll("g."+groupType)
+              expect(mark.groups).toEqual(matches);
+          });
         });
 
         it('d3.selection for specific d3 marks (circles, paths, etc) bound to each item in chart.marks array expect for when type=bar', () => {
+          chart.marks
+          .filter(f => f.type != "bar")
+          .forEach(function(mark,i){
+              let groupType =  mark.type =="circle" ? "point" :
+                mark.type =="text" ? "text" :
+                mark.type =="line" ? "line" :
+                "mark type not found"
 
+              let markType = mark.type =="circle" ? "circle" :
+                mark.type =="text" ? "text" :
+                mark.type =="line" ? "path" :
+                "mark type not found"
+
+              let markName = markType+"s"
+
+              let matches = chart.svg.selectAll("g.supergroup")
+              .filter(function(f){return f.id == mark.id})
+              .selectAll("g."+groupType)
+              .select(markType)
+
+              expect(mark[markName]).toEqual(matches);
+          });
         });
 
         it('d3.selection containing all mark supergroups bound as property to the chart.marks array object', () => {
-
+          expect(chart.marks.supergroups).toEqual(chart.svg.selectAll('.point-supergroup, .bar-supergroup, .line-supergroup, .text-supergroup'))
         });
 
 
@@ -88,6 +119,14 @@ export default function testRendering(settings, data) {
         it('x axis & y axis have ticks. ', () => {
             var tickCount = chart.svg.selectAll('g.axis').selectAll('.tick').map(m => m.length);
             expect(tickCount).toExclude(0);
+        });
+
+        it('all expected data sets are present, and have 1+ item', () => {
+          var dataSets = ["initial_data", "raw_data", "filtered_data", "current_data"];
+          let setname;
+          dataSets.forEach(function(setname){
+            expect(chart[setname].length).toBeGreaterThan(0);
+          })
         });
     });
 }
