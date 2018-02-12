@@ -79,7 +79,7 @@ export default function drawPoints(marks) {
     point_supergroups.each(function(d) {
         d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.point');
-        d.points = d.groups.select('circle');
+        d.circles = d.groups.select('circle');
     });
 
     return points;

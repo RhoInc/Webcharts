@@ -38,6 +38,7 @@ export default function consolidateData(raw) {
             per: e.per,
             data: mark_info.data,
             split: e.split,
+            text: e.text,
             arrange: e.arrange,
             order: e.order,
             summarizeX: e.summarizeX,

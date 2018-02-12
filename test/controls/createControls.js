@@ -40,5 +40,11 @@ describe('controls object creation', () => {
             for (property in settings)
                 expect(controls.config[property]).toEqual(settings[property]);
         });
+
+        it('chart object is bound to div.wc-controls', () => {
+          var datum = controls.wrap.datum()
+          let property;
+          expect(controls).toEqual(datum)
+        });
     });
 });
