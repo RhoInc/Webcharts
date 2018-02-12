@@ -4,7 +4,10 @@ export default function makeControlItem(control) {
         .attr('class', 'control-group')
         .classed('inline', control.inline)
         .datum(control);
-    let ctrl_label = control_wrap.append('span').attr('class', 'control-label').text(control.label);
+    let ctrl_label = control_wrap
+        .append('span')
+        .attr('class', 'wc-control-label')
+        .text(control.label);
     if (control.required) {
         ctrl_label.append('span').attr('class', 'label label-required').text('Required');
     }

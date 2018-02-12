@@ -135,12 +135,12 @@
         display: inline-table;
     }
 
-    .wc-controls .control-group .control-label {
+    .wc-controls .control-group .wc-control-label {
         /*font-weight: bold;*/
         display: block;
     }
 
-    .wc-controls .control-group.inline .control-label {
+    .wc-controls .control-group.inline .wc-control-label {
         display: inline;
         margin-right: .5em;
     }
@@ -149,16 +149,16 @@
         margin-top: 0;
     }
 
-    .wc-controls .control-group .control-label + .changer {
+    .wc-controls .control-group .wc-control-label + .changer {
         margin-top: 2px;
     }
 
-    .wc-controls .control-group .control-label.inline {
+    .wc-controls .control-group .wc-control-label.inline {
         display: inline;
         margin-right: .5em;
     }
 
-    .wc-controls .control-group .control-label .label-required {
+    .wc-controls .control-group .wc-control-label .label-required {
         color: #de2d26;
         padding: 0 .25em;
         border: 1px solid;
