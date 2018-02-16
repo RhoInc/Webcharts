@@ -25,8 +25,6 @@ export default function draw(raw_data, processed_data) {
     //Call consolidateData - this applies filters from controls and prepares data for each set of marks.
     let data = processed_data || this.consolidateData(raw);
 
-    //this.wrap.datum(data);
-
     /////////////////////////////
     // Prepare scales and axes //
     /////////////////////////////

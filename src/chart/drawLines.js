@@ -65,7 +65,7 @@ export default function drawLines(marks) {
     line_supergroups.each(function(d) {
         d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.line');
-        d.lines = d.groups.select('path');
+        d.paths = d.groups.select('path');
     });
     return line_grps;
 }

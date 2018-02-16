@@ -160,6 +160,7 @@
                 per: e.per,
                 data: mark_info.data,
                 split: e.split,
+                text: e.text,
                 arrange: e.arrange,
                 order: e.order,
                 summarizeX: e.summarizeX,
@@ -315,8 +316,6 @@
 
         //Call consolidateData - this applies filters from controls and prepares data for each set of marks.
         var data = processed_data || this.consolidateData(raw);
-
-        //this.wrap.datum(data);
 
         /////////////////////////////
         // Prepare scales and axes //
@@ -1053,7 +1052,7 @@
         line_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.line');
-            d.lines = d.groups.select('path');
+            d.paths = d.groups.select('path');
         });
         return line_grps;
     }
@@ -1162,7 +1161,7 @@
         point_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.point');
-            d.points = d.groups.select('circle');
+            d.circles = d.groups.select('circle');
         });
 
         return points;
@@ -1307,14 +1306,12 @@
                     var visible_now = d3.select(_this.div).property('offsetWidth') > 0;
                     if (visible_now) {
                         _this.layout();
-                        _this.wrap.datum(_this);
                         _this.draw();
                         clearInterval(onVisible);
                     }
                 }, 500);
             } else {
                 _this.layout();
-                _this.wrap.datum(_this);
                 _this.draw();
             }
         };
@@ -2557,7 +2554,7 @@
 
         thisChart.marks = [];
 
-        thisChart.wrap = d3.select(thisChart.div).append('div');
+        thisChart.wrap = d3.select(thisChart.div).append('div').datum(thisChart);
 
         thisChart.events = {
             onInit: function onInit() {},
@@ -2667,7 +2664,7 @@
             .datum(control);
         var ctrl_label = control_wrap
             .append('span')
-            .attr('class', 'control-label')
+            .attr('class', 'wc-control-label')
             .text(control.label);
         if (control.required) {
             ctrl_label.append('span').attr('class', 'label label-required').text('Required');
@@ -3082,6 +3079,8 @@
                 .insert('div', ':first-child')
                 .attr('class', 'wc-controls');
         }
+
+        thisControls.wrap.datum(thisControls);
 
         return thisControls;
     }
@@ -3809,7 +3808,7 @@
 
         this.pagination.prev = this.pagination.wrap
             .insert('a', ':first-child')
-            .classed('wc-button arrow-link left', true)
+            .classed('wc-button arrow-link wc-left', true)
             .classed('hidden', this.config.activePage == 0)
             .attr({
                 rel: prev
@@ -3818,7 +3817,7 @@
 
         this.pagination.doublePrev = this.pagination.wrap
             .insert('a', ':first-child')
-            .classed('wc-button arrow-link left double', true)
+            .classed('wc-button arrow-link wc-left double', true)
             .classed('hidden', this.config.activePage == 0)
             .attr({
                 rel: 0
@@ -3843,7 +3842,7 @@
             );
         this.pagination.next = this.pagination.wrap
             .append('a')
-            .classed('wc-button arrow-link right', true)
+            .classed('wc-button arrow-link wc-right', true)
             .classed(
                 'hidden',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
@@ -3855,7 +3854,7 @@
 
         this.pagination.doubleNext = this.pagination.wrap
             .append('a')
-            .classed('wc-button arrow-link right double', true)
+            .classed('wc-button arrow-link wc-right double', true)
             .classed(
                 'hidden',
                 this.config.activePage == this.config.nPages - 1 || this.config.nPages == 0
