@@ -5,7 +5,7 @@ export default function setColorScale() {
     let config = this.config;
     let data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
     let colordom =
-        config.color_dom ||
+        config.color_dom.slice() ||
         set(data.map(m => m[config.color_by])).values().filter(f => f && f !== 'undefined');
 
     if (config.legend.order) {

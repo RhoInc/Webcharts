@@ -1635,7 +1635,7 @@
         var config = this.config;
         var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
         var colordom =
-            config.color_dom ||
+            config.color_dom.slice() ||
             d3
                 .set(
                     data.map(function(m) {
