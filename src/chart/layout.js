@@ -3,7 +3,7 @@ import { select } from 'd3';
 export default function layout() {
     this.svg = this.wrap
         .append('svg')
-        .datum(() => null)
+        .datum(() => null) // prevent data inheritance
         .attr({
             class: 'wc-svg',
             xmlns: 'http://www.w3.org/2000/svg',
@@ -55,7 +55,7 @@ export default function layout() {
         .attr('fill', 'none')
         .style('pointer-events', 'all');
     //add legend
-    const legend = this.wrap.append('ul').datum(() => null);
+    const legend = this.wrap.append('ul').datum(() => null); // prevent data inheritance
     legend
         .attr('class', 'legend')
         .style('vertical-align', 'top')
