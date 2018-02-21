@@ -1327,6 +1327,9 @@
     function layout() {
         this.svg = this.wrap
             .append('svg')
+            .datum(function() {
+                return null;
+            })
             .attr({
                 class: 'wc-svg',
                 xmlns: 'http://www.w3.org/2000/svg',
@@ -1378,7 +1381,9 @@
             .attr('fill', 'none')
             .style('pointer-events', 'all');
         //add legend
-        var legend = this.wrap.append('ul');
+        var legend = this.wrap.append('ul').datum(function() {
+            return null;
+        });
         legend
             .attr('class', 'legend')
             .style('vertical-align', 'top')
@@ -2658,6 +2663,9 @@
     function makeControlItem(control) {
         var control_wrap = this.wrap
             .append('div')
+            .datum(function() {
+                return null;
+            })
             .attr('class', 'control-group')
             .classed('inline', control.inline)
             .datum(control);
