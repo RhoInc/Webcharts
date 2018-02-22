@@ -1,7 +1,6 @@
 export default function makeControlItem(control) {
     let control_wrap = this.wrap
         .append('div')
-        .datum(() => null) // prevent data inheritance
         .attr('class', 'control-group')
         .classed('inline', control.inline)
         .datum(control);
