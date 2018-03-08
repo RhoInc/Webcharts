@@ -1631,26 +1631,24 @@
     function setColorScale() {
         var config = this.config;
         var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
-        var colordom =
-            config.color_dom ||
-            d3
-                .set(
-                    data.map(function(m) {
-                        return m[config.color_by];
-                    })
-                )
-                .values()
-                .filter(function(f) {
-                    return f && f !== 'undefined';
-                });
+        var colordom = Array.isArray(config.color_dom) && config.color_dom.length
+            ? config.color_dom.slice()
+            : d3
+                  .set(
+                      data.map(function(m) {
+                          return m[config.color_by];
+                      })
+                  )
+                  .values()
+                  .filter(function(f) {
+                      return f && f !== 'undefined';
+                  });
 
-        if (config.legend.order) {
-            colordom = colordom.sort(function(a, b) {
+        if (config.legend.order)
+            colordom.sort(function(a, b) {
                 return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
             });
-        } else {
-            colordom = colordom.sort(naturalSorter);
-        }
+        else colordom.sort(naturalSorter);
 
         this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
     }
