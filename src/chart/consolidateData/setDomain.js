@@ -1,0 +1,39 @@
+import { set, merge, ascending, nest, extent } from 'd3';
+
+export default function setDomain(axis) {
+    if (this.config[axis].type === 'ordinal') {
+        if (this.config[axis].domain) {
+            this[axis + '_dom'] = this.config[axis].domain;
+        } else if (this.config[axis].order) {
+            this[axis + '_dom'] = set(merge(all_x))
+                .values()
+                .sort((a, b) => ascending(this.config[axis].order.indexOf(a), this.config[axis].order.indexOf(b)));
+        } else if (this.config[axis].sort && this.config[axis].sort === 'alphabetical-ascending') {
+            this[axis + '_dom'] = set(merge(all_x)).values().sort(naturalSorter);
+        } else if (this.config.y.type === 'time' && this.config[axis].sort === 'earliest') {
+            this[axis + '_dom'] = nest()
+                .key(d => d[this.config[axis].column])
+                .rollup(d => {
+                    return d.map(m => m[this.config.y.column]).filter(f => f instanceof Date);
+                })
+                .entries(this.raw_data)
+                .sort((a, b) => min(b.values) - min(a.values))
+                .map(m => m.key);
+        } else if (!this.config[axis].sort || this.config[axis].sort === 'alphabetical-descending') {
+            this[axis + '_dom'] = set(merge(all_x)).values().sort(naturalSorter);
+        } else {
+            this[axis + '_dom'] = set(merge(all_x)).values();
+        }
+    } else if (this.config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1) {
+        this[axis + '_dom'] = [0, 1];
+    } else {
+        this[axis + '_dom'] = extent(merge(all_x));
+    }
+
+    //Give the domain a range when the range of the variable is 0.
+    if (this.config[axis].type === 'linear' && this[axis + '_dom'][0] === this[axis + '_dom'][1])
+        this[axis + '_dom'] = [
+            this[axis + '_dom'][0] - this[axis + '_dom'][0]*.01,
+            this[axis + '_dom'][1] + this[axis + '_dom'][1]*.01
+        ];
+}
