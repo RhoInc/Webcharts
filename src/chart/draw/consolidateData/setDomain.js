@@ -56,4 +56,5 @@ export default function setDomain(axis) {
             this[axis + '_dom'][0] - this[axis + '_dom'][0] * 0.01,
             this[axis + '_dom'][1] + this[axis + '_dom'][1] * 0.01
         ];
+    console.log(this[axis + '_dom']);
 }
