@@ -1,5 +1,5 @@
-import naturalSorter from '../dataOps/naturalSorter';
-import summarize from '../dataOps/summarize';
+import naturalSorter from '../../../dataOps/naturalSorter';
+import summarize from '../../../dataOps/summarize';
 import {
     time,
     sum,

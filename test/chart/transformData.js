@@ -1,6 +1,6 @@
 import jsdom from 'jsdom';
 import createChart from '../../src/createChart';
-import transformData from '../../src/chart/transformData';
+import transformData from '../../src/chart/draw/consolidateData/transformData';
 import expect from 'expect';
 import settings from '../samples/irisSettings';
 import data from '../samples/irisData';
