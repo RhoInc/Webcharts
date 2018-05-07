@@ -447,10 +447,14 @@
             this.config[axis].type === 'linear' &&
             this[axis + '_dom'][0] === this[axis + '_dom'][1]
         )
-            this[axis + '_dom'] = [
-                this[axis + '_dom'][0] - this[axis + '_dom'][0] * 0.01,
-                this[axis + '_dom'][1] + this[axis + '_dom'][1] * 0.01
-            ];
+            this[axis + '_dom'] = this[axis + '_dom'][0] !== 0
+                ? [
+                      this[axis + '_dom'][0] - this[axis + '_dom'][0] * 0.01,
+                      this[axis + '_dom'][1] + this[axis + '_dom'][1] * 0.01
+                  ]
+                : [-1, 1];
+
+        return this[axis + '_dom'];
     }
 
     function consolidateData(raw) {
@@ -853,7 +857,7 @@
         // only use data for the current mark
         raw = mark.per && mark.per.length
             ? raw.filter(function(f) {
-                  return f[mark.per[0]];
+                  return f[mark.per[0]] !== undefined;
               })
             : raw;
 

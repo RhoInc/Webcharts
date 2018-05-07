@@ -199,7 +199,7 @@ export default function transformData(raw, mark) {
     //////////////////////////////////////////////////////////////////////////////////
 
     // only use data for the current mark
-    raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]]) : raw;
+    raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]] !== undefined) : raw;
 
     // Make sure data has x and y values
     if (config.x.column) {
