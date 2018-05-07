@@ -297,7 +297,7 @@
         this.resize();
     }
 
-    function naturalSorter$1(a, b) {
+    function naturalSorter(a, b) {
         //adapted from http://www.davekoelle.com/files/alphanum.js
         function chunkify(t) {
             var tz = [];
@@ -709,7 +709,7 @@
                                   config.legend.order.indexOf(b)
                               )
                             : config.x.type === 'ordinal' || config.y.type === 'ordinal'
-                              ? naturalSorter$1(a, b)
+                              ? naturalSorter(a, b)
                               : d3.ascending(+a, +b);
                 });
             }
@@ -1164,7 +1164,7 @@
             colordom.sort(function(a, b) {
                 return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
             });
-        else colordom.sort(naturalSorter$1);
+        else colordom.sort(naturalSorter);
 
         this.colorScale = d3.scale.ordinal().domain(colordom).range(config.colors);
     }
@@ -1357,12 +1357,14 @@
         );
         y_axis_label.attr('x', -1 * this.plot_height / 2).attr('y', -1 * this.margin.left);
 
-        this.svg.selectAll('.axis .domain').attr({
-            fill: 'none',
-            stroke: '#ccc',
-            'stroke-width': 1,
-            'shape-rendering': 'crispEdges'
-        });
+        this.svg
+            .selectAll('.axis .domain')
+            .attr({
+                fill: 'none',
+                stroke: '#ccc',
+                'stroke-width': 1,
+                'shape-rendering': 'crispEdges'
+            });
         this.svg
             .selectAll('.axis .tick line')
             .attr({ stroke: '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
@@ -2927,7 +2929,7 @@
                           })
                   )
                   .values();
-        option_data.sort(naturalSorter$1);
+        option_data.sort(naturalSorter);
 
         control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
@@ -4366,7 +4368,7 @@
     var dataOps = {
         getValType: getValType,
         lengthenRaw: lengthenRaw,
-        naturalSorter: naturalSorter$1,
+        naturalSorter: naturalSorter,
         summarize: summarize
     };
 
