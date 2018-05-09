@@ -196,21 +196,24 @@ export default function transformData(raw, mark) {
             ? set(raw.map(m => m[config.y.column])).values()
             : pre_y_dom;
 
-    //set lower limit of linear domain to 0 when other axis is ordinal, provided no values are negative
-    if (
-        config.x.behavior !== 'flex' &&
-        config.x.type === 'linear' &&
-        config.y.type === 'ordinal' &&
-        raw_dom_x[0] >= 0
-    )
-        x_dom[0] = 0;
-    if (
-        config.y.behavior !== 'flex' &&
-        config.x.type === 'ordinal' &&
-        config.y.type === 'linear' &&
-        raw_dom_y[0] >= 0
-    )
-        y_dom[0] = 0;
+    //set lower limit of linear domain to 0 when other axis is ordinal and mark type is set to 'bar', provided no values are negative
+    if (mark.type === 'bar') {
+        if (
+            config.x.behavior !== 'flex' &&
+            config.x.type === 'linear' &&
+            config.y.type === 'ordinal' &&
+            raw_dom_x[0] >= 0
+        )
+            x_dom[0] = 0;
+
+        if (
+            config.y.behavior !== 'flex' &&
+            config.x.type === 'ordinal' &&
+            config.y.type === 'linear' &&
+            raw_dom_y[0] >= 0
+        )
+            y_dom[0] = 0;
+    }
 
     //update domains with those specified in the config
     if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
