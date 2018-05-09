@@ -44,3 +44,9 @@ import testSetDomain from './setDomain';
 import { linear_linear, linear_ordinal, ordinal_linear } from '../samples/irisSettings';
 import setDomainData from '../samples/irisData';
 testSetDomain({linear_linear, linear_ordinal, ordinal_linear}, setDomainData);
+
+//remove falsey values from data
+import testCleanData from './cleanData';
+import { linear_linear as cleanDataSettings } from '../samples/irisSettings';
+import cleanDataData from '../samples/irisData';
+testCleanData(cleanDataSettings, cleanDataData);

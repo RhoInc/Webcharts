@@ -6,6 +6,7 @@ export default function makeNest(mark, entries, sublevel) {
     let dom_xs = [];
     let dom_ys = [];
     let this_nest = nest();
+    let totalOrder;
 
     if (
         (this.config.x.type === 'linear' && this.config.x.bin) ||
@@ -170,5 +171,5 @@ export default function makeNest(mark, entries, sublevel) {
         totalOrder = test.sort((a, b) => descending(+a.total, +b.total)).map(m => m.key);
     }
 
-    return { nested: test, dom_x: dom_x, dom_y: dom_y };
+    return { nested: test, dom_x: dom_x, dom_y: dom_y, totalOrder: totalOrder };
 }

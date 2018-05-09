@@ -1,5 +1,6 @@
+import cleanData from './transformData/cleanData';
 import makeNest from './transformData/makeNest';
-import { time, set, extent, merge } from 'd3';
+import { set, extent, merge } from 'd3';
 
 //////////////////////////////////////////////////////////
 // transformData(raw, mark) provides specifications and data for
@@ -14,108 +15,51 @@ import { time, set, extent, merge } from 'd3';
 
 export default function transformData(raw, mark) {
     //convenience mappings
-    let config = this.config;
-    let x_behavior = config.x.behavior || 'raw';
-    let y_behavior = config.y.behavior || 'raw';
-    let sublevel = mark.type === 'line'
+    const config = this.config;
+    const x_behavior = config.x.behavior || 'raw';
+    const y_behavior = config.y.behavior || 'raw';
+    const sublevel = mark.type === 'line'
         ? config.x.column
         : mark.type === 'bar' && mark.split ? mark.split : null;
-    let dateConvert = time.format(config.date_format);
-    let totalOrder;
 
     //////////////////////////////////////////////////////////////////////////////////
     // DATA PREP
     // prepare data based on the properties of the mark - drop missing records, etc
     //////////////////////////////////////////////////////////////////////////////////
-
-    // only use data for the current mark
-    raw = mark.per && mark.per.length ? raw.filter(f => f[mark.per[0]] !== undefined) : raw;
-
-    // Make sure data has x and y values
-    if (config.x.column) {
-        raw = raw.filter(f => f[config.x.column] !== undefined);
-    }
-    if (config.y.column) {
-        raw = raw.filter(f => f[config.y.column] !== undefined);
-    }
-
-    //check that x and y have the correct formats
-    if (config.x.type === 'time') {
-        raw = raw.filter(
-            f =>
-                f[config.x.column] instanceof Date
-                    ? f[config.x.column]
-                    : dateConvert.parse(f[config.x.column])
-        );
-        raw.forEach(
-            e =>
-                (e[config.x.column] = e[config.x.column] instanceof Date
-                    ? e[config.x.column]
-                    : dateConvert.parse(e[config.x.column]))
-        );
-    }
-    if (config.y.type === 'time') {
-        raw = raw.filter(
-            f =>
-                f[config.y.column] instanceof Date
-                    ? f[config.y.column]
-                    : dateConvert.parse(f[config.y.column])
-        );
-        raw.forEach(
-            e =>
-                (e[config.y.column] = e[config.y.column] instanceof Date
-                    ? e[config.y.column]
-                    : dateConvert.parse(e[config.y.column]))
-        );
-    }
-
-    if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
-        raw = raw.filter(f => {
-            return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
-                ? +f[config.x.column] || +f[config.x.column] === 0
-                : f;
-        });
-    }
-    if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
-        raw = raw.filter(f => {
-            return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
-                ? +f[config.y.column] || +f[config.y.column] === 0
-                : f;
-        });
-    }
+    const cleaned = cleanData.call(this, mark, raw);
 
     //prepare nested data required for bar charts
     let raw_nest;
     if (mark.type === 'bar') {
         raw_nest = mark.arrange !== 'stacked'
-            ? makeNest.call(this, mark, raw, sublevel)
-            : makeNest.call(this, mark, raw);
+            ? makeNest.call(this, mark, cleaned, sublevel)
+            : makeNest.call(this, mark, cleaned);
     } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-        raw_nest = makeNest.call(this, mark, raw);
+        raw_nest = makeNest.call(this, mark, cleaned);
     }
 
     // Get the domain for the mark based on the raw data
     let raw_dom_x = mark.summarizeX === 'cumulative'
-        ? [0, raw.length]
+        ? [0, cleaned.length]
         : config.x.type === 'ordinal'
-          ? set(raw.map(m => m[config.x.column])).values().filter(f => f)
+          ? set(cleaned.map(m => m[config.x.column])).values().filter(f => f)
           : mark.split && mark.arrange !== 'stacked'
             ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
             : mark.summarizeX === 'count'
               ? extent(raw_nest.nested.map(m => m.values.raw.length))
-              : extent(raw.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
+              : extent(cleaned.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
 
     let raw_dom_y = mark.summarizeY === 'cumulative'
-        ? [0, raw.length]
+        ? [0, cleaned.length]
         : config.y.type === 'ordinal'
-          ? set(raw.map(m => m[config.y.column])).values().filter(f => f)
+          ? set(cleaned.map(m => m[config.y.column])).values().filter(f => f)
           : mark.split && mark.arrange !== 'stacked'
             ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
             : mark.summarizeY === 'count'
               ? extent(raw_nest.nested.map(m => m.values.raw.length))
-              : extent(raw.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
+              : extent(cleaned.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
 
-    let filtered = raw;
+    let filtered = cleaned;
 
     let filt1_xs = [];
     let filt1_ys = [];
@@ -130,7 +74,7 @@ export default function transformData(raw, mark) {
         //get domain for all non-All values of first filter
         if (config.x.behavior === 'firstfilter' || config.y.behavior === 'firstfilter') {
             this.filters[0].choices.filter(f => f !== 'All').forEach(e => {
-                let perfilter = raw.filter(f => f[this.filters[0].col] === e);
+                let perfilter = cleaned.filter(f => f[this.filters[0].col] === e);
                 let filt_nested = makeNest.call(this, mark, perfilter, sublevel);
                 filt1_xs.push(filt_nested.dom_x);
                 filt1_ys.push(filt_nested.dom_y);
@@ -185,7 +129,7 @@ export default function transformData(raw, mark) {
         : config.x.type === 'ordinal' && config.x.behavior === 'flex'
           ? set(filtered.map(m => m[config.x.column])).values()
           : config.x.type === 'ordinal'
-            ? set(raw.map(m => m[config.x.column])).values()
+            ? set(cleaned.map(m => m[config.x.column])).values()
             : pre_x_dom;
 
     let y_dom = config.y_dom
@@ -193,7 +137,7 @@ export default function transformData(raw, mark) {
         : config.y.type === 'ordinal' && config.y.behavior === 'flex'
           ? set(filtered.map(m => m[config.y.column])).values()
           : config.y.type === 'ordinal'
-            ? set(raw.map(m => m[config.y.column])).values()
+            ? set(cleaned.map(m => m[config.y.column])).values()
             : pre_y_dom;
 
     //set lower limit of linear domain to 0 when other axis is ordinal and mark type is set to 'bar', provided no values are negative
@@ -230,10 +174,10 @@ export default function transformData(raw, mark) {
     }
 
     if (config.x.type === 'ordinal' && !config.x.order) {
-        config.x.order = totalOrder;
+        config.x.order = current_nested.totalOrder;
     }
     if (config.y.type === 'ordinal' && !config.y.order) {
-        config.y.order = totalOrder;
+        config.y.order = current_nested.totalOrder;
     }
 
     this.current_data = current_nested.nested;
