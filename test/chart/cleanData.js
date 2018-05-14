@@ -22,6 +22,15 @@ export default function testCleanData(settings, data) {
 
         //transformData() validation
         describe('cleanData() is called for each item in settings.marks', () => {
+            const falseyValues = [
+                '',
+                ' ',
+                'asdf',
+                NaN,
+                null,
+                undefined,
+                false
+            ];
             settings.marks.forEach(mark => {
                 let copiedData, cleanedData;
 
@@ -32,22 +41,27 @@ export default function testCleanData(settings, data) {
                         for (const variable in d)
                             copiedData[i][variable] = d[variable];
 
-                        if (Math.random() < .05)
-                            copiedData[i][settings.x.column] = '';
-                        if (Math.random() > .95)
-                            copiedData[i][settings.y.column] = '';
+                        if (Math.random() < .1)
+                            copiedData[i][settings.x.column] = falseyValues[i%(falseyValues.length - 1)];
+                        if (Math.random() > .9)
+                            copiedData[i][settings.y.column] = falseyValues[i%(falseyValues.length - 1)];
                     });
 
                     cleanedData = cleanData.call(chart, mark, copiedData);
                 });
 
                 it('removes falsey values', () => {
+                    const cleanedCopiedData = copiedData
+                        .filter(d => (
+                            falseyValues.indexOf(d[settings.x.column]) < 0 &&
+                            !isNaN(d[settings.x.column]) &&
+                            falseyValues.indexOf(d[settings.y.column]) < 0 &&
+                            !isNaN(d[settings.y.column])
+                        ));
                     expect(
                         cleanedData.length
                     ).toEqual(
-                        copiedData
-                            .filter(d => d[settings.x.column] !== '' && d[settings.y.column] !== '')
-                            .length
+                        cleanedCopiedData.length
                     );
                 });
             });

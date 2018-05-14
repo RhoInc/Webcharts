@@ -607,12 +607,12 @@
         // Make sure data has x and y values
         if (this.config.x.column) {
             clean = clean.filter(function(f) {
-                return f[_this.config.x.column] !== undefined;
+                return [undefined, null].indexOf(f[_this.config.x.column]) < 0;
             });
         }
         if (this.config.y.column) {
             clean = clean.filter(function(f) {
-                return f[_this.config.y.column] !== undefined;
+                return [undefined, null].indexOf(f[_this.config.y.column]) < 0;
             });
         }
 

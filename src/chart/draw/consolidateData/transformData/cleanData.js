@@ -8,10 +8,10 @@ export default function cleanData(mark, raw) {
 
     // Make sure data has x and y values
     if (this.config.x.column) {
-        clean = clean.filter(f => f[this.config.x.column] !== undefined);
+        clean = clean.filter(f => [undefined, null].indexOf(f[this.config.x.column]) < 0);
     }
     if (this.config.y.column) {
-        clean = clean.filter(f => f[this.config.y.column] !== undefined);
+        clean = clean.filter(f => [undefined, null].indexOf(f[this.config.y.column]) < 0);
     }
 
     //check that x and y have the correct formats
