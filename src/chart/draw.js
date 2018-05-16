@@ -34,11 +34,11 @@ export default function draw(raw_data, processed_data) {
     this.setColorScale();
 
     let max_width = config.max_width ? config.max_width : div_width;
-    this.raw_width = config.x.type === 'ordinal' && +config.range_band
-        ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length
+    this.raw_width = config.x.type === 'ordinal' && +config.x.range_band
+        ? (+config.x.range_band + config.x.range_band * config.padding) * this.x_dom.length
         : config.resizable ? max_width : config.width ? config.width : div_width;
-    this.raw_height = config.y.type === 'ordinal' && +config.range_band
-        ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length
+    this.raw_height = config.y.type === 'ordinal' && +config.y.range_band
+        ? (+config.y.range_band + config.y.range_band * config.padding) * this.y_dom.length
         : config.resizable
           ? max_width * aspect2
           : config.height ? config.height : div_width * aspect2;
