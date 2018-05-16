@@ -5,9 +5,11 @@ import clone from '../util/clone';
 import { select } from 'd3';
 
 export default function draw(passed_data) {
-    const context = this,
-        config = this.config,
-        table = this.table;
+    const table = this;
+    const config = this.config;
+
+    this.data.passed = passed_data;
+    this.events.onPreprocess.call(this);
 
     //Apply filters if data is not passed to table.draw().
     if (!passed_data) {
@@ -89,7 +91,7 @@ export default function draw(passed_data) {
         //Sort data.
         if (this.config.sortable) {
             this.thead.selectAll('th').on('click', function(header) {
-                context.sortable.onClick.call(context, this, header);
+                table.sortable.onClick.call(table, this, header);
             });
 
             if (this.sortable.order.length) this.sortable.sortData.call(this, data);

@@ -33,8 +33,8 @@
     "test-controls": "mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",
     "test-miscellaneous": "mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
     "test-multiply": "mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
+    "test-new": "mocha --timeout 5000 --require babel-register --recursive ./test/testNewUnitTests.js",
     "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
-    "test-test": "mocha --timeout 5000 --require babel-register --recursive ./test/test.js",
     "watch": "rollup -c -w"
   },
   "repository": {

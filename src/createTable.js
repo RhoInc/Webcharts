@@ -20,22 +20,12 @@ export default function createTable(element = 'body', config = {}, controls = nu
         onInit() {},
         onLayout() {},
         onPreprocess() {},
-        onDatatransform() {},
         onDraw() {},
-        onResize() {},
         onDestroy() {}
     };
 
     thisTable.on = function(event, callback) {
-        let possible_events = [
-            'init',
-            'layout',
-            'preprocess',
-            'datatransform',
-            'draw',
-            'resize',
-            'destroy'
-        ];
+        let possible_events = ['init', 'layout', 'preprocess', 'draw', 'destroy'];
         if (possible_events.indexOf(event) < 0) {
             return;
         }

@@ -218,16 +218,15 @@
     function draw(raw_data, processed_data) {
         var _this = this;
 
-        var context = this;
+        var chart = this;
         var config = this.config;
-        var aspect2 = 1 / config.aspect;
+
+        //if pre-processing callback, run it now
+        this.events.onPreprocess.call(this);
 
         /////////////////////////
         // Data prep  pipeline //
         /////////////////////////
-
-        //if pre-processing callback, run it now
-        this.events.onPreprocess.call(this);
 
         // if user passed raw_data to chart.draw(), use that, otherwise use chart.raw_data
         var raw = raw_data ? raw_data : this.raw_data ? this.raw_data : [];
@@ -240,7 +239,7 @@
         }
 
         //Call consolidateData - this applies filters from controls and prepares data for each set of marks.
-        var data = processed_data || this.consolidateData(raw);
+        this.consolidateData(raw);
 
         /////////////////////////////
         // Prepare scales and axes //
@@ -257,8 +256,8 @@
         this.raw_height = config.y.type === 'ordinal' && +config.y.range_band
             ? (+config.y.range_band + config.y.range_band * config.padding) * this.y_dom.length
             : config.resizable
-              ? max_width * aspect2
-              : config.height ? config.height : div_width * aspect2;
+              ? max_width * (1 / config.aspect)
+              : config.height ? config.height : div_width * (1 / config.aspect);
 
         var pseudo_width = this.svg.select('.overlay').attr('width')
             ? this.svg.select('.overlay').attr('width')
@@ -282,11 +281,11 @@
         this.yScaleAxis(pseudo_height);
 
         if (config.resizable && typeof window !== 'undefined') {
-            d3.select(window).on('resize.' + context.element + context.id, function() {
-                context.resize();
+            d3.select(window).on('resize.' + this.element + this.id, function() {
+                chart.resize();
             });
         } else if (typeof window !== 'undefined') {
-            d3.select(window).on('resize.' + context.element + context.id, null);
+            d3.select(window).on('resize.' + this.element + this.id, null);
         }
 
         this.events.onDraw.call(this);
@@ -3314,9 +3313,11 @@
     function draw$1(passed_data) {
         var _this = this;
 
-        var context = this,
-            config = this.config,
-            table = this.table;
+        var table = this;
+        var config = this.config;
+
+        this.data.passed = passed_data;
+        this.events.onPreprocess.call(this);
 
         //Apply filters if data is not passed to table.draw().
         if (!passed_data) {
@@ -3411,7 +3412,7 @@
             //Sort data.
             if (this.config.sortable) {
                 this.thead.selectAll('th').on('click', function(header) {
-                    context.sortable.onClick.call(context, this, header);
+                    table.sortable.onClick.call(table, this, header);
                 });
 
                 if (this.sortable.order.length) this.sortable.sortData.call(this, data);
@@ -4340,22 +4341,12 @@
             onInit: function onInit() {},
             onLayout: function onLayout() {},
             onPreprocess: function onPreprocess() {},
-            onDatatransform: function onDatatransform() {},
             onDraw: function onDraw() {},
-            onResize: function onResize() {},
             onDestroy: function onDestroy() {}
         };
 
         thisTable.on = function(event, callback) {
-            var possible_events = [
-                'init',
-                'layout',
-                'preprocess',
-                'datatransform',
-                'draw',
-                'resize',
-                'destroy'
-            ];
+            var possible_events = ['init', 'layout', 'preprocess', 'draw', 'destroy'];
             if (possible_events.indexOf(event) < 0) {
                 return;
             }
