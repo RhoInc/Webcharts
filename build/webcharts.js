@@ -201,14 +201,16 @@
             .attr('fill', 'none')
             .style('pointer-events', 'all');
         //add legend
-        var legend = this.wrap.append('ul').datum(function() {
-            return null;
-        }); // prevent data inheritance
-        legend
-            .attr('class', 'legend')
-            .style('vertical-align', 'top')
-            .append('span')
-            .attr('class', 'legend-title');
+        if (!this.parent)
+            this.wrap
+                .append('ul')
+                .datum(function() {
+                    return null;
+                }) // prevent data inheritance
+                .attr('class', 'legend')
+                .style('vertical-align', 'top')
+                .append('span')
+                .attr('class', 'legend-title');
 
         d3.select(this.div).select('.loader').remove();
 
@@ -1442,6 +1444,7 @@
             .attr({ stroke: '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
 
         this.drawGridlines();
+
         //update legend - margins need to be set first
         this.makeLegend();
 
@@ -1560,11 +1563,27 @@
         var legendOriginal = this.legend || this.wrap.select('.legend');
         var legend = legendOriginal;
 
-        if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
-            this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+        if (!this.parent) {
+            //singular chart
+            if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+                this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+            } else {
+                this.wrap.node().appendChild(legendOriginal.node());
+            }
         } else {
-            this.wrap.node().appendChild(legendOriginal.node());
+            //multiples - keep legend outside of individual charts' wraps
+            if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+                this.parent.wrap
+                    .node()
+                    .insertBefore(
+                        legendOriginal.node(),
+                        this.parent.wrap.select('.wc-chart').node()
+                    );
+            } else {
+                this.parent.wrap.node().appendChild(legendOriginal.node());
+            }
         }
+
         legend.style('padding', 0);
 
         var legend_data =
@@ -1630,7 +1649,7 @@
             if (e.mark === 'circle') {
                 svg$$1
                     .append('circle')
-                    .attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
+                    .attr({ cx: '.5em', cy: '.5em', r: '.45em', class: 'legend-mark' });
             } else if (e.mark === 'line') {
                 svg$$1.append('line').attr({
                     x1: 0,
@@ -4393,11 +4412,13 @@
     function multiply(chart, data, split_by, order) {
         var test = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-        var config = chart.config;
-        var wrap = chart.wrap
-            .classed('wc-layout wc-small-multiples', true)
-            .classed('wc-chart', false);
-        var master_legend = wrap.append('ul').attr('class', 'legend');
+        chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
+
+        //Define container for legend that overrides multiples' legends.
+        chart.master_legend = chart.wrap.append('ul').attr('class', 'legend');
+        chart.master_legend.append('span').classed('legend-title', true);
+
+        //Instantiate multiples array.
         chart.multiples = [];
 
         function goAhead(data) {
@@ -4417,16 +4438,17 @@
                 });
             }
             split_vals.forEach(function(e) {
-                var mchart = createChart(chart.wrap.node(), config, chart.controls);
+                var mchart = createChart(chart.wrap.node(), chart.config, chart.controls);
                 chart.multiples.push(mchart);
                 mchart.parent = chart;
                 mchart.events = chart.events;
-                mchart.legend = master_legend;
+                mchart.legend = chart.master_legend;
                 mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
                 mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
                 mchart.init(data, test);
             });
         }
+
         goAhead(data);
     }
 
