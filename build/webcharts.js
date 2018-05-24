@@ -379,7 +379,8 @@
                         )
                     )
                     .values()
-                    .sort(naturalSorter);
+                    .sort(naturalSorter)
+                    .reverse();
             } else if (
                 ['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 &&
                 this.config[axis].sort === 'earliest'
