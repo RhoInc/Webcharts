@@ -13,6 +13,8 @@
 
         var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
+        this.test = test;
+
         if (d3.select(this.div).select('.loader').empty()) {
             d3
                 .select(this.div)
@@ -3583,8 +3585,44 @@
                     .attr({
                         id: fmt
                     })
+                    .style(
+                        !_this.test && navigator.msSaveBlob
+                            ? {
+                                  cursor: 'pointer',
+                                  'text-decoration': 'underline',
+                                  color: 'blue'
+                              }
+                            : null
+                    )
                     .text(fmt.toUpperCase());
             });
+    }
+
+    function download(fileType, data) {
+        //transform blob array into a blob of characters
+        var blob = new Blob(data, {
+            type: fileType === 'csv'
+                ? 'text/csv;charset=utf-8;'
+                : fileType === 'xlsx'
+                  ? 'application/octet-stream'
+                  : console.warn('File type not supported: ' + fileType)
+        });
+        var fileName =
+            'webchartsTableExport_' +
+            d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) +
+            '.' +
+            fileType;
+        var link = this.wrap.select('.export#' + fileType);
+
+        if (navigator.msSaveBlob)
+            //IE
+            navigator.msSaveBlob(blob, fileName);
+        else if (link.node().download !== undefined) {
+            //21st century browsers
+            var url = URL.createObjectURL(blob);
+            link.node().setAttribute('href', url);
+            link.node().setAttribute('download', fileName);
+        }
     }
 
     function csv(data) {
@@ -3612,32 +3650,8 @@
                 CSVarray.push(row);
             });
 
-            //transform CSV array into CSV string
-            var CSV = new Blob([CSVarray.join('\n')], { type: 'text/csv;charset=utf-8;' }),
-                fileName =
-                    'webchartsTableExport_' +
-                    d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) +
-                    '.csv',
-                link = _this.wrap.select('.export#csv');
-
-            if (navigator.msSaveBlob) {
-                // IE 10+
-                link.style({
-                    cursor: 'pointer',
-                    'text-decoration': 'underline',
-                    color: 'blue'
-                });
-                link.on('click', function() {
-                    navigator.msSaveBlob(CSV, fileName);
-                });
-            } else {
-                // Browsers that support HTML5 download attribute
-                if (link.node().download !== undefined) {
-                    var url = URL.createObjectURL(CSV);
-                    link.node().setAttribute('href', url);
-                    link.node().setAttribute('download', fileName);
-                }
-            }
+            //Download .csv file.
+            download.call(_this, 'csv', [CSVarray.join('\n')]);
         });
     }
 
@@ -3645,27 +3659,26 @@
         var _this = this;
 
         this.wrap.select('.export#xlsx').on('click', function() {
-            var sheetName = 'Selected Data',
-                options = {
-                    bookType: 'xlsx',
-                    bookSST: true,
-                    type: 'binary'
-                },
-                arrayOfArrays = data.map(function(d) {
-                    return Object.keys(d)
-                        .filter(function(key) {
-                            return _this.config.cols.indexOf(key) > -1;
-                        })
-                        .map(function(key) {
-                            return d[key];
-                        });
-                }),
-                // convert data from array of objects to array of arrays.
-                workbook = {
-                    SheetNames: [sheetName],
-                    Sheets: {}
-                },
-                cols = [];
+            var sheetName = 'Selected Data';
+            var options = {
+                bookType: 'xlsx',
+                bookSST: true,
+                type: 'binary'
+            };
+            var arrayOfArrays = data.map(function(d) {
+                return Object.keys(d)
+                    .filter(function(key) {
+                        return _this.config.cols.indexOf(key) > -1;
+                    })
+                    .map(function(key) {
+                        return d[key];
+                    });
+            }); // convert data from array of objects to array of arrays.
+            var workbook = {
+                SheetNames: [sheetName],
+                Sheets: {}
+            };
+            var cols = [];
 
             //Convert headers and data from array of arrays to sheet.
             workbook.Sheets[sheetName] = XLSX.utils.aoa_to_sheet(
@@ -3683,43 +3696,19 @@
             });
             workbook.Sheets[sheetName]['!cols'] = cols;
 
-            var xlsx = XLSX.write(workbook, options),
-                s2ab = function s2ab(s) {
-                    var buffer = new ArrayBuffer(s.length),
-                        view = new Uint8Array(buffer);
+            var xlsx = XLSX.write(workbook, options);
+            var s2ab = function s2ab(s) {
+                var buffer = new ArrayBuffer(s.length),
+                    view = new Uint8Array(buffer);
 
-                    for (var i = 0; i !== s.length; ++i) {
-                        view[i] = s.charCodeAt(i) & 0xff;
-                    }
-                    return buffer;
-                }; // convert spreadsheet to binary or something, i don't know
-
-            //transform CSV array into CSV string
-            var blob = new Blob([s2ab(xlsx)], { type: 'application/octet-stream;' }),
-                fileName =
-                    'webchartsTableExport_' +
-                    d3.time.format('%Y-%m-%dT%H-%M-%S')(new Date()) +
-                    '.xlsx',
-                link = _this.wrap.select('.export#xlsx');
-
-            if (navigator.msSaveBlob) {
-                // IE 10+
-                link.style({
-                    cursor: 'pointer',
-                    'text-decoration': 'underline',
-                    color: 'blue'
-                });
-                link.on('click', function() {
-                    navigator.msSaveBlob(blob, fileName);
-                });
-            } else {
-                // Browsers that support HTML5 download attribute
-                if (link.node().download !== undefined) {
-                    var url = URL.createObjectURL(blob);
-                    link.node().setAttribute('href', url);
-                    link.node().setAttribute('download', fileName);
+                for (var i = 0; i !== s.length; ++i) {
+                    view[i] = s.charCodeAt(i) & 0xff;
                 }
-            }
+                return buffer;
+            }; // convert spreadsheet to binary or something, i don't know
+
+            //Download .xlsx file.
+            download.call(_this, 'xlsx', [s2ab(xlsx)]);
         });
     }
 
@@ -4066,6 +4055,8 @@
         var _this = this;
 
         var test = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+        this.test = test;
 
         if (d3.select(this.div).select('.loader').empty()) {
             d3

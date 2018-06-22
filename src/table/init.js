@@ -5,6 +5,8 @@ import sortable from './sortable/index';
 import pagination from './pagination/index';
 
 export default function init(data, test = false) {
+    this.test = test;
+
     if (select(this.div).select('.loader').empty()) {
         select(this.div)
             .insert('div', ':first-child')
