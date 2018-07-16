@@ -283,7 +283,7 @@ function setDomain(axis) {
             //alphanumerically, first to last
             this[axis + '_dom'] = d3.set(d3.merge(this.marks.map(function (mark) {
                 return mark[axis + '_dom'];
-            }))).values().sort(naturalSorter).reverse();
+            }))).values().sort(naturalSorter);
         } else if (['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 && this.config[axis].sort === 'earliest') {
             //data-driven domain plotted against a time or linear axis that sorts the axis values
             //by earliest event/datum; generally used with timeline charts
@@ -305,7 +305,7 @@ function setDomain(axis) {
             //axis alphanumerically, last to first
             this[axis + '_dom'] = d3.set(d3.merge(this.marks.map(function (mark) {
                 return mark[axis + '_dom'];
-            }))).values().sort(naturalSorter);
+            }))).values().sort(naturalSorter).reverse();
         } else {
             //data-driven domain with an invalid user-defined sort algorithm that captures a unique
             //set of values as they appear in the data
@@ -394,7 +394,7 @@ function setDefaults() {
     this.config.x.label = this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
     this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
 
-    this.config.x.sort = this.config.x.sort || 'alphabetical-descending';
+    this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
     this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
 
     this.config.x.type = this.config.x.type || 'linear';
