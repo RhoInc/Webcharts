@@ -9,7 +9,7 @@ export default function setDefaults() {
         ? this.config.y.label
         : this.config.y.column;
 
-    this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
+    this.config.x.sort = this.config.x.sort || 'alphabetical-descending';
     this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
 
     this.config.x.type = this.config.x.type || 'linear';
