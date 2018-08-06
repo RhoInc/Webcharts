@@ -73,7 +73,9 @@ export const ordinal_linear = {
         },
     ],
     color_by: 'Species',
-    legend: {}
+    legend: {},
+    padding: 0,
+    outer_pad: 0,
 };
 
 export const linear_ordinal = {
@@ -110,5 +112,39 @@ export const linear_ordinal = {
         },
     ],
     color_by: 'Species',
-    legend: {}
+    legend: {},
+    padding: 0,
+    outer_pad: 0,
+};
+
+export const ordinal_ordinal = {
+    x: {
+        type: 'ordinal',
+        column: 'Species',
+        label: 'Species'
+    },
+    y: {
+        type: 'ordinal',
+        column: 'Species',
+        label: 'Species'
+    },
+    marks: [
+        {
+            type: 'bar',
+            per: ['Species'],
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+        },
+        {
+            type: 'text',
+            per: ['Species'],
+            text: '$x - $y',
+        },
+    ],
+    color_by: 'Species',
+    legend: {},
+    padding: 0,
+    outer_pad: 0,
 };

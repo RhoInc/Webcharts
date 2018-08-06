@@ -251,11 +251,11 @@
         this.setColorScale();
 
         var max_width = config.max_width ? config.max_width : div_width;
-        this.raw_width = config.x.type === 'ordinal' && +config.range_band
-            ? (+config.range_band + config.range_band * config.padding) * this.x_dom.length
+        this.raw_width = config.x.type === 'ordinal' && +config.x.range_band
+            ? (+config.x.range_band + config.x.range_band * config.padding) * this.x_dom.length
             : config.resizable ? max_width : config.width ? config.width : div_width;
-        this.raw_height = config.y.type === 'ordinal' && +config.range_band
-            ? (+config.range_band + config.range_band * config.padding) * this.y_dom.length
+        this.raw_height = config.y.type === 'ordinal' && +config.y.range_band
+            ? (+config.y.range_band + config.y.range_band * config.padding) * this.y_dom.length
             : config.resizable
               ? max_width * aspect2
               : config.height ? config.height : div_width * aspect2;
@@ -548,6 +548,9 @@
 
         this.config.x.type = this.config.x.type || 'linear';
         this.config.y.type = this.config.y.type || 'linear';
+
+        this.config.x.range_band = this.config.x.range_band || this.config.range_band;
+        this.config.y.range_band = this.config.y.range_band || this.config.range_band;
 
         this.config.margin = this.config.margin || {};
         this.config.legend = this.config.legend || {};
@@ -1373,13 +1376,13 @@
 
         this.margin = this.setMargins();
 
-        var svg_width = config.x.type === 'ordinal' && +config.range_band
+        var svg_width = config.x.type === 'ordinal' && +config.x.range_band
             ? this.raw_width + this.margin.left + this.margin.right
             : !config.resizable
               ? this.raw_width
               : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
         this.plot_width = svg_width - this.margin.left - this.margin.right;
-        var svg_height = config.y.type === 'ordinal' && +config.range_band
+        var svg_height = config.y.type === 'ordinal' && +config.y.range_band
             ? this.raw_height + this.margin.top + this.margin.bottom
             : !config.resizable && config.height
               ? config.height
@@ -1838,7 +1841,9 @@
             bars.each(function(d) {
                 var mark = d3.select(this.parentNode.parentNode).datum();
                 d.tooltip = mark.tooltip;
-                d.arrange = mark.split ? mark.arrange : null;
+                d.arrange = mark.split && mark.arrange
+                    ? mark.arrange
+                    : mark.split ? 'grouped' : null;
                 d.subcats = config.legend.order
                     ? config.legend.order.slice().reverse()
                     : mark.values && mark.values[mark.split]
@@ -1983,6 +1988,7 @@
                             )
                             .values();
                 d.tooltip = mark.tooltip;
+                d3.select(this).attr(mark.attributes);
             });
 
             var _xformat = config.marks
