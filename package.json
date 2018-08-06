@@ -34,7 +34,6 @@
     "test-miscellaneous": "mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
     "test-multiply": "mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
     "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
-    "test-test": "mocha --timeout 5000 --require babel-register --recursive ./test/chart/setDomain.js",
     "watch": "rollup -c -w"
   },
   "repository": {

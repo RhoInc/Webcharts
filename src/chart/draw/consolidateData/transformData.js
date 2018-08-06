@@ -1,19 +1,5 @@
-import naturalSorter from '../../../dataOps/naturalSorter';
-import summarize from '../../../dataOps/summarize';
-import {
-    time,
-    sum,
-    set,
-    extent,
-    merge,
-    nest,
-    scale,
-    range,
-    ascending,
-    descending,
-    quantile,
-    max
-} from 'd3';
+import makeNest from './transformData/makeNest';
+import { time, set, extent, merge } from 'd3';
 
 //////////////////////////////////////////////////////////
 // transformData(raw, mark) provides specifications and data for
@@ -36,162 +22,6 @@ export default function transformData(raw, mark) {
         : mark.type === 'bar' && mark.split ? mark.split : null;
     let dateConvert = time.format(config.date_format);
     let totalOrder;
-
-    ///////////////////////////////////////////////
-    // calcStartTotal() - method to calculate percentages in bars
-    //////////////////////////////////////////////
-    function calcStartTotal(e) {
-        let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
-            ? 'y'
-            : 'x';
-        e.total = sum(e.values.map(m => +m.values[axis]));
-        let counter = 0;
-        e.values.forEach((v, i) => {
-            if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
-                v.values.y = mark.summarizeY === 'percent' ? v.values.y / e.total : v.values.y || 0;
-                counter += +v.values.y;
-                v.values.start = e.values[i - 1] ? counter : v.values.y;
-            } else {
-                v.values.x = mark.summarizeX === 'percent' ? v.values.x / e.total : v.values.x || 0;
-                v.values.start = counter;
-                counter += +v.values.x;
-            }
-        });
-    }
-
-    function makeNest(entries, sublevel) {
-        let dom_xs = [];
-        let dom_ys = [];
-        let this_nest = nest();
-
-        if (
-            (config.x.type === 'linear' && config.x.bin) ||
-            (config.y.type === 'linear' && config.y.bin)
-        ) {
-            let xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
-            let quant = scale
-                .quantile()
-                .domain(extent(entries.map(m => +m[config[xy].column])))
-                .range(range(+config[xy].bin));
-
-            entries.forEach(e => (e.wc_bin = quant(e[config[xy].column])));
-
-            this_nest.key(d => quant.invertExtent(d.wc_bin));
-        } else {
-            this_nest.key(d => mark.per.map(m => d[m]).join(' '));
-        }
-
-        if (sublevel) {
-            this_nest.key(d => d[sublevel]);
-            this_nest.sortKeys((a, b) => {
-                return config.x.type === 'time'
-                    ? ascending(new Date(a), new Date(b))
-                    : config.x.order
-                      ? ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
-                      : sublevel === config.color_by && config.legend.order
-                        ? ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b))
-                        : config.x.type === 'ordinal' || config.y.type === 'ordinal'
-                          ? naturalSorter(a, b)
-                          : ascending(+a, +b);
-            });
-        }
-        this_nest.rollup(r => {
-            let obj = { raw: r };
-            let y_vals = r.map(m => m[config.y.column]).sort(ascending);
-            let x_vals = r.map(m => m[config.x.column]).sort(ascending);
-            obj.x = config.x.type === 'ordinal'
-                ? r[0][config.x.column]
-                : summarize(x_vals, mark.summarizeX);
-            obj.y = config.y.type === 'ordinal'
-                ? r[0][config.y.column]
-                : summarize(y_vals, mark.summarizeY);
-
-            obj.x_q25 = config.error_bars && config.y.type === 'ordinal'
-                ? quantile(x_vals, 0.25)
-                : obj.x;
-            obj.x_q75 = config.error_bars && config.y.type === 'ordinal'
-                ? quantile(x_vals, 0.75)
-                : obj.x;
-            obj.y_q25 = config.error_bars ? quantile(y_vals, 0.25) : obj.y;
-            obj.y_q75 = config.error_bars ? quantile(y_vals, 0.75) : obj.y;
-            dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
-            dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
-
-            if (mark.summarizeY === 'cumulative') {
-                let interm = entries.filter(f => {
-                    return config.x.type === 'time'
-                        ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column])
-                        : +f[config.x.column] <= +r[0][config.x.column];
-                });
-                if (mark.per.length) {
-                    interm = interm.filter(f => f[mark.per[0]] === r[0][mark.per[0]]);
-                }
-
-                let cumul = config.x.type === 'time'
-                    ? interm.length
-                    : sum(
-                          interm.map(
-                              m =>
-                                  +m[config.y.column] || +m[config.y.column] === 0
-                                      ? +m[config.y.column]
-                                      : 1
-                          )
-                      );
-                dom_ys.push([cumul]);
-                obj.y = cumul;
-            }
-            if (mark.summarizeX === 'cumulative') {
-                let interm = entries.filter(f => {
-                    return config.y.type === 'time'
-                        ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column])
-                        : +f[config.y.column] <= +r[0][config.y.column];
-                });
-                if (mark.per.length) {
-                    interm = interm.filter(f => f[mark.per[0]] === r[0][mark.per[0]]);
-                }
-                dom_xs.push([interm.length]);
-                obj.x = interm.length;
-            }
-
-            return obj;
-        });
-
-        let test = this_nest.entries(entries);
-
-        let dom_x = extent(merge(dom_xs));
-        let dom_y = extent(merge(dom_ys));
-
-        if (sublevel && mark.type === 'bar' && mark.arrange === 'stacked') {
-            test.forEach(calcStartTotal);
-            if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
-                dom_y = extent(test.map(m => m.total));
-            }
-            if (config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin)) {
-                dom_x = extent(test.map(m => m.total));
-            }
-        } else if (sublevel && mark.type === 'bar' && mark.split) {
-            test.forEach(calcStartTotal);
-        } else {
-            let axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
-                ? 'y'
-                : 'x';
-            test.forEach(e => (e.total = e.values[axis]));
-        }
-
-        if (
-            (config.x.sort === 'total-ascending' && config.x.type == 'ordinal') ||
-            (config.y.sort === 'total-descending' && config.y.type == 'ordinal')
-        ) {
-            totalOrder = test.sort((a, b) => ascending(a.total, b.total)).map(m => m.key);
-        } else if (
-            (config.x.sort === 'total-descending' && config.x.type == 'ordinal') ||
-            (config.y.sort === 'total-ascending' && config.y.type == 'ordinal')
-        ) {
-            totalOrder = test.sort((a, b) => descending(+a.total, +b.total)).map(m => m.key);
-        }
-
-        return { nested: test, dom_x: dom_x, dom_y: dom_y };
-    }
 
     //////////////////////////////////////////////////////////////////////////////////
     // DATA PREP
@@ -257,9 +87,11 @@ export default function transformData(raw, mark) {
     //prepare nested data required for bar charts
     let raw_nest;
     if (mark.type === 'bar') {
-        raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
+        raw_nest = mark.arrange !== 'stacked'
+            ? makeNest.call(this, mark, raw, sublevel)
+            : makeNest.call(this, mark, raw);
     } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-        raw_nest = makeNest(raw);
+        raw_nest = makeNest.call(this, mark, raw);
     }
 
     // Get the domain for the mark based on the raw data
@@ -299,7 +131,7 @@ export default function transformData(raw, mark) {
         if (config.x.behavior === 'firstfilter' || config.y.behavior === 'firstfilter') {
             this.filters[0].choices.filter(f => f !== 'All').forEach(e => {
                 let perfilter = raw.filter(f => f[this.filters[0].col] === e);
-                let filt_nested = makeNest(perfilter, sublevel);
+                let filt_nested = makeNest.call(this, mark, perfilter, sublevel);
                 filt1_xs.push(filt_nested.dom_x);
                 filt1_ys.push(filt_nested.dom_y);
             });
@@ -317,7 +149,7 @@ export default function transformData(raw, mark) {
     let filt1_dom_x = extent(merge(filt1_xs));
     let filt1_dom_y = extent(merge(filt1_ys));
 
-    let current_nested = makeNest(filtered, sublevel);
+    let current_nested = makeNest.call(this, mark, filtered, sublevel);
 
     let flex_dom_x = current_nested.dom_x;
     let flex_dom_y = current_nested.dom_y;
@@ -354,7 +186,7 @@ export default function transformData(raw, mark) {
           ? set(filtered.map(m => m[config.x.column])).values()
           : config.x.type === 'ordinal'
             ? set(raw.map(m => m[config.x.column])).values()
-            : config.x_from0 ? [0, max(pre_x_dom)] : pre_x_dom;
+            : pre_x_dom;
 
     let y_dom = config.y_dom
         ? config.y_dom
@@ -362,8 +194,28 @@ export default function transformData(raw, mark) {
           ? set(filtered.map(m => m[config.y.column])).values()
           : config.y.type === 'ordinal'
             ? set(raw.map(m => m[config.y.column])).values()
-            : config.y_from0 ? [0, max(pre_y_dom)] : pre_y_dom;
+            : pre_y_dom;
 
+    //set lower limit of linear domain to 0 when other axis is ordinal and mark type is set to 'bar', provided no values are negative
+    if (mark.type === 'bar') {
+        if (
+            config.x.behavior !== 'flex' &&
+            config.x.type === 'linear' &&
+            config.y.type === 'ordinal' &&
+            raw_dom_x[0] >= 0
+        )
+            x_dom[0] = 0;
+
+        if (
+            config.y.behavior !== 'flex' &&
+            config.x.type === 'ordinal' &&
+            config.y.type === 'linear' &&
+            raw_dom_y[0] >= 0
+        )
+            y_dom[0] = 0;
+    }
+
+    //update domains with those specified in the config
     if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
         x_dom[0] = config.x.domain[0];
     }

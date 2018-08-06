@@ -606,6 +606,239 @@
         return mathed;
     }
 
+    function makeNest(mark, entries, sublevel) {
+        var _this = this;
+
+        var dom_xs = [];
+        var dom_ys = [];
+        var this_nest = d3.nest();
+
+        if (
+            (this.config.x.type === 'linear' && this.config.x.bin) ||
+            (this.config.y.type === 'linear' && this.config.y.bin)
+        ) {
+            var xy = this.config.x.type === 'linear' && this.config.x.bin ? 'x' : 'y';
+            var quant = d3.scale
+                .quantile()
+                .domain(
+                    d3.extent(
+                        entries.map(function(m) {
+                            return +m[_this.config[xy].column];
+                        })
+                    )
+                )
+                .range(d3.range(+this.config[xy].bin));
+
+            entries.forEach(function(e) {
+                return (e.wc_bin = quant(e[_this.config[xy].column]));
+            });
+
+            this_nest.key(function(d) {
+                return quant.invertExtent(d.wc_bin);
+            });
+        } else {
+            this_nest.key(function(d) {
+                return mark.per
+                    .map(function(m) {
+                        return d[m];
+                    })
+                    .join(' ');
+            });
+        }
+
+        if (sublevel) {
+            this_nest.key(function(d) {
+                return d[sublevel];
+            });
+            this_nest.sortKeys(function(a, b) {
+                return _this.config.x.type === 'time'
+                    ? d3.ascending(new Date(a), new Date(b))
+                    : _this.config.x.order
+                      ? d3.ascending(
+                            _this.config.x.order.indexOf(a),
+                            _this.config.x.order.indexOf(b)
+                        )
+                      : sublevel === _this.config.color_by && _this.config.legend.order
+                        ? d3.ascending(
+                              _this.config.legend.order.indexOf(a),
+                              _this.config.legend.order.indexOf(b)
+                          )
+                        : _this.config.x.type === 'ordinal' || _this.config.y.type === 'ordinal'
+                          ? naturalSorter(a, b)
+                          : d3.ascending(+a, +b);
+            });
+        }
+        this_nest.rollup(function(r) {
+            var obj = { raw: r };
+            var y_vals = r
+                .map(function(m) {
+                    return m[_this.config.y.column];
+                })
+                .sort(d3.ascending);
+            var x_vals = r
+                .map(function(m) {
+                    return m[_this.config.x.column];
+                })
+                .sort(d3.ascending);
+            obj.x = _this.config.x.type === 'ordinal'
+                ? r[0][_this.config.x.column]
+                : summarize(x_vals, mark.summarizeX);
+            obj.y = _this.config.y.type === 'ordinal'
+                ? r[0][_this.config.y.column]
+                : summarize(y_vals, mark.summarizeY);
+
+            obj.x_q25 = _this.config.error_bars && _this.config.y.type === 'ordinal'
+                ? d3.quantile(x_vals, 0.25)
+                : obj.x;
+            obj.x_q75 = _this.config.error_bars && _this.config.y.type === 'ordinal'
+                ? d3.quantile(x_vals, 0.75)
+                : obj.x;
+            obj.y_q25 = _this.config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
+            obj.y_q75 = _this.config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
+            dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
+            dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
+
+            if (mark.summarizeY === 'cumulative') {
+                var interm = entries.filter(function(f) {
+                    return _this.config.x.type === 'time'
+                        ? new Date(f[_this.config.x.column]) <=
+                              new Date(r[0][_this.config.x.column])
+                        : +f[_this.config.x.column] <= +r[0][_this.config.x.column];
+                });
+                if (mark.per.length) {
+                    interm = interm.filter(function(f) {
+                        return f[mark.per[0]] === r[0][mark.per[0]];
+                    });
+                }
+
+                var cumul = _this.config.x.type === 'time'
+                    ? interm.length
+                    : d3.sum(
+                          interm.map(function(m) {
+                              return +m[_this.config.y.column] || +m[_this.config.y.column] === 0
+                                  ? +m[_this.config.y.column]
+                                  : 1;
+                          })
+                      );
+                dom_ys.push([cumul]);
+                obj.y = cumul;
+            }
+            if (mark.summarizeX === 'cumulative') {
+                var _interm = entries.filter(function(f) {
+                    return _this.config.y.type === 'time'
+                        ? new Date(f[_this.config.y.column]) <=
+                              new Date(r[0][_this.config.y.column])
+                        : +f[_this.config.y.column] <= +r[0][_this.config.y.column];
+                });
+                if (mark.per.length) {
+                    _interm = _interm.filter(function(f) {
+                        return f[mark.per[0]] === r[0][mark.per[0]];
+                    });
+                }
+                dom_xs.push([_interm.length]);
+                obj.x = _interm.length;
+            }
+
+            return obj;
+        });
+
+        var test = this_nest.entries(entries);
+
+        var dom_x = d3.extent(d3.merge(dom_xs));
+        var dom_y = d3.extent(d3.merge(dom_ys));
+
+        if (sublevel && mark.type === 'bar' && mark.split) {
+            //calculate percentages in bars
+            test.forEach(function(e) {
+                var axis = _this.config.x.type === 'ordinal' ||
+                    (_this.config.x.type === 'linear' && _this.config.x.bin)
+                    ? 'y'
+                    : 'x';
+                e.total = d3.sum(
+                    e.values.map(function(m) {
+                        return +m.values[axis];
+                    })
+                );
+                var counter = 0;
+                e.values.forEach(function(v, i) {
+                    if (
+                        _this.config.x.type === 'ordinal' ||
+                        (_this.config.x.type === 'linear' && _this.config.x.bin)
+                    ) {
+                        v.values.y = mark.summarizeY === 'percent'
+                            ? v.values.y / e.total
+                            : v.values.y || 0;
+                        counter += +v.values.y;
+                        v.values.start = e.values[i - 1] ? counter : v.values.y;
+                    } else {
+                        v.values.x = mark.summarizeX === 'percent'
+                            ? v.values.x / e.total
+                            : v.values.x || 0;
+                        v.values.start = counter;
+                        counter += +v.values.x;
+                    }
+                });
+            });
+
+            if (mark.arrange === 'stacked') {
+                if (
+                    this.config.x.type === 'ordinal' ||
+                    (this.config.x.type === 'linear' && this.config.x.bin)
+                ) {
+                    dom_y = d3.extent(
+                        test.map(function(m) {
+                            return m.total;
+                        })
+                    );
+                }
+                if (
+                    this.config.y.type === 'ordinal' ||
+                    (this.config.y.type === 'linear' && this.config.y.bin)
+                ) {
+                    dom_x = d3.extent(
+                        test.map(function(m) {
+                            return m.total;
+                        })
+                    );
+                }
+            }
+        } else {
+            var axis = this.config.x.type === 'ordinal' ||
+                (this.config.x.type === 'linear' && this.config.x.bin)
+                ? 'y'
+                : 'x';
+            test.forEach(function(e) {
+                return (e.total = e.values[axis]);
+            });
+        }
+
+        if (
+            (this.config.x.sort === 'total-ascending' && this.config.x.type == 'ordinal') ||
+            (this.config.y.sort === 'total-descending' && this.config.y.type == 'ordinal')
+        ) {
+            totalOrder = test
+                .sort(function(a, b) {
+                    return d3.ascending(a.total, b.total);
+                })
+                .map(function(m) {
+                    return m.key;
+                });
+        } else if (
+            (this.config.x.sort === 'total-descending' && this.config.x.type == 'ordinal') ||
+            (this.config.y.sort === 'total-ascending' && this.config.y.type == 'ordinal')
+        ) {
+            totalOrder = test
+                .sort(function(a, b) {
+                    return d3.descending(+a.total, +b.total);
+                })
+                .map(function(m) {
+                    return m.key;
+                });
+        }
+
+        return { nested: test, dom_x: dom_x, dom_y: dom_y };
+    }
+
     //////////////////////////////////////////////////////////
     // transformData(raw, mark) provides specifications and data for
     // each set of marks. As such, it is called once for each
@@ -629,225 +862,6 @@
             : mark.type === 'bar' && mark.split ? mark.split : null;
         var dateConvert = d3.time.format(config.date_format);
         var totalOrder = void 0;
-
-        ///////////////////////////////////////////////
-        // calcStartTotal() - method to calculate percentages in bars
-        //////////////////////////////////////////////
-        function calcStartTotal(e) {
-            var axis = config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)
-                ? 'y'
-                : 'x';
-            e.total = d3.sum(
-                e.values.map(function(m) {
-                    return +m.values[axis];
-                })
-            );
-            var counter = 0;
-            e.values.forEach(function(v, i) {
-                if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
-                    v.values.y = mark.summarizeY === 'percent'
-                        ? v.values.y / e.total
-                        : v.values.y || 0;
-                    counter += +v.values.y;
-                    v.values.start = e.values[i - 1] ? counter : v.values.y;
-                } else {
-                    v.values.x = mark.summarizeX === 'percent'
-                        ? v.values.x / e.total
-                        : v.values.x || 0;
-                    v.values.start = counter;
-                    counter += +v.values.x;
-                }
-            });
-        }
-
-        function makeNest(entries, sublevel) {
-            var dom_xs = [];
-            var dom_ys = [];
-            var this_nest = d3.nest();
-
-            if (
-                (config.x.type === 'linear' && config.x.bin) ||
-                (config.y.type === 'linear' && config.y.bin)
-            ) {
-                var xy = config.x.type === 'linear' && config.x.bin ? 'x' : 'y';
-                var quant = d3.scale
-                    .quantile()
-                    .domain(
-                        d3.extent(
-                            entries.map(function(m) {
-                                return +m[config[xy].column];
-                            })
-                        )
-                    )
-                    .range(d3.range(+config[xy].bin));
-
-                entries.forEach(function(e) {
-                    return (e.wc_bin = quant(e[config[xy].column]));
-                });
-
-                this_nest.key(function(d) {
-                    return quant.invertExtent(d.wc_bin);
-                });
-            } else {
-                this_nest.key(function(d) {
-                    return mark.per
-                        .map(function(m) {
-                            return d[m];
-                        })
-                        .join(' ');
-                });
-            }
-
-            if (sublevel) {
-                this_nest.key(function(d) {
-                    return d[sublevel];
-                });
-                this_nest.sortKeys(function(a, b) {
-                    return config.x.type === 'time'
-                        ? d3.ascending(new Date(a), new Date(b))
-                        : config.x.order
-                          ? d3.ascending(config.x.order.indexOf(a), config.x.order.indexOf(b))
-                          : sublevel === config.color_by && config.legend.order
-                            ? d3.ascending(
-                                  config.legend.order.indexOf(a),
-                                  config.legend.order.indexOf(b)
-                              )
-                            : config.x.type === 'ordinal' || config.y.type === 'ordinal'
-                              ? naturalSorter(a, b)
-                              : d3.ascending(+a, +b);
-                });
-            }
-            this_nest.rollup(function(r) {
-                var obj = { raw: r };
-                var y_vals = r
-                    .map(function(m) {
-                        return m[config.y.column];
-                    })
-                    .sort(d3.ascending);
-                var x_vals = r
-                    .map(function(m) {
-                        return m[config.x.column];
-                    })
-                    .sort(d3.ascending);
-                obj.x = config.x.type === 'ordinal'
-                    ? r[0][config.x.column]
-                    : summarize(x_vals, mark.summarizeX);
-                obj.y = config.y.type === 'ordinal'
-                    ? r[0][config.y.column]
-                    : summarize(y_vals, mark.summarizeY);
-
-                obj.x_q25 = config.error_bars && config.y.type === 'ordinal'
-                    ? d3.quantile(x_vals, 0.25)
-                    : obj.x;
-                obj.x_q75 = config.error_bars && config.y.type === 'ordinal'
-                    ? d3.quantile(x_vals, 0.75)
-                    : obj.x;
-                obj.y_q25 = config.error_bars ? d3.quantile(y_vals, 0.25) : obj.y;
-                obj.y_q75 = config.error_bars ? d3.quantile(y_vals, 0.75) : obj.y;
-                dom_xs.push([obj.x_q25, obj.x_q75, obj.x]);
-                dom_ys.push([obj.y_q25, obj.y_q75, obj.y]);
-
-                if (mark.summarizeY === 'cumulative') {
-                    var interm = entries.filter(function(f) {
-                        return config.x.type === 'time'
-                            ? new Date(f[config.x.column]) <= new Date(r[0][config.x.column])
-                            : +f[config.x.column] <= +r[0][config.x.column];
-                    });
-                    if (mark.per.length) {
-                        interm = interm.filter(function(f) {
-                            return f[mark.per[0]] === r[0][mark.per[0]];
-                        });
-                    }
-
-                    var cumul = config.x.type === 'time'
-                        ? interm.length
-                        : d3.sum(
-                              interm.map(function(m) {
-                                  return +m[config.y.column] || +m[config.y.column] === 0
-                                      ? +m[config.y.column]
-                                      : 1;
-                              })
-                          );
-                    dom_ys.push([cumul]);
-                    obj.y = cumul;
-                }
-                if (mark.summarizeX === 'cumulative') {
-                    var _interm = entries.filter(function(f) {
-                        return config.y.type === 'time'
-                            ? new Date(f[config.y.column]) <= new Date(r[0][config.y.column])
-                            : +f[config.y.column] <= +r[0][config.y.column];
-                    });
-                    if (mark.per.length) {
-                        _interm = _interm.filter(function(f) {
-                            return f[mark.per[0]] === r[0][mark.per[0]];
-                        });
-                    }
-                    dom_xs.push([_interm.length]);
-                    obj.x = _interm.length;
-                }
-
-                return obj;
-            });
-
-            var test = this_nest.entries(entries);
-
-            var dom_x = d3.extent(d3.merge(dom_xs));
-            var dom_y = d3.extent(d3.merge(dom_ys));
-
-            if (sublevel && mark.type === 'bar' && mark.arrange === 'stacked') {
-                test.forEach(calcStartTotal);
-                if (config.x.type === 'ordinal' || (config.x.type === 'linear' && config.x.bin)) {
-                    dom_y = d3.extent(
-                        test.map(function(m) {
-                            return m.total;
-                        })
-                    );
-                }
-                if (config.y.type === 'ordinal' || (config.y.type === 'linear' && config.y.bin)) {
-                    dom_x = d3.extent(
-                        test.map(function(m) {
-                            return m.total;
-                        })
-                    );
-                }
-            } else if (sublevel && mark.type === 'bar' && mark.split) {
-                test.forEach(calcStartTotal);
-            } else {
-                var axis = config.x.type === 'ordinal' ||
-                    (config.x.type === 'linear' && config.x.bin)
-                    ? 'y'
-                    : 'x';
-                test.forEach(function(e) {
-                    return (e.total = e.values[axis]);
-                });
-            }
-
-            if (
-                (config.x.sort === 'total-ascending' && config.x.type == 'ordinal') ||
-                (config.y.sort === 'total-descending' && config.y.type == 'ordinal')
-            ) {
-                totalOrder = test
-                    .sort(function(a, b) {
-                        return d3.ascending(a.total, b.total);
-                    })
-                    .map(function(m) {
-                        return m.key;
-                    });
-            } else if (
-                (config.x.sort === 'total-descending' && config.x.type == 'ordinal') ||
-                (config.y.sort === 'total-ascending' && config.y.type == 'ordinal')
-            ) {
-                totalOrder = test
-                    .sort(function(a, b) {
-                        return d3.descending(+a.total, +b.total);
-                    })
-                    .map(function(m) {
-                        return m.key;
-                    });
-            }
-
-            return { nested: test, dom_x: dom_x, dom_y: dom_y };
-        }
 
         //////////////////////////////////////////////////////////////////////////////////
         // DATA PREP
@@ -917,9 +931,11 @@
         //prepare nested data required for bar charts
         var raw_nest = void 0;
         if (mark.type === 'bar') {
-            raw_nest = mark.arrange !== 'stacked' ? makeNest(raw, sublevel) : makeNest(raw);
+            raw_nest = mark.arrange !== 'stacked'
+                ? makeNest.call(this, mark, raw, sublevel)
+                : makeNest.call(this, mark, raw);
         } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-            raw_nest = makeNest(raw);
+            raw_nest = makeNest.call(this, mark, raw);
         }
 
         // Get the domain for the mark based on the raw data
@@ -1025,7 +1041,7 @@
                         var perfilter = raw.filter(function(f) {
                             return f[_this.filters[0].col] === e;
                         });
-                        var filt_nested = makeNest(perfilter, sublevel);
+                        var filt_nested = makeNest.call(_this, mark, perfilter, sublevel);
                         filt1_xs.push(filt_nested.dom_x);
                         filt1_ys.push(filt_nested.dom_y);
                     });
@@ -1047,7 +1063,7 @@
         var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
         var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
 
-        var current_nested = makeNest(filtered, sublevel);
+        var current_nested = makeNest.call(this, mark, filtered, sublevel);
 
         var flex_dom_x = current_nested.dom_x;
         var flex_dom_y = current_nested.dom_y;
@@ -1099,7 +1115,7 @@
                           })
                       )
                       .values()
-                : config.x_from0 ? [0, d3.max(pre_x_dom)] : pre_x_dom;
+                : pre_x_dom;
 
         var y_dom = config.y_dom
             ? config.y_dom
@@ -1119,8 +1135,28 @@
                           })
                       )
                       .values()
-                : config.y_from0 ? [0, d3.max(pre_y_dom)] : pre_y_dom;
+                : pre_y_dom;
 
+        //set lower limit of linear domain to 0 when other axis is ordinal and mark type is set to 'bar', provided no values are negative
+        if (mark.type === 'bar') {
+            if (
+                config.x.behavior !== 'flex' &&
+                config.x.type === 'linear' &&
+                config.y.type === 'ordinal' &&
+                raw_dom_x[0] >= 0
+            )
+                x_dom[0] = 0;
+
+            if (
+                config.y.behavior !== 'flex' &&
+                config.x.type === 'ordinal' &&
+                config.y.type === 'linear' &&
+                raw_dom_y[0] >= 0
+            )
+                y_dom[0] = 0;
+        }
+
+        //update domains with those specified in the config
         if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
             x_dom[0] = config.x.domain[0];
         }

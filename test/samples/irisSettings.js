@@ -1,4 +1,4 @@
-export default {
+export const linear_linear = {
     x: {
         type: 'linear',
         column: 'Sepal.Length',
@@ -15,9 +15,6 @@ export default {
             per: ['Sepal.Length', 'Sepal.Width'],
             summarizeX: 'mean',
             summarizeY: 'mean',
-            values: {
-                Species: ['setosa', 'versicolor', 'virginica']
-            }
         },
         {
             type: 'circle',
@@ -37,6 +34,80 @@ export default {
             summarizeX: 'sum',
             summarizeY: 'sum'
         }
+    ],
+    color_by: 'Species',
+    legend: {}
+};
+
+export const ordinal_linear = {
+    x: {
+        type: 'ordinal',
+        column: 'Species',
+        label: 'Species'
+    },
+    y: {
+        type: 'linear',
+        column: 'Sepal.Length',
+        label: 'Sepal Length'
+    },
+    marks: [
+        {
+            type: 'bar',
+            per: ['Species'],
+            summarizeY: 'mean',
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+            summarizeY: 'min'
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+            summarizeY: 'median'
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+            summarizeY: 'max'
+        },
+    ],
+    color_by: 'Species',
+    legend: {}
+};
+
+export const linear_ordinal = {
+    x: {
+        type: 'linear',
+        column: 'Sepal.Length',
+        label: 'Sepal Length'
+    },
+    y: {
+        type: 'ordinal',
+        column: 'Species',
+        label: 'Species'
+    },
+    marks: [
+        {
+            type: 'bar',
+            per: ['Species'],
+            summarizeX: 'mean',
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+            summarizeX: 'min'
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+            summarizeX: 'median'
+        },
+        {
+            type: 'circle',
+            per: ['Species'],
+            summarizeX: 'max'
+        },
     ],
     color_by: 'Species',
     legend: {}
