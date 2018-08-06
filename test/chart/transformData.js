@@ -3,7 +3,7 @@ import createChart from '../../src/createChart';
 import expect from 'expect';
 import d3 from 'd3';
 
-export default function testSetDomain(settings, data) {
+export default function testTransformData(settings, data) {
     describe('data transformation', () => {
         const { JSDOM } = jsdom;
         let dom, container, chart;

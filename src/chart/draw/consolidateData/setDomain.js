@@ -5,9 +5,12 @@ export default function setDomain(axis) {
     const otherAxis = axis === 'x' ? 'y' : 'x';
 
     if (this.config[axis].type === 'ordinal') {
+        //ordinal domains
         if (this.config[axis].domain) {
+            //user-defined domain
             this[axis + '_dom'] = this.config[axis].domain;
         } else if (this.config[axis].order) {
+            //data-driven domain with user-defined domain order
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
                 .sort((a, b) =>
@@ -17,13 +20,17 @@ export default function setDomain(axis) {
                     )
                 );
         } else if (this.config[axis].sort && this.config[axis].sort === 'alphabetical-ascending') {
+            //data-driven domain with user-defined domain sort algorithm that sorts the axis
+            //alphanumerically, first to last
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
                 .sort(naturalSorter);
         } else if (
-            this.config[otherAxis].type === 'time' &&
+            ['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 &&
             this.config[axis].sort === 'earliest'
         ) {
+            //data-driven domain plotted against a time or linear axis that sorts the axis values
+            //by earliest event/datum; generally used with timeline charts
             this[axis + '_dom'] = nest()
                 .key(d => d[this.config[axis].column])
                 .rollup(d => {
@@ -38,15 +45,28 @@ export default function setDomain(axis) {
             !this.config[axis].sort ||
             this.config[axis].sort === 'alphabetical-descending'
         ) {
+            //data-driven domain with default/user-defined domain sort algorithm that sorts the
+            //axis alphanumerically, last to first
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
                 .sort(naturalSorter);
         } else {
+            //data-driven domain with an invalid user-defined sort algorithm that captures a unique
+            //set of values as they appear in the data
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom']))).values();
         }
-    } else if (this.config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1) {
+    } else if (
+        this.config.marks
+            .map(m => m['summarize' + otherAxis.toUpperCase()] === 'percent')
+            .indexOf(true) > -1
+    ) {
+        //rate domains run from 0 to 1
         this[axis + '_dom'] = [0, 1];
     } else {
+        //continuous domains run from the minimum to the maximum raw value
+        //TODO: they should really run from the minimum to the maximum summarized value, e.g. a
+        //TODO: means over time chart should plot over the range of the means, not the range of the
+        //TODO: raw data
         this[axis + '_dom'] = extent(merge(this.marks.map(mark => mark[axis + '_dom'])));
     }
 

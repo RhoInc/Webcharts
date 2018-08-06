@@ -342,9 +342,12 @@
         var otherAxis = axis === 'x' ? 'y' : 'x';
 
         if (this.config[axis].type === 'ordinal') {
+            //ordinal domains
             if (this.config[axis].domain) {
+                //user-defined domain
                 this[axis + '_dom'] = this.config[axis].domain;
             } else if (this.config[axis].order) {
+                //data-driven domain with user-defined domain order
                 this[axis + '_dom'] = d3
                     .set(
                         d3.merge(
@@ -364,6 +367,8 @@
                 this.config[axis].sort &&
                 this.config[axis].sort === 'alphabetical-ascending'
             ) {
+                //data-driven domain with user-defined domain sort algorithm that sorts the axis
+                //alphanumerically, first to last
                 this[axis + '_dom'] = d3
                     .set(
                         d3.merge(
@@ -375,9 +380,11 @@
                     .values()
                     .sort(naturalSorter);
             } else if (
-                this.config[otherAxis].type === 'time' &&
+                ['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 &&
                 this.config[axis].sort === 'earliest'
             ) {
+                //data-driven domain plotted against a time or linear axis that sorts the axis values
+                //by earliest event/datum; generally used with timeline charts
                 this[axis + '_dom'] = d3
                     .nest()
                     .key(function(d) {
@@ -403,6 +410,8 @@
                 !this.config[axis].sort ||
                 this.config[axis].sort === 'alphabetical-descending'
             ) {
+                //data-driven domain with default/user-defined domain sort algorithm that sorts the
+                //axis alphanumerically, last to first
                 this[axis + '_dom'] = d3
                     .set(
                         d3.merge(
@@ -414,6 +423,8 @@
                     .values()
                     .sort(naturalSorter);
             } else {
+                //data-driven domain with an invalid user-defined sort algorithm that captures a unique
+                //set of values as they appear in the data
                 this[axis + '_dom'] = d3
                     .set(
                         d3.merge(
@@ -427,12 +438,17 @@
         } else if (
             this.config.marks
                 .map(function(m) {
-                    return m.summarizeX === 'percent';
+                    return m['summarize' + otherAxis.toUpperCase()] === 'percent';
                 })
                 .indexOf(true) > -1
         ) {
+            //rate domains run from 0 to 1
             this[axis + '_dom'] = [0, 1];
         } else {
+            //continuous domains run from the minimum to the maximum raw value
+            //TODO: they should really run from the minimum to the maximum summarized value, e.g. a
+            //TODO: means over time chart should plot over the range of the means, not the range of the
+            //TODO: raw data
             this[axis + '_dom'] = d3.extent(
                 d3.merge(
                     this.marks.map(function(mark) {
@@ -576,6 +592,80 @@
             : this.config.transitions;
     }
 
+    function cleanData(mark, raw) {
+        var _this = this;
+
+        var dateConvert = d3.time.format(this.config.date_format);
+        var clean = raw;
+        // only use data for the current mark
+        clean = mark.per && mark.per.length
+            ? clean.filter(function(f) {
+                  return f[mark.per[0]] !== undefined;
+              })
+            : clean;
+
+        // Make sure data has x and y values
+        if (this.config.x.column) {
+            clean = clean.filter(function(f) {
+                return [undefined, null].indexOf(f[_this.config.x.column]) < 0;
+            });
+        }
+        if (this.config.y.column) {
+            clean = clean.filter(function(f) {
+                return [undefined, null].indexOf(f[_this.config.y.column]) < 0;
+            });
+        }
+
+        //check that x and y have the correct formats
+        if (this.config.x.type === 'time') {
+            clean = clean.filter(function(f) {
+                return f[_this.config.x.column] instanceof Date
+                    ? f[_this.config.x.column]
+                    : dateConvert.parse(f[_this.config.x.column]);
+            });
+            clean.forEach(function(e) {
+                return (e[_this.config.x.column] = e[_this.config.x.column] instanceof Date
+                    ? e[_this.config.x.column]
+                    : dateConvert.parse(e[_this.config.x.column]));
+            });
+        }
+        if (this.config.y.type === 'time') {
+            clean = clean.filter(function(f) {
+                return f[_this.config.y.column] instanceof Date
+                    ? f[_this.config.y.column]
+                    : dateConvert.parse(f[_this.config.y.column]);
+            });
+            clean.forEach(function(e) {
+                return (e[_this.config.y.column] = e[_this.config.y.column] instanceof Date
+                    ? e[_this.config.y.column]
+                    : dateConvert.parse(e[_this.config.y.column]));
+            });
+        }
+
+        if (
+            (this.config.x.type === 'linear' || this.config.x.type === 'log') &&
+            this.config.x.column
+        ) {
+            clean = clean.filter(function(f) {
+                return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
+                    ? !(isNaN(f[_this.config.x.column]) || /^\s*$/.test(f[_this.config.x.column])) // is or coerces to a number and is not a string that coerces to 0
+                    : f;
+            });
+        }
+        if (
+            (this.config.y.type === 'linear' || this.config.y.type === 'log') &&
+            this.config.y.column
+        ) {
+            clean = clean.filter(function(f) {
+                return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
+                    ? !(isNaN(f[_this.config.y.column]) || /^\s*$/.test(f[_this.config.y.column])) // is or coerces to a number and is not a string that coerces to 0
+                    : f;
+            });
+        }
+
+        return clean;
+    }
+
     var stats = {
         mean: d3.mean,
         min: d3.min,
@@ -612,6 +702,7 @@
         var dom_xs = [];
         var dom_ys = [];
         var this_nest = d3.nest();
+        var totalOrder = void 0;
 
         if (
             (this.config.x.type === 'linear' && this.config.x.bin) ||
@@ -836,7 +927,7 @@
                 });
         }
 
-        return { nested: test, dom_x: dom_x, dom_y: dom_y };
+        return { nested: test, dom_x: dom_x, dom_y: dom_y, totalOrder: totalOrder };
     }
 
     //////////////////////////////////////////////////////////
@@ -860,91 +951,30 @@
         var sublevel = mark.type === 'line'
             ? config.x.column
             : mark.type === 'bar' && mark.split ? mark.split : null;
-        var dateConvert = d3.time.format(config.date_format);
-        var totalOrder = void 0;
 
         //////////////////////////////////////////////////////////////////////////////////
         // DATA PREP
         // prepare data based on the properties of the mark - drop missing records, etc
         //////////////////////////////////////////////////////////////////////////////////
-
-        // only use data for the current mark
-        raw = mark.per && mark.per.length
-            ? raw.filter(function(f) {
-                  return f[mark.per[0]] !== undefined;
-              })
-            : raw;
-
-        // Make sure data has x and y values
-        if (config.x.column) {
-            raw = raw.filter(function(f) {
-                return f[config.x.column] !== undefined;
-            });
-        }
-        if (config.y.column) {
-            raw = raw.filter(function(f) {
-                return f[config.y.column] !== undefined;
-            });
-        }
-
-        //check that x and y have the correct formats
-        if (config.x.type === 'time') {
-            raw = raw.filter(function(f) {
-                return f[config.x.column] instanceof Date
-                    ? f[config.x.column]
-                    : dateConvert.parse(f[config.x.column]);
-            });
-            raw.forEach(function(e) {
-                return (e[config.x.column] = e[config.x.column] instanceof Date
-                    ? e[config.x.column]
-                    : dateConvert.parse(e[config.x.column]));
-            });
-        }
-        if (config.y.type === 'time') {
-            raw = raw.filter(function(f) {
-                return f[config.y.column] instanceof Date
-                    ? f[config.y.column]
-                    : dateConvert.parse(f[config.y.column]);
-            });
-            raw.forEach(function(e) {
-                return (e[config.y.column] = e[config.y.column] instanceof Date
-                    ? e[config.y.column]
-                    : dateConvert.parse(e[config.y.column]));
-            });
-        }
-
-        if ((config.x.type === 'linear' || config.x.type === 'log') && config.x.column) {
-            raw = raw.filter(function(f) {
-                return mark.summarizeX !== 'count' && mark.summarizeX !== 'percent'
-                    ? +f[config.x.column] || +f[config.x.column] === 0
-                    : f;
-            });
-        }
-        if ((config.y.type === 'linear' || config.y.type === 'log') && config.y.column) {
-            raw = raw.filter(function(f) {
-                return mark.summarizeY !== 'count' && mark.summarizeY !== 'percent'
-                    ? +f[config.y.column] || +f[config.y.column] === 0
-                    : f;
-            });
-        }
+        var cleaned = cleanData.call(this, mark, raw);
 
         //prepare nested data required for bar charts
         var raw_nest = void 0;
         if (mark.type === 'bar') {
             raw_nest = mark.arrange !== 'stacked'
-                ? makeNest.call(this, mark, raw, sublevel)
-                : makeNest.call(this, mark, raw);
+                ? makeNest.call(this, mark, cleaned, sublevel)
+                : makeNest.call(this, mark, cleaned);
         } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
-            raw_nest = makeNest.call(this, mark, raw);
+            raw_nest = makeNest.call(this, mark, cleaned);
         }
 
         // Get the domain for the mark based on the raw data
         var raw_dom_x = mark.summarizeX === 'cumulative'
-            ? [0, raw.length]
+            ? [0, cleaned.length]
             : config.x.type === 'ordinal'
               ? d3
                     .set(
-                        raw.map(function(m) {
+                        cleaned.map(function(m) {
                             return m[config.x.column];
                         })
                     )
@@ -969,7 +999,7 @@
                         })
                     )
                   : d3.extent(
-                        raw
+                        cleaned
                             .map(function(m) {
                                 return +m[config.x.column];
                             })
@@ -979,11 +1009,11 @@
                     );
 
         var raw_dom_y = mark.summarizeY === 'cumulative'
-            ? [0, raw.length]
+            ? [0, cleaned.length]
             : config.y.type === 'ordinal'
               ? d3
                     .set(
-                        raw.map(function(m) {
+                        cleaned.map(function(m) {
                             return m[config.y.column];
                         })
                     )
@@ -1008,7 +1038,7 @@
                         })
                     )
                   : d3.extent(
-                        raw
+                        cleaned
                             .map(function(m) {
                                 return +m[config.y.column];
                             })
@@ -1017,7 +1047,7 @@
                             })
                     );
 
-        var filtered = raw;
+        var filtered = cleaned;
 
         var filt1_xs = [];
         var filt1_ys = [];
@@ -1038,7 +1068,7 @@
                         return f !== 'All';
                     })
                     .forEach(function(e) {
-                        var perfilter = raw.filter(function(f) {
+                        var perfilter = cleaned.filter(function(f) {
                             return f[_this.filters[0].col] === e;
                         });
                         var filt_nested = makeNest.call(_this, mark, perfilter, sublevel);
@@ -1110,7 +1140,7 @@
               : config.x.type === 'ordinal'
                 ? d3
                       .set(
-                          raw.map(function(m) {
+                          cleaned.map(function(m) {
                               return m[config.x.column];
                           })
                       )
@@ -1130,7 +1160,7 @@
               : config.y.type === 'ordinal'
                 ? d3
                       .set(
-                          raw.map(function(m) {
+                          cleaned.map(function(m) {
                               return m[config.y.column];
                           })
                       )
@@ -1171,10 +1201,10 @@
         }
 
         if (config.x.type === 'ordinal' && !config.x.order) {
-            config.x.order = totalOrder;
+            config.x.order = current_nested.totalOrder;
         }
         if (config.y.type === 'ordinal' && !config.y.order) {
-            config.y.order = totalOrder;
+            config.y.order = current_nested.totalOrder;
         }
 
         this.current_data = current_nested.nested;
