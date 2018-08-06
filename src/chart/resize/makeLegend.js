@@ -16,11 +16,24 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
     let legendOriginal = this.legend || this.wrap.select('.legend');
     let legend = legendOriginal;
 
-    if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
-        this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+    if (!this.parent) {
+        //singular chart
+        if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+            this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+        } else {
+            this.wrap.node().appendChild(legendOriginal.node());
+        }
     } else {
-        this.wrap.node().appendChild(legendOriginal.node());
+        //multiples - keep legend outside of individual charts' wraps
+        if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+            this.parent.wrap
+                .node()
+                .insertBefore(legendOriginal.node(), this.parent.wrap.select('.wc-chart').node());
+        } else {
+            this.parent.wrap.node().appendChild(legendOriginal.node());
+        }
     }
+
     legend.style('padding', 0);
 
     let legend_data =
@@ -71,9 +84,7 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
     leg_parts.selectAll('.legend-color-block').each(function(e) {
         let svg = select(this);
         if (e.mark === 'circle') {
-            svg
-                .append('circle')
-                .attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
+            svg.append('circle').attr({ cx: '.5em', cy: '.5em', r: '.45em', class: 'legend-mark' });
         } else if (e.mark === 'line') {
             svg.append('line').attr({
                 x1: 0,
