@@ -3256,26 +3256,42 @@
             : clone(this.data.raw);
     }
 
-    function applySearchTerm() {
+    function updateDataObject() {
+        this.data.raw = this.data.passed;
+        this.data.filtered = this.data.passed;
+        this.config.activePage = 0;
+        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
+        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
+    }
+
+    function applySearchTerm(data) {
         var _this = this;
 
-        //Determine which rows contain input text.
-        this.data.searched = this.data.filtered.filter(function(d) {
-            var match = false;
+        if (this.searchable.searchTerm) {
+            //Determine which rows contain input text.
+            this.data.searched = this.data.filtered.filter(function(d) {
+                var match = false;
 
-            Object.keys(d)
-                .filter(function(key) {
-                    return _this.config.cols.indexOf(key) > -1;
-                })
-                .forEach(function(var_name) {
-                    if (match === false) {
-                        var cellText = '' + d[var_name];
-                        match = cellText.toLowerCase().indexOf(_this.searchable.searchTerm) > -1;
-                    }
-                });
+                Object.keys(d)
+                    .filter(function(key) {
+                        return _this.config.cols.indexOf(key) > -1;
+                    })
+                    .forEach(function(var_name) {
+                        if (match === false) {
+                            var cellText = '' + d[var_name];
+                            match =
+                                cellText.toLowerCase().indexOf(_this.searchable.searchTerm) > -1;
+                        }
+                    });
 
-            return match;
-        });
+                return match;
+            });
+            this.data.processing = this.data.searched;
+        } else {
+            //Otherwise delete previously searched data and set data to filtered data.
+            delete this.data.searched;
+            this.data.processing = this.data.filtered;
+        }
     }
 
     /*------------------------------------------------------------------------------------------------\
@@ -3310,28 +3326,7 @@
     // Hide method from for-in loops
     Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
 
-    function draw$1(passed_data) {
-        var _this = this;
-
-        var table = this;
-        var config = this.config;
-
-        this.data.passed = passed_data;
-        this.events.onPreprocess.call(this);
-
-        //Apply filters if data is not passed to table.draw().
-        if (!passed_data) {
-            applyFilters.call(this);
-        } else {
-            //Otherwise update data object.
-            this.data.raw = passed_data;
-            this.data.filtered = passed_data;
-            this.config.activePage = 0;
-            this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
-            this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-        }
-
-        //Compare current filter settings to previous filter settings, if any.
+    function checkFilters() {
         if (this.filters) {
             this.currentFilters = this.filters.map(function(filter) {
                 return filter.val;
@@ -3346,28 +3341,11 @@
 
             this.previousFilters = this.currentFilters;
         }
+    }
 
-        var data = void 0;
+    function updateTableHeaders() {
+        var _this = this;
 
-        //Filter data on search term if it exists and set data to searched data.
-        if (this.searchable.searchTerm) {
-            applySearchTerm.call(this);
-            data = this.data.searched;
-        } else {
-            //Otherwise delete previously searched data and set data to filtered data.
-            delete this.data.searched;
-            data = this.data.filtered;
-        }
-
-        this.searchable.wrap
-            .select('.nNrecords')
-            .text(
-                data.length === this.data.raw.length
-                    ? this.data.raw.length + ' records displayed'
-                    : data.length + '/' + this.data.raw.length + ' records displayed'
-            );
-
-        //update table header
         this.thead_cells = this.thead
             .select('tr')
             .selectAll('th')
@@ -3376,7 +3354,6 @@
             });
         this.thead_cells.exit().remove();
         this.thead_cells.enter().append('th');
-
         this.thead_cells
             .sort(function(a, b) {
                 return _this.config.headers.indexOf(a) - _this.config.headers.indexOf(b);
@@ -3387,87 +3364,44 @@
             .text(function(d) {
                 return d;
             });
+    }
 
-        //Clear table body rows.
-        this.tbody.selectAll('tr').remove();
+    function drawTableBody() {
+        var _this = this;
 
-        //Print a note that no data was selected for empty tables.
-        if (data.length === 0) {
-            this.tbody
-                .append('tr')
-                .classed('no-data', true)
-                .append('td')
-                .attr('colspan', this.config.cols.length)
-                .text('No data selected.');
+        var table = this;
 
-            //Add export.
-            if (this.config.exportable)
-                this.config.exports.forEach(function(fmt) {
-                    _this.exportable.exports[fmt].call(_this, data);
-                });
+        //Define table body rows.
+        var rows = this.tbody.selectAll('tr').data(this.data.processing).enter().append('tr');
 
-            //Add pagination.
-            if (this.config.pagination) this.pagination.addPagination.call(this, data);
-        } else {
-            //Sort data.
-            if (this.config.sortable) {
-                this.thead.selectAll('th').on('click', function(header) {
-                    table.sortable.onClick.call(table, this, header);
-                });
-
-                if (this.sortable.order.length) this.sortable.sortData.call(this, data);
-            }
-
-            //Bind table filtered/searched data to table container.
-            this.wrap.datum(clone(data));
-
-            //Add export.
-            if (this.config.exportable)
-                this.config.exports.forEach(function(fmt) {
-                    _this.exportable.exports[fmt].call(_this, data);
-                });
-
-            //Add pagination.
-            if (this.config.pagination) {
-                this.pagination.addPagination.call(this, data);
-
-                //Apply pagination.
-                data = data.filter(function(d, i) {
-                    return _this.config.startIndex <= i && i < _this.config.endIndex;
-                });
-            }
-
-            //Define table body rows.
-            var rows = this.tbody.selectAll('tr').data(data).enter().append('tr');
-
-            //Define table body cells.
-            var cells = rows.selectAll('td').data(function(d) {
-                return _this.config.cols.map(function(key) {
-                    return { col: key, text: d[key] };
-                });
+        //Define table body cells.
+        var cells = rows.selectAll('td').data(function(d) {
+            return _this.config.cols.map(function(key) {
+                return { col: key, text: d[key] };
             });
-            cells.exit().remove();
-            cells.enter().append('td');
-            cells
-                .sort(function(a, b) {
-                    return _this.config.cols.indexOf(a.col) - _this.config.cols.indexOf(b.col);
-                })
-                .attr('class', function(d) {
-                    return d.col;
-                })
-                .each(function(d) {
-                    var cell = d3.select(this);
+        });
+        cells.exit().remove();
+        cells.enter().append('td');
+        cells
+            .sort(function(a, b) {
+                return _this.config.cols.indexOf(a.col) - _this.config.cols.indexOf(b.col);
+            })
+            .attr('class', function(d) {
+                return d.col;
+            })
+            .each(function(d) {
+                var cell = d3.select(this);
 
-                    //Apply text in data as html or as plain text.
-                    if (config.as_html) {
-                        cell.html(d.text);
-                    } else {
-                        cell.text(d.text);
-                    }
-                });
-        }
+                //Apply text in data as html or as plain text.
+                if (table.config.as_html) {
+                    cell.html(d.text);
+                } else {
+                    cell.text(d.text);
+                }
+            });
+    }
 
-        //Alter table layout if table is narrower than table top or bottom.
+    function dynamicLayout() {
         var widths = {
             table: this.table.select('thead').node().offsetWidth,
             top:
@@ -3505,14 +3439,114 @@
                 .style({
                     display: 'inline-block',
                     float: function float() {
-                        return d3.select(this).classed('searchable-container') ||
-                            d3.select(this).classed('pagination-container')
+                        return select(this).classed('searchable-container') ||
+                            select(this).classed('pagination-container')
                             ? 'right'
                             : null;
                     },
                     clear: null
                 });
         }
+    }
+
+    function draw$1(passed_data) {
+        var _this = this;
+
+        var table = this;
+        var config = this.config;
+
+        this.data.passed = passed_data; // make passed data available on preprocess
+        this.events.onPreprocess.call(this);
+
+        if (!passed_data)
+            //Apply filters if data is not passed to table.draw().
+            applyFilters.call(this);
+        else
+            //Otherwise update data object.
+            updateDataObject.call(this);
+
+        //Compare current filter settings to previous filter settings, if any.
+        checkFilters.call(this);
+
+        //Filter data on search term if it exists and set data to searched data.
+        applySearchTerm.call(this);
+
+        this.searchable.wrap
+            .select('.nNrecords')
+            .text(
+                this.data.processing.length === this.data.raw.length
+                    ? this.data.raw.length + ' records displayed'
+                    : this.data.processing.length +
+                          '/' +
+                          this.data.raw.length +
+                          ' records displayed'
+            );
+
+        //Update table headers.
+        updateTableHeaders.call(this);
+
+        //Clear table body rows.
+        this.tbody.selectAll('tr').remove();
+
+        //Print a note that no data was selected for empty tables.
+        if (this.data.processing.length === 0) {
+            this.tbody
+                .append('tr')
+                .classed('no-data', true)
+                .append('td')
+                .attr('colspan', this.config.cols.length)
+                .text('No data selected.');
+
+            //Bind table filtered/searched data to table container.
+            this.data.current = clone(this.data.processing);
+            this.table.datum(this.table.current);
+
+            //Add export.
+            if (this.config.exportable)
+                this.config.exports.forEach(function(fmt) {
+                    _this.exportable.exports[fmt].call(_this, _this.data.processing);
+                });
+
+            //Add pagination.
+            if (this.config.pagination)
+                this.pagination.addPagination.call(this, this.data.processing);
+        } else {
+            //Sort data.
+            if (this.config.sortable) {
+                this.thead.selectAll('th').on('click', function(header) {
+                    table.sortable.onClick.call(table, this, header);
+                });
+
+                if (this.sortable.order.length)
+                    this.sortable.sortData.call(this, this.data.processing);
+            }
+
+            //Bind table filtered/searched data to table container.
+            this.data.current = clone(this.data.processing);
+            this.table.datum(this.data.current);
+
+            //Add export.
+            if (this.config.exportable)
+                this.config.exports.forEach(function(fmt) {
+                    _this.exportable.exports[fmt].call(_this, _this.data.processing);
+                });
+
+            //Add pagination.
+            if (this.config.pagination) {
+                this.pagination.addPagination.call(this, this.data.processing);
+
+                //Apply pagination.
+                this.data.processing = this.data.processing.filter(function(d, i) {
+                    return _this.config.startIndex <= i && i < _this.config.endIndex;
+                });
+            }
+
+            //Define table body rows.
+            drawTableBody.call(this);
+        }
+
+        //Alter table layout if table is narrower than table top or bottom.
+        dynamicLayout.call(this);
 
         this.events.onDraw.call(this);
     }
@@ -3575,16 +3609,14 @@
 
         var CSVarray = [];
 
-        data.forEach(function(d, i) {
-            //add headers to CSV array
-            if (i === 0) {
-                var headers = _this.config.headers.map(function(header) {
-                    return '"' + header.replace(/"/g, '""') + '"';
-                });
-                CSVarray.push(headers);
-            }
+        //add headers to CSV array
+        var headers = this.config.headers.map(function(header) {
+            return '"' + header.replace(/"/g, '""') + '"';
+        });
+        CSVarray.push(headers);
 
-            //add rows to CSV array
+        //add rows to CSV array
+        data.forEach(function(d, i) {
             var row = _this.config.cols.map(function(col) {
                 var value = d[col];
 
@@ -4335,7 +4367,7 @@
 
         thisTable.required_cols = [];
 
-        thisTable.wrap = d3.select(thisTable.div).append('div');
+        thisTable.wrap = d3.select(thisTable.div).append('div').datum(thisTable);
 
         thisTable.events = {
             onInit: function onInit() {},

@@ -3,14 +3,12 @@ import { time } from 'd3';
 export default function csv(data) {
     const CSVarray = [];
 
-    data.forEach((d, i) => {
-        //add headers to CSV array
-        if (i === 0) {
-            const headers = this.config.headers.map(header => `"${header.replace(/"/g, '""')}"`);
-            CSVarray.push(headers);
-        }
+    //add headers to CSV array
+    const headers = this.config.headers.map(header => `"${header.replace(/"/g, '""')}"`);
+    CSVarray.push(headers);
 
-        //add rows to CSV array
+    //add rows to CSV array
+    data.forEach((d, i) => {
         const row = this.config.cols.map(col => {
             let value = d[col];
 

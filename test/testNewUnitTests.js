@@ -1,10 +1,10 @@
 //test table initialization
-import testInit from './table/init';
+import testBindTableToDOM from './table/bindTableToDOM';
 const settings = {
     exportable: false
 };
 import data from './samples/irisData';
-testInit(
+testBindTableToDOM(
     settings,
     data
 );

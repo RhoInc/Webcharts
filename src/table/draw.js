@@ -1,77 +1,48 @@
 import applyFilters from './draw/applyFilters';
+import updateDataObject from './draw/updateDataObject';
 import applySearchTerm from './draw/applySearchTerm';
-import '../util/array-equals';
+import checkFilters from './draw/checkFilters';
+import updateTableHeaders from './draw/updateTableHeaders';
 import clone from '../util/clone';
-import { select } from 'd3';
+import drawTableBody from './draw/drawTableBody';
+import dynamicLayout from './draw/dynamicLayout';
 
 export default function draw(passed_data) {
     const table = this;
     const config = this.config;
 
-    this.data.passed = passed_data;
+    this.data.passed = passed_data; // make passed data available on preprocess
     this.events.onPreprocess.call(this);
 
-    //Apply filters if data is not passed to table.draw().
-    if (!passed_data) {
+    if (!passed_data)
+        //Apply filters if data is not passed to table.draw().
         applyFilters.call(this);
-    } else {
+    else
         //Otherwise update data object.
-        this.data.raw = passed_data;
-        this.data.filtered = passed_data;
-        this.config.activePage = 0;
-        this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
-        this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-    }
+        updateDataObject.call(this);
 
     //Compare current filter settings to previous filter settings, if any.
-    if (this.filters) {
-        this.currentFilters = this.filters.map(filter => filter.val);
-
-        //Reset pagination if filters have changed.
-        if (!this.currentFilters.equals(this.previousFilters)) {
-            this.config.activePage = 0;
-            this.config.startIndex = this.config.activePage * this.config.nRowsPerPage; // first row shown
-            this.config.endIndex = this.config.startIndex + this.config.nRowsPerPage; // last row shown
-        }
-
-        this.previousFilters = this.currentFilters;
-    }
-
-    let data;
+    checkFilters.call(this);
 
     //Filter data on search term if it exists and set data to searched data.
-    if (this.searchable.searchTerm) {
-        applySearchTerm.call(this);
-        data = this.data.searched;
-    } else {
-        //Otherwise delete previously searched data and set data to filtered data.
-        delete this.data.searched;
-        data = this.data.filtered;
-    }
+    applySearchTerm.call(this);
 
     this.searchable.wrap
         .select('.nNrecords')
         .text(
-            data.length === this.data.raw.length
+            this.data.processing.length === this.data.raw.length
                 ? `${this.data.raw.length} records displayed`
-                : `${data.length}/${this.data.raw.length} records displayed`
+                : `${this.data.processing.length}/${this.data.raw.length} records displayed`
         );
 
-    //update table header
-    this.thead_cells = this.thead.select('tr').selectAll('th').data(this.config.headers, d => d);
-    this.thead_cells.exit().remove();
-    this.thead_cells.enter().append('th');
-
-    this.thead_cells
-        .sort((a, b) => this.config.headers.indexOf(a) - this.config.headers.indexOf(b))
-        .attr('class', d => this.config.cols[this.config.headers.indexOf(d)]) // associate column header with column name
-        .text(d => d);
+    //Update table headers.
+    updateTableHeaders.call(this);
 
     //Clear table body rows.
     this.tbody.selectAll('tr').remove();
 
     //Print a note that no data was selected for empty tables.
-    if (data.length === 0) {
+    if (this.data.processing.length === 0) {
         this.tbody
             .append('tr')
             .classed('no-data', true)
@@ -79,14 +50,18 @@ export default function draw(passed_data) {
             .attr('colspan', this.config.cols.length)
             .text('No data selected.');
 
+        //Bind table filtered/searched data to table container.
+        this.data.current = clone(this.data.processing);
+        this.table.datum(this.table.current);
+
         //Add export.
         if (this.config.exportable)
             this.config.exports.forEach(fmt => {
-                this.exportable.exports[fmt].call(this, data);
+                this.exportable.exports[fmt].call(this, this.data.processing);
             });
 
         //Add pagination.
-        if (this.config.pagination) this.pagination.addPagination.call(this, data);
+        if (this.config.pagination) this.pagination.addPagination.call(this, this.data.processing);
     } else {
         //Sort data.
         if (this.config.sortable) {
@@ -94,95 +69,35 @@ export default function draw(passed_data) {
                 table.sortable.onClick.call(table, this, header);
             });
 
-            if (this.sortable.order.length) this.sortable.sortData.call(this, data);
+            if (this.sortable.order.length) this.sortable.sortData.call(this, this.data.processing);
         }
 
         //Bind table filtered/searched data to table container.
-        this.wrap.datum(clone(data));
+        this.data.current = clone(this.data.processing);
+        this.table.datum(this.data.current);
 
         //Add export.
         if (this.config.exportable)
             this.config.exports.forEach(fmt => {
-                this.exportable.exports[fmt].call(this, data);
+                this.exportable.exports[fmt].call(this, this.data.processing);
             });
 
         //Add pagination.
         if (this.config.pagination) {
-            this.pagination.addPagination.call(this, data);
+            this.pagination.addPagination.call(this, this.data.processing);
 
             //Apply pagination.
-            data = data.filter((d, i) => this.config.startIndex <= i && i < this.config.endIndex);
+            this.data.processing = this.data.processing.filter(
+                (d, i) => this.config.startIndex <= i && i < this.config.endIndex
+            );
         }
 
         //Define table body rows.
-        const rows = this.tbody.selectAll('tr').data(data).enter().append('tr');
-
-        //Define table body cells.
-        const cells = rows.selectAll('td').data(d =>
-            this.config.cols.map(key => {
-                return { col: key, text: d[key] };
-            })
-        );
-        cells.exit().remove();
-        cells.enter().append('td');
-        cells
-            .sort((a, b) => this.config.cols.indexOf(a.col) - this.config.cols.indexOf(b.col))
-            .attr('class', d => d.col)
-            .each(function(d) {
-                const cell = select(this);
-
-                //Apply text in data as html or as plain text.
-                if (config.as_html) {
-                    cell.html(d.text);
-                } else {
-                    cell.text(d.text);
-                }
-            });
+        drawTableBody.call(this);
     }
 
     //Alter table layout if table is narrower than table top or bottom.
-    const widths = {
-        table: this.table.select('thead').node().offsetWidth,
-        top:
-            this.wrap.select('.table-top .searchable-container').node().offsetWidth +
-                this.wrap.select('.table-top .sortable-container').node().offsetWidth,
-        bottom:
-            this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
-                this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
-    };
-
-    if (widths.table < Math.max(widths.top, widths.bottom) && this.config.layout === 'horizontal') {
-        this.config.layout = 'vertical';
-        this.wrap
-            .style('display', 'inline-block')
-            .selectAll('.table-top,.table-bottom')
-            .style('display', 'inline-block')
-            .selectAll('.interactivity')
-            .style({
-                display: 'block',
-                clear: 'both'
-            });
-    } else if (
-        widths.table >= Math.max(widths.top, widths.bottom) &&
-        this.config.layout === 'vertical'
-    ) {
-        this.config.layout = 'horizontal';
-        this.wrap
-            .style('display', 'table')
-            .selectAll('.table-top,.table-bottom')
-            .style('display', 'block')
-            .selectAll('.interactivity')
-            .style({
-                display: 'inline-block',
-                float: function() {
-                    return select(this).classed('searchable-container') ||
-                        select(this).classed('pagination-container')
-                        ? 'right'
-                        : null;
-                },
-                clear: null
-            });
-    }
+    dynamicLayout.call(this);
 
     this.events.onDraw.call(this);
 }
