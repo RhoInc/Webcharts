@@ -60,7 +60,7 @@ export default function drawBars(marks) {
         bars.each(function(d) {
             let mark = select(this.parentNode.parentNode).datum();
             d.tooltip = mark.tooltip;
-            d.arrange = mark.split ? mark.arrange : null;
+            d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
             d.subcats = config.legend.order
                 ? config.legend.order.slice().reverse()
                 : mark.values && mark.values[mark.split]
@@ -163,6 +163,7 @@ export default function drawBars(marks) {
                   ? mark.values[mark.split]
                   : set(rawData.map(m => m[mark.split])).values();
             d.tooltip = mark.tooltip;
+            select(this).attr(mark.attributes);
         });
 
         let xformat = config.marks.map(m => m.summarizeX === 'percent').indexOf(true) > -1

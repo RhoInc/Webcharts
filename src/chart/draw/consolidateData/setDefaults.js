@@ -15,6 +15,9 @@ export default function setDefaults() {
     this.config.x.type = this.config.x.type || 'linear';
     this.config.y.type = this.config.y.type || 'linear';
 
+    this.config.x.range_band = this.config.x.range_band || this.config.range_band;
+    this.config.y.range_band = this.config.y.range_band || this.config.range_band;
+
     this.config.margin = this.config.margin || {};
     this.config.legend = this.config.legend || {};
     this.config.legend.label = this.config.legend.label !== undefined
