@@ -1,4 +1,4 @@
-import naturalSorter from '../dataOps/naturalSorter';
+import naturalSorter from '../../dataOps/naturalSorter';
 import { set, ascending, scale } from 'd3';
 
 export default function setColorScale() {

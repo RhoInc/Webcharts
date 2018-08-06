@@ -1,25 +1,29 @@
-import checkRequired from './checkRequired';
-import consolidateData from './consolidateData';
-import destroy from './destroy';
-import draw from './draw';
-import drawArea from './drawArea';
-import drawBars from './drawBars';
-import drawGridlines from './drawGridlines';
-import drawLines from './drawLines';
-import drawPoints from './drawPoints';
-import drawText from './drawText';
 import init from './init';
+import checkRequired from './init/checkRequired';
+
 import layout from './layout';
-import makeLegend from './makeLegend';
+
+import draw from './draw';
+import consolidateData from './draw/consolidateData';
+import setDefaults from './draw/consolidateData/setDefaults';
+import transformData from './draw/consolidateData/transformData';
+import setColorScale from './draw/setColorScale';
+import xScaleAxis from './draw/xScaleAxis';
+import yScaleAxis from './draw/yScaleAxis';
+
 import resize from './resize';
-import setColorScale from './setColorScale';
-import setDefaults from './setDefaults';
-import setMargins from './setMargins';
-import textSize from './textSize';
-import transformData from './transformData';
-import updateDataMarks from './updateDataMarks';
-import xScaleAxis from './xScaleAxis';
-import yScaleAxis from './yScaleAxis';
+import textSize from './resize/textSize';
+import setMargins from './resize/setMargins';
+import drawGridlines from './resize/drawGridlines';
+import makeLegend from './resize/makeLegend';
+import updateDataMarks from './resize/updateDataMarks';
+import drawArea from './resize/updateDataMarks/drawArea';
+import drawBars from './resize/updateDataMarks/drawBars';
+import drawLines from './resize/updateDataMarks/drawLines';
+import drawPoints from './resize/updateDataMarks/drawPoints';
+import drawText from './resize/updateDataMarks/drawText';
+
+import destroy from './destroy';
 
 const chartProto = {
     raw_data: [],
