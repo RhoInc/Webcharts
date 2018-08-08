@@ -1,7 +1,7 @@
 {
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.11.0",
+  "version": "1.10.0",
   "keywords": [
     "charts",
     "javascript",
@@ -33,7 +33,6 @@
     "test-controls": "mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",
     "test-miscellaneous": "mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
     "test-multiply": "mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
-    "test-new": "mocha --timeout 5000 --require babel-register --recursive ./test/testNewUnitTests.js",
     "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
     "watch": "rollup -c -w"
   },
@@ -48,7 +47,7 @@
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.0.0",
     "babel-register": "6",
     "clean-css-cli": "^4.0.0",
     "expect": "1",

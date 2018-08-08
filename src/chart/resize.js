@@ -14,13 +14,13 @@ export default function resize() {
 
     this.margin = this.setMargins();
 
-    let svg_width = config.x.type === 'ordinal' && +config.x.range_band
+    let svg_width = config.x.type === 'ordinal' && +config.range_band
         ? this.raw_width + this.margin.left + this.margin.right
         : !config.resizable
           ? this.raw_width
           : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
     this.plot_width = svg_width - this.margin.left - this.margin.right;
-    var svg_height = config.y.type === 'ordinal' && +config.y.range_band
+    var svg_height = config.y.type === 'ordinal' && +config.range_band
         ? this.raw_height + this.margin.top + this.margin.bottom
         : !config.resizable && config.height
           ? config.height
@@ -75,7 +75,6 @@ export default function resize() {
         .attr({ stroke: '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
 
     this.drawGridlines();
-
     //update legend - margins need to be set first
     this.makeLegend();
 

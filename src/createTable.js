@@ -14,18 +14,28 @@ export default function createTable(element = 'body', config = {}, controls = nu
 
     thisTable.required_cols = [];
 
-    thisTable.wrap = select(thisTable.div).append('div').datum(thisTable);
+    thisTable.wrap = select(thisTable.div).append('div');
 
     thisTable.events = {
         onInit() {},
         onLayout() {},
         onPreprocess() {},
+        onDatatransform() {},
         onDraw() {},
+        onResize() {},
         onDestroy() {}
     };
 
     thisTable.on = function(event, callback) {
-        let possible_events = ['init', 'layout', 'preprocess', 'draw', 'destroy'];
+        let possible_events = [
+            'init',
+            'layout',
+            'preprocess',
+            'datatransform',
+            'draw',
+            'resize',
+            'destroy'
+        ];
         if (possible_events.indexOf(event) < 0) {
             return;
         }
