@@ -24,8 +24,7 @@ export default function setDomain(axis) {
             //alphanumerically, first to last
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
-                .sort(naturalSorter)
-                .reverse();
+                .sort(naturalSorter);
         } else if (
             ['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 &&
             this.config[axis].sort === 'earliest'
