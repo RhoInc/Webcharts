@@ -24,8 +24,7 @@ export default function setDomain(axis) {
             //alphanumerically, first to last
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
-                .sort(naturalSorter)
-                .reverse();
+                .sort(naturalSorter);
         } else if (
             ['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 &&
             this.config[axis].sort === 'earliest'
@@ -50,7 +49,8 @@ export default function setDomain(axis) {
             //axis alphanumerically, last to first
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
-                .sort(naturalSorter);
+                .sort(naturalSorter)
+                .reverse();
         } else {
             //data-driven domain with an invalid user-defined sort algorithm that captures a unique
             //set of values as they appear in the data

@@ -3,6 +3,7 @@ import updateDataObject from './draw/updateDataObject';
 import applySearchTerm from './draw/applySearchTerm';
 import checkFilters from './draw/checkFilters';
 import updateTableHeaders from './draw/updateTableHeaders';
+import clone from '../util/clone';
 import drawTableBody from './draw/drawTableBody';
 import dynamicLayout from './draw/dynamicLayout';
 
@@ -50,7 +51,7 @@ export default function draw(passed_data) {
             .text('No data selected.');
 
         //Bind table filtered/searched data to table container.
-        this.data.current = this.data.processing;
+        this.data.current = clone(this.data.processing);
         this.table.datum(this.table.current);
 
         //Add export.
@@ -72,7 +73,7 @@ export default function draw(passed_data) {
         }
 
         //Bind table filtered/searched data to table container.
-        this.data.current = this.data.processing;
+        this.data.current = clone(this.data.processing);
         this.table.datum(this.data.current);
 
         //Add export.
