@@ -1,7 +1,9 @@
 import { time } from 'd3';
 
 export default function csv(data) {
-    const CSVarray = [];
+    //Generate .csv data only on click rather than when table updates.
+    this.wrap.select('.export#csv').on('click', () => {
+        const CSVarray = [];
 
     //add headers to CSV array
     const headers = this.config.headers.map(header => `"${header.replace(/"/g, '""')}"`);

@@ -1,8 +1,10 @@
 import { time } from 'd3';
 
 export default function xlsx(data) {
-    const sheetName = 'Selected Data',
-        options = {
+    //Generate .xlsx data only on click rather than when table updates.
+    this.wrap.select('.export#xlsx').on('click', () => {
+        const sheetName = 'Selected Data';
+        const options = {
             bookType: 'xlsx',
             bookSST: true,
             type: 'binary'
