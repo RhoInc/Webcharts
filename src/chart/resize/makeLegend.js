@@ -109,8 +109,9 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
         .text(d => d.label);
 
     if (scale.domain().length > 0) {
-        const legendDisplay = this.config.legend.location === 'bottom' ||
-            this.config.legend.location === 'top'
+        const legendDisplay = (this.config.legend.location === 'bottom' ||
+            this.config.legend.location === 'top') &&
+            !this.parent
             ? 'block'
             : 'inline-block';
         legend.style('display', legendDisplay);

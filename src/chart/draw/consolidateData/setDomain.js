@@ -49,7 +49,8 @@ export default function setDomain(axis) {
             //axis alphanumerically, last to first
             this[axis + '_dom'] = set(merge(this.marks.map(mark => mark[axis + '_dom'])))
                 .values()
-                .sort(naturalSorter);
+                .sort(naturalSorter)
+                .reverse();
         } else {
             //data-driven domain with an invalid user-defined sort algorithm that captures a unique
             //set of values as they appear in the data

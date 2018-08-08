@@ -420,7 +420,8 @@
                         )
                     )
                     .values()
-                    .sort(naturalSorter);
+                    .sort(naturalSorter)
+                    .reverse();
             } else {
                 //data-driven domain with an invalid user-defined sort algorithm that captures a unique
                 //set of values as they appear in the data
@@ -1672,8 +1673,9 @@
             });
 
         if (scale$$1.domain().length > 0) {
-            var legendDisplay = this.config.legend.location === 'bottom' ||
-                this.config.legend.location === 'top'
+            var legendDisplay = (this.config.legend.location === 'bottom' ||
+                this.config.legend.location === 'top') &&
+                !this.parent
                 ? 'block'
                 : 'inline-block';
             legend.style('display', legendDisplay);
