@@ -1,6 +1,7 @@
 import download from './download';
 
 export default function csv(data) {
+    //Generate .csv data only on click rather than when table updates.
     this.wrap.select('.export#csv').on('click', () => {
         const CSVarray = [];
 
