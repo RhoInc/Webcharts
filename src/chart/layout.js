@@ -55,14 +55,12 @@ export default function layout() {
         .attr('fill', 'none')
         .style('pointer-events', 'all');
     //add legend
-    if (!this.parent)
-        this.wrap
-            .append('ul')
-            .datum(() => null) // prevent data inheritance
-            .attr('class', 'legend')
-            .style('vertical-align', 'top')
-            .append('span')
-            .attr('class', 'legend-title');
+    const legend = this.wrap.append('ul').datum(() => null); // prevent data inheritance
+    legend
+        .attr('class', 'legend')
+        .style('vertical-align', 'top')
+        .append('span')
+        .attr('class', 'legend-title');
 
     select(this.div).select('.loader').remove();
 
