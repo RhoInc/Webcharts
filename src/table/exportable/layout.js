@@ -15,6 +15,15 @@ export default function layout() {
                 .attr({
                     id: fmt
                 })
+                .style(
+                    !this.test && navigator.msSaveBlob
+                        ? {
+                              cursor: 'pointer',
+                              'text-decoration': 'underline',
+                              color: 'blue'
+                          }
+                        : null
+                )
                 .text(fmt.toUpperCase());
         });
 }
