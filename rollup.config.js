@@ -1,27 +1,21 @@
 import babel from 'rollup-plugin-babel';
 
-var pkg = require('./package.json');
-
-module.exports = {
-    input: pkg.module,
+export default {
+    input: './src/index.js',
     output: {
         name: 'webCharts',
-        file: pkg.main,
+        file: './build/webcharts.js',
         format: 'umd',
         globals: {
             d3: 'd3'
-        },
+        }
     },
-    external: (function() {
-        var dependencies = pkg.dependencies;
-
-        return Object.keys(dependencies);
-    }()),
+    external: ['d3'],
     plugins: [
         babel({
             exclude: 'node_modules/**',
             presets: [
-                [ 'env', {modules: false} ]
+                [ 'es2015' , {modules: false} ]
             ],
             plugins: [
                 'external-helpers'
@@ -29,4 +23,4 @@ module.exports = {
             babelrc: false
         })
     ]
-};
+}
