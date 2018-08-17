@@ -73,7 +73,8 @@ export default function makeSubsetterControl(control, control_wrap) {
                 col: control.value_col,
                 val: values,
                 choices: option_data,
-                loose: control.loose
+                loose: control.loose,
+                draw: true
             };
             targets.forEach(e => {
                 setSubsetter(e, new_filter);
@@ -81,7 +82,7 @@ export default function makeSubsetterControl(control, control_wrap) {
                 if (control.callback) {
                     control.callback();
                 }
-                e.draw();
+                if (control.draw) e.draw();
             });
         } else {
             let value = select(this).select('option:checked').property('text');

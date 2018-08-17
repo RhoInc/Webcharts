@@ -13,5 +13,8 @@ export default function checkRequired(dataset) {
                     '" does not match any column in the provided dataset.'
             );
         }
+
+        //draw the chart when a control changes unless the user specifies otherwise
+        d.draw = e.draw == undefined ? true : e.draw;
     });
 }
