@@ -3366,8 +3366,6 @@
             });
     }
 
-    function dynamicLayout() {}
-
     function draw$1(passed_data) {
         var _this = this;
 
@@ -3463,9 +3461,6 @@
             //Define table body rows.
             drawTableBody.call(this);
         }
-
-        //Alter table layout if table is narrower than table top or bottom.
-        dynamicLayout.call(this);
 
         this.events.onDraw.call(this);
     }

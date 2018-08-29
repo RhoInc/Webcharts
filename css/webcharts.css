@@ -253,7 +253,7 @@
 \------------------------------------------------------------------------------------------------*/
 
     .wc-table {
-        display: block;
+        display: inline-block;
     }
     .wc-table .hidden {
         display: none !important;
@@ -347,6 +347,8 @@
 		.wc-table table {
 			font-size: .9em;
 			border-collapse: collapse;
+			display: inline-table;
+			min-width: 550px;
 		}
 
         /***--------------------------------------------------------------------------------------\
