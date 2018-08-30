@@ -400,7 +400,7 @@
                     })
                     .entries(this.raw_data)
                     .sort(function(a, b) {
-                        return min(b.values) - min(a.values);
+                        return d3.min(b.values) - d3.min(a.values);
                     })
                     .map(function(m) {
                         return m.key;
@@ -3404,8 +3404,8 @@
                 .style({
                     display: 'inline-block',
                     float: function float() {
-                        return select(this).classed('searchable-container') ||
-                            select(this).classed('pagination-container')
+                        return d3.select(this).classed('searchable-container') ||
+                            d3.select(this).classed('pagination-container')
                             ? 'right'
                             : null;
                     },
