@@ -1,3 +1,5 @@
+import { select } from 'd3';
+
 export default function dynamicLayout() {
     const widths = {
         table: this.table.select('thead').node().offsetWidth,

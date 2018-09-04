@@ -1,5 +1,5 @@
 import naturalSorter from '../../../dataOps/naturalSorter';
-import { set, merge, ascending, nest, extent } from 'd3';
+import { set, merge, ascending, nest, min, extent } from 'd3';
 
 export default function setDomain(axis) {
     const otherAxis = axis === 'x' ? 'y' : 'x';
