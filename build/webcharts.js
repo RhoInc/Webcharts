@@ -438,7 +438,7 @@
         } else if (
             this.config.marks
                 .map(function(m) {
-                    return m['summarize' + otherAxis.toUpperCase()] === 'percent';
+                    return m['summarize' + axis.toUpperCase()] === 'percent';
                 })
                 .indexOf(true) > -1
         ) {
