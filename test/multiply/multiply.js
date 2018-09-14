@@ -3,10 +3,11 @@ import createChart from '../../src/createChart';
 import multiply from '../../src/multiply';
 import expect from 'expect';
 import irisData from '../samples/irisData';
-import irisSettings from '../samples/irisSettings';
-import chartProto from '../../src/chart/index';
+import { linear_linear as irisSettings } from '../samples/irisSettings';
+import clone from '../../src/util/clone';
+import { selectAll } from 'd3';
 
-describe('chart multiply', () => {
+describe('webCharts.multiply()', () => {
     const { JSDOM } = jsdom;
     let dom, container, chart;
 
@@ -28,6 +29,23 @@ describe('chart multiply', () => {
 
         it('multiple object should link back to master chart', () => {
             expect(chart.multiples[0].parent).toEqual(chart);
+        });
+
+        it('a single legend should exist inside the parent node of the multiples', () => {
+            expect(chart.wrap.selectAll('.legend').size()).toEqual(1);
+        });
+         it('appears after multiples by default', () => {
+            const nodes = chart.wrap.node().querySelectorAll('div,ul');
+            expect(nodes[nodes.length - 1]).toEqual(chart.master_legend.node());
+        });
+         it('appears before multiples if legend location is set to top', () => {
+            const topLegendSettings = clone(irisSettings);
+            topLegendSettings.legend.location = 'top';
+            chart = createChart(container, topLegendSettings);
+            multiply(chart, irisData, 'Species', null, true);
+
+            const nodes = chart.wrap.node().querySelectorAll('div,ul');
+            expect(nodes[0]).toEqual(chart.master_legend.node());
         });
     });
 });
