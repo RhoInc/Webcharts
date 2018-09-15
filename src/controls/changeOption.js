@@ -9,6 +9,6 @@ export default function changeOption(option, value, callback) {
         if (callback) {
             callback();
         }
-        e.draw();
+        if (control.draw) e.draw();
     });
 }
