@@ -4,7 +4,6 @@ import applySearchTerm from './draw/applySearchTerm';
 import checkFilters from './draw/checkFilters';
 import updateTableHeaders from './draw/updateTableHeaders';
 import drawTableBody from './draw/drawTableBody';
-import dynamicLayout from './draw/dynamicLayout';
 
 export default function draw(passed_data) {
     const table = this;
@@ -94,9 +93,6 @@ export default function draw(passed_data) {
         //Define table body rows.
         drawTableBody.call(this);
     }
-
-    //Alter table layout if table is narrower than table top or bottom.
-    dynamicLayout.call(this);
 
     this.events.onDraw.call(this);
 }

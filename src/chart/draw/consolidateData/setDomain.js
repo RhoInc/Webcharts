@@ -58,7 +58,7 @@ export default function setDomain(axis) {
         }
     } else if (
         this.config.marks
-            .map(m => m['summarize' + otherAxis.toUpperCase()] === 'percent')
+            .map(m => m['summarize' + axis.toUpperCase()] === 'percent')
             .indexOf(true) > -1
     ) {
         //rate domains run from 0 to 1
