@@ -213,7 +213,7 @@
     }
 
     function addOverlay() {
-        this.svg
+        this.overlay = this.svg
             .append('rect')
             .attr('class', 'overlay')
             .attr('opacity', 0)
@@ -222,6 +222,7 @@
     }
 
     function addLegend() {
+        //The legend is contained in the parent object of multiples so each multiple does not need its own legend.
         if (!this.parent)
             this.wrap
                 .append('ul')

@@ -1,5 +1,5 @@
 export default function addOverlay() {
-    this.svg
+    this.overlay = this.svg
         .append('rect')
         .attr('class', 'overlay')
         .attr('opacity', 0)
