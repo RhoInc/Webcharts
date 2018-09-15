@@ -2711,7 +2711,7 @@
             if (callback) {
                 callback();
             }
-            e.draw();
+            if (control.draw) e.draw();
         });
     }
 
@@ -2728,6 +2728,9 @@
                         '" does not match any column in the provided dataset.'
                 );
             }
+
+            //draw the chart when a control changes unless the user specifies otherwise
+            e.draw = e.draw == undefined ? true : e.draw;
         });
     }
 
@@ -3078,7 +3081,8 @@
                     col: control.value_col,
                     val: values,
                     choices: option_data,
-                    loose: control.loose
+                    loose: control.loose,
+                    draw: true
                 };
                 targets.forEach(function(e) {
                     setSubsetter(e, new_filter);
@@ -3086,7 +3090,7 @@
                     if (control.callback) {
                         control.callback();
                     }
-                    e.draw();
+                    if (control.draw) e.draw();
                 });
             } else {
                 var value = d3.select(this).select('option:checked').property('text');
