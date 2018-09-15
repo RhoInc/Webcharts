@@ -15,6 +15,6 @@ export default function checkRequired(dataset) {
         }
 
         //draw the chart when a control changes unless the user specifies otherwise
-        d.draw = e.draw == undefined ? true : e.draw;
+        e.draw = e.draw == undefined ? true : e.draw;
     });
 }

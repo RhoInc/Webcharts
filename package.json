@@ -18,7 +18,7 @@
     "js-xlsx": "^0.8.22"
   },
   "scripts": {
-    "build": "npm run bundle && npm run format && npm run minify && npm run test",
+    "build": "npm run bundle && npm run format && npm run minify",
     "bundle": "rollup -c",
     "bunfor": "npm run bundle && npm run format",
     "format": "npm run format-src && npm run format-build",
