@@ -144,7 +144,7 @@
         };
     }
 
-    function layout() {
+    function addSVG() {
         this.svg = this.wrap
             .append('svg')
             .datum(function() {
@@ -158,8 +158,12 @@
             })
             .append('g')
             .style('display', 'inline-block');
+    }
 
+    function addDefs() {
         var defs = this.svg.append('defs');
+
+        //Add pattern.
         defs
             .append('pattern')
             .attr({
@@ -172,11 +176,32 @@
                 patternTransform: 'rotate(30)'
             })
             .append('rect')
-            .attr({ x: '0', y: '0', width: '2', height: '8', style: 'stroke:none; fill:black' });
+            .attr({
+                x: '0',
+                y: '0',
+                width: '2',
+                height: '8'
+            })
+            .style({
+                stroke: 'none',
+                fill: 'black'
+            });
 
+        //Add clipPath.
         defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
+    }
 
-        //y axis
+    function addXAxis() {
+        this.svg
+            .append('g')
+            .attr('class', 'x axis')
+            .append('text')
+            .attr('class', 'axis-title')
+            .attr('dy', '-.35em')
+            .attr('text-anchor', 'middle');
+    }
+
+    function addYAxis() {
         this.svg
             .append('g')
             .attr('class', 'y axis')
@@ -185,33 +210,43 @@
             .attr('transform', 'rotate(-90)')
             .attr('dy', '.75em')
             .attr('text-anchor', 'middle');
-        //x axis
-        this.svg
-            .append('g')
-            .attr('class', 'x axis')
-            .append('text')
-            .attr('class', 'axis-title')
-            .attr('dy', '-.35em')
-            .attr('text-anchor', 'middle');
-        //overlay
-        this.svg
+    }
+
+    function addOverlay() {
+        this.overlay = this.svg
             .append('rect')
             .attr('class', 'overlay')
             .attr('opacity', 0)
             .attr('fill', 'none')
             .style('pointer-events', 'all');
-        //add legend
-        var legend = this.wrap.append('ul').datum(function() {
-            return null;
-        }); // prevent data inheritance
-        legend
-            .attr('class', 'legend')
-            .style('vertical-align', 'top')
-            .append('span')
-            .attr('class', 'legend-title');
+    }
 
+    function addLegend() {
+        //The legend is contained in the parent object of multiples so each multiple does not need its own legend.
+        if (!this.parent)
+            this.wrap
+                .append('ul')
+                .datum(function() {
+                    return null;
+                }) // prevent data inheritance
+                .attr('class', 'legend')
+                .style('vertical-align', 'top')
+                .append('span')
+                .attr('class', 'legend-title');
+    }
+
+    function clearLoader() {
         d3.select(this.div).select('.loader').remove();
+    }
 
+    function layout() {
+        addSVG.call(this);
+        addDefs.call(this);
+        addXAxis.call(this);
+        addYAxis.call(this);
+        addOverlay.call(this);
+        addLegend.call(this);
+        clearLoader.call(this);
         this.events.onLayout.call(this);
     }
 
@@ -1443,6 +1478,7 @@
             .attr({ stroke: '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
 
         this.drawGridlines();
+
         //update legend - margins need to be set first
         this.makeLegend();
 
@@ -1561,11 +1597,27 @@
         var legendOriginal = this.legend || this.wrap.select('.legend');
         var legend = legendOriginal;
 
-        if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
-            this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+        if (!this.parent) {
+            //singular chart
+            if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+                this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+            } else {
+                this.wrap.node().appendChild(legendOriginal.node());
+            }
         } else {
-            this.wrap.node().appendChild(legendOriginal.node());
+            //multiples - keep legend outside of individual charts' wraps
+            if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
+                this.parent.wrap
+                    .node()
+                    .insertBefore(
+                        legendOriginal.node(),
+                        this.parent.wrap.select('.wc-chart').node()
+                    );
+            } else {
+                this.parent.wrap.node().appendChild(legendOriginal.node());
+            }
         }
+
         legend.style('padding', 0);
 
         var legend_data =
@@ -1629,9 +1681,12 @@
         leg_parts.selectAll('.legend-color-block').each(function(e) {
             var svg$$1 = d3.select(this);
             if (e.mark === 'circle') {
-                svg$$1
-                    .append('circle')
-                    .attr({ cx: '.5em', cy: '.45em', r: '.45em', class: 'legend-mark' });
+                svg$$1.append('circle').attr({
+                    cx: '.5em',
+                    cy: '.5em',
+                    r: '.45em',
+                    class: 'legend-mark'
+                });
             } else if (e.mark === 'line') {
                 svg$$1.append('line').attr({
                     x1: 0,
@@ -4308,11 +4363,13 @@
     function multiply(chart, data, split_by, order) {
         var test = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-        var config = chart.config;
-        var wrap = chart.wrap
-            .classed('wc-layout wc-small-multiples', true)
-            .classed('wc-chart', false);
-        var master_legend = wrap.append('ul').attr('class', 'legend');
+        chart.wrap.classed('wc-layout wc-small-multiples', true).classed('wc-chart', false);
+
+        //Define container for legend that overrides multiples' legends.
+        chart.master_legend = chart.wrap.append('ul').attr('class', 'legend');
+        chart.master_legend.append('span').classed('legend-title', true);
+
+        //Instantiate multiples array.
         chart.multiples = [];
 
         function goAhead(data) {
@@ -4332,16 +4389,17 @@
                 });
             }
             split_vals.forEach(function(e) {
-                var mchart = createChart(chart.wrap.node(), config, chart.controls);
+                var mchart = createChart(chart.wrap.node(), chart.config, chart.controls);
                 chart.multiples.push(mchart);
                 mchart.parent = chart;
                 mchart.events = chart.events;
-                mchart.legend = master_legend;
+                mchart.legend = chart.master_legend;
                 mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
                 mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
                 mchart.init(data, test);
             });
         }
+
         goAhead(data);
     }
 
