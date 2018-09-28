@@ -1,5 +1,4 @@
-@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);
-
+		@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);
 /*------------------------------------------------------------------------------------------------\
   Small Multiple Layout
 \------------------------------------------------------------------------------------------------*/
@@ -73,7 +72,7 @@
     }
 
     *[class*="wc-"] .legend {
-        width: 100%;
+				width: 100%;
         font-size: .9em;
         padding: 0;
         margin: 0;
@@ -255,7 +254,7 @@
 \------------------------------------------------------------------------------------------------*/
 
     .wc-table {
-        display: inline-block;
+        display: block;
     }
     .wc-table .hidden {
         display: none !important;
@@ -349,8 +348,6 @@
 		.wc-table table {
 			font-size: .9em;
 			border-collapse: collapse;
-			display: inline-table;
-			min-width: 550px;
 		}
 
         /***--------------------------------------------------------------------------------------\

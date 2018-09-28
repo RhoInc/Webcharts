@@ -3425,6 +3425,46 @@
             });
     }
 
+    function dynamicLayout() {
+        var table = this;
+
+        if (
+            table.widths.table < Math.max(table.widths.top, table.widths.bottom) &&
+            this.config.layout === 'horizontal'
+        ) {
+            this.config.layout = 'vertical';
+            this.wrap
+                .style('display', 'inline-block')
+                .selectAll('.table-top,.table-bottom')
+                .style('display', 'inline-block')
+                .selectAll('.interactivity')
+                .style({
+                    display: 'block',
+                    clear: 'both'
+                });
+        } else if (
+            table.widths.table >= Math.max(table.widths.top, table.widths.bottom) &&
+            this.config.layout === 'vertical'
+        ) {
+            this.config.layout = 'horizontal';
+            this.wrap
+                .style('display', 'table')
+                .selectAll('.table-top,.table-bottom')
+                .style('display', 'block')
+                .selectAll('.interactivity')
+                .style({
+                    display: 'inline-block',
+                    float: function float() {
+                        return d3.select(this).classed('searchable-container') ||
+                            d3.select(this).classed('pagination-container')
+                            ? 'right'
+                            : null;
+                    },
+                    clear: null
+                });
+        }
+    }
+
     function draw$1(passed_data) {
         var _this = this;
 
@@ -3520,6 +3560,9 @@
             //Define table body rows.
             drawTableBody.call(this);
         }
+
+        //Alter table layout if table is narrower than table top or bottom.
+        dynamicLayout.call(this);
 
         this.events.onDraw.call(this);
     }
@@ -4125,6 +4168,20 @@
         return this;
     }
 
+    function getTableWidths() {
+        var table = this;
+
+        table.widths = {
+            table: this.table.select('thead').node().offsetWidth,
+            top:
+                this.wrap.select('.table-top .searchable-container').node().offsetWidth +
+                    this.wrap.select('.table-top .sortable-container').node().offsetWidth,
+            bottom:
+                this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
+                    this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
+        };
+    }
+
     function layout$6() {
         //Clear loading indicator.
         d3.select(this.div).select('.loader').remove();
@@ -4155,6 +4212,9 @@
 
         //Call layout callback.
         this.events.onLayout.call(this);
+
+        //Get dimensions for use in dynamicLayout
+        getTableWidths.call(this);
     }
 
     function destroy$2() {
