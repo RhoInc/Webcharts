@@ -435,7 +435,7 @@
                     })
                     .entries(this.raw_data)
                     .sort(function(a, b) {
-                        return min(b.values) - min(a.values);
+                        return d3.min(b.values) - d3.min(a.values);
                     })
                     .map(function(m) {
                         return m.key;
