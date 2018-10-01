@@ -2754,6 +2754,7 @@
     function changeOption(option, value, callback) {
         var _this = this;
 
+        var control = this;
         this.targets.forEach(function(e) {
             if (option instanceof Array) {
                 option.forEach(function(o) {
