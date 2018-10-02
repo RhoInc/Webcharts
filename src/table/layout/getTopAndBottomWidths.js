@@ -1,8 +1,7 @@
-export default function getTableWidths() {
+export default function getTopAndBottomWidths() {
     const table = this;
 
     table.widths = {
-        table: this.table.select('thead').node().offsetWidth,
         top:
             this.wrap.select('.table-top .searchable-container').node().offsetWidth +
                 this.wrap.select('.table-top .sortable-container').node().offsetWidth,

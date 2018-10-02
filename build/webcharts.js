@@ -3466,6 +3466,12 @@
         }
     }
 
+    function getTableWidth() {
+        var table = this;
+        // Only need to figure out the width of the table once
+        if (!table.widths.table) table.widths.table = this.table.select('thead').node().offsetWidth;
+    }
+
     function draw$1(passed_data) {
         var _this = this;
 
@@ -3501,6 +3507,9 @@
 
         //Update table headers.
         updateTableHeaders.call(this);
+
+        // get width of the table
+        getTableWidth.call(this);
 
         //Clear table body rows.
         this.tbody.selectAll('tr').remove();
@@ -4169,11 +4178,10 @@
         return this;
     }
 
-    function getTableWidths() {
+    function getTopAndBottomWidths() {
         var table = this;
 
         table.widths = {
-            table: this.table.select('thead').node().offsetWidth,
             top:
                 this.wrap.select('.table-top .searchable-container').node().offsetWidth +
                     this.wrap.select('.table-top .sortable-container').node().offsetWidth,
@@ -4215,7 +4223,7 @@
         this.events.onLayout.call(this);
 
         //Get dimensions for use in dynamicLayout
-        getTableWidths.call(this);
+        getTopAndBottomWidths.call(this);
     }
 
     function destroy$2() {

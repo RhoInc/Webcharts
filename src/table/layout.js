@@ -1,5 +1,5 @@
 import { select } from 'd3';
-import getTableWidths from './layout/getTableWidths';
+import getTopAndBottomWidths from './layout/getTopAndBottomWidths';
 
 export default function layout() {
     //Clear loading indicator.
@@ -33,5 +33,5 @@ export default function layout() {
     this.events.onLayout.call(this);
 
     //Get dimensions for use in dynamicLayout
-    getTableWidths.call(this);
+    getTopAndBottomWidths.call(this);
 }
