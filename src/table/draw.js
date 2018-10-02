@@ -5,7 +5,6 @@ import checkFilters from './draw/checkFilters';
 import updateTableHeaders from './draw/updateTableHeaders';
 import drawTableBody from './draw/drawTableBody';
 import dynamicLayout from './draw/dynamicLayout';
-import getTableWidth from './draw/getTableWidth';
 
 export default function draw(passed_data) {
     const table = this;
@@ -37,9 +36,6 @@ export default function draw(passed_data) {
 
     //Update table headers.
     updateTableHeaders.call(this);
-
-    // get width of the table
-    getTableWidth.call(this);
 
     //Clear table body rows.
     this.tbody.selectAll('tr').remove();
@@ -100,7 +96,9 @@ export default function draw(passed_data) {
     }
 
     //Alter table layout if table is narrower than table top or bottom.
-    dynamicLayout.call(this);
+    if (this.config.dynamicPositioning) {
+        dynamicLayout.call(this);
+    }
 
     this.events.onDraw.call(this);
 }

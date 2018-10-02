@@ -3427,10 +3427,18 @@
     }
 
     function dynamicLayout() {
-        var table = this;
+        var widths = {
+            table: this.table.select('thead').node().offsetWidth,
+            top:
+                this.wrap.select('.table-top .searchable-container').node().offsetWidth +
+                    this.wrap.select('.table-top .sortable-container').node().offsetWidth,
+            bottom:
+                this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
+                    this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
+        };
 
         if (
-            table.widths.table < Math.max(table.widths.top, table.widths.bottom) &&
+            widths.table < Math.max(widths.top, widths.bottom) &&
             this.config.layout === 'horizontal'
         ) {
             this.config.layout = 'vertical';
@@ -3444,7 +3452,7 @@
                     clear: 'both'
                 });
         } else if (
-            table.widths.table >= Math.max(table.widths.top, table.widths.bottom) &&
+            widths.table >= Math.max(widths.top, widths.bottom) &&
             this.config.layout === 'vertical'
         ) {
             this.config.layout = 'horizontal';
@@ -3464,12 +3472,6 @@
                     clear: null
                 });
         }
-    }
-
-    function getTableWidth() {
-        var table = this;
-        // Only need to figure out the width of the table once
-        if (!table.widths.table) table.widths.table = this.table.select('thead').node().offsetWidth;
     }
 
     function draw$1(passed_data) {
@@ -3507,9 +3509,6 @@
 
         //Update table headers.
         updateTableHeaders.call(this);
-
-        // get width of the table
-        getTableWidth.call(this);
 
         //Clear table body rows.
         this.tbody.selectAll('tr').remove();
@@ -3572,7 +3571,9 @@
         }
 
         //Alter table layout if table is narrower than table top or bottom.
-        dynamicLayout.call(this);
+        if (this.config.dynamicPositioning) {
+            dynamicLayout.call(this);
+        }
 
         this.events.onDraw.call(this);
     }
@@ -4178,19 +4179,6 @@
         return this;
     }
 
-    function getTopAndBottomWidths() {
-        var table = this;
-
-        table.widths = {
-            top:
-                this.wrap.select('.table-top .searchable-container').node().offsetWidth +
-                    this.wrap.select('.table-top .sortable-container').node().offsetWidth,
-            bottom:
-                this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
-                    this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
-        };
-    }
-
     function layout$6() {
         //Clear loading indicator.
         d3.select(this.div).select('.loader').remove();
@@ -4221,9 +4209,6 @@
 
         //Call layout callback.
         this.events.onLayout.call(this);
-
-        //Get dimensions for use in dynamicLayout
-        getTopAndBottomWidths.call(this);
     }
 
     function destroy$2() {
@@ -4275,6 +4260,7 @@
         setDefault.call(this, 'nRowsPerPage', 10);
         setDefault.call(this, 'nPageLinksDisplayed', 5);
         setDefault.call(this, 'applyCSS');
+        setDefault.call(this, 'dynamicPositioning');
     }
 
     function transformData$1(processed_data) {

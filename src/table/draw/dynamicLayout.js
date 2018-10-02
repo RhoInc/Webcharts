@@ -1,12 +1,17 @@
 import { select } from 'd3';
 
 export default function dynamicLayout() {
-    const table = this;
+    const widths = {
+        table: this.table.select('thead').node().offsetWidth,
+        top:
+            this.wrap.select('.table-top .searchable-container').node().offsetWidth +
+                this.wrap.select('.table-top .sortable-container').node().offsetWidth,
+        bottom:
+            this.wrap.select('.table-bottom .pagination-container').node().offsetWidth +
+                this.wrap.select('.table-bottom .exportable-container').node().offsetWidth
+    };
 
-    if (
-        table.widths.table < Math.max(table.widths.top, table.widths.bottom) &&
-        this.config.layout === 'horizontal'
-    ) {
+    if (widths.table < Math.max(widths.top, widths.bottom) && this.config.layout === 'horizontal') {
         this.config.layout = 'vertical';
         this.wrap
             .style('display', 'inline-block')
@@ -18,7 +23,7 @@ export default function dynamicLayout() {
                 clear: 'both'
             });
     } else if (
-        table.widths.table >= Math.max(table.widths.top, table.widths.bottom) &&
+        widths.table >= Math.max(widths.top, widths.bottom) &&
         this.config.layout === 'vertical'
     ) {
         this.config.layout = 'horizontal';

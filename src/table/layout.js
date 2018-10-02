@@ -1,5 +1,4 @@
 import { select } from 'd3';
-import getTopAndBottomWidths from './layout/getTopAndBottomWidths';
 
 export default function layout() {
     //Clear loading indicator.
@@ -31,7 +30,4 @@ export default function layout() {
 
     //Call layout callback.
     this.events.onLayout.call(this);
-
-    //Get dimensions for use in dynamicLayout
-    getTopAndBottomWidths.call(this);
 }
