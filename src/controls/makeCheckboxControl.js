@@ -10,6 +10,6 @@ export default function makeCheckboxControl(control, control_wrap) {
 
     changer.on('change', d => {
         let value = changer.property('checked');
-        this.changeOption(d.option, value, control.callback);
+        this.changeOption(d.option, value, control.callback, control.draw);
     });
 }

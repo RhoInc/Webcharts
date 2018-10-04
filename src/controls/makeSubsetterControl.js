@@ -74,7 +74,6 @@ export default function makeSubsetterControl(control, control_wrap) {
                 val: values,
                 choices: option_data,
                 loose: control.loose,
-                draw: true
             };
             targets.forEach(e => {
                 setSubsetter(e, new_filter);

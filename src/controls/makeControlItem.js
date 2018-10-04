@@ -1,16 +1,22 @@
 export default function makeControlItem(control) {
-    let control_wrap = this.wrap
+    console.log(control);
+    const control_wrap = this.wrap
         .append('div')
         .attr('class', 'control-group')
         .classed('inline', control.inline)
         .datum(control);
-    let ctrl_label = control_wrap
+
+    //Add control label span.
+    const ctrl_label = control_wrap
         .append('span')
         .attr('class', 'wc-control-label')
         .text(control.label);
-    if (control.required) {
+
+    //Add control _Required_ text to control label span.
+    if (control.required)
         ctrl_label.append('span').attr('class', 'label label-required').text('Required');
-    }
+
+    //Add control description span.
     control_wrap.append('span').attr('class', 'span-description').text(control.description);
 
     if (control.type === 'text') {
@@ -31,7 +37,7 @@ export default function makeControlItem(control) {
         this.makeSubsetterControl(control, control_wrap);
     } else {
         throw new Error(
-            'Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"'
+            'Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", or "subsetter".'
         );
     }
 }

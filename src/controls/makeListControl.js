@@ -12,6 +12,6 @@ export default function makeListControl(control, control_wrap) {
         let value = changer.property('value')
             ? changer.property('value').split(',').map(m => m.trim())
             : null;
-        this.changeOption(control.option, value, control.callback);
+        this.changeOption(control.option, value, control.callback, control.draw);
     });
 }
