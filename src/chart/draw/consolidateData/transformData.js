@@ -160,16 +160,32 @@ export default function transformData(raw, mark) {
     }
 
     //update domains with those specified in the config
-    if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
+    if (
+        config.x.domain &&
+        (config.x.domain[0] || config.x.domain[0] === 0) &&
+        !isNaN(+config.x.domain[0])
+    ) {
         x_dom[0] = config.x.domain[0];
     }
-    if (config.x.domain && (config.x.domain[1] || config.x.domain[1] === 0)) {
+    if (
+        config.x.domain &&
+        (config.x.domain[1] || config.x.domain[1] === 0) &&
+        !isNaN(+config.x.domain[1])
+    ) {
         x_dom[1] = config.x.domain[1];
     }
-    if (config.y.domain && (config.y.domain[0] || config.y.domain[0] === 0)) {
+    if (
+        config.y.domain &&
+        (config.y.domain[0] || config.y.domain[0] === 0) &&
+        !isNaN(+config.y.domain[0])
+    ) {
         y_dom[0] = config.y.domain[0];
     }
-    if (config.y.domain && (config.y.domain[1] || config.y.domain[1] === 0)) {
+    if (
+        config.y.domain &&
+        (config.y.domain[1] || config.y.domain[1] === 0) &&
+        !isNaN(+config.y.domain[1])
+    ) {
         y_dom[1] = config.y.domain[1];
     }
 

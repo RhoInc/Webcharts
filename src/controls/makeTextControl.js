@@ -10,6 +10,6 @@ export default function makeTextControl(control, control_wrap) {
 
     changer.on('change', d => {
         let value = changer.property('value');
-        this.changeOption(control.option, value, control.callback);
+        this.changeOption(control.option, value, control.callback, control.draw);
     });
 }

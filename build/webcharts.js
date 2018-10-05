@@ -480,7 +480,7 @@
             //rate domains run from 0 to 1
             this[axis + '_dom'] = [0, 1];
         } else {
-            //continuous domains run from the minimum to the maximum raw value
+            //continuous domains run from the minimum to the maximum raw (or is it summarized...?) value
             //TODO: they should really run from the minimum to the maximum summarized value, e.g. a
             //TODO: means over time chart should plot over the range of the means, not the range of the
             //TODO: raw data
@@ -1225,16 +1225,32 @@
         }
 
         //update domains with those specified in the config
-        if (config.x.domain && (config.x.domain[0] || config.x.domain[0] === 0)) {
+        if (
+            config.x.domain &&
+            (config.x.domain[0] || config.x.domain[0] === 0) &&
+            !isNaN(+config.x.domain[0])
+        ) {
             x_dom[0] = config.x.domain[0];
         }
-        if (config.x.domain && (config.x.domain[1] || config.x.domain[1] === 0)) {
+        if (
+            config.x.domain &&
+            (config.x.domain[1] || config.x.domain[1] === 0) &&
+            !isNaN(+config.x.domain[1])
+        ) {
             x_dom[1] = config.x.domain[1];
         }
-        if (config.y.domain && (config.y.domain[0] || config.y.domain[0] === 0)) {
+        if (
+            config.y.domain &&
+            (config.y.domain[0] || config.y.domain[0] === 0) &&
+            !isNaN(+config.y.domain[0])
+        ) {
             y_dom[0] = config.y.domain[0];
         }
-        if (config.y.domain && (config.y.domain[1] || config.y.domain[1] === 0)) {
+        if (
+            config.y.domain &&
+            (config.y.domain[1] || config.y.domain[1] === 0) &&
+            !isNaN(+config.y.domain[1])
+        ) {
             y_dom[1] = config.y.domain[1];
         }
 
@@ -2751,53 +2767,50 @@
         return thisChart;
     }
 
-    function changeOption(option, value, callback) {
+    function changeOption(option, value, callback, draw) {
         var _this = this;
 
-        var control = this;
-        this.targets.forEach(function(e) {
+        this.targets.forEach(function(target) {
             if (option instanceof Array) {
                 option.forEach(function(o) {
-                    return _this.stringAccessor(e.config, o, value);
+                    return _this.stringAccessor(target.config, o, value);
                 });
             } else {
-                _this.stringAccessor(e.config, option, value);
+                _this.stringAccessor(target.config, option, value);
             }
             //call callback function if provided
             if (callback) {
                 callback();
             }
-            if (control.draw) e.draw();
+            if (draw) target.draw();
         });
     }
 
     function checkRequired$1(dataset) {
-        if (!dataset[0] || !this.config.inputs) {
-            return;
-        }
-        var colnames = d3.keys(dataset[0]);
-        this.config.inputs.forEach(function(e, i) {
-            if (e.type === 'subsetter' && colnames.indexOf(e.value_col) === -1) {
+        if (!dataset[0] || !this.config.inputs) return;
+
+        var colNames = d3.keys(dataset[0]);
+
+        this.config.inputs.forEach(function(input, i) {
+            if (input.type === 'subsetter' && colNames.indexOf(input.value_col) === -1)
                 throw new Error(
                     'Error in settings object: the value "' +
-                        e.value_col +
+                        input.value_col +
                         '" does not match any column in the provided dataset.'
                 );
-            }
 
-            //draw the chart when a control changes unless the user specifies otherwise
-            e.draw = e.draw == undefined ? true : e.draw;
+            //Draw the chart when a control changes unless the user specifies otherwise.
+            input.draw = input.draw === undefined ? true : input.draw;
         });
     }
 
     function controlUpdate() {
         var _this = this;
 
-        if (this.config.inputs && this.config.inputs.length && this.config.inputs[0]) {
-            this.config.inputs.forEach(function(e) {
-                return _this.makeControlItem(e);
+        if (this.config.inputs && this.config.inputs.length && this.config.inputs[0])
+            this.config.inputs.forEach(function(input) {
+                return _this.makeControlItem(input);
             });
-        }
     }
 
     function destroy$1() {
@@ -2807,9 +2820,7 @@
 
     function init$1(data) {
         this.data = data;
-        if (!this.config.builder) {
-            this.checkRequired(this.data);
-        }
+        if (!this.config.builder) this.checkRequired(this.data);
         this.layout();
     }
 
@@ -2825,13 +2836,18 @@
             .attr('class', 'control-group')
             .classed('inline', control.inline)
             .datum(control);
+
+        //Add control label span.
         var ctrl_label = control_wrap
             .append('span')
             .attr('class', 'wc-control-label')
             .text(control.label);
-        if (control.required) {
+
+        //Add control _Required_ text to control label span.
+        if (control.required)
             ctrl_label.append('span').attr('class', 'label label-required').text('Required');
-        }
+
+        //Add control description span.
         control_wrap.append('span').attr('class', 'span-description').text(control.description);
 
         if (control.type === 'text') {
@@ -2852,7 +2868,7 @@
             this.makeSubsetterControl(control, control_wrap);
         } else {
             throw new Error(
-                'Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", "subsetter"'
+                'Each control must have a type! Choose from: "text", "number", "list", "dropdown", "btngroup", "checkbox", "radio", or "subsetter".'
             );
         }
     }
@@ -2881,7 +2897,7 @@
             changers.each(function(e) {
                 d3.select(this).classed('btn-primary', e === d);
             });
-            _this.changeOption(control.option, d, control.callback);
+            _this.changeOption(control.option, d, control.callback, control.draw);
         });
     }
 
@@ -2899,7 +2915,7 @@
 
         changer.on('change', function(d) {
             var value = changer.property('checked');
-            _this.changeOption(d.option, value, control.callback);
+            _this.changeOption(d.option, value, control.callback, control.draw);
         });
     }
 
@@ -2958,9 +2974,9 @@
             }
 
             if (control.options) {
-                _this.changeOption(control.options, value, control.callback);
+                _this.changeOption(control.options, value, control.callback, control.draw);
             } else {
-                _this.changeOption(control.option, value, control.callback);
+                _this.changeOption(control.option, value, control.callback, control.draw);
             }
         });
 
@@ -2985,7 +3001,7 @@
                       return m.trim();
                   })
                 : null;
-            _this.changeOption(control.option, value, control.callback);
+            _this.changeOption(control.option, value, control.callback, control.draw);
         });
     }
 
@@ -3006,7 +3022,7 @@
 
         changer.on('change', function(d) {
             var value = +changer.property('value');
-            _this.changeOption(control.option, value, control.callback);
+            _this.changeOption(control.option, value, control.callback, control.draw);
         });
     }
 
@@ -3040,7 +3056,7 @@
                     value = d3.select(this).property('value') === 'none' ? null : c;
                 }
             });
-            _this.changeOption(control.option, value, control.callback);
+            _this.changeOption(control.option, value, control.callback, control.draw);
         });
     }
 
@@ -3137,8 +3153,7 @@
                     col: control.value_col,
                     val: values,
                     choices: option_data,
-                    loose: control.loose,
-                    draw: true
+                    loose: control.loose
                 };
                 targets.forEach(function(e) {
                     setSubsetter(e, new_filter);
@@ -3182,7 +3197,7 @@
 
         changer.on('change', function(d) {
             var value = changer.property('value');
-            _this.changeOption(control.option, value, control.callback);
+            _this.changeOption(control.option, value, control.callback, control.draw);
         });
     }
 
