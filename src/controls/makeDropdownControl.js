@@ -41,9 +41,9 @@ export default function makeDropdownControl(control, control_wrap) {
         }
 
         if (control.options) {
-            this.changeOption(control.options, value, control.callback);
+            this.changeOption(control.options, value, control.callback, control.draw);
         } else {
-            this.changeOption(control.option, value, control.callback);
+            this.changeOption(control.option, value, control.callback, control.draw);
         }
     });
 

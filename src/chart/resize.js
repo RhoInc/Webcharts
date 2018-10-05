@@ -75,6 +75,7 @@ export default function resize() {
         .attr({ stroke: '#eee', 'stroke-width': 1, 'shape-rendering': 'crispEdges' });
 
     this.drawGridlines();
+
     //update legend - margins need to be set first
     this.makeLegend();
 

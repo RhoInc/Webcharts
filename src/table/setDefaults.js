@@ -25,4 +25,5 @@ export default function setDefaults(firstItem) {
     setDefault.call(this, 'nRowsPerPage', 10);
     setDefault.call(this, 'nPageLinksDisplayed', 5);
     setDefault.call(this, 'applyCSS');
+    setDefault.call(this, 'dynamicPositioning');
 }

@@ -96,7 +96,9 @@ export default function draw(passed_data) {
     }
 
     //Alter table layout if table is narrower than table top or bottom.
-    dynamicLayout.call(this);
+    if (this.config.dynamicPositioning) {
+        dynamicLayout.call(this);
+    }
 
     this.events.onDraw.call(this);
 }

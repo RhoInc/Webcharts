@@ -81,7 +81,7 @@ export default function makeSubsetterControl(control, control_wrap) {
                 if (control.callback) {
                     control.callback();
                 }
-                e.draw();
+                if (control.draw) e.draw();
             });
         } else {
             let value = select(this).select('option:checked').property('text');

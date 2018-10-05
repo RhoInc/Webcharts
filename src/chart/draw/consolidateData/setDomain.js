@@ -58,13 +58,13 @@ export default function setDomain(axis) {
         }
     } else if (
         this.config.marks
-            .map(m => m['summarize' + otherAxis.toUpperCase()] === 'percent')
+            .map(m => m['summarize' + axis.toUpperCase()] === 'percent')
             .indexOf(true) > -1
     ) {
         //rate domains run from 0 to 1
         this[axis + '_dom'] = [0, 1];
     } else {
-        //continuous domains run from the minimum to the maximum raw value
+        //continuous domains run from the minimum to the maximum raw (or is it summarized...?) value
         //TODO: they should really run from the minimum to the maximum summarized value, e.g. a
         //TODO: means over time chart should plot over the range of the means, not the range of the
         //TODO: raw data

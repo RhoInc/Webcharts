@@ -24,6 +24,6 @@ export default function makeRadioControl(control, control_wrap) {
                 value = select(this).property('value') === 'none' ? null : c;
             }
         });
-        this.changeOption(control.option, value, control.callback);
+        this.changeOption(control.option, value, control.callback, control.draw);
     });
 }

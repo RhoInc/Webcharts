@@ -20,6 +20,6 @@ export default function makeBtnGroupControl(control, control_wrap) {
         changers.each(function(e) {
             select(this).classed('btn-primary', e === d);
         });
-        this.changeOption(control.option, d, control.callback);
+        this.changeOption(control.option, d, control.callback, control.draw);
     });
 }
