@@ -73,7 +73,7 @@ export default function makeSubsetterControl(control, control_wrap) {
                 col: control.value_col,
                 val: values,
                 choices: option_data,
-                loose: control.loose,
+                loose: control.loose
             };
             targets.forEach(e => {
                 setSubsetter(e, new_filter);

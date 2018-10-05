@@ -1,5 +1,4 @@
 export default function makeControlItem(control) {
-    console.log(control);
     const control_wrap = this.wrap
         .append('div')
         .attr('class', 'control-group')
