@@ -38,7 +38,7 @@ export default function setDomain(axis) {
                         .map(m => m[this.config[otherAxis].column])
                         .filter(f => f instanceof Date);
                 })
-                .entries(this.raw_data)
+                .entries(this.filtered_data)
                 .sort((a, b) => min(b.values) - min(a.values))
                 .map(m => m.key);
         } else if (
