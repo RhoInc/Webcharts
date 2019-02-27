@@ -6,7 +6,7 @@
           : (global.webCharts = factory(global.d3));
 })(typeof self !== 'undefined' ? self : this, function(d3) {
     'use strict';
-    var version = '1.11.1';
+    var version = '1.11.3';
 
     function init(data) {
         var _this = this;
