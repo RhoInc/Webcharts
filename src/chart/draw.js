@@ -1,4 +1,5 @@
 import { select } from 'd3';
+import addFontCSS from '../util/addFontCSS';
 
 export default function draw(raw_data, processed_data) {
     const chart = this;
@@ -70,6 +71,9 @@ export default function draw(raw_data, processed_data) {
     } else if (typeof window !== 'undefined') {
         select(window).on('resize.' + this.element + this.id, null);
     }
+
+    //add Google Fonts
+    addFontCSS.call(this);
 
     this.events.onDraw.call(this);
 

@@ -6,7 +6,7 @@
           : (global.webCharts = factory(global.d3));
 })(typeof self !== 'undefined' ? self : this, function(d3) {
     'use strict';
-    var version = '1.11.1';
+    var version = '1.11.2';
 
     function init(data) {
         var _this = this;
@@ -250,6 +250,30 @@
         this.events.onLayout.call(this);
     }
 
+    function addFontCSS() {
+        var context = this;
+
+        var styles = ['@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);'];
+
+        //Attach styles to DOM.
+        this.style = document.createElement('style');
+        console.log('okay?');
+
+        var request = new XMLHttpRequest();
+        request.open('HEAD', '//fonts.googleapis.com/css?family=Open+Sans:400,300');
+        request.send();
+
+        request.onreadystatechange = function() {
+            if (this.readyState == this.HEADERS_RECEIVED) {
+                console.log('gucci babies');
+                context.style.type = 'text/css';
+                context.style.innerHTML = styles.join('\n');
+                document.getElementsByTagName('head')[0].appendChild(context.style);
+                request.getAllResponseHeaders();
+            }
+        };
+    }
+
     function draw(raw_data, processed_data) {
         var _this = this;
 
@@ -322,6 +346,9 @@
         } else if (typeof window !== 'undefined') {
             d3.select(window).on('resize.' + this.element + this.id, null);
         }
+
+        //add Google Fonts
+        addFontCSS.call(this);
 
         this.events.onDraw.call(this);
 
@@ -3589,6 +3616,9 @@
         if (this.config.dynamicPositioning) {
             dynamicLayout.call(this);
         }
+
+        //add Google Fonts
+        addFontCSS.call(this);
 
         this.events.onDraw.call(this);
     }
