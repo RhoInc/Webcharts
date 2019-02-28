@@ -1831,6 +1831,7 @@
     function drawBars(marks) {
         var _this = this;
 
+        var chart = this;
         var rawData = this.raw_data;
         var config = this.config;
 
@@ -1896,7 +1897,7 @@
                 .attr('class', function(d) {
                     return 'wc-data-mark bar ' + d.key;
                 })
-                .style('clip-path', 'url(#' + this.id + ')')
+                .style('clip-path', 'url(#' + chart.id + ')')
                 .attr('y', this.y(0))
                 .attr('height', 0)
                 .append('title');
@@ -2029,7 +2030,7 @@
                 .attr('class', function(d) {
                     return 'wc-data-mark bar ' + d.key;
                 })
-                .style('clip-path', 'url(#' + this.id + ')')
+                .style('clip-path', 'url(#' + chart.id + ')')
                 .attr('x', this.x(0))
                 .attr('width', 0)
                 .append('title');
@@ -2157,7 +2158,7 @@
                 .attr('class', function(d) {
                     return 'wc-data-mark bar ' + d.key;
                 })
-                .style('clip-path', 'url(#' + this.id + ')')
+                .style('clip-path', 'url(#' + chart.id + ')')
                 .attr('y', this.y(0))
                 .attr('height', 0)
                 .append('title');
@@ -2267,7 +2268,7 @@
                 .attr('class', function(d) {
                     return 'wc-data-mark bar ' + d.key;
                 })
-                .style('clip-path', 'url(#' + this.id + ')')
+                .style('clip-path', 'url(#' + chart.id + ')')
                 .attr('x', this.x(0))
                 .attr('width', 0)
                 .append('title');
