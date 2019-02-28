@@ -14,6 +14,9 @@ export default function makeSubsetterControl(control, control_wrap) {
         : set(this.data.map(m => m[control.value_col]).filter(f => f)).values();
     option_data.sort(naturalSorter);
 
+    // If 'All' is in the option values already, make it the start value and prevent the addition of a second 'All'
+    if (option_data.includes('All')) control.start = 'All';
+
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
     if (!control.multiple && !control.start) {
