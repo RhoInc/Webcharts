@@ -9,10 +9,12 @@ export default function makeSubsetterControl(control, control_wrap) {
         .attr('multiple', control.multiple ? true : null)
         .datum(control);
 
+    let specifiedValues = controls.values;
+
     let option_data = control.values
         ? control.values
         : set(this.data.map(m => m[control.value_col]).filter(f => f)).values();
-    option_data.sort(naturalSorter);
+    if (typeof specifiedValues === 'undefined') option_data.sort(naturalSorter);
 
     // If 'All' is in the option values already, make it the start value and prevent the addition of a second 'All'
     if (option_data.includes('All')) {
@@ -21,7 +23,6 @@ export default function makeSubsetterControl(control, control_wrap) {
         option_data.sort((x, y) => (x == 'All' ? -1 : y == 'All' ? 1 : 0));
     }
 
-    console.log(option_data);
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
     if (!control.multiple && !control.start) {
