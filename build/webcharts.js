@@ -253,19 +253,20 @@
     function addFontCSS() {
         var context = this;
 
-        var styles = ['@import url(//fonts.googleapis.com/css?family=Open+Sans:400,300);'];
+        var fonts_url = '//fonts.googleapis.com/css?family=Open+Sans:400,300';
+
+        var styles = ['@import url(' + fonts_url + ');'];
 
         //Attach styles to DOM.
         this.style = document.createElement('style');
-        console.log('okay?');
 
         var request = new XMLHttpRequest();
-        request.open('HEAD', '//fonts.googleapis.com/css?family=Open+Sans:400,300');
+        request.open('HEAD', fonts_url);
         request.send();
 
+        // If header is returned add the import css to Dom head
         request.onreadystatechange = function() {
             if (this.readyState == this.HEADERS_RECEIVED) {
-                console.log('gucci babies');
                 context.style.type = 'text/css';
                 context.style.innerHTML = styles.join('\n');
                 document.getElementsByTagName('head')[0].appendChild(context.style);

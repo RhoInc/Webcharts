@@ -1,9 +1,9 @@
 export default function addFontCSS() {
     const context = this;
 
-    const fonts_url = '//fonts.googleapis.com/css?family=Open+Sans:400,300'
+    const fonts_url = '//fonts.googleapis.com/css?family=Open+Sans:400,300';
 
-    const styles = ['@import url('+ fonts_url +');'];
+    const styles = ['@import url(' + fonts_url + ');'];
 
     //Attach styles to DOM.
     this.style = document.createElement('style');
