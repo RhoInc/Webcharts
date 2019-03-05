@@ -5,7 +5,6 @@ import checkFilters from './draw/checkFilters';
 import updateTableHeaders from './draw/updateTableHeaders';
 import drawTableBody from './draw/drawTableBody';
 import dynamicLayout from './draw/dynamicLayout';
-import addFontCSS from '../util/addFontCSS';
 
 export default function draw(passed_data) {
     const table = this;
@@ -100,9 +99,6 @@ export default function draw(passed_data) {
     if (this.config.dynamicPositioning) {
         dynamicLayout.call(this);
     }
-
-    //add Google Fonts
-    addFontCSS.call(this);
 
     this.events.onDraw.call(this);
 }

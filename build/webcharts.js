@@ -250,31 +250,6 @@
         this.events.onLayout.call(this);
     }
 
-    function addFontCSS() {
-        var context = this;
-
-        var fonts_url = '//fonts.googleapis.com/css?family=Open+Sans:400,300';
-
-        var styles = ['@import url(' + fonts_url + ');'];
-
-        //Attach styles to DOM.
-        this.style = document.createElement('style');
-
-        var request = new XMLHttpRequest();
-        request.open('HEAD', fonts_url);
-        request.send();
-
-        // If header is returned add the import css to Dom head
-        request.onreadystatechange = function() {
-            if (this.readyState == this.HEADERS_RECEIVED) {
-                context.style.type = 'text/css';
-                context.style.innerHTML = styles.join('\n');
-                document.getElementsByTagName('head')[0].appendChild(context.style);
-                request.getAllResponseHeaders();
-            }
-        };
-    }
-
     function draw(raw_data, processed_data) {
         var _this = this;
 
@@ -347,9 +322,6 @@
         } else if (typeof window !== 'undefined') {
             d3.select(window).on('resize.' + this.element + this.id, null);
         }
-
-        //add Google Fonts
-        addFontCSS.call(this);
 
         this.events.onDraw.call(this);
 
@@ -3617,9 +3589,6 @@
         if (this.config.dynamicPositioning) {
             dynamicLayout.call(this);
         }
-
-        //add Google Fonts
-        addFontCSS.call(this);
 
         this.events.onDraw.call(this);
     }
