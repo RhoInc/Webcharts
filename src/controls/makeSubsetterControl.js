@@ -41,19 +41,19 @@ export default function makeSubsetterControl(control, control_wrap) {
             e.filters[match] = {
                 col: control.value_col,
                 val: control.start ? control.start : 'All',
+                index: 0,
                 choices: option_data,
                 loose: control.loose,
-                all: control.all,
-                index: 0
+                all: control.all
             };
         } else {
             e.filters.push({
                 col: control.value_col,
                 val: control.start ? control.start : 'All',
+                index: 0,
                 choices: option_data,
                 loose: control.loose,
-                all: control.all,
-                index: 0
+                all: control.all
             });
         }
     });
@@ -83,7 +83,8 @@ export default function makeSubsetterControl(control, control_wrap) {
                 val: values,
                 index: null, //  could specify an array of indices but seems like a waste of resources give it doesn't inform anything without an overall 'All'
                 choices: option_data,
-                loose: control.loose
+                loose: control.loose,
+                all: control.all
             };
             targets.forEach(e => {
                 setSubsetter(e, new_filter);
