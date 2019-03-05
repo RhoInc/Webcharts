@@ -14,7 +14,7 @@ export default function makeSubsetterControl(control, control_wrap) {
     let option_data = control.values
         ? control.values
         : set(this.data.map(m => m[control.value_col]).filter(f => f)).values();
-    if (typeof specifiedValues === 'undefined') option_data.sort(naturalSorter);
+    if (typeof specifiedValues === 'undefined') option_data.sort(naturalSorter); // only sort when values are derived
 
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
