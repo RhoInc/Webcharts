@@ -16,17 +16,13 @@ export default function makeSubsetterControl(control, control_wrap) {
         : set(this.data.map(m => m[control.value_col]).filter(f => f)).values();
     if (typeof specifiedValues === 'undefined') option_data.sort(naturalSorter);
 
-    // If 'All' is in the option values already, make it the start value and prevent the addition of a second 'All'
-    if (option_data.includes('All')) {
-        control.start = 'All';
-        // Ensure that All is at the top of the option list
-        option_data.sort((x, y) => (x == 'All' ? -1 : y == 'All' ? 1 : 0));
-    }
-
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
     if (!control.multiple && !control.start) {
         option_data.unshift('All');
+        control.all = true;
+    } else {
+        control.all = false;
     }
 
     control.loose = !control.loose && control.start ? true : control.loose;
@@ -46,14 +42,18 @@ export default function makeSubsetterControl(control, control_wrap) {
                 col: control.value_col,
                 val: control.start ? control.start : 'All',
                 choices: option_data,
-                loose: control.loose
+                loose: control.loose,
+                all: control.all,
+                index: 0
             };
         } else {
             e.filters.push({
                 col: control.value_col,
                 val: control.start ? control.start : 'All',
                 choices: option_data,
-                loose: control.loose
+                loose: control.loose,
+                all: control.all,
+                index: 0
             });
         }
     });
@@ -81,6 +81,7 @@ export default function makeSubsetterControl(control, control_wrap) {
             let new_filter = {
                 col: control.value_col,
                 val: values,
+                index: null, //  could specify an array of indices but seems like a waste of resources give it doesn't inform anything without an overall 'All'
                 choices: option_data,
                 loose: control.loose
             };
@@ -94,11 +95,14 @@ export default function makeSubsetterControl(control, control_wrap) {
             });
         } else {
             let value = select(this).select('option:checked').property('text');
+            let index = select(this).select('option:checked').property('index');
             let new_filter = {
                 col: control.value_col,
                 val: value,
+                index: index,
                 choices: option_data,
-                loose: control.loose
+                loose: control.loose,
+                all: control.all
             };
             targets.forEach(e => {
                 setSubsetter(e, new_filter);

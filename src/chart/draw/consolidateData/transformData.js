@@ -66,7 +66,7 @@ export default function transformData(raw, mark) {
     if (this.filters.length) {
         this.filters.forEach(e => {
             filtered = filtered.filter(d => {
-                return e.val === 'All'
+                return e.all === true && e.index === 0
                     ? d
                     : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
             });
