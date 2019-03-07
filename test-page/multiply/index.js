@@ -67,7 +67,7 @@ d3.csv(
             : d.species === 'versicolor'
                 ? '2'
                 : d.species === 'virginica'
-                    ? 'All'
+                    ? '3'
                     : 'wut';
         return d;
     },

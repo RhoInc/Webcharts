@@ -77,7 +77,6 @@ export default function drawPoints(marks) {
             .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
-    console.log(chart);
     //Link to the d3.selection from the data
     point_supergroups.each(function(d) {
         d.supergroup = select(this);
