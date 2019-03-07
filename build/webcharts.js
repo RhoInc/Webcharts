@@ -2410,6 +2410,7 @@
         var linePaths = line_grps
             .select('path')
             .attr('class', 'wc-data-mark')
+            .style('clip-path', 'url(#' + chart.id + ')')
             .datum(function(d) {
                 return d.values;
             })
@@ -2497,6 +2498,7 @@
         //static attributes
         points
             .select('circle')
+            .style('clip-path', 'url(#' + chart.id + ')')
             .attr(
                 'fill-opacity',
                 config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : 0.6
@@ -2611,7 +2613,7 @@
         texts.each(attachMarks);
 
         // parse text like tooltips
-        texts.select('text').text(function(d) {
+        texts.select('text').style('clip-path', 'url(#' + chart.id + ')').text(function(d) {
             var tt = d.mark.text || '';
             var xformat = config.x.summary === 'percent'
                 ? d3.format('0%')
@@ -2684,7 +2686,7 @@
         config: {}
     };
 
-    var chart = Object.create(chartProto, {
+    var chart$1 = Object.create(chartProto, {
         checkRequired: { value: checkRequired },
         consolidateData: { value: consolidateData },
         draw: { value: draw },
@@ -2716,7 +2718,7 @@
         var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         var controls = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-        var thisChart = Object.create(chart);
+        var thisChart = Object.create(chart$1);
 
         thisChart.div = element;
 
@@ -4397,7 +4399,7 @@
         return this.data.current;
     }
 
-    var table = Object.create(chart, {
+    var table = Object.create(chart$1, {
         draw: { value: draw$1 },
         init: { value: init$2 },
         layout: { value: layout$6 },

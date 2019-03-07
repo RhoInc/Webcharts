@@ -32,26 +32,24 @@ export default function drawText(marks) {
     texts.each(attachMarks);
 
     // parse text like tooltips
-    texts.select('text')
-        .style('clip-path', `url(#${chart.id})`)
-        .text(d => {
-          const tt = d.mark.text || '';
-            const xformat = config.x.summary === 'percent'
-              ? format('0%')
-              : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
-            const yformat = config.y.summary === 'percent'
-              ? format('0%')
-              : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
-            return tt
-              .replace(
-                  /\$x/g,
-                  config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)
-              )
-                .replace(
-                  /\$y/g,
-                  config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
-              )
-                .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
+    texts.select('text').style('clip-path', `url(#${chart.id})`).text(d => {
+        const tt = d.mark.text || '';
+        const xformat = config.x.summary === 'percent'
+            ? format('0%')
+            : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
+        const yformat = config.y.summary === 'percent'
+            ? format('0%')
+            : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
+        return tt
+            .replace(
+                /\$x/g,
+                config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)
+            )
+            .replace(
+                /\$y/g,
+                config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
+            )
+            .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
     // animated attributes
     const textsTrans = config.transitions
