@@ -1,6 +1,7 @@
 import { svg, select, format } from 'd3';
 
 export default function drawLines(marks) {
+    let chart = this;
     let config = this.config;
     let line = svg
         .line()

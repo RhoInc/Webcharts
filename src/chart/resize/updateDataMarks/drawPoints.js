@@ -1,6 +1,7 @@
 import { select, format, time } from 'd3';
 
 export default function drawPoints(marks) {
+    let chart = this;
     let config = this.config;
 
     let point_supergroups = this.svg
@@ -76,6 +77,7 @@ export default function drawPoints(marks) {
             .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
+    console.log(chart);
     //Link to the d3.selection from the data
     point_supergroups.each(function(d) {
         d.supergroup = select(this);

@@ -2363,6 +2363,7 @@
     function drawLines(marks) {
         var _this = this;
 
+        var chart = this;
         var config = this.config;
         var line = d3.svg
             .line()
@@ -2460,6 +2461,7 @@
     function drawPoints(marks) {
         var _this = this;
 
+        var chart = this;
         var config = this.config;
 
         var point_supergroups = this.svg.selectAll('.point-supergroup').data(marks, function(d, i) {
@@ -2558,6 +2560,7 @@
                 });
         });
 
+        console.log(chart);
         //Link to the d3.selection from the data
         point_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
@@ -2571,6 +2574,7 @@
     function drawText(marks) {
         var _this = this;
 
+        var chart = this;
         var config = this.config;
 
         var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
@@ -2686,7 +2690,7 @@
         config: {}
     };
 
-    var chart$1 = Object.create(chartProto, {
+    var chart = Object.create(chartProto, {
         checkRequired: { value: checkRequired },
         consolidateData: { value: consolidateData },
         draw: { value: draw },
@@ -2718,7 +2722,7 @@
         var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
         var controls = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-        var thisChart = Object.create(chart$1);
+        var thisChart = Object.create(chart);
 
         thisChart.div = element;
 
@@ -4399,7 +4403,7 @@
         return this.data.current;
     }
 
-    var table = Object.create(chart$1, {
+    var table = Object.create(chart, {
         draw: { value: draw$1 },
         init: { value: init$2 },
         layout: { value: layout$6 },
