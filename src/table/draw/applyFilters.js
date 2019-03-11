@@ -5,7 +5,7 @@ export default function applyFilters() {
         this.filters &&
         this.filters.some(
             filter =>
-                (typeof filter.val === 'string' && filter.val !== 'All') ||
+                (typeof filter.val === 'string' && !(filter.all === true && filter.index === 0)) ||
                 (Array.isArray(filter.val) && filter.val.length < filter.choices.length)
         )
     ) {
@@ -13,7 +13,8 @@ export default function applyFilters() {
         this.filters
             .filter(
                 filter =>
-                    (typeof filter.val === 'string' && filter.val !== 'All') ||
+                    (typeof filter.val === 'string' &&
+                        !(filter.all === true && filter.index === 0)) ||
                     (Array.isArray(filter.val) && filter.val.length < filter.choices.length)
             )
             .forEach(filter => {

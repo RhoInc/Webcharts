@@ -3293,7 +3293,8 @@
             this.filters &&
             this.filters.some(function(filter) {
                 return (
-                    (typeof filter.val === 'string' && filter.val !== 'All') ||
+                    (typeof filter.val === 'string' &&
+                        !(filter.all === true && filter.index === 0)) ||
                     (Array.isArray(filter.val) && filter.val.length < filter.choices.length)
                 );
             })
@@ -3302,7 +3303,8 @@
             this.filters
                 .filter(function(filter) {
                     return (
-                        (typeof filter.val === 'string' && filter.val !== 'All') ||
+                        (typeof filter.val === 'string' &&
+                            !(filter.all === true && filter.index === 0)) ||
                         (Array.isArray(filter.val) && filter.val.length < filter.choices.length)
                     );
                 })
