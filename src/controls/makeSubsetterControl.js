@@ -2,22 +2,24 @@ import naturalSorter from '../dataOps/naturalSorter';
 import { set, select } from 'd3';
 
 export default function makeSubsetterControl(control, control_wrap) {
-    let targets = this.targets;
-    let changer = control_wrap
+    const targets = this.targets; // associated charts and tables.
+
+    //dropdown selection
+    const changer = control_wrap
         .append('select')
-        .attr('class', 'changer')
+        .classed('changer', true)
         .attr('multiple', control.multiple ? true : null)
         .datum(control);
 
-    let specifiedValues = controls.values;
-
-    let option_data = control.values
+    //dropdown option data
+    const option_data = control.values
         ? control.values
-        : set(this.data.map(m => m[control.value_col]).filter(f => f)).values();
-    if (typeof specifiedValues === 'undefined') option_data.sort(naturalSorter); // only sort when values are derived
+        : set(this.data.map(m => m[control.value_col]).filter(f => f)).values().sort(naturalSorter); // only sort when values are derived
 
+    //initial dropdown option
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
+    //conditionally add All option
     if (!control.multiple && !control.start) {
         option_data.unshift('All');
         control.all = true;
@@ -25,9 +27,11 @@ export default function makeSubsetterControl(control, control_wrap) {
         control.all = false;
     }
 
+    //what does loose mean?
     control.loose = !control.loose && control.start ? true : control.loose;
 
-    let options = changer
+    //dropdown options selection
+    options = changer
         .selectAll('option')
         .data(option_data)
         .enter()
@@ -35,8 +39,9 @@ export default function makeSubsetterControl(control, control_wrap) {
         .text(d => d)
         .property('selected', d => d === control.start);
 
+    //define filter object for each associated target
     targets.forEach(e => {
-        let match = e.filters.slice().map(m => m.col === control.value_col).indexOf(true);
+        const match = e.filters.slice().map(m => m.col === control.value_col).indexOf(true);
         if (match > -1) {
             e.filters[match] = {
                 col: control.value_col,
@@ -70,6 +75,7 @@ export default function makeSubsetterControl(control, control_wrap) {
         }
     }
 
+    //add event listener to control
     changer.on('change', function(d) {
         if (control.multiple) {
             let values = options

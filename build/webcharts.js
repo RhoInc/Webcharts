@@ -3067,15 +3067,16 @@
     }
 
     function makeSubsetterControl(control, control_wrap) {
-        var targets = this.targets;
+        var targets = this.targets; // associated charts and tables.
+
+        //dropdown selection
         var changer = control_wrap
             .append('select')
-            .attr('class', 'changer')
+            .classed('changer', true)
             .attr('multiple', control.multiple ? true : null)
             .datum(control);
 
-        var specifiedValues = controls.values;
-
+        //dropdown option data
         var option_data = control.values
             ? control.values
             : d3
@@ -3088,11 +3089,13 @@
                               return f;
                           })
                   )
-                  .values();
-        if (typeof specifiedValues === 'undefined') option_data.sort(naturalSorter); // only sort when values are derived
+                  .values()
+                  .sort(naturalSorter); // only sort when values are derived
 
+        //initial dropdown option
         control.start = control.start ? control.start : control.loose ? option_data[0] : null;
 
+        //conditionally add All option
         if (!control.multiple && !control.start) {
             option_data.unshift('All');
             control.all = true;
@@ -3100,9 +3103,11 @@
             control.all = false;
         }
 
+        //what does loose mean?
         control.loose = !control.loose && control.start ? true : control.loose;
 
-        var options = changer
+        //dropdown options selection
+        options = changer
             .selectAll('option')
             .data(option_data)
             .enter()
@@ -3114,6 +3119,7 @@
                 return d === control.start;
             });
 
+        //define filter object for each associated target
         targets.forEach(function(e) {
             var match = e.filters
                 .slice()
@@ -3154,6 +3160,7 @@
             }
         }
 
+        //add event listener to control
         changer.on('change', function(d) {
             if (control.multiple) {
                 var values = options
@@ -3238,7 +3245,7 @@
         return o;
     }
 
-    var controls$1 = {
+    var controls = {
         changeOption: changeOption,
         checkRequired: checkRequired$1,
         controlUpdate: controlUpdate,
@@ -3261,7 +3268,7 @@
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-        var thisControls = Object.create(controls$1);
+        var thisControls = Object.create(controls);
 
         thisControls.div = element;
 
