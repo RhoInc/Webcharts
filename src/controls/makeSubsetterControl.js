@@ -31,7 +31,7 @@ export default function makeSubsetterControl(control, control_wrap) {
     control.loose = !control.loose && control.start ? true : control.loose;
 
     //dropdown options selection
-    options = changer
+    const options = changer
         .selectAll('option')
         .data(option_data)
         .enter()

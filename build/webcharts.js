@@ -3107,7 +3107,7 @@
         control.loose = !control.loose && control.start ? true : control.loose;
 
         //dropdown options selection
-        options = changer
+        var options = changer
             .selectAll('option')
             .data(option_data)
             .enter()
