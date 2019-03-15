@@ -45,7 +45,7 @@ export default function makeSubsetterControl(control, control_wrap) {
         if (match > -1) {
             e.filters[match] = {
                 col: control.value_col,
-                val: control.start ? control.start : 'All',
+                val: control.start ? control.start : !control.multiple ? 'All' : option_data,
                 index: 0,
                 choices: option_data,
                 loose: control.loose,
@@ -54,7 +54,7 @@ export default function makeSubsetterControl(control, control_wrap) {
         } else {
             e.filters.push({
                 col: control.value_col,
-                val: control.start ? control.start : 'All',
+                val: control.start ? control.start : !control.multiple ? 'All' : option_data,
                 index: 0,
                 choices: option_data,
                 loose: control.loose,
