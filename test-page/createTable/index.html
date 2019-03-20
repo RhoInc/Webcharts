@@ -1,23 +1,29 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Webcharts - createTable()</title>
-        <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
+<html lang="en">
+<title>Webcharts - Table</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-        <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.js'></script>
-        <script type = 'text/javascript' src = 'https://rawgit.com/SheetJS/js-xlsx/master/dist/xlsx.full.min.js'></script>
-        <script type = 'text/javascript' src = '../../build/webcharts.js'></script>
+<link rel="stylesheet" href="../../css/webcharts.css">
+<link rel="stylesheet" href="index.css">
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1a8f9726/dist/xlsx.full.min.js'></script>
+<script src="../../build/webcharts.js"></script>
 
-        <link type = 'text/css' rel = 'stylesheet' href = '../../css/webcharts.css'>
-        <link type = 'text/css' rel = 'stylesheet' href = 'index.css'>
-    </head>
+</head>
 
-    <body>
-        <div id = 'title'>Webcharts</div>
-        <div id = 'subtitle'>createTable()</div>
-        <div id = 'container'></div>
-    </body>
+<body>
+  <div class="controls">
+    <div>Pagination? <input class="pagination" type="checkbox" checked></input> </div>
+    <div># of items per page: <input class="items" value=10></input></div>
+    <div># of page links: <input class="pages" value=5></input></div>
+    <div>Apply CSS?: <input class="applyCSS" type="checkbox" checked></input></div>
+    <div>Searchable: <input class="searchable" type="checkbox" checked></input></div>
+    <div>Sortable: <input class="sortable" type="checkbox" checked></input></div>
+    <div>Exportable: <input class="exportable" type="checkbox" checked></input></div>
+    <div><button class="randomize-columns">Randomize columns</button></div>
+    <div><button class="randomize-headers">Randomize headers</button></div>
 
-    <script type = 'text/javascript' src = 'index.js'></script>
+  </div>
+  <div class="chart"></div>
+</body>
+<script src="index.js" defer></script>
 </html>
-

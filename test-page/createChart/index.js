@@ -59,7 +59,7 @@ const chart = new webCharts.createChart(
 );
 
 d3.csv(
-    'https://cdn.rawgit.com/RhoInc/viz-library/master/data/iris.csv',
+    'https://cdn.jsdelivr.net/gh/RhoInc/data-library/data/miscellaneous/iris.csv',
     function(d,i) {
         d.seq = i;
         return d;
