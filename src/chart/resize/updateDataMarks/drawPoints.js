@@ -1,6 +1,7 @@
 import { select, format, time } from 'd3';
 
 export default function drawPoints(marks) {
+    let chart = this;
     let config = this.config;
 
     let point_supergroups = this.svg
@@ -28,6 +29,7 @@ export default function drawPoints(marks) {
     //static attributes
     points
         .select('circle')
+        .style('clip-path', `url(#${chart.id})`)
         .attr(
             'fill-opacity',
             config.fill_opacity || config.fill_opacity === 0 ? config.fill_opacity : 0.6

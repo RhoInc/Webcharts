@@ -1,6 +1,7 @@
 import { svg, select, format } from 'd3';
 
 export default function drawLines(marks) {
+    let chart = this;
     let config = this.config;
     let line = svg
         .line()
@@ -37,6 +38,7 @@ export default function drawLines(marks) {
     let linePaths = line_grps
         .select('path')
         .attr('class', 'wc-data-mark')
+        .style('clip-path', `url(#${chart.id})`)
         .datum(d => d.values)
         .attr('stroke', d => this.colorScale(d[0].values.raw[0][config.color_by]))
         .attr('stroke-width', config.stroke_width ? config.stroke_width : config.flex_stroke_width)

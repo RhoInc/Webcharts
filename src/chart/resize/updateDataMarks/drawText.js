@@ -1,6 +1,7 @@
 import { select, format, time } from 'd3';
 
 export default function drawText(marks) {
+    const chart = this;
     const config = this.config;
 
     const textSupergroups = this.svg
@@ -32,7 +33,7 @@ export default function drawText(marks) {
     texts.each(attachMarks);
 
     // parse text like tooltips
-    texts.select('text').text(d => {
+    texts.select('text').style('clip-path', `url(#${chart.id})`).text(d => {
         const tt = d.mark.text || '';
         const xformat = config.x.summary === 'percent'
             ? format('0%')

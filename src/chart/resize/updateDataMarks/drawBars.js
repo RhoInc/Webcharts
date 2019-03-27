@@ -1,6 +1,7 @@
 import { select, set, format, min, max } from 'd3';
 
 export default function drawBars(marks) {
+    let chart = this;
     let rawData = this.raw_data;
     let config = this.config;
 
@@ -47,7 +48,7 @@ export default function drawBars(marks) {
             .enter()
             .append('rect')
             .attr('class', d => 'wc-data-mark bar ' + d.key)
-            .style('clip-path', 'url(#' + this.id + ')')
+            .style('clip-path', `url(#${chart.id})`)
             .attr('y', this.y(0))
             .attr('height', 0)
             .append('title');
@@ -144,7 +145,7 @@ export default function drawBars(marks) {
             .enter()
             .append('rect')
             .attr('class', d => 'wc-data-mark bar ' + d.key)
-            .style('clip-path', 'url(#' + this.id + ')')
+            .style('clip-path', `url(#${chart.id})`)
             .attr('x', this.x(0))
             .attr('width', 0)
             .append('title');
@@ -236,7 +237,7 @@ export default function drawBars(marks) {
             .enter()
             .append('rect')
             .attr('class', d => 'wc-data-mark bar ' + d.key)
-            .style('clip-path', 'url(#' + this.id + ')')
+            .style('clip-path', `url(#${chart.id})`)
             .attr('y', this.y(0))
             .attr('height', 0)
             .append('title');
@@ -309,7 +310,7 @@ export default function drawBars(marks) {
             .enter()
             .append('rect')
             .attr('class', d => 'wc-data-mark bar ' + d.key)
-            .style('clip-path', 'url(#' + this.id + ')')
+            .style('clip-path', `url(#${chart.id})`)
             .attr('x', this.x(0))
             .attr('width', 0)
             .append('title');
