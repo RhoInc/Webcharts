@@ -10,7 +10,7 @@ export default function consolidateData(raw) {
     if (this.filters.length) {
         this.filters.forEach(filter => {
             this.filtered_data = this.filtered_data.filter(d => {
-                return filter.val === 'All'
+                return filter.all === true && filter.index === 0
                     ? d
                     : filter.val instanceof Array
                       ? filter.val.indexOf(d[filter.col]) > -1

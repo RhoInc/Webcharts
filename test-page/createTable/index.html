@@ -1,23 +1,65 @@
-<!DOCTYPE html>
-<html>
+<html lang = 'en'>
     <head>
         <title>Webcharts - createTable()</title>
         <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
 
-        <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.js'></script>
-        <script type = 'text/javascript' src = 'https://rawgit.com/SheetJS/js-xlsx/master/dist/xlsx.full.min.js'></script>
-        <script type = 'text/javascript' src = '../../build/webcharts.js'></script>
+        <script src = 'https://d3js.org/d3.v3.min.js'></script>
+        <script type = 'text/javascript' src = 'https://cdn.jsdelivr.net/gh/SheetJS/js-xlsx@1a8f9726/dist/xlsx.full.min.js'></script>
+        <script src = '../../build/webcharts.js'></script>
 
-        <link type = 'text/css' rel = 'stylesheet' href = '../../css/webcharts.css'>
-        <link type = 'text/css' rel = 'stylesheet' href = 'index.css'>
+        <link rel = 'stylesheet' href = '../../css/webcharts.css'>
+        <link type = 'text/css' rel = 'stylesheet' href = '../index.css'>
+
+        <style>
+            .table {
+                width: 50%;
+            }
+            .table .wc-table {
+                width: 100%;
+            }
+            .table .wc-table table {
+                width: 100%;
+                display: table;
+            }
+            .controls {
+                background: #ccc;
+                border: 1px solid black;
+                border-radius: .2em;
+                padding: .5em;
+                width: inherit;
+                display: inline-block;
+                padding-bottom: 1em;
+            }
+            .controls > div > input {
+                display: block
+            }
+            .controls > div {
+                display: inline-block;
+                vertical-align: top;
+                padding-left: 1em;
+                padding-right: 1em;
+            }
+        </style>
     </head>
 
     <body>
         <div id = 'title'>Webcharts</div>
         <div id = 'subtitle'>createTable()</div>
-        <div id = 'container'></div>
+        <div id = 'container'>
+            <div class = 'controls'>
+                <div>Apply CSS?<input class = 'applyCSS' type = 'checkbox' checked></input></div>
+                <div>Sortable?<input class = 'sortable' type = 'checkbox' checked></input></div>
+                <div>Searchable?<input class = 'searchable' type = 'checkbox' checked></input></div>
+                <div># of items per page: <input class = 'items' value = 10></input></div>
+                <div># of page links: <input class = 'pages' value = 5></input></div>
+                <div>Pagination?<input class = 'pagination' type = 'checkbox' checked></input> </div>
+                <div>Exportable?<input class = 'exportable' type = 'checkbox' checked></input></div>
+                <div><button class = 'randomize-columns'>Randomize columns</button></div>
+                <div><button class = 'randomize-headers'>Randomize headers</button></div>
+            </div>
+            <div class = 'table'></div>
+        </div>
     </body>
 
-    <script type = 'text/javascript' src = 'index.js'></script>
+    <script src = 'index.js' defer></script>
 </html>
-
