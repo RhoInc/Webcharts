@@ -15,7 +15,11 @@ export default function makeNest(mark, entries, sublevel) {
         let xy = this.config.x.type === 'linear' && this.config.x.bin ? 'x' : 'y';
         let quant = scale
             .quantile()
-            .domain(extent(entries.map(m => +m[this.config[xy].column])))
+            .domain(
+                this.config[xy].behavior !== 'flex' && this.config[xy].domain
+                    ? this.config[xy].domain
+                    : extent(entries.map(m => +m[this.config[xy].column]))
+            )
             .range(range(+this.config[xy].bin));
 
         entries.forEach(e => (e.wc_bin = quant(e[this.config[xy].column])));
