@@ -43,7 +43,7 @@ testTransformData(transformDataSettings, transformDataData);
 import testSetDomain from './setDomain';
 import { linear_linear, linear_ordinal, ordinal_linear } from '../samples/irisSettings';
 import setDomainData from '../samples/irisData';
-testSetDomain({linear_linear, linear_ordinal, ordinal_linear}, setDomainData);
+testSetDomain({ linear_linear, linear_ordinal, ordinal_linear }, setDomainData);
 
 //remove falsey values from data
 import testCleanData from './cleanData';
@@ -55,7 +55,4 @@ testCleanData(cleanDataSettings, cleanDataData);
 import testRangeBand from './rangeBand';
 import { ordinal_ordinal as ordinal_ordinal_rb } from '../samples/irisSettings';
 import rangeBandData from '../samples/irisData';
-testRangeBand(
-    ordinal_ordinal_rb,
-    rangeBandData
-);
+testRangeBand(ordinal_ordinal_rb, rangeBandData);

@@ -59,7 +59,7 @@ export default function testRangeBand(settings, data) {
                 chart.draw();
                 expect(
                     chart.config.range_band === chart.x.rangeBand() &&
-                    chart.config.range_band === chart.y.rangeBand()
+                        chart.config.range_band === chart.y.rangeBand()
                 ).toEqual(true);
             });
 
@@ -69,7 +69,7 @@ export default function testRangeBand(settings, data) {
                 chart.draw();
                 expect(
                     chart.config.x.range_band === chart.x.rangeBand() &&
-                    chart.config.y.range_band === chart.y.rangeBand()
+                        chart.config.y.range_band === chart.y.rangeBand()
                 ).toEqual(true);
             });
         });

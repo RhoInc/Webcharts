@@ -3,7 +3,7 @@
      "label": "Vertical Bar chart:linear Y-axis",
      "notes": "Note that 0 must be specified in the y-domain to avoid hiding the first bar. Circles are added for visual reference.",
      "tests": [
-       "One bar per perior renders as expected",
+       "One bar per period renders as expected",
        "Bar heights are roughly at mean levels for circles"
      ],
      "settings": {

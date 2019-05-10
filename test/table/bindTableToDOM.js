@@ -16,8 +16,7 @@ export default function bindTableToDOM(settings, data) {
             table = createTable(container, settings).init(data, true);
         });
 
-        afterEach(() => {
-        });
+        afterEach(() => {});
 
         describe('user calls table init() method', () => {
             it('binds table object to parent of table node', () => {

@@ -1,1 +1,1 @@
-import './multiply/multiply';
+import './chart/histogram';

@@ -22,47 +22,36 @@ export default function testCleanData(settings, data) {
 
         //transformData() validation
         describe('cleanData() is called for each item in settings.marks', () => {
-            const falseyValues = [
-                '',
-                ' ',
-                'asdf',
-                NaN,
-                null,
-                undefined,
-                false
-            ];
+            const falseyValues = ['', ' ', 'asdf', NaN, null, undefined, false];
             settings.marks.forEach(mark => {
                 let copiedData, cleanedData;
 
                 beforeEach(() => {
                     copiedData = [];
-                    data.forEach((d,i) => {
+                    data.forEach((d, i) => {
                         copiedData[i] = {};
-                        for (const variable in d)
-                            copiedData[i][variable] = d[variable];
+                        for (const variable in d) copiedData[i][variable] = d[variable];
 
-                        if (Math.random() < .1)
-                            copiedData[i][settings.x.column] = falseyValues[i%(falseyValues.length - 1)];
-                        if (Math.random() > .9)
-                            copiedData[i][settings.y.column] = falseyValues[i%(falseyValues.length - 1)];
+                        if (Math.random() < 0.1)
+                            copiedData[i][settings.x.column] =
+                                falseyValues[i % (falseyValues.length - 1)];
+                        if (Math.random() > 0.9)
+                            copiedData[i][settings.y.column] =
+                                falseyValues[i % (falseyValues.length - 1)];
                     });
 
                     cleanedData = cleanData.call(chart, mark, copiedData);
                 });
 
                 it('removes falsey values', () => {
-                    const cleanedCopiedData = copiedData
-                        .filter(d => (
+                    const cleanedCopiedData = copiedData.filter(
+                        d =>
                             falseyValues.indexOf(d[settings.x.column]) < 0 &&
                             !isNaN(d[settings.x.column]) &&
                             falseyValues.indexOf(d[settings.y.column]) < 0 &&
                             !isNaN(d[settings.y.column])
-                        ));
-                    expect(
-                        cleanedData.length
-                    ).toEqual(
-                        cleanedCopiedData.length
                     );
+                    expect(cleanedData.length).toEqual(cleanedCopiedData.length);
                 });
             });
         });

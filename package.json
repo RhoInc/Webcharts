@@ -21,7 +21,7 @@
     "build": "npm audit fix && npm run bundle && npm run format && npm run minify",
     "bundle": "rollup -c",
     "bunfor": "npm run bundle && npm run format",
-    "format": "npm run format-src && npm run format-bundle && npm run minify",
+    "format": "npm run format-src && npm run format-bundle && npm run format-test",
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
     "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write build/webcharts.js",
     "format-test": "prettier --print-width=100 --tab-width=4 --single-quote --write test/**/*.js",

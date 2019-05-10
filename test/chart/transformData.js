@@ -45,15 +45,24 @@ export default function testTransformData(settings, data) {
 
                 it('returns an object containing a config, a nested data array, an x-domain, and a y-domain', () => {
                     console.log(`\n    Testing ${mark.summarizeX}:\n`);
-                    expect(Object.keys(transformedData)).toEqual(['config','data', 'x_dom', 'y_dom']);
+                    expect(Object.keys(transformedData)).toEqual([
+                        'config',
+                        'data',
+                        'x_dom',
+                        'y_dom'
+                    ]);
                 });
 
                 it('nests raw data by mark.per', () => {
                     expect(nestedData.length).toEqual(transformedData.data.length);
-                    expect(nestedData.map(d => d.key)).toEqual(transformedData.data.map(d => d.key));
+                    expect(nestedData.map(d => d.key)).toEqual(
+                        transformedData.data.map(d => d.key)
+                    );
 
                     nestedData.forEach(d => {
-                        const transformedDatum = transformedData.data.filter(di => di.key === d.key)[0];
+                        const transformedDatum = transformedData.data.filter(
+                            di => di.key === d.key
+                        )[0];
 
                         expect(d.values.raw).toEqual(transformedDatum.values.raw);
                         expect(d.values.x).toEqual(transformedDatum.values.x);
