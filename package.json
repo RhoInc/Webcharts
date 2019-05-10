@@ -1,7 +1,7 @@
 {
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.11.5",
+  "version": "1.12.0",
   "keywords": [
     "charts",
     "javascript",
