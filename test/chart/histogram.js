@@ -2,8 +2,6 @@ import jsdom from 'jsdom';
 import createChart from '../../src/createChart';
 import expect from 'expect';
 import d3 from 'd3';
-import data from '../samples/irisData';
-import settings from '../samples/histogram';
 
 export default function testHistogram(settings, data) {
     describe('histogram tests', () => {

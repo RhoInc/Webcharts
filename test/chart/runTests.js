@@ -58,7 +58,7 @@ import rangeBandData from '../samples/irisData';
 testRangeBand(ordinal_ordinal_rb, rangeBandData);
 
 //test histogram settings
-import testHistogram from './testHistogram';
+import testHistogram from './histogram';
 import histogramSettings from '../samples/histogram';
 import histogramData from '../samples/irisData';
 testHistogram(histogramSettings, histogramData);
