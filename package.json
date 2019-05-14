@@ -2,21 +2,16 @@
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
   "version": "1.11.6",
+  "author": "Rho, Inc.",
+  "homepage": "https://github.com/RhoInc/Webcharts",
   "keywords": [
     "charts",
     "javascript",
     "interactive",
     "data visualization"
   ],
-  "homepage": "https://github.com/RhoInc/Webcharts",
   "main": "./build/webcharts.js",
   "module": "./src/index.js",
-  "dependencies": {
-    "d3": "^3"
-  },
-  "optionalDependencies": {
-    "js-xlsx": "^0.8.22"
-  },
   "scripts": {
     "build": "npm audit fix && npm run bundle && npm run format && npm run minify",
     "bundle": "rollup -c",
@@ -38,14 +33,11 @@
     "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
     "watch": "rollup -c -w"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rhoinc/webcharts.git"
+  "dependencies": {
+    "d3": "^3"
   },
-  "author": "Rho, Inc.",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rhoinc/webcharts/issues"
+  "optionalDependencies": {
+    "js-xlsx": "^0.8.22"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
@@ -54,10 +46,18 @@
     "clean-css-cli": "^4.2.1",
     "expect": "1",
     "jsdom": "10",
-    "mocha": "3",
+    "mocha": "^6.1.4",
     "prettier": "1.4.4",
     "rollup": "^0.68.0",
     "rollup-plugin-babel": "^2.7.1",
     "uglify-js": "^2.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhoinc/webcharts.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rhoinc/webcharts/issues"
   }
 }

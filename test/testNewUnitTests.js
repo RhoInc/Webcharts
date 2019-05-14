@@ -1,1 +1,1 @@
-import './chart/histogram';
+import './chart/rangeBand';

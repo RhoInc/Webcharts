@@ -56,3 +56,9 @@ import testRangeBand from './rangeBand';
 import { ordinal_ordinal as ordinal_ordinal_rb } from '../samples/irisSettings';
 import rangeBandData from '../samples/irisData';
 testRangeBand(ordinal_ordinal_rb, rangeBandData);
+
+//test histogram settings
+import testHistogram from './testHistogram';
+import histogramSettings from '../samples/histogram';
+import histogramData from '../samples/irisData';
+testHistogram(histogramSettings, histogramData);

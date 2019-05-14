@@ -2,8 +2,10 @@ import jsdom from 'jsdom';
 import createChart from '../../src/createChart';
 import expect from 'expect';
 import d3 from 'd3';
+import { ordinal_ordinal as settings } from '../samples/irisSettings';
+import data from '../samples/irisData';
 
-export default function testRangeBand(settings, data) {
+//export default function testRangeBand(settings, data) {
     describe('range band definitions for ordinal axes', () => {
         const { JSDOM } = jsdom;
         let dom, container, chart;
@@ -11,11 +13,11 @@ export default function testRangeBand(settings, data) {
         //DOM setup
         before(() => {
             dom = new JSDOM('<!DOCTYPE html>');
-            container = dom.window.document.createElement('div');
         });
 
         //Chart initialization
         beforeEach(() => {
+            container = dom.window.document.createElement('div');
             chart = createChart(container, settings).init(data, true);
         });
 
@@ -74,4 +76,4 @@ export default function testRangeBand(settings, data) {
             });
         });
     });
-}
+//}
