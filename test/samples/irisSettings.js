@@ -129,10 +129,10 @@ export const ordinal_ordinal = {
         label: 'Species'
     },
     marks: [
-        {
-            type: 'bar',
-            per: ['Species']
-        },
+        //{
+        //    type: 'bar',
+        //    per: ['Species']
+        //},
         {
             type: 'circle',
             per: ['Species']

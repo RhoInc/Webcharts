@@ -6,18 +6,17 @@ import d3 from 'd3';
 export default function testRangeBand(settings, data) {
     describe('range band definitions for ordinal axes', () => {
         const { JSDOM } = jsdom;
-        let dom, container, chart;
+        let dom, window, container, chart;
 
         //DOM setup
         before(() => {
-            dom = new JSDOM('<!DOCTYPE html>');
-            container = dom.window.document.createElement('div');
+            container = window.document.createElement('div');
             chart = createChart(container, settings).init(data, true);
         });
 
         //Chart initialization
         beforeEach(() => {
-            chart.draw();
+            chart = createChart(container, settings).init(data, true);
         });
 
         afterEach(() => {
