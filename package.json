@@ -28,7 +28,7 @@
     "test-controls": "mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",
     "test-miscellaneous": "mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
     "test-multiply": "mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
-    "test-new": "mocha --require babel-register ./test/setup.js ./test/testNewUnitTests.js",
+    "test-new": "mocha --require babel-register ./test/testNewUnitTests.js",
     "test-page": "start chrome ./test-page/createChart/index.html && start chrome ./test-page/createTable/index.html && start chrome ./test-page/multiply/index.html",
     "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
     "watch": "rollup -c -w"
