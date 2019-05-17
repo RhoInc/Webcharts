@@ -10,7 +10,10 @@ export default function testRangeBand(settings, data) {
 
         //DOM setup
         before(() => {
-            container = window.document.createElement('div');
+            dom = new JSDOM('<!DOCTYPE html>');
+            container = dom.window.document.createElement('div');
+            chart = createChart(container, settings);
+            chart.init(data, true);
         });
 
         //Chart initialization
