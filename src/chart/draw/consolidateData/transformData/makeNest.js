@@ -12,15 +12,19 @@ export default function makeNest(mark, entries, sublevel) {
         (this.config.x.type === 'linear' && this.config.x.bin) ||
         (this.config.y.type === 'linear' && this.config.y.bin)
     ) {
-        let xy = this.config.x.type === 'linear' && this.config.x.bin ? 'x' : 'y';
-        let quant = scale
+        const xy = this.config.x.type === 'linear' && this.config.x.bin ? 'x' : 'y';
+        mark.quant = scale
             .quantile()
-            .domain(extent(entries.map(m => +m[this.config[xy].column])))
+            .domain(
+                this.config[xy].domain
+                    ? this.config[xy].domain
+                    : extent(entries.map(m => +m[this.config[xy].column]))
+            )
             .range(range(+this.config[xy].bin));
 
-        entries.forEach(e => (e.wc_bin = quant(e[this.config[xy].column])));
+        entries.forEach(e => (e.wc_bin = mark.quant(e[this.config[xy].column])));
 
-        this_nest.key(d => quant.invertExtent(d.wc_bin));
+        this_nest.key(d => mark.quant.invertExtent(d.wc_bin));
     } else {
         this_nest.key(d => mark.per.map(m => d[m]).join(' '));
     }

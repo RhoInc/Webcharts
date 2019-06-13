@@ -14,7 +14,7 @@ export const linear_linear = {
             type: 'circle',
             per: ['Sepal.Length', 'Sepal.Width'],
             summarizeX: 'mean',
-            summarizeY: 'mean',
+            summarizeY: 'mean'
         },
         {
             type: 'circle',
@@ -54,7 +54,7 @@ export const ordinal_linear = {
         {
             type: 'bar',
             per: ['Species'],
-            summarizeY: 'mean',
+            summarizeY: 'mean'
         },
         {
             type: 'circle',
@@ -70,12 +70,12 @@ export const ordinal_linear = {
             type: 'circle',
             per: ['Species'],
             summarizeY: 'max'
-        },
+        }
     ],
     color_by: 'Species',
     legend: {},
     padding: 0,
-    outer_pad: 0,
+    outer_pad: 0
 };
 
 export const linear_ordinal = {
@@ -93,7 +93,7 @@ export const linear_ordinal = {
         {
             type: 'bar',
             per: ['Species'],
-            summarizeX: 'mean',
+            summarizeX: 'mean'
         },
         {
             type: 'circle',
@@ -109,12 +109,12 @@ export const linear_ordinal = {
             type: 'circle',
             per: ['Species'],
             summarizeX: 'max'
-        },
+        }
     ],
     color_by: 'Species',
     legend: {},
     padding: 0,
-    outer_pad: 0,
+    outer_pad: 0
 };
 
 export const ordinal_ordinal = {
@@ -129,22 +129,22 @@ export const ordinal_ordinal = {
         label: 'Species'
     },
     marks: [
-        {
-            type: 'bar',
-            per: ['Species'],
-        },
+        //{
+        //    type: 'bar',
+        //    per: ['Species']
+        //},
         {
             type: 'circle',
-            per: ['Species'],
+            per: ['Species']
         },
         {
             type: 'text',
             per: ['Species'],
-            text: '$x - $y',
-        },
+            text: '$x - $y'
+        }
     ],
     color_by: 'Species',
     legend: {},
     padding: 0,
-    outer_pad: 0,
+    outer_pad: 0
 };

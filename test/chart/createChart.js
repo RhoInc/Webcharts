@@ -54,9 +54,9 @@ export default function testCreateChart(settings, full = true) {
                 });
 
                 it('chart object is bound to div.wc-chart', () => {
-                  var datum = chart.wrap.datum()
-                  let property;
-                  expect(chart).toEqual(datum)
+                    var datum = chart.wrap.datum();
+                    let property;
+                    expect(chart).toEqual(datum);
                 });
             }
         });

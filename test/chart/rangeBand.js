@@ -6,12 +6,14 @@ import d3 from 'd3';
 export default function testRangeBand(settings, data) {
     describe('range band definitions for ordinal axes', () => {
         const { JSDOM } = jsdom;
-        let dom, container, chart;
+        let dom, window, container, chart;
 
         //DOM setup
         before(() => {
             dom = new JSDOM('<!DOCTYPE html>');
             container = dom.window.document.createElement('div');
+            chart = createChart(container, settings);
+            chart.init(data, true);
         });
 
         //Chart initialization
@@ -59,7 +61,7 @@ export default function testRangeBand(settings, data) {
                 chart.draw();
                 expect(
                     chart.config.range_band === chart.x.rangeBand() &&
-                    chart.config.range_band === chart.y.rangeBand()
+                        chart.config.range_band === chart.y.rangeBand()
                 ).toEqual(true);
             });
 
@@ -69,7 +71,7 @@ export default function testRangeBand(settings, data) {
                 chart.draw();
                 expect(
                     chart.config.x.range_band === chart.x.rangeBand() &&
-                    chart.config.y.range_band === chart.y.rangeBand()
+                        chart.config.y.range_band === chart.y.rangeBand()
                 ).toEqual(true);
             });
         });

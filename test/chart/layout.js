@@ -36,7 +36,7 @@ export default function testLayout(settings, data) {
         it('creates an x-axis g child element of svg', () => {
             const xAxis = svgChildren.filter(
                 child =>
-                    child.nodeName.toLowerCase() === 'g' && child.className.indexOf('x axis') > -1
+                    child.nodeName.toLowerCase() === 'g' && [...child.classList].join(' ').indexOf('x axis') > -1
             );
             expect(xAxis.length).toEqual(1);
         });
@@ -44,7 +44,7 @@ export default function testLayout(settings, data) {
         it('creates a y-axis g child element of svg', () => {
             const yAxis = svgChildren.filter(
                 child =>
-                    child.nodeName.toLowerCase() === 'g' && child.className.indexOf('y axis') > -1
+                    child.nodeName.toLowerCase() === 'g' && [...child.classList].join(' ').indexOf('y axis') > -1
             );
             expect(yAxis.length).toEqual(1);
         });
@@ -53,7 +53,7 @@ export default function testLayout(settings, data) {
             const overlay = svgChildren.filter(
                 child =>
                     child.nodeName.toLowerCase() === 'rect' &&
-                    child.className.indexOf('overlay') > -1
+                    [...child.classList].join(' ').indexOf('overlay') > -1
             );
             expect(overlay.length).toEqual(1);
         });
@@ -64,7 +64,7 @@ export default function testLayout(settings, data) {
                 .filter(
                     child =>
                         child.nodeName.toLowerCase() === 'ul' &&
-                        child.className.indexOf('legend') > -1
+                        [...child.classList].join(' ').indexOf('legend') > -1
                 );
             expect(legend.length).toEqual(1);
         });

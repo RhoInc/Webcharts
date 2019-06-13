@@ -34,24 +34,7 @@ export default function consolidateData(raw) {
                   y_dom: []
               };
 
-        this.marks[i] = {
-            id: mark.id,
-            type: mark.type,
-            per: mark.per,
-            data: mark_info.data,
-            x_dom: mark_info.x_dom,
-            y_dom: mark_info.y_dom,
-            split: mark.split,
-            text: mark.text,
-            arrange: mark.arrange,
-            order: mark.order,
-            summarizeX: mark.summarizeX,
-            summarizeY: mark.summarizeY,
-            tooltip: mark.tooltip,
-            radius: mark.radius,
-            attributes: mark.attributes,
-            values: mark.values
-        };
+        this.marks[i] = Object.assign({}, mark, mark_info);
     });
 
     //Set domains given extents of summarized mark data.

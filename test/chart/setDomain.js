@@ -33,7 +33,7 @@ export default function testSetDomain(settings, data) {
 
         //linear x linear
         describe('setDomain() is called for a chart with two linear axes', () => {
-            ['x','y'].forEach(axis => {
+            ['x', 'y'].forEach(axis => {
                 it('returns a non-zero-length array for the specified axis', () => {
                     console.log(`    - testing ${charts.linear_linear[axis].type} ${axis} axis:`);
                     expect(charts.linear_linear[axis + '_dom'].length).toBeGreaterThan(0);
@@ -43,17 +43,19 @@ export default function testSetDomain(settings, data) {
                     const test_data = [];
                     data.forEach(d => {
                         const datum = {};
-                        for (const prop in d)
-                            datum[prop] = d[prop];
+                        for (const prop in d) datum[prop] = d[prop];
                         datum[charts.linear_linear[axis].column] = 0;
                         test_data.push(datum);
                     });
                     charts.linear_linear.consolidateData(test_data);
-                    expect(charts.linear_linear[axis + '_dom'][1] - charts.linear_linear[axis + '_dom'][0]).toBeGreaterThan(0);
+                    expect(
+                        charts.linear_linear[axis + '_dom'][1] -
+                            charts.linear_linear[axis + '_dom'][0]
+                    ).toBeGreaterThan(0);
                 });
 
                 it('gives precedence to the domain defined in the config', () => {
-                    const domain = [-100,100];
+                    const domain = [-100, 100];
                     charts.linear_linear.config[axis].domain = domain.slice();
                     charts.linear_linear.consolidateData(data);
                     expect(charts.linear_linear[axis + '_dom'].join(',')).toEqual(domain.join(','));

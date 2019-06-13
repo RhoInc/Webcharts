@@ -42,9 +42,9 @@ describe('controls object creation', () => {
         });
 
         it('chart object is bound to div.wc-controls', () => {
-          var datum = controls.wrap.datum()
-          let property;
-          expect(controls).toEqual(datum)
+            var datum = controls.wrap.datum();
+            let property;
+            expect(controls).toEqual(datum);
         });
     });
 });

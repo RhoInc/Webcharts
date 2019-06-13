@@ -1,27 +1,22 @@
 {
   "name": "webcharts",
   "description": "A library for creating flexible, interactive charts",
-  "version": "1.11.5",
+  "version": "1.11.6",
+  "author": "Rho, Inc.",
+  "homepage": "https://github.com/RhoInc/Webcharts",
   "keywords": [
     "charts",
     "javascript",
     "interactive",
     "data visualization"
   ],
-  "homepage": "https://github.com/RhoInc/Webcharts",
   "main": "./build/webcharts.js",
   "module": "./src/index.js",
-  "dependencies": {
-    "d3": "^3"
-  },
-  "optionalDependencies": {
-    "js-xlsx": "^0.8.22"
-  },
   "scripts": {
     "build": "npm audit fix && npm run bundle && npm run format && npm run minify",
     "bundle": "rollup -c",
     "bunfor": "npm run bundle && npm run format",
-    "format": "npm run format-src && npm run format-bundle && npm run minify",
+    "format": "npm run format-src && npm run format-bundle && npm run format-test",
     "format-src": "prettier --print-width=100 --tab-width=4 --single-quote --write src/**/*.js",
     "format-bundle": "prettier --print-width=100 --tab-width=4 --single-quote --write build/webcharts.js",
     "format-test": "prettier --print-width=100 --tab-width=4 --single-quote --write test/**/*.js",
@@ -33,19 +28,16 @@
     "test-controls": "mocha --timeout 5000 --require babel-register --recursive ./test/controls/*.js",
     "test-miscellaneous": "mocha --timeout 5000 --require babel-register --recursive ./test/miscellaneous/*.js",
     "test-multiply": "mocha --timeout 5000 --require babel-register --recursive ./test/multiply/*.js",
-    "test-new": "mocha --timeout 5000 --require babel-register --recursive ./test/testNewUnitTests.js",
+    "test-new": "mocha --require babel-register ./test/testNewUnitTests.js",
     "test-page": "start chrome ./test-page/createChart/index.html && start chrome ./test-page/createTable/index.html && start chrome ./test-page/multiply/index.html",
     "test-table": "mocha --timeout 5000 --require babel-register --recursive ./test/table/*.js",
     "watch": "rollup -c -w"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rhoinc/webcharts.git"
+  "dependencies": {
+    "d3": "^3"
   },
-  "author": "Rho, Inc.",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rhoinc/webcharts/issues"
+  "optionalDependencies": {
+    "js-xlsx": "^0.8.22"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
@@ -53,11 +45,19 @@
     "babel-register": "6",
     "clean-css-cli": "^4.2.1",
     "expect": "1",
-    "jsdom": "10",
-    "mocha": "3",
+    "jsdom": "^11.12.0",
+    "mocha": "^3.5.3",
     "prettier": "1.4.4",
     "rollup": "^0.68.0",
     "rollup-plugin-babel": "^2.7.1",
     "uglify-js": "^2.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rhoinc/webcharts.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rhoinc/webcharts/issues"
   }
 }

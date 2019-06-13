@@ -34,11 +34,11 @@ describe('webCharts.multiply()', () => {
         it('a single legend should exist inside the parent node of the multiples', () => {
             expect(chart.wrap.selectAll('.legend').size()).toEqual(1);
         });
-         it('appears after multiples by default', () => {
+        it('appears after multiples by default', () => {
             const nodes = chart.wrap.node().querySelectorAll('div,ul');
             expect(nodes[nodes.length - 1]).toEqual(chart.master_legend.node());
         });
-         it('appears before multiples if legend location is set to top', () => {
+        it('appears before multiples if legend location is set to top', () => {
             const topLegendSettings = clone(irisSettings);
             topLegendSettings.legend.location = 'top';
             chart = createChart(container, topLegendSettings);
