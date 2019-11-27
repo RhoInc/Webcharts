@@ -2,7 +2,7 @@ import babel from 'rollup-plugin-babel';
 
 var pkg = require('./package.json');
 
-module.exports = {
+export default {
     input: pkg.module,
     output: {
         name: 'webCharts',
@@ -13,7 +13,7 @@ module.exports = {
         },
     },
     external: (function() {
-        var dependencies = pkg.dependencies;
+        const dependencies = pkg.dependencies;
 
         return Object.keys(dependencies);
     }()),
@@ -21,11 +21,11 @@ module.exports = {
         babel({
             exclude: 'node_modules/**',
             presets: [
-                [ 'env', {modules: false} ]
+                [ '@babel/preset-env' ]
             ],
-            plugins: [
-                'external-helpers'
-            ],
+            //plugins: [
+            //    '@babel/plugin-external-helpers'
+            //],
             babelrc: false
         })
     ]

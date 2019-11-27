@@ -65,14 +65,16 @@ export default function testCheckRequired(settings, data) {
 
         it('checkRequired() returns a boolean corresponding to whether or not the data contain all required data fields', () => {
             const expected = verifyRequired(settings)
-                .map(item => item.dataField)
-                .some(dataField => Object.keys(data[0]).indexOf(dataField) === -1),
+                    .map(item => item.dataField)
+                    .some(dataField => Object.keys(data[0]).indexOf(dataField) === -1),
                 actual = chart.checkRequired(data).missingDataField;
             expect(expected).toEqual(actual);
         });
 
         it('checkRequired() returns a list of settings arguments associated with required data fields', () => {
-            const expectedArguments = verifyRequired(settings).map(item => item.argument).sort(),
+            const expectedArguments = verifyRequired(settings)
+                    .map(item => item.argument)
+                    .sort(),
                 actualArguments = chart
                     .checkRequired(data)
                     .dataFieldArguments.map(argument => argument.replace('this.config.', ''))
@@ -82,8 +84,8 @@ export default function testCheckRequired(settings, data) {
 
         it('checkRequired() returns a list of required data fields', () => {
             const expectedDataFields = d3
-                .set(verifyRequired(settings).map(item => item.dataField))
-                .values(),
+                    .set(verifyRequired(settings).map(item => item.dataField))
+                    .values(),
                 actualDataFields = d3.set(chart.checkRequired(data).requiredDataFields).values();
             expect(expectedDataFields).toEqual(actualDataFields);
         });

@@ -28,7 +28,12 @@ export default function testRendering(settings, data) {
         });
 
         it('thead to have exactly one tr', () => {
-            expect(table.table.select('thead').selectAll('tr').size()).toEqual(1);
+            expect(
+                table.table
+                    .select('thead')
+                    .selectAll('tr')
+                    .size()
+            ).toEqual(1);
         });
 
         it('tbody to exist', () => {
@@ -36,7 +41,12 @@ export default function testRendering(settings, data) {
         });
 
         it('tbody to have at least one tr', () => {
-            expect(table.table.select('tbody').selectAll('tr').size()).toBeGreaterThan(0);
+            expect(
+                table.table
+                    .select('tbody')
+                    .selectAll('tr')
+                    .size()
+            ).toBeGreaterThan(0);
         });
     });
 }

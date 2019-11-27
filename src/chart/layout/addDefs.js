@@ -2,8 +2,7 @@ export default function addDefs() {
     const defs = this.svg.append('defs');
 
     //Add pattern.
-    defs
-        .append('pattern')
+    defs.append('pattern')
         .attr({
             id: 'diagonal-stripes',
             x: 0,
@@ -26,5 +25,8 @@ export default function addDefs() {
         });
 
     //Add clipPath.
-    defs.append('clipPath').attr('id', this.id).append('rect').attr('class', 'plotting-area');
+    defs.append('clipPath')
+        .attr('id', this.id)
+        .append('rect')
+        .attr('class', 'plotting-area');
 }

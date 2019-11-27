@@ -10,7 +10,10 @@ export default function makeListControl(control, control_wrap) {
 
     changer.on('change', d => {
         let value = changer.property('value')
-            ? changer.property('value').split(',').map(m => m.trim())
+            ? changer
+                  .property('value')
+                  .split(',')
+                  .map(m => m.trim())
             : null;
         this.changeOption(control.option, value, control.callback, control.draw);
     });

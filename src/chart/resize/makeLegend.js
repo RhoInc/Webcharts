@@ -6,12 +6,16 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
     config.legend.mark = config.legend.mark
         ? config.legend.mark
         : config.marks.length && config.marks[0].type === 'bar'
-          ? 'square'
-          : config.marks.length ? config.marks[0].type : 'square';
+        ? 'square'
+        : config.marks.length
+        ? config.marks[0].type
+        : 'square';
 
     let legend_label = label
         ? label
-        : typeof config.legend.label === 'string' ? config.legend.label : '';
+        : typeof config.legend.label === 'string'
+        ? config.legend.label
+        : '';
 
     let legendOriginal = this.legend || this.wrap.select('.legend');
     let legend = legendOriginal;
@@ -38,9 +42,13 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
 
     let legend_data =
         custom_data ||
-        scale.domain().slice(0).filter(f => f !== undefined && f !== null).map(m => {
-            return { label: m, mark: config.legend.mark };
-        });
+        scale
+            .domain()
+            .slice(0)
+            .filter(f => f !== undefined && f !== null)
+            .map(m => {
+                return { label: m, mark: config.legend.mark };
+            });
 
     legend
         .select('.legend-title')
@@ -52,16 +60,19 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
 
     leg_parts.exit().remove();
 
-    const legendPartDisplay = this.config.legend.location === 'bottom' ||
-        this.config.legend.location === 'top'
-        ? 'inline-block'
-        : 'block';
+    const legendPartDisplay =
+        this.config.legend.location === 'bottom' || this.config.legend.location === 'top'
+            ? 'inline-block'
+            : 'block';
     let new_parts = leg_parts
         .enter()
         .append('li')
         .attr('class', 'legend-item')
         .style({ 'list-style-type': 'none', 'margin-right': '1em' });
-    new_parts.append('span').attr('class', 'legend-mark-text').style('color', d => scale(d.label));
+    new_parts
+        .append('span')
+        .attr('class', 'legend-mark-text')
+        .style('color', d => scale(d.label));
     new_parts
         .append('svg')
         .attr('class', 'legend-color-block')
@@ -80,7 +91,10 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
         );
     }
 
-    leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
+    leg_parts
+        .selectAll('.legend-color-block')
+        .select('.legend-mark')
+        .remove();
     leg_parts.selectAll('.legend-color-block').each(function(e) {
         let svg = select(this);
         if (e.mark === 'circle') {
@@ -125,11 +139,11 @@ export default function makeLegend(scale = this.colorScale, label = '', custom_d
         .text(d => d.label);
 
     if (scale.domain().length > 0) {
-        const legendDisplay = (this.config.legend.location === 'bottom' ||
-            this.config.legend.location === 'top') &&
+        const legendDisplay =
+            (this.config.legend.location === 'bottom' || this.config.legend.location === 'top') &&
             !this.parent
-            ? 'block'
-            : 'inline-block';
+                ? 'block'
+                : 'inline-block';
         legend.style('display', legendDisplay);
     } else {
         legend.style('display', 'none');

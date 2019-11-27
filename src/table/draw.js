@@ -16,9 +16,8 @@ export default function draw(passed_data) {
     if (!passed_data)
         //Apply filters if data is not passed to table.draw().
         applyFilters.call(this);
-    else
-        //Otherwise update data object.
-        updateDataObject.call(this);
+    //Otherwise update data object.
+    else updateDataObject.call(this);
 
     //Compare current filter settings to previous filter settings, if any.
     checkFilters.call(this);

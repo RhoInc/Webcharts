@@ -40,7 +40,9 @@ export default function checkRequired(data) {
     requiredCols.forEach((e, i) => {
         if (colnames.indexOf(e) < 0) {
             missingDataField = true;
-            select(this.div).select('.loader').remove();
+            select(this.div)
+                .select('.loader')
+                .remove();
             this.wrap
                 .append('div')
                 .style('color', 'red')

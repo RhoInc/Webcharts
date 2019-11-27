@@ -1,5 +1,8 @@
 export default function updateTableHeaders() {
-    this.thead_cells = this.thead.select('tr').selectAll('th').data(this.config.headers, d => d);
+    this.thead_cells = this.thead
+        .select('tr')
+        .selectAll('th')
+        .data(this.config.headers, d => d);
     this.thead_cells.exit().remove();
     this.thead_cells.enter().append('th');
     this.thead_cells

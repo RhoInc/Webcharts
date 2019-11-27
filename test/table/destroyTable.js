@@ -18,7 +18,12 @@ export default function testDestroyTable(settings, data) {
 
         it('no table should exist on page', () => {
             //expect(table.table).toNotExist();
-            expect(d3.select(container).selectAll('table').size()).toEqual(0);
+            expect(
+                d3
+                    .select(container)
+                    .selectAll('table')
+                    .size()
+            ).toEqual(0);
         });
     });
 }

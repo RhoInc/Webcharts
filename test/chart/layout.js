@@ -36,7 +36,8 @@ export default function testLayout(settings, data) {
         it('creates an x-axis g child element of svg', () => {
             const xAxis = svgChildren.filter(
                 child =>
-                    child.nodeName.toLowerCase() === 'g' && [...child.classList].join(' ').indexOf('x axis') > -1
+                    child.nodeName.toLowerCase() === 'g' &&
+                    [...child.classList].join(' ').indexOf('x axis') > -1
             );
             expect(xAxis.length).toEqual(1);
         });
@@ -44,7 +45,8 @@ export default function testLayout(settings, data) {
         it('creates a y-axis g child element of svg', () => {
             const yAxis = svgChildren.filter(
                 child =>
-                    child.nodeName.toLowerCase() === 'g' && [...child.classList].join(' ').indexOf('y axis') > -1
+                    child.nodeName.toLowerCase() === 'g' &&
+                    [...child.classList].join(' ').indexOf('y axis') > -1
             );
             expect(yAxis.length).toEqual(1);
         });

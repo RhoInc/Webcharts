@@ -4,7 +4,11 @@ export default function drawTableBody() {
     const table = this;
 
     //Define table body rows.
-    const rows = this.tbody.selectAll('tr').data(this.data.processing).enter().append('tr');
+    const rows = this.tbody
+        .selectAll('tr')
+        .data(this.data.processing)
+        .enter()
+        .append('tr');
 
     //Define table body cells.
     const cells = rows.selectAll('td').data(d =>

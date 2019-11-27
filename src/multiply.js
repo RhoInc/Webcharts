@@ -12,7 +12,9 @@ export default function multiply(chart, data, split_by, order, test = false) {
     chart.multiples = [];
 
     function goAhead(data) {
-        let split_vals = set(data.map(m => m[split_by])).values().filter(f => f);
+        let split_vals = set(data.map(m => m[split_by]))
+            .values()
+            .filter(f => f);
         if (order) {
             split_vals = split_vals.sort((a, b) => ascending(order.indexOf(a), order.indexOf(b)));
         }
@@ -23,7 +25,10 @@ export default function multiply(chart, data, split_by, order, test = false) {
             mchart.events = chart.events;
             mchart.legend = chart.master_legend;
             mchart.filters.unshift({ col: split_by, val: e, choices: split_vals });
-            mchart.wrap.insert('span', 'svg').attr('class', 'wc-chart-title').text(e);
+            mchart.wrap
+                .insert('span', 'svg')
+                .attr('class', 'wc-chart-title')
+                .text(e);
             mchart.init(data, test);
         });
     }

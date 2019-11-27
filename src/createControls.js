@@ -12,7 +12,9 @@ export default function createControls(element = 'body', config = {}) {
     thisControls.targets = [];
 
     if (config.location === 'bottom') {
-        thisControls.wrap = select(element).append('div').attr('class', 'wc-controls');
+        thisControls.wrap = select(element)
+            .append('div')
+            .attr('class', 'wc-controls');
     } else {
         thisControls.wrap = select(element)
             .insert('div', ':first-child')

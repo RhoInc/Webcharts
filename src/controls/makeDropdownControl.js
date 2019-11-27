@@ -8,11 +8,12 @@ export default function makeDropdownControl(control, control_wrap) {
         .attr('multiple', control.multiple ? true : null)
         .datum(control);
 
-    let opt_values = control.values && control.values instanceof Array
-        ? control.values
-        : control.values
-          ? set(this.data.map(m => m[this.targets[0].config[control.values]])).values()
-          : keys(this.data[0]);
+    let opt_values =
+        control.values && control.values instanceof Array
+            ? control.values
+            : control.values
+            ? set(this.data.map(m => m[this.targets[0].config[control.values]])).values()
+            : keys(this.data[0]);
 
     if (!control.require || control.none) {
         opt_values.unshift('None');

@@ -16,7 +16,12 @@ export default function testSearchTable(settings, data) {
         });
 
         it('a search input should exist', () => {
-            expect(d3.select(container).select('input.search-box').size()).toEqual(1);
+            expect(
+                d3
+                    .select(container)
+                    .select('input.search-box')
+                    .size()
+            ).toEqual(1);
         });
 
         it('triggering a search results in subset', () => {

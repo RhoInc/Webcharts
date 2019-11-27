@@ -19,5 +19,8 @@ export default function layout() {
             context.config.endIndex = context.config.startIndex + context.config.nRowsPerPage; // last row shown
             context.draw();
         });
-    this.searchable.wrap.select('.search').append('span').classed('nNrecords', true);
+    this.searchable.wrap
+        .select('.search')
+        .append('span')
+        .classed('nNrecords', true);
 }

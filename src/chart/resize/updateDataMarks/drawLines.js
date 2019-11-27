@@ -10,28 +10,37 @@ export default function drawLines(marks) {
             return config.x.type === 'linear' || config.x.type == 'log'
                 ? this.x(+d.values.x)
                 : config.x.type === 'time'
-                  ? this.x(new Date(d.values.x))
-                  : this.x(d.values.x) + this.x.rangeBand() / 2;
+                ? this.x(new Date(d.values.x))
+                : this.x(d.values.x) + this.x.rangeBand() / 2;
         })
         .y(d => {
             return config.y.type === 'linear' || config.y.type == 'log'
                 ? this.y(+d.values.y)
                 : config.y.type === 'time'
-                  ? this.y(new Date(d.values.y))
-                  : this.y(d.values.y) + this.y.rangeBand() / 2;
+                ? this.y(new Date(d.values.y))
+                : this.y(d.values.y) + this.y.rangeBand() / 2;
         });
 
     let line_supergroups = this.svg
         .selectAll('.line-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
 
-    line_supergroups.enter().append('g').attr('class', d => 'supergroup line-supergroup ' + d.id);
+    line_supergroups
+        .enter()
+        .append('g')
+        .attr('class', d => 'supergroup line-supergroup ' + d.id);
 
     line_supergroups.exit().remove();
 
-    let line_grps = line_supergroups.selectAll('.line').data(d => d.data, d => d.key);
+    let line_grps = line_supergroups.selectAll('.line').data(
+        d => d.data,
+        d => d.key
+    );
     line_grps.exit().remove();
-    let nu_line_grps = line_grps.enter().append('g').attr('class', d => d.key + ' line');
+    let nu_line_grps = line_grps
+        .enter()
+        .append('g')
+        .attr('class', d => d.key + ' line');
     nu_line_grps.append('path');
     nu_line_grps.append('title');
 
@@ -50,7 +59,9 @@ export default function drawLines(marks) {
     line_grps.each(function(d) {
         let mark = select(this.parentNode).datum();
         d.tooltip = mark.tooltip;
-        select(this).select('path').attr(mark.attributes);
+        select(this)
+            .select('path')
+            .attr(mark.attributes);
     });
 
     line_grps.select('title').text(d => {

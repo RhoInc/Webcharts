@@ -9,7 +9,9 @@ export default function xlsx(data) {
             type: 'binary'
         };
         const arrayOfArrays = data.map(d =>
-            Object.keys(d).filter(key => this.config.cols.indexOf(key) > -1).map(key => d[key])
+            Object.keys(d)
+                .filter(key => this.config.cols.indexOf(key) > -1)
+                .map(key => d[key])
         ); // convert data from array of objects to array of arrays.
         const workbook = {
             SheetNames: [sheetName],

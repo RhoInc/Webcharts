@@ -63,7 +63,11 @@ export default function testSetColorScale(settings, data) {
             chart.init(data, true);
             expect(chart.colorScale.domain()[chart.config.color_dom.length]).toEqual(undefined);
             expect(
-                chart.svg.select('.point-supergroup').select('g').select('circle').attr('fill')
+                chart.svg
+                    .select('.point-supergroup')
+                    .select('g')
+                    .select('circle')
+                    .attr('fill')
             ).toEqual(chart.colorScale.range()[chart.config.color_dom.length]);
         });
 
@@ -72,7 +76,11 @@ export default function testSetColorScale(settings, data) {
             chart.config.color_dom = ['notarealcolor', 'setosa', 'versicolor', 'virginica'];
             chart.init(data, true);
             expect(
-                chart.svg.select('.point-supergroup').select('g').select('circle').attr('fill')
+                chart.svg
+                    .select('.point-supergroup')
+                    .select('g')
+                    .select('circle')
+                    .attr('fill')
             ).toEqual(chart.colorScale.range()[chart.config.color_dom.length]);
         });
     });

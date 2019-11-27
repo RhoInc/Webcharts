@@ -20,11 +20,11 @@ export default function addLinks() {
                 return this.config.activePage < this.config.nPageLinksDisplayed
                     ? i >= this.config.nPageLinksDisplayed // first nPageLinksDisplayed pages
                     : this.config.activePage >= this.config.nPages - this.config.nPageLinksDisplayed
-                      ? i < this.config.nPages - this.config.nPageLinksDisplayed // last nPageLinksDisplayed pages
-                      : i <
-                            this.config.activePage -
-                                (Math.ceil(this.config.nPageLinksDisplayed / 2) - 1) ||
-                            this.config.activePage + this.config.nPageLinksDisplayed / 2 < i; // nPageLinksDisplayed < activePage or activePage < (nPages - nPageLinksDisplayed)
+                    ? i < this.config.nPages - this.config.nPageLinksDisplayed // last nPageLinksDisplayed pages
+                    : i <
+                          this.config.activePage -
+                              (Math.ceil(this.config.nPageLinksDisplayed / 2) - 1) ||
+                      this.config.activePage + this.config.nPageLinksDisplayed / 2 < i; // nPageLinksDisplayed < activePage or activePage < (nPages - nPageLinksDisplayed)
             });
     }
 

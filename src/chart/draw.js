@@ -33,14 +33,22 @@ export default function draw(raw_data, processed_data) {
     this.setColorScale();
 
     let max_width = config.max_width ? config.max_width : div_width;
-    this.raw_width = config.x.type === 'ordinal' && +config.x.range_band
-        ? (+config.x.range_band + config.x.range_band * config.padding) * this.x_dom.length
-        : config.resizable ? max_width : config.width ? config.width : div_width;
-    this.raw_height = config.y.type === 'ordinal' && +config.y.range_band
-        ? (+config.y.range_band + config.y.range_band * config.padding) * this.y_dom.length
-        : config.resizable
-          ? max_width * (1 / config.aspect)
-          : config.height ? config.height : div_width * (1 / config.aspect);
+    this.raw_width =
+        config.x.type === 'ordinal' && +config.x.range_band
+            ? (+config.x.range_band + config.x.range_band * config.padding) * this.x_dom.length
+            : config.resizable
+            ? max_width
+            : config.width
+            ? config.width
+            : div_width;
+    this.raw_height =
+        config.y.type === 'ordinal' && +config.y.range_band
+            ? (+config.y.range_band + config.y.range_band * config.padding) * this.y_dom.length
+            : config.resizable
+            ? max_width * (1 / config.aspect)
+            : config.height
+            ? config.height
+            : div_width * (1 / config.aspect);
 
     let pseudo_width = this.svg.select('.overlay').attr('width')
         ? this.svg.select('.overlay').attr('width')
@@ -49,16 +57,26 @@ export default function draw(raw_data, processed_data) {
         ? this.svg.select('.overlay').attr('height')
         : this.raw_height;
 
-    this.svg.select('.x.axis').select('.axis-title').text(d => {
-        return typeof config.x.label === 'string'
-            ? config.x.label
-            : typeof config.x.label === 'function' ? config.x.label.call(this) : null;
-    });
-    this.svg.select('.y.axis').select('.axis-title').text(d => {
-        return typeof config.y.label === 'string'
-            ? config.y.label
-            : typeof config.y.label === 'function' ? config.y.label.call(this) : null;
-    });
+    this.svg
+        .select('.x.axis')
+        .select('.axis-title')
+        .text(d => {
+            return typeof config.x.label === 'string'
+                ? config.x.label
+                : typeof config.x.label === 'function'
+                ? config.x.label.call(this)
+                : null;
+        });
+    this.svg
+        .select('.y.axis')
+        .select('.axis-title')
+        .text(d => {
+            return typeof config.y.label === 'string'
+                ? config.y.label
+                : typeof config.y.label === 'function'
+                ? config.y.label.call(this)
+                : null;
+        });
 
     this.xScaleAxis(pseudo_width);
     this.yScaleAxis(pseudo_height);
