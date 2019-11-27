@@ -18,9 +18,12 @@ export default function transformData(raw, mark) {
     const config = this.config;
     const x_behavior = config.x.behavior || 'raw';
     const y_behavior = config.y.behavior || 'raw';
-    const sublevel = mark.type === 'line'
-        ? config.x.column
-        : mark.type === 'bar' && mark.split ? mark.split : null;
+    const sublevel =
+        mark.type === 'line'
+            ? config.x.column
+            : mark.type === 'bar' && mark.split
+            ? mark.split
+            : null;
 
     //////////////////////////////////////////////////////////////////////////////////
     // DATA PREP
@@ -31,33 +34,40 @@ export default function transformData(raw, mark) {
     //prepare nested data required for bar charts
     let raw_nest;
     if (mark.type === 'bar') {
-        raw_nest = mark.arrange !== 'stacked'
-            ? makeNest.call(this, mark, cleaned, sublevel)
-            : makeNest.call(this, mark, cleaned);
+        raw_nest =
+            mark.arrange !== 'stacked'
+                ? makeNest.call(this, mark, cleaned, sublevel)
+                : makeNest.call(this, mark, cleaned);
     } else if (mark.summarizeX === 'count' || mark.summarizeY === 'count') {
         raw_nest = makeNest.call(this, mark, cleaned);
     }
 
     // Get the domain for the mark based on the raw data
-    let raw_dom_x = mark.summarizeX === 'cumulative'
-        ? [0, cleaned.length]
-        : config.x.type === 'ordinal'
-          ? set(cleaned.map(m => m[config.x.column])).values().filter(f => f)
-          : mark.split && mark.arrange !== 'stacked'
+    let raw_dom_x =
+        mark.summarizeX === 'cumulative'
+            ? [0, cleaned.length]
+            : config.x.type === 'ordinal'
+            ? set(cleaned.map(m => m[config.x.column]))
+                  .values()
+                  .filter(f => f)
+            : mark.split && mark.arrange !== 'stacked'
             ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
             : mark.summarizeX === 'count'
-              ? extent(raw_nest.nested.map(m => m.values.raw.length))
-              : extent(cleaned.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
+            ? extent(raw_nest.nested.map(m => m.values.raw.length))
+            : extent(cleaned.map(m => +m[config.x.column]).filter(f => +f || +f === 0));
 
-    let raw_dom_y = mark.summarizeY === 'cumulative'
-        ? [0, cleaned.length]
-        : config.y.type === 'ordinal'
-          ? set(cleaned.map(m => m[config.y.column])).values().filter(f => f)
-          : mark.split && mark.arrange !== 'stacked'
+    let raw_dom_y =
+        mark.summarizeY === 'cumulative'
+            ? [0, cleaned.length]
+            : config.y.type === 'ordinal'
+            ? set(cleaned.map(m => m[config.y.column]))
+                  .values()
+                  .filter(f => f)
+            : mark.split && mark.arrange !== 'stacked'
             ? extent(merge(raw_nest.nested.map(m => m.values.map(p => p.values.raw.length))))
             : mark.summarizeY === 'count'
-              ? extent(raw_nest.nested.map(m => m.values.raw.length))
-              : extent(cleaned.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
+            ? extent(raw_nest.nested.map(m => m.values.raw.length))
+            : extent(cleaned.map(m => +m[config.y.column]).filter(f => +f || +f === 0));
 
     let filtered = cleaned;
 
@@ -68,17 +78,21 @@ export default function transformData(raw, mark) {
             filtered = filtered.filter(d => {
                 return e.all === true && e.index === 0
                     ? d
-                    : e.val instanceof Array ? e.val.indexOf(d[e.col]) > -1 : d[e.col] === e.val;
+                    : e.val instanceof Array
+                    ? e.val.indexOf(d[e.col]) > -1
+                    : d[e.col] === e.val;
             });
         });
         //get domain for all non-All values of first filter
         if (config.x.behavior === 'firstfilter' || config.y.behavior === 'firstfilter') {
-            this.filters[0].choices.filter(f => f !== 'All').forEach(e => {
-                let perfilter = cleaned.filter(f => f[this.filters[0].col] === e);
-                let filt_nested = makeNest.call(this, mark, perfilter, sublevel);
-                filt1_xs.push(filt_nested.dom_x);
-                filt1_ys.push(filt_nested.dom_y);
-            });
+            this.filters[0].choices
+                .filter(f => f !== 'All')
+                .forEach(e => {
+                    let perfilter = cleaned.filter(f => f[this.filters[0].col] === e);
+                    let filt_nested = makeNest.call(this, mark, perfilter, sublevel);
+                    filt1_xs.push(filt_nested.dom_x);
+                    filt1_ys.push(filt_nested.dom_y);
+                });
         }
     }
 
@@ -116,29 +130,33 @@ export default function transformData(raw, mark) {
     let pre_x_dom = !this.filters.length
         ? flex_dom_x
         : x_behavior === 'raw'
-          ? raw_dom_x
-          : nonall && x_behavior === 'firstfilter' ? filt1_dom_x : flex_dom_x;
+        ? raw_dom_x
+        : nonall && x_behavior === 'firstfilter'
+        ? filt1_dom_x
+        : flex_dom_x;
     let pre_y_dom = !this.filters.length
         ? flex_dom_y
         : y_behavior === 'raw'
-          ? raw_dom_y
-          : nonall && y_behavior === 'firstfilter' ? filt1_dom_y : flex_dom_y;
+        ? raw_dom_y
+        : nonall && y_behavior === 'firstfilter'
+        ? filt1_dom_y
+        : flex_dom_y;
 
     let x_dom = config.x_dom
         ? config.x_dom
         : config.x.type === 'ordinal' && config.x.behavior === 'flex'
-          ? set(filtered.map(m => m[config.x.column])).values()
-          : config.x.type === 'ordinal'
-            ? set(cleaned.map(m => m[config.x.column])).values()
-            : pre_x_dom;
+        ? set(filtered.map(m => m[config.x.column])).values()
+        : config.x.type === 'ordinal'
+        ? set(cleaned.map(m => m[config.x.column])).values()
+        : pre_x_dom;
 
     let y_dom = config.y_dom
         ? config.y_dom
         : config.y.type === 'ordinal' && config.y.behavior === 'flex'
-          ? set(filtered.map(m => m[config.y.column])).values()
-          : config.y.type === 'ordinal'
-            ? set(cleaned.map(m => m[config.y.column])).values()
-            : pre_y_dom;
+        ? set(filtered.map(m => m[config.y.column])).values()
+        : config.y.type === 'ordinal'
+        ? set(cleaned.map(m => m[config.y.column])).values()
+        : pre_y_dom;
 
     //set lower limit of linear domain to 0 when other axis is ordinal and mark type is set to 'bar', provided no values are negative
     if (mark.type === 'bar') {

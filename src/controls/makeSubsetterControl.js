@@ -14,7 +14,9 @@ export default function makeSubsetterControl(control, control_wrap) {
     //dropdown option data
     const option_data = control.values
         ? control.values
-        : set(this.data.map(m => m[control.value_col]).filter(f => f)).values().sort(naturalSorter); // only sort when values are derived
+        : set(this.data.map(m => m[control.value_col]).filter(f => f))
+              .values()
+              .sort(naturalSorter); // only sort when values are derived
 
     //initial dropdown option
     control.start = control.start ? control.start : control.loose ? option_data[0] : null;
@@ -41,7 +43,10 @@ export default function makeSubsetterControl(control, control_wrap) {
 
     //define filter object for each associated target
     targets.forEach(e => {
-        const match = e.filters.slice().map(m => m.col === control.value_col).indexOf(true);
+        const match = e.filters
+            .slice()
+            .map(m => m.col === control.value_col)
+            .indexOf(true);
         if (match > -1) {
             e.filters[match] = {
                 col: control.value_col,
@@ -101,8 +106,12 @@ export default function makeSubsetterControl(control, control_wrap) {
                 if (control.draw) e.draw();
             });
         } else {
-            let value = select(this).select('option:checked').property('text');
-            let index = select(this).select('option:checked').property('index');
+            let value = select(this)
+                .select('option:checked')
+                .property('text');
+            let index = select(this)
+                .select('option:checked')
+                .property('index');
             let new_filter = {
                 col: control.value_col,
                 val: value,

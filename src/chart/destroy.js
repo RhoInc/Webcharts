@@ -6,8 +6,7 @@ export default function destroy(destroyControls = true) {
 
     //remove resize event listener
     var context = this;
-    if (!this.test)
-        select(window).on('resize.' + context.element + context.id, null);
+    if (!this.test) select(window).on('resize.' + context.element + context.id, null);
 
     //destroy controls
     if (destroyControls && this.controls) {

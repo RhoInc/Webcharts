@@ -32,7 +32,9 @@ export default function yScaleAxis(max_range, domain, type) {
 
     let yFormat = config.y.format
         ? config.y.format
-        : config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1 ? '0%' : '.0f';
+        : config.marks.map(m => m.summarizeY === 'percent').indexOf(true) > -1
+        ? '0%'
+        : '.0f';
     let tick_count = Math.max(2, Math.min(max_range / 80, 8));
     let yAxis = svg
         .axis()

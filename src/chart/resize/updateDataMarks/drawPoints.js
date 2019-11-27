@@ -8,11 +8,17 @@ export default function drawPoints(marks) {
         .selectAll('.point-supergroup')
         .data(marks, (d, i) => i + '-' + d.per.join('-'));
 
-    point_supergroups.enter().append('g').attr('class', d => 'supergroup point-supergroup ' + d.id);
+    point_supergroups
+        .enter()
+        .append('g')
+        .attr('class', d => 'supergroup point-supergroup ' + d.id);
 
     point_supergroups.exit().remove();
 
-    let points = point_supergroups.selectAll('.point').data(d => d.data, d => d.key);
+    let points = point_supergroups.selectAll('.point').data(
+        d => d.data,
+        d => d.key
+    );
     let oldPoints = points.exit();
 
     let oldPointsTrans = config.transitions
@@ -23,8 +29,14 @@ export default function drawPoints(marks) {
     let oldPointGroupTrans = config.transitions ? oldPoints.transition() : oldPoints;
     oldPointGroupTrans.remove();
 
-    let nupoints = points.enter().append('g').attr('class', d => d.key + ' point');
-    nupoints.append('circle').attr('class', 'wc-data-mark').attr('r', 0);
+    let nupoints = points
+        .enter()
+        .append('g')
+        .attr('class', d => d.key + ' point');
+    nupoints
+        .append('circle')
+        .attr('class', 'wc-data-mark')
+        .attr('r', 0);
     nupoints.append('title');
     //static attributes
     points
@@ -40,7 +52,9 @@ export default function drawPoints(marks) {
     points.each(function(d) {
         let mark = select(this.parentNode).datum();
         d.mark = mark;
-        select(this).select('circle').attr(mark.attributes);
+        select(this)
+            .select('circle')
+            .attr(mark.attributes);
     });
     //animated attributes
     let pointsTrans = config.transitions
@@ -59,12 +73,18 @@ export default function drawPoints(marks) {
 
     points.select('title').text(d => {
         let tt = d.mark.tooltip || '';
-        let xformat = config.x.summary === 'percent'
-            ? format('0%')
-            : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
-        let yformat = config.y.summary === 'percent'
-            ? format('0%')
-            : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
+        let xformat =
+            config.x.summary === 'percent'
+                ? format('0%')
+                : config.x.type === 'time'
+                ? time.format(config.x.format)
+                : format(config.x.format);
+        let yformat =
+            config.y.summary === 'percent'
+                ? format('0%')
+                : config.y.type === 'time'
+                ? time.format(config.y.format)
+                : format(config.y.format);
         return tt
             .replace(
                 /\$x/g,

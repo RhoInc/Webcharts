@@ -16,31 +16,31 @@ export default function cleanData(mark, raw) {
 
     //check that x and y have the correct formats
     if (this.config.x.type === 'time') {
-        clean = clean.filter(
-            f =>
-                f[this.config.x.column] instanceof Date
-                    ? f[this.config.x.column]
-                    : dateConvert.parse(f[this.config.x.column])
+        clean = clean.filter(f =>
+            f[this.config.x.column] instanceof Date
+                ? f[this.config.x.column]
+                : dateConvert.parse(f[this.config.x.column])
         );
         clean.forEach(
             e =>
-                (e[this.config.x.column] = e[this.config.x.column] instanceof Date
-                    ? e[this.config.x.column]
-                    : dateConvert.parse(e[this.config.x.column]))
+                (e[this.config.x.column] =
+                    e[this.config.x.column] instanceof Date
+                        ? e[this.config.x.column]
+                        : dateConvert.parse(e[this.config.x.column]))
         );
     }
     if (this.config.y.type === 'time') {
-        clean = clean.filter(
-            f =>
-                f[this.config.y.column] instanceof Date
-                    ? f[this.config.y.column]
-                    : dateConvert.parse(f[this.config.y.column])
+        clean = clean.filter(f =>
+            f[this.config.y.column] instanceof Date
+                ? f[this.config.y.column]
+                : dateConvert.parse(f[this.config.y.column])
         );
         clean.forEach(
             e =>
-                (e[this.config.y.column] = e[this.config.y.column] instanceof Date
-                    ? e[this.config.y.column]
-                    : dateConvert.parse(e[this.config.y.column]))
+                (e[this.config.y.column] =
+                    e[this.config.y.column] instanceof Date
+                        ? e[this.config.y.column]
+                        : dateConvert.parse(e[this.config.y.column]))
         );
     }
 

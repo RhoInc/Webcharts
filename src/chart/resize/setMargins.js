@@ -23,9 +23,8 @@ export default function setMargins() {
     return {
         top: this.config.margin && this.config.margin.top ? this.config.margin.top : 8,
         right: this.config.margin && this.config.margin.right ? this.config.margin.right : 16,
-        bottom: this.config.margin && this.config.margin.bottom
-            ? this.config.margin.bottom
-            : x_margin,
+        bottom:
+            this.config.margin && this.config.margin.bottom ? this.config.margin.bottom : x_margin,
         left: this.config.margin && this.config.margin.left ? this.config.margin.left : y_margin
     };
 }

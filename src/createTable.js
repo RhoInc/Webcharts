@@ -14,7 +14,9 @@ export default function createTable(element = 'body', config = {}, controls = nu
 
     thisTable.required_cols = [];
 
-    thisTable.wrap = select(thisTable.div).append('div').datum(thisTable);
+    thisTable.wrap = select(thisTable.div)
+        .append('div')
+        .datum(thisTable);
 
     thisTable.events = {
         onInit() {},

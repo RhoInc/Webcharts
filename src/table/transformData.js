@@ -80,8 +80,7 @@ export default function transformData(processed_data) {
 
     //Delete text from columns with repeated values?
     if (config.row_per) {
-        rows
-            .filter((f, i) => i > 0)
+        rows.filter((f, i) => i > 0)
             .selectAll('td')
             .filter(f => config.row_per.indexOf(f.col) > -1)
             .text('');

@@ -73,12 +73,13 @@ export default function setDomain(axis) {
 
     //Give the domain a range when the range of the variable is 0.
     if (this.config[axis].type === 'linear' && this[axis + '_dom'][0] === this[axis + '_dom'][1])
-        this[axis + '_dom'] = this[axis + '_dom'][0] !== 0
-            ? [
-                  this[axis + '_dom'][0] - this[axis + '_dom'][0] * 0.01,
-                  this[axis + '_dom'][1] + this[axis + '_dom'][1] * 0.01
-              ]
-            : [-1, 1];
+        this[axis + '_dom'] =
+            this[axis + '_dom'][0] !== 0
+                ? [
+                      this[axis + '_dom'][0] - this[axis + '_dom'][0] * 0.01,
+                      this[axis + '_dom'][1] + this[axis + '_dom'][1] * 0.01
+                  ]
+                : [-1, 1];
 
     return this[axis + '_dom'];
 }

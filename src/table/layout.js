@@ -2,7 +2,9 @@ import { select } from 'd3';
 
 export default function layout() {
     //Clear loading indicator.
-    select(this.div).select('.loader').remove();
+    select(this.div)
+        .select('.loader')
+        .remove();
 
     //Attach container before table.
     this.wrap.append('div').classed('table-top', true);

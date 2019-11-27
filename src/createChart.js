@@ -18,7 +18,9 @@ export default function createChart(element = 'body', config = {}, controls = nu
 
     thisChart.marks = [];
 
-    thisChart.wrap = select(thisChart.div).append('div').datum(thisChart);
+    thisChart.wrap = select(thisChart.div)
+        .append('div')
+        .datum(thisChart);
 
     thisChart.events = {
         onInit() {},

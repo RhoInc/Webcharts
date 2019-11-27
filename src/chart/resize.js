@@ -8,23 +8,31 @@ export default function resize() {
     let max_width = config.max_width ? config.max_width : div_width;
     let preWidth = !config.resizable
         ? config.width
-        : !max_width || div_width < max_width ? div_width : this.raw_width;
+        : !max_width || div_width < max_width
+        ? div_width
+        : this.raw_width;
 
     this.textSize(preWidth);
 
     this.margin = this.setMargins();
 
-    let svg_width = config.x.type === 'ordinal' && +config.x.range_band
-        ? this.raw_width + this.margin.left + this.margin.right
-        : !config.resizable
-          ? this.raw_width
-          : !config.max_width || div_width < config.max_width ? div_width : this.raw_width;
+    let svg_width =
+        config.x.type === 'ordinal' && +config.x.range_band
+            ? this.raw_width + this.margin.left + this.margin.right
+            : !config.resizable
+            ? this.raw_width
+            : !config.max_width || div_width < config.max_width
+            ? div_width
+            : this.raw_width;
     this.plot_width = svg_width - this.margin.left - this.margin.right;
-    var svg_height = config.y.type === 'ordinal' && +config.y.range_band
-        ? this.raw_height + this.margin.top + this.margin.bottom
-        : !config.resizable && config.height
-          ? config.height
-          : !config.resizable ? svg_width * aspect2 : this.plot_width * aspect2;
+    var svg_height =
+        config.y.type === 'ordinal' && +config.y.range_band
+            ? this.raw_height + this.margin.top + this.margin.bottom
+            : !config.resizable && config.height
+            ? config.height
+            : !config.resizable
+            ? svg_width * aspect2
+            : this.plot_width * aspect2;
     this.plot_height = svg_height - this.margin.top - this.margin.bottom;
 
     select(this.svg.node().parentNode)
@@ -65,7 +73,7 @@ export default function resize() {
         'transform',
         'translate(' + this.plot_width / 2 + ',' + (this.margin.bottom - 2) + ')'
     );
-    y_axis_label.attr('x', -1 * this.plot_height / 2).attr('y', -1 * this.margin.left);
+    y_axis_label.attr('x', (-1 * this.plot_height) / 2).attr('y', -1 * this.margin.left);
 
     this.svg
         .selectAll('.axis .domain')

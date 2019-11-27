@@ -15,9 +15,12 @@ export default function summarize(vals, operation = 'mean') {
         return null;
     }
 
-    const mathed = operation === 'count'
-        ? vals.length
-        : operation === 'percent' ? vals.length : stats[operation](nvals);
+    const mathed =
+        operation === 'count'
+            ? vals.length
+            : operation === 'percent'
+            ? vals.length
+            : stats[operation](nvals);
 
     return mathed;
 }

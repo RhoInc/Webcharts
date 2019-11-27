@@ -13,10 +13,16 @@ export default function makeControlItem(control) {
 
     //Add control _Required_ text to control label span.
     if (control.required)
-        ctrl_label.append('span').attr('class', 'label label-required').text('Required');
+        ctrl_label
+            .append('span')
+            .attr('class', 'label label-required')
+            .text('Required');
 
     //Add control description span.
-    control_wrap.append('span').attr('class', 'span-description').text(control.description);
+    control_wrap
+        .append('span')
+        .attr('class', 'span-description')
+        .text(control.description);
 
     if (control.type === 'text') {
         this.makeTextControl(control, control_wrap);

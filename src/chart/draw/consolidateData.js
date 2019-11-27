@@ -13,8 +13,8 @@ export default function consolidateData(raw) {
                 return filter.all === true && filter.index === 0
                     ? d
                     : filter.val instanceof Array
-                      ? filter.val.indexOf(d[filter.col]) > -1
-                      : d[filter.col] === filter.val;
+                    ? filter.val.indexOf(d[filter.col]) > -1
+                    : d[filter.col] === filter.val;
             });
         });
     }

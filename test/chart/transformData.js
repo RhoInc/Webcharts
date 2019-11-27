@@ -34,10 +34,22 @@ export default function testTransformData(settings, data) {
                                 raw: d,
                                 x: d3[mark.summarizeX](d, di => di[settings.x.column]),
                                 y: d3[mark.summarizeY](d, di => di[settings.y.column]),
-                                x_q25: d3.quantile(d.map(di => di[settings.x.column]), 0.25),
-                                x_q75: d3.quantile(d.map(di => di[settings.x.column]), 0.75),
-                                y_q25: d3.quantile(d.map(di => di[settings.y.column]), 0.25),
-                                y_q75: d3.quantile(d.map(di => di[settings.y.column]), 0.75)
+                                x_q25: d3.quantile(
+                                    d.map(di => di[settings.x.column]),
+                                    0.25
+                                ),
+                                x_q75: d3.quantile(
+                                    d.map(di => di[settings.x.column]),
+                                    0.75
+                                ),
+                                y_q25: d3.quantile(
+                                    d.map(di => di[settings.y.column]),
+                                    0.25
+                                ),
+                                y_q75: d3.quantile(
+                                    d.map(di => di[settings.y.column]),
+                                    0.75
+                                )
                             };
                         })
                         .entries(data);
@@ -75,21 +87,33 @@ export default function testTransformData(settings, data) {
                 });
 
                 it('sets x-domain to extent of values in x-column', () => {
-                    expect(Math.min.apply(null, nestedData.map(d => d.values.x))).toEqual(
-                        transformedData.x_dom[0]
-                    );
-                    expect(Math.max.apply(null, nestedData.map(d => d.values.x))).toEqual(
-                        transformedData.x_dom[1]
-                    );
+                    expect(
+                        Math.min.apply(
+                            null,
+                            nestedData.map(d => d.values.x)
+                        )
+                    ).toEqual(transformedData.x_dom[0]);
+                    expect(
+                        Math.max.apply(
+                            null,
+                            nestedData.map(d => d.values.x)
+                        )
+                    ).toEqual(transformedData.x_dom[1]);
                 });
 
                 it('sets y-domain to extent of values in y-column', () => {
-                    expect(Math.min.apply(null, nestedData.map(d => d.values.y))).toEqual(
-                        transformedData.y_dom[0]
-                    );
-                    expect(Math.max.apply(null, nestedData.map(d => d.values.y))).toEqual(
-                        transformedData.y_dom[1]
-                    );
+                    expect(
+                        Math.min.apply(
+                            null,
+                            nestedData.map(d => d.values.y)
+                        )
+                    ).toEqual(transformedData.y_dom[0]);
+                    expect(
+                        Math.max.apply(
+                            null,
+                            nestedData.map(d => d.values.y)
+                        )
+                    ).toEqual(transformedData.y_dom[1]);
                 });
             });
         });

@@ -8,11 +8,17 @@ export default function drawText(marks) {
         .selectAll('.text-supergroup')
         .data(marks, (d, i) => `${i}-${d.per.join('-')}`);
 
-    textSupergroups.enter().append('g').attr('class', d => 'supergroup text-supergroup ' + d.id);
+    textSupergroups
+        .enter()
+        .append('g')
+        .attr('class', d => 'supergroup text-supergroup ' + d.id);
 
     textSupergroups.exit().remove();
 
-    const texts = textSupergroups.selectAll('.text').data(d => d.data, d => d.key);
+    const texts = textSupergroups.selectAll('.text').data(
+        d => d.data,
+        d => d.key
+    );
     const oldTexts = texts.exit();
 
     // don't need to transition position of outgoing text
@@ -21,37 +27,51 @@ export default function drawText(marks) {
     const oldTextGroupTrans = config.transitions ? oldTexts.transition() : oldTexts;
     oldTextGroupTrans.remove();
 
-    const nutexts = texts.enter().append('g').attr('class', d => `${d.key} text`);
+    const nutexts = texts
+        .enter()
+        .append('g')
+        .attr('class', d => `${d.key} text`);
     nutexts.append('text').attr('class', 'wc-data-mark');
     // don't need to set initial location for incoming text
 
     // attach mark info
     function attachMarks(d) {
         d.mark = select(this.parentNode).datum();
-        select(this).select('text').attr(d.mark.attributes);
+        select(this)
+            .select('text')
+            .attr(d.mark.attributes);
     }
     texts.each(attachMarks);
 
     // parse text like tooltips
-    texts.select('text').style('clip-path', `url(#${chart.id})`).text(d => {
-        const tt = d.mark.text || '';
-        const xformat = config.x.summary === 'percent'
-            ? format('0%')
-            : config.x.type === 'time' ? time.format(config.x.format) : format(config.x.format);
-        const yformat = config.y.summary === 'percent'
-            ? format('0%')
-            : config.y.type === 'time' ? time.format(config.y.format) : format(config.y.format);
-        return tt
-            .replace(
-                /\$x/g,
-                config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)
-            )
-            .replace(
-                /\$y/g,
-                config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
-            )
-            .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
-    });
+    texts
+        .select('text')
+        .style('clip-path', `url(#${chart.id})`)
+        .text(d => {
+            const tt = d.mark.text || '';
+            const xformat =
+                config.x.summary === 'percent'
+                    ? format('0%')
+                    : config.x.type === 'time'
+                    ? time.format(config.x.format)
+                    : format(config.x.format);
+            const yformat =
+                config.y.summary === 'percent'
+                    ? format('0%')
+                    : config.y.type === 'time'
+                    ? time.format(config.y.format)
+                    : format(config.y.format);
+            return tt
+                .replace(
+                    /\$x/g,
+                    config.x.type === 'time' ? xformat(new Date(d.values.x)) : xformat(d.values.x)
+                )
+                .replace(
+                    /\$y/g,
+                    config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
+                )
+                .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
+        });
     // animated attributes
     const textsTrans = config.transitions
         ? texts.select('text').transition()
