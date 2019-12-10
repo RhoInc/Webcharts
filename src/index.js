@@ -1,3 +1,4 @@
+import './util/polyfills';
 import version from './version';
 import createChart from './createChart';
 import createControls from './createControls';

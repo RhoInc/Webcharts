@@ -1,29 +1,29 @@
 /*------------------------------------------------------------------------------------------------\
-  Small Multiple Layout
+    Small Multiple Layout
 \------------------------------------------------------------------------------------------------*/
 
-		div.wc-layout.wc-small-multiples::after {
-			content: "";
-			clear: both;
-			display: block;
-		}
+    .wc-layout.wc-small-multiples::after {
+        content: '';
+        clear: both;
+        display: block;
+    }
 
-		.wc-layout.wc-small-multiples > .wc-chart {
-			float: left;
-			padding: 0 2em 2em 0;
-		}
+    .wc-layout.wc-small-multiples > .wc-chart {
+        float: left;
+        padding: 0 2em 2em 0;
+    }
 
-		.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
-			display: block;
-			font-weight: bold;
-			text-align: center;
-		}
-		.wc-small-multiples .wc-chart > .legend {
-		  display: none;
-		}
+    .wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
+        display: block;
+        font-weight: bold;
+        text-align: center;
+    }
+    .wc-small-multiples .wc-chart > .legend {
+        display: none;
+    }
 
 /*------------------------------------------------------------------------------------------------\
-  Charts
+    Charts
 \------------------------------------------------------------------------------------------------*/
 
     .wc-chart {
@@ -62,6 +62,15 @@
         shape-rendering: crispEdges;
     }
 
+    .wc-chart .axis.ordinal .tick line,
+    .wc-chart .axis.ordinal path {
+        display: none;
+    }
+
+    .wc-chart.gridlines .axis.ordinal .tick line {
+        display: block;
+    }
+
     .wc-chart .axis .tick text {
         font-size: .9em;
     }
@@ -70,46 +79,63 @@
         fill: #555;
     }
 
-    *[class*="wc-"] .legend {
-				width: 100%;
-        font-size: .9em;
-        padding: 0;
-        margin: 0;
-        display: inline-block;
-    }
+    /**-------------------------------------------------------------------------------------------\
+        Legend
+    \-------------------------------------------------------------------------------------------**/
 
-    *[class*="wc-"] .legend .legend-title {
-        font-weight: bold;
-        margin-right: 1em;
-    }
+        *[class*='wc-'] .legend {
+            width: 100%;
+            font-size: .9em;
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+        }
 
-    *[class*="wc-"] .legend .legend-item {
-        display: inline-block;
-        margin-right: 1em;
-    }
+        *[class*='wc-'] .legend .legend-title {
+            font-weight: bold;
+            margin-right: 1em;
+        }
 
-    *[class*="wc-"] .legend .legend-item .legend-color-block {
-        position: relative;
-        top: .2em;
-        right: .25em;
-        display: inline-block;
-    }
-    *[class*="wc-"] .legend .legend-item .legend-mark-text {
-        font-weight: bold;
-        margin-right: .5em;
-    }
+        *[class*='wc-'] .legend .legend-title: empty {
+            display: none;
+        }
 
-    .wc-chart .ordinal.axis .tick line,
-    .wc-chart .ordinal.axis path {
-        display: none;
-    }
+        *[class*='wc-'] .legend .legend-item {
+            display: inline-block;
+            margin-right: 1em;
+            list-style-type: none;
+        }
 
-    .wc-chart.gridlines .ordinal.axis .tick line {
-        display: block;
-    }
+        *[class*='wc-'] .legend .legend-item--display-block {
+            display: block;
+        }
+
+        *[class*='wc-'] .legend .legend-item--block {
+            display: inline-block;
+            margin-right: 1em;
+            list-style-type: none;
+        }
+
+        *[class*='wc-'] .legend .legend-item .legend-mark-text {
+            font-weight: bold;
+            margin-right: .5em;
+        }
+
+        *[class*='wc-'] .legend .legend-item .legend-color-block {
+            position: relative;
+            top: .2em;
+            right: .25em;
+            display: inline-block;
+            width: 1.1em;
+            height: 1.1em;
+        }
+
+        *[class*='wc-'] .legend .legend-item .legend-label {
+            margin-left: 0.25em;
+        }
 
 /*------------------------------------------------------------------------------------------------\
-  Controls
+    Controls
 \------------------------------------------------------------------------------------------------*/
 
     .wc-controls {
@@ -119,7 +145,7 @@
         margin-bottom: 10px;
     }
 
-    .wc-controls:empty {
+    .wc-controls: empty {
         display: none;
     }
 
@@ -172,7 +198,7 @@
         color: #777;
         margin-bottom: 3px;
     }
-    .wc-controls .span-description:empty {
+    .wc-controls .span-description: empty {
         display: none;
     }
     .wc-controls .span-description.standout {
@@ -249,7 +275,7 @@
     }
 
 /*------------------------------------------------------------------------------------------------\
-  Tables
+    Tables
 \------------------------------------------------------------------------------------------------*/
 
     .wc-table {
@@ -286,13 +312,13 @@
         background: white;
         color: black;
     }
-    .wc-table .interactivity .wc-button:hover {
+    .wc-table .interactivity .wc-button: hover {
         background: black;
         color: white;
     }
 
     /**-------------------------------------------------------------------------------------------\
-      Searchable container
+        Searchable container
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .searchable-container {
@@ -307,7 +333,7 @@
         }
 
     /**-------------------------------------------------------------------------------------------\
-      Sortable container
+        Sortable container
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .sortable-container {
@@ -334,23 +360,23 @@
             background: white;
             color: red;
         }
-        .wc-table .sortable-container .sort-box .remove-sort:hover {
+        .wc-table .sortable-container .sort-box .remove-sort: hover {
             cursor: pointer;
             background: red;
             color: white;
         }
 
     /**-------------------------------------------------------------------------------------------\
-      Table
+        Table
     \-------------------------------------------------------------------------------------------**/
 
-		.wc-table table {
-			font-size: .9em;
-			border-collapse: collapse;
-		}
+        .wc-table table {
+            font-size: .9em;
+            border-collapse: collapse;
+        }
 
         /***--------------------------------------------------------------------------------------\
-		  Table header
+            Table header
         \--------------------------------------------------------------------------------------***/
 
             .wc-table table thead {
@@ -363,43 +389,43 @@
                 border-bottom: 2px solid black;
                 text-align: left;
             }
-            .wc-table table thead tr th:first-child {
+            .wc-table table thead tr th: first-child {
             }
-            .wc-table table thead tr th:last-child {
+            .wc-table table thead tr th: last-child {
             }
 
         /***--------------------------------------------------------------------------------------\
-		  Table body
+            Table body
         \--------------------------------------------------------------------------------------***/
 
             .wc-table table tbody {
             }
             .wc-table table tbody tr {
             }
-            .wc-table table tbody tr:nth-child(even) {
+            .wc-table table tbody tr: nth-child(even) {
                 background: #eee;
             }
-            .wc-table table tbody tr:hover {
+            .wc-table table tbody tr: hover {
                 background: #ccc;
             }
             .wc-table table tbody tr td {
                 padding: 2px 5px;
             }
-            .wc-table table tbody tr td:first-child {
+            .wc-table table tbody tr td: first-child {
             }
-            .wc-table table tbody tr td:last-child {
+            .wc-table table tbody tr td: last-child {
             }
 
-						.wc-table table tbody tr:last-child {
-							border-bottom:1px solid black
-						}
+                        .wc-table table tbody tr: last-child {
+                            border-bottom: 1px solid black
+                        }
             .wc-table table tbody tr.no-data td {
                 color: red;
                 font-weight: bold;
             }
 
     /**-------------------------------------------------------------------------------------------\
-      Pagination container
+        Pagination container
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .pagination-container {
@@ -408,12 +434,12 @@
         .wc-table .pagination-container a {
             text-decoration: none;
         }
-        .wc-table .pagination-container a:not(.active) {
+        .wc-table .pagination-container a: not(.active) {
             border: none;
         }
 
     /**-------------------------------------------------------------------------------------------\
-      Exportable container
+        Exportable container
     \-------------------------------------------------------------------------------------------**/
 
         .wc-table .exportable-container {
@@ -424,212 +450,218 @@
         }
 
 /*------------------------------------------------------------------------------------------------\
-  Miscellaneous
+    Miscellaneous
 \------------------------------------------------------------------------------------------------*/
 
     .loader {
-    position:relative;
-    width:20px;
-    height:25px}
+        position: relative;
+        width: 20px;
+        height: 25px
+    }
 
     .blockG {
-    position:absolute;
-    background-color:#eee;
-    width:3px;
-    height:8px;
-    -moz-border-radius:4px 4px 0 0;
-    -moz-transform:scale(0.4);
-    -moz-animation-name:fadeG;
-    -moz-animation-duration:0.48s;
-    -moz-animation-iteration-count:infinite;
-    -moz-animation-direction:linear;
-    -webkit-border-radius:4px 4px 0 0;
-    -webkit-transform:scale(0.4);
-    -webkit-animation-name:fadeG;
-    -webkit-animation-duration:0.48s;
-    -webkit-animation-iteration-count:infinite;
-    -webkit-animation-direction:linear;
-    -ms-border-radius:4px 4px 0 0;
-    -ms-transform:scale(0.4);
-    -ms-animation-name:fadeG;
-    -ms-animation-duration:0.48s;
-    -ms-animation-iteration-count:infinite;
-    -ms-animation-direction:linear;
-    -o-border-radius:4px 4px 0 0;
-    -o-transform:scale(0.4);
-    -o-animation-name:fadeG;
-    -o-animation-duration:0.48s;
-    -o-animation-iteration-count:infinite;
-    -o-animation-direction:linear;
-    border-radius:4px 4px 0 0;
-    transform:scale(0.4);
-    animation-name:fadeG;
-    animation-duration:0.48s;
-    animation-iteration-count:infinite;
-    animation-direction:linear;
+        position: absolute;
+        background-color: #eee;
+        width: 3px;
+        height: 8px;
+        -moz-border-radius: 4px 4px 0 0;
+        -moz-transform: scale(0.4);
+        -moz-animation-name: fadeG;
+        -moz-animation-duration: 0.48s;
+        -moz-animation-iteration-count: infinite;
+        -moz-animation-direction: linear;
+        -webkit-border-radius: 4px 4px 0 0;
+        -webkit-transform: scale(0.4);
+        -webkit-animation-name: fadeG;
+        -webkit-animation-duration: 0.48s;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-direction: linear;
+        -ms-border-radius: 4px 4px 0 0;
+        -ms-transform: scale(0.4);
+        -ms-animation-name: fadeG;
+        -ms-animation-duration: 0.48s;
+        -ms-animation-iteration-count: infinite;
+        -ms-animation-direction: linear;
+        -o-border-radius: 4px 4px 0 0;
+        -o-transform: scale(0.4);
+        -o-animation-name: fadeG;
+        -o-animation-duration: 0.48s;
+        -o-animation-iteration-count: infinite;
+        -o-animation-direction: linear;
+        border-radius: 4px 4px 0 0;
+        transform: scale(0.4);
+        animation-name: fadeG;
+        animation-duration: 0.48s;
+        animation-iteration-count: infinite;
+        animation-direction: linear;
     }
 
     .rotate1 {
-    left:0;
-    top:9px;
-    -moz-animation-delay:0.18s;
-    -moz-transform:rotate(-90deg);
-    -webkit-animation-delay:0.18s;
-    -webkit-transform:rotate(-90deg);
-    -ms-animation-delay:0.18s;
-    -ms-transform:rotate(-90deg);
-    -o-animation-delay:0.18s;
-    -o-transform:rotate(-90deg);
-    animation-delay:0.18s;
-    transform:rotate(-90deg);
+        left: 0;
+        top: 9px;
+        -moz-animation-delay: 0.18s;
+        -moz-transform: rotate(-90deg);
+        -webkit-animation-delay: 0.18s;
+        -webkit-transform: rotate(-90deg);
+        -ms-animation-delay: 0.18s;
+        -ms-transform: rotate(-90deg);
+        -o-animation-delay: 0.18s;
+        -o-transform: rotate(-90deg);
+        animation-delay: 0.18s;
+        transform: rotate(-90deg);
     }
 
     .rotate2 {
-    left:3px;
-    top:3px;
-    -moz-animation-delay:0.24s;
-    -moz-transform:rotate(-45deg);
-    -webkit-animation-delay:0.24s;
-    -webkit-transform:rotate(-45deg);
-    -ms-animation-delay:0.24s;
-    -ms-transform:rotate(-45deg);
-    -o-animation-delay:0.24s;
-    -o-transform:rotate(-45deg);
-    animation-delay:0.24s;
-    transform:rotate(-45deg);
+        left: 3px;
+        top: 3px;
+        -moz-animation-delay: 0.24s;
+        -moz-transform: rotate(-45deg);
+        -webkit-animation-delay: 0.24s;
+        -webkit-transform: rotate(-45deg);
+        -ms-animation-delay: 0.24s;
+        -ms-transform: rotate(-45deg);
+        -o-animation-delay: 0.24s;
+        -o-transform: rotate(-45deg);
+        animation-delay: 0.24s;
+        transform: rotate(-45deg);
     }
 
     .rotate3 {
-    left:8px;
-    top:1px;
-    -moz-animation-delay:0.3s;
-    -moz-transform:rotate(0deg);
-    -webkit-animation-delay:0.3s;
-    -webkit-transform:rotate(0deg);
-    -ms-animation-delay:0.3s;
-    -ms-transform:rotate(0deg);
-    -o-animation-delay:0.3s;
-    -o-transform:rotate(0deg);
-    animation-delay:0.3s;
-    transform:rotate(0deg);
+        left: 8px;
+        top: 1px;
+        -moz-animation-delay: 0.3s;
+        -moz-transform: rotate(0deg);
+        -webkit-animation-delay: 0.3s;
+        -webkit-transform: rotate(0deg);
+        -ms-animation-delay: 0.3s;
+        -ms-transform: rotate(0deg);
+        -o-animation-delay: 0.3s;
+        -o-transform: rotate(0deg);
+        animation-delay: 0.3s;
+        transform: rotate(0deg);
     }
 
     .rotate4 {
-    right:3px;
-    top:3px;
-    -moz-animation-delay:0.36s;
-    -moz-transform:rotate(45deg);
-    -webkit-animation-delay:0.36s;
-    -webkit-transform:rotate(45deg);
-    -ms-animation-delay:0.36s;
-    -ms-transform:rotate(45deg);
-    -o-animation-delay:0.36s;
-    -o-transform:rotate(45deg);
-    animation-delay:0.36s;
-    transform:rotate(45deg);
+        right: 3px;
+        top: 3px;
+        -moz-animation-delay: 0.36s;
+        -moz-transform: rotate(45deg);
+        -webkit-animation-delay: 0.36s;
+        -webkit-transform: rotate(45deg);
+        -ms-animation-delay: 0.36s;
+        -ms-transform: rotate(45deg);
+        -o-animation-delay: 0.36s;
+        -o-transform: rotate(45deg);
+        animation-delay: 0.36s;
+        transform: rotate(45deg);
     }
 
     .rotate5 {
-    right:0;
-    top:9px;
-    -moz-animation-delay:0.42000000000000004s;
-    -moz-transform:rotate(90deg);
-    -webkit-animation-delay:0.42000000000000004s;
-    -webkit-transform:rotate(90deg);
-    -ms-animation-delay:0.42000000000000004s;
-    -ms-transform:rotate(90deg);
-    -o-animation-delay:0.42000000000000004s;
-    -o-transform:rotate(90deg);
-    animation-delay:0.42000000000000004s;
-    transform:rotate(90deg);
+        right: 0;
+        top: 9px;
+        -moz-animation-delay: 0.42000000000000004s;
+        -moz-transform: rotate(90deg);
+        -webkit-animation-delay: 0.42000000000000004s;
+        -webkit-transform: rotate(90deg);
+        -ms-animation-delay: 0.42000000000000004s;
+        -ms-transform: rotate(90deg);
+        -o-animation-delay: 0.42000000000000004s;
+        -o-transform: rotate(90deg);
+        animation-delay: 0.42000000000000004s;
+        transform: rotate(90deg);
     }
 
     .rotate6 {
-    right:3px;
-    bottom:2px;
-    -moz-animation-delay:0.48s;
-    -moz-transform:rotate(135deg);
-    -webkit-animation-delay:0.48s;
-    -webkit-transform:rotate(135deg);
-    -ms-animation-delay:0.48s;
-    -ms-transform:rotate(135deg);
-    -o-animation-delay:0.48s;
-    -o-transform:rotate(135deg);
-    animation-delay:0.48s;
-    transform:rotate(135deg);
+        right: 3px;
+        bottom: 2px;
+        -moz-animation-delay: 0.48s;
+        -moz-transform: rotate(135deg);
+        -webkit-animation-delay: 0.48s;
+        -webkit-transform: rotate(135deg);
+        -ms-animation-delay: 0.48s;
+        -ms-transform: rotate(135deg);
+        -o-animation-delay: 0.48s;
+        -o-transform: rotate(135deg);
+        animation-delay: 0.48s;
+        transform: rotate(135deg);
     }
 
     .rotate7 {
-    bottom:0;
-    left:8px;
-    -moz-animation-delay:0.5399999999999999s;
-    -moz-transform:rotate(180deg);
-    -webkit-animation-delay:0.5399999999999999s;
-    -webkit-transform:rotate(180deg);
-    -ms-animation-delay:0.5399999999999999s;
-    -ms-transform:rotate(180deg);
-    -o-animation-delay:0.5399999999999999s;
-    -o-transform:rotate(180deg);
-    animation-delay:0.5399999999999999s;
-    transform:rotate(180deg);
+        bottom: 0;
+        left: 8px;
+        -moz-animation-delay: 0.5399999999999999s;
+        -moz-transform: rotate(180deg);
+        -webkit-animation-delay: 0.5399999999999999s;
+        -webkit-transform: rotate(180deg);
+        -ms-animation-delay: 0.5399999999999999s;
+        -ms-transform: rotate(180deg);
+        -o-animation-delay: 0.5399999999999999s;
+        -o-transform: rotate(180deg);
+        animation-delay: 0.5399999999999999s;
+        transform: rotate(180deg);
     }
 
     .rotate8 {
-    left:3px;
-    bottom:2px;
-    -moz-animation-delay:0.6s;
-    -moz-transform:rotate(-135deg);
-    -webkit-animation-delay:0.6s;
-    -webkit-transform:rotate(-135deg);
-    -ms-animation-delay:0.6s;
-    -ms-transform:rotate(-135deg);
-    -o-animation-delay:0.6s;
-    -o-transform:rotate(-135deg);
-    animation-delay:0.6s;
-    transform:rotate(-135deg);
+        left: 3px;
+        bottom: 2px;
+        -moz-animation-delay: 0.6s;
+        -moz-transform: rotate(-135deg);
+        -webkit-animation-delay: 0.6s;
+        -webkit-transform: rotate(-135deg);
+        -ms-animation-delay: 0.6s;
+        -ms-transform: rotate(-135deg);
+        -o-animation-delay: 0.6s;
+        -o-transform: rotate(-135deg);
+        animation-delay: 0.6s;
+        transform: rotate(-135deg);
     }
 
     @-moz-keyframes fadeG {
-    0% {
-    background-color:#000000}
+        0% {
+            background-color: #000000
+        }
 
-    100% {
-    background-color:#eee}
-
+        100% {
+            background-color: #eee
+        }
     }
 
     @-webkit-keyframes fadeG {
-    0% {
-    background-color:#000000}
+        0% {
+            background-color: #000000
+        }
 
-    100% {
-    background-color:#eee}
-
+        100% {
+            background-color: #eee
+        }
     }
 
     @-ms-keyframes fadeG {
-    0% {
-    background-color:#000000}
+        0% {
+            background-color: #000000
+        }
 
-    100% {
-    background-color:#eee}
-
+        100% {
+            background-color: #eee
+        }
     }
 
     @-o-keyframes fadeG {
-    0% {
-    background-color:#000000}
+        0% {
+            background-color: #000000
+        }
 
-    100% {
-    background-color:#eee}
-
+        100% {
+            background-color: #eee
+        }
     }
 
     @keyframes fadeG {
-    0% {
-    background-color:#000000}
+        0% {
+            background-color: #000000
+        }
 
-    100% {
-    background-color:#eee}
-
+        100% {
+            background-color: #eee
+        }
     }
