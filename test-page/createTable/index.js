@@ -32,6 +32,25 @@ d3.csv(
         return d;
     },
     function(data) {
+        table.config.types = Object.keys(data[0])
+            .map(col => {
+                let type = 'string';
+
+                const vector = data
+                    .map(d => d[col]).filter(d => d !== '');
+
+                if (vector.length > 0 && vector.every(d => !isNaN(parseFloat(d))))
+                    type = 'number';
+
+                return [col, type];
+            })
+            .reduce(
+                (acc,cur) => {
+                    acc[cur[0]] = cur[1];
+                    return acc;
+                },
+                {}
+            );
         table.init(data);
 
         //Update settings.

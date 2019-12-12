@@ -3402,7 +3402,7 @@
                 );
             })
         ) {
-            this.data.filtered = this.data.raw;
+            this.data.filtered = this.data.raw.slice();
             this.filters
                 .filter(function(filter) {
                     return (
@@ -3418,7 +3418,7 @@
                             : filter.val === d[filter.col];
                     });
                 });
-        } else this.data.filtered = this.data.raw;
+        } else this.data.filtered = this.data.raw.slice();
     }
 
     function updateDataObject() {
@@ -3922,7 +3922,8 @@
                         key: col
                     })
                     .classed('wc-button sort-box', true)
-                    .text(header)
+                    .text(header),
+                type: this.config.types[col]
             };
             sortItem.wrap
                 .append('span')
@@ -3968,6 +3969,25 @@
         this.draw();
     }
 
+    function _typeof(obj) {
+        if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
+            _typeof = function(obj) {
+                return typeof obj;
+            };
+        } else {
+            _typeof = function(obj) {
+                return obj &&
+                    typeof Symbol === 'function' &&
+                    obj.constructor === Symbol &&
+                    obj !== Symbol.prototype
+                    ? 'symbol'
+                    : typeof obj;
+            };
+        }
+
+        return _typeof(obj);
+    }
+
     function sortData(data) {
         var _this = this;
 
@@ -3975,20 +3995,24 @@
             var order = 0;
 
             _this.sortable.order.forEach(function(item) {
-                var aCell = a[item.col],
-                    bCell = b[item.col];
+                var aCell = a[item.col];
+                var bCell = b[item.col];
 
-                if (order === 0) {
-                    if (
-                        (item.direction === 'ascending' && aCell < bCell) ||
-                        (item.direction === 'descending' && aCell > bCell)
-                    )
-                        order = -1;
-                    else if (
-                        (item.direction === 'ascending' && aCell > bCell) ||
-                        (item.direction === 'descending' && aCell < bCell)
-                    )
-                        order = 1;
+                if (item.type === 'number') {
+                    order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
+                } else {
+                    if (order === 0) {
+                        if (
+                            (item.direction === 'ascending' && aCell < bCell) ||
+                            (item.direction === 'descending' && aCell > bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && aCell > bCell) ||
+                            (item.direction === 'descending' && aCell < bCell)
+                        )
+                            order = 1;
+                    }
                 }
             });
 
@@ -4347,30 +4371,39 @@
     }
 
     function setDefaults$1(firstItem) {
-        //Set data-driven defaults.
-        if (this.config.cols instanceof Array && this.config.headers instanceof Array) {
-            if (this.config.cols.length === 0) delete this.config.cols;
-            if (
-                this.config.headers.length === 0 ||
-                this.config.headers.length !== this.config.cols.length
-            )
-                delete this.config.headers;
-        }
+        var _this = this;
 
-        this.config.cols = this.config.cols || d3.keys(firstItem);
-        this.config.headers = this.config.headers || this.config.cols;
-        this.config.layout = 'horizontal'; // placeholder setting to align table components vertically or horizontally
-        //Set all other defaults.
+        // cols
+        if (
+            !Array.isArray(this.config.cols) ||
+            (Array.isArray(this.config.cols) && this.config.cols.length === 0)
+        )
+            this.config.cols = d3.keys(firstItem); // headers
+
+        if (
+            !Array.isArray(this.config.headers) ||
+            (Array.isArray(this.config.headers) && this.config.headers.length === 0) ||
+            (Array.isArray(this.config.headers) &&
+                this.config.headers.length !== this.config.cols.length)
+        )
+            this.config.headers = this.config.cols.slice(); // types
+
+        if (_typeof(this.config.types) !== 'object') this.config.types = {};
+        this.config.cols.forEach(function(col) {
+            if (!['string', 'number'].includes(_this.config.types[col]))
+                _this.config.types[col] = 'string';
+        }); // Set all other defaults.
 
         setDefault.call(this, 'searchable');
-        setDefault.call(this, 'exportable');
-        setDefault.call(this, 'exports', ['csv']);
         setDefault.call(this, 'sortable');
         setDefault.call(this, 'pagination');
+        setDefault.call(this, 'exportable');
+        setDefault.call(this, 'exports', ['csv']);
         setDefault.call(this, 'nRowsPerPage', 10);
         setDefault.call(this, 'nPageLinksDisplayed', 5);
         setDefault.call(this, 'applyCSS');
         setDefault.call(this, 'dynamicPositioning');
+        setDefault.call(this, 'layout', 'horizontal');
     }
 
     function transformData$1(processed_data) {
