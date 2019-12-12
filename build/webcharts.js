@@ -4508,6 +4508,7 @@
         }
     });
 
+    var tableCount = 0;
     function createTable() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -4540,8 +4541,10 @@
             if (callback) {
                 thisTable.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
             }
-        };
+        }; //increment thisChart count to get unique thisChart id
 
+        tableCount++;
+        thisTable.id = tableCount;
         return thisTable;
     }
 
