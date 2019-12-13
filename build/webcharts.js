@@ -1892,10 +1892,10 @@
                 return d.values instanceof Array
                     ? d.values.sort(function(a, b) {
                           return (
-                              _this.colorScale.domain().indexOf(b.key) -
-                              _this.colorScale.domain().indexOf(a.key)
+                              _this.colorScale.domain().indexOf(a.key) -
+                              _this.colorScale.domain().indexOf(b.key)
                           );
-                      })
+                      }) // controls the order of the bars in the DOM
                     : [d];
             },
             function(d) {
@@ -1915,7 +1915,13 @@
             .style('clip-path', 'url(#'.concat(chart.id, ')'))
             .attr('y', this.y(0))
             .attr('height', 0)
-            .append('title');
+            .append('title'); // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+
+        bars.sort(function(a, b) {
+            return (
+                _this.colorScale.domain().indexOf(a.key) - _this.colorScale.domain().indexOf(b.key)
+            );
+        });
         bars.attr('shape-rendering', 'crispEdges')
             .attr('stroke', function(d) {
                 return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -1938,7 +1944,8 @@
                           })
                       )
                       .values()
-                      .sort();
+                      .sort(); // controls the order of the bars in the chart
+
             d3.select(this).attr(mark.attributes);
         });
         var xformat =
@@ -2031,10 +2038,10 @@
                 return d.values instanceof Array
                     ? d.values.sort(function(a, b) {
                           return (
-                              _this.colorScale.domain().indexOf(b.key) -
-                              _this.colorScale.domain().indexOf(a.key)
+                              _this.colorScale.domain().indexOf(a.key) -
+                              _this.colorScale.domain().indexOf(b.key)
                           );
-                      })
+                      }) // controls the order of the bars in the DOM
                     : [d];
             },
             function(d) {
@@ -2054,7 +2061,13 @@
             .style('clip-path', 'url(#'.concat(chart.id, ')'))
             .attr('x', this.x(0))
             .attr('width', 0)
-            .append('title');
+            .append('title'); // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+
+        bars.sort(function(a, b) {
+            return (
+                _this.colorScale.domain().indexOf(a.key) - _this.colorScale.domain().indexOf(b.key)
+            );
+        });
         bars.attr('shape-rendering', 'crispEdges')
             .attr('stroke', function(d) {
                 return _this.colorScale(d.values.raw[0][config.color_by]);
@@ -2064,6 +2077,7 @@
             });
         bars.each(function(d) {
             var mark = d3.select(this.parentNode.parentNode).datum();
+            d.tooltip = mark.tooltip;
             d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
             d.subcats = config.legend.order
                 ? config.legend.order.slice()
@@ -2076,8 +2090,8 @@
                           })
                       )
                       .values()
-                      .sort();
-            d.tooltip = mark.tooltip;
+                      .sort(); // controls the order of the bars in the chart
+
             d3.select(this).attr(mark.attributes);
         });
         var xformat =

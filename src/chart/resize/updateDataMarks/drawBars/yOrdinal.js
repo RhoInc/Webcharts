@@ -1,5 +1,6 @@
 import { select, set, format } from 'd3';
 
+// TODO: merge yOrdinal and xOrdinal into a single function
 export default function yOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
     const chart = this;
     const rawData = this.raw_data;
@@ -20,9 +21,9 @@ export default function yOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups,
             return d.values instanceof Array
                 ? d.values.sort(
                       (a, b) =>
-                          this.colorScale.domain().indexOf(b.key) -
-                          this.colorScale.domain().indexOf(a.key)
-                  )
+                          this.colorScale.domain().indexOf(a.key) -
+                          this.colorScale.domain().indexOf(b.key)
+                  ) // controls the order of the bars in the DOM
                 : [d];
         },
         d => d.key
@@ -41,12 +42,18 @@ export default function yOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups,
         .attr('width', 0)
         .append('title');
 
+    // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+    bars.sort(
+        (a, b) => this.colorScale.domain().indexOf(a.key) - this.colorScale.domain().indexOf(b.key)
+    );
+
     bars.attr('shape-rendering', 'crispEdges')
         .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]))
         .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]));
 
     bars.each(function(d) {
         let mark = select(this.parentNode.parentNode).datum();
+        d.tooltip = mark.tooltip;
         d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
         d.subcats = config.legend.order
             ? config.legend.order.slice()
@@ -54,8 +61,7 @@ export default function yOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups,
             ? mark.values[mark.split]
             : set(rawData.map(m => m[mark.split]))
                   .values()
-                  .sort();
-        d.tooltip = mark.tooltip;
+                  .sort(); // controls the order of the bars in the chart
         select(this).attr(mark.attributes);
     });
 

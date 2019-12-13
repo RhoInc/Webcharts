@@ -1,35 +1,4 @@
-const settings = {
-    ordinal: {
-        type: 'ordinal',
-        column: 'AEREL',
-        label: 'Relationship',
-    },
-    linear: {
-        type: 'linear',
-        column: null,
-        label: '# of Adverse Events',
-    },
-    marks: [
-        {
-            type: 'bar',
-            per: ['AEREL'],
-            summarizeX: 'count',
-            summarizeY: 'count',
-            tooltip: null,
-            split: 'AESEV',
-            arrange: 'grouped',
-        },
-    ],
-    color_by: 'AESEV',
-    legend: {
-        label: 'Severity',
-        order: null,
-    },
-    resizable: false,
-    aspect: 2,
-};
-
-hSettings = JSON.parse(JSON.stringify(settings));
+hSettings = JSON.parse(JSON.stringify(settings('stacked')));
 hSettings.x = hSettings.ordinal;
 hSettings.y = hSettings.linear;
 hSettings.marks[0].tooltip = '$x: $y';
@@ -39,7 +8,7 @@ const hChart = new webCharts.createChart(
     hSettings,
 );
 
-vSettings = JSON.parse(JSON.stringify(settings));
+vSettings = JSON.parse(JSON.stringify(settings('stacked')));
 vSettings.x = vSettings.linear;
 vSettings.y = vSettings.ordinal;
 hSettings.marks[0].tooltip = '$y: $x';
@@ -56,7 +25,9 @@ d3.csv(
         return d;
     },
     function(data) {
+        hChart.on('layout', onLayout);
         hChart.init(data);
+        vChart.on('layout', onLayout);
         vChart.init(data);
     }
 );
