@@ -39,7 +39,7 @@
         this.initial_data = data;
 
         var startup = function startup(data) {
-            //connect this chart and its controls, if any
+            // connect this chart and its controls, if any
             if (_this.controls) {
                 _this.controls.targets.push(_this);
 
@@ -48,7 +48,7 @@
                 } else {
                     _this.controls.layout();
                 }
-            } //make sure container is visible (has height and width) before trying to initialize
+            } // make sure container is visible (has height and width) before trying to initialize
 
             var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
 
@@ -120,7 +120,7 @@
                     requiredCols.push(e.split);
                 }
 
-                if (e.values) {
+                if (e.values && e.checkColumns) {
                     for (var value in e.values) {
                         requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                         requiredCols.push(value);
@@ -600,6 +600,7 @@
             this.config.marks && this.config.marks.length ? this.config.marks : [{}];
         this.config.marks.forEach(function(m, i) {
             m.id = m.id ? m.id : 'mark' + (i + 1);
+            m.checkColumns = m.checkColumns !== false ? true : false;
         });
         this.config.date_format = this.config.date_format || '%x';
         this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;

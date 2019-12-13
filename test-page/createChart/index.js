@@ -38,18 +38,6 @@ const controls = new webCharts.createControls(
                 value_col: 'species',
                 label: 'Species',
             },
-            //{
-            //    type: 'radio',
-            //    option: 'x.domain.0',
-            //    label: 'X-domain Lower Limit',
-            //    values: ['minimum',0],
-            //},
-            //{
-            //    type: 'radio',
-            //    option: 'y.domain.0',
-            //    label: 'Y-domain Lower Limit',
-            //    values: ['minimum',0],
-            //},
             {
                 type: 'number',
                 option: 'x.domain.0',
