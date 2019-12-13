@@ -1,4 +1,4 @@
-import naturalSorter from '../dataOps/naturalSorter';
+import naturalSorter from '../../dataOps/naturalSorter';
 import { set, select } from 'd3';
 
 export default function makeSubsetterControl(control, control_wrap) {
@@ -14,7 +14,7 @@ export default function makeSubsetterControl(control, control_wrap) {
     //dropdown option data
     const option_data = control.values
         ? control.values
-        : set(this.data.map(m => m[control.value_col]).filter(f => f))
+        : set(this.data.map(m => m[control.value_col])) //.filter(f => f))
               .values()
               .sort(naturalSorter); // only sort when values are derived
 

@@ -550,7 +550,7 @@
                         ? d
                         : filter.val instanceof Array
                         ? filter.val.indexOf(d[filter.col]) > -1
-                        : d[filter.col] === filter.val;
+                        : d[filter.col] + '' === filter.val + '';
                 });
             });
         } //Summarize data for each mark.
@@ -1116,7 +1116,7 @@
                         ? d
                         : e.val instanceof Array
                         ? e.val.indexOf(d[e.col]) > -1
-                        : d[e.col] === e.val;
+                        : d[e.col] + '' === e.val.toString() + '';
                 });
             }); //get domain for all non-All values of first filter
 
@@ -1302,10 +1302,8 @@
                               return m[config.color_by];
                           })
                       )
-                      .values()
-                      .filter(function(f) {
-                          return f && f !== 'undefined';
-                      });
+                      .values(); //.filter(f => f && f !== 'undefined');
+
         if (config.legend.order)
             colordom.sort(function(a, b) {
                 return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
@@ -3221,14 +3219,10 @@
             ? control.values
             : d3
                   .set(
-                      this.data
-                          .map(function(m) {
-                              return m[control.value_col];
-                          })
-                          .filter(function(f) {
-                              return f;
-                          })
-                  )
+                      this.data.map(function(m) {
+                          return m[control.value_col];
+                      })
+                  ) //.filter(f => f))
                   .values()
                   .sort(naturalSorter); // only sort when values are derived
         //initial dropdown option
