@@ -2579,7 +2579,7 @@
             .append('circle')
             .attr('class', 'wc-data-mark')
             .attr('r', 0);
-        nupoints.append('title'); //static attributes
+        nupoints.append('title'); // static attributes
 
         points
             .select('circle')
@@ -2593,7 +2593,7 @@
             })
             .attr('stroke', function(d) {
                 return _this.colorScale(d.values.raw[0][config.color_by]);
-            }); //attach mark info
+            }); // attach mark info
 
         points.each(function(d) {
             var mark = d3.select(this.parentNode).datum();
@@ -2601,7 +2601,7 @@
             d3.select(this)
                 .select('circle')
                 .attr(mark.attributes);
-        }); //animated attributes
+        }); // animated attributes
 
         var pointsTrans = config.transitions
             ? points.select('circle').transition()
@@ -2644,13 +2644,29 @@
                 .replace(/\[(.+?)\]/g, function(str, orig) {
                     return d.values.raw[0][orig];
                 });
-        }); //Link to the d3.selection from the data
+        }); // Link to the d3.selection from the data
 
         point_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.point');
             d.circles = d.groups.select('circle');
+        }); // expand the plotting area slightly to prevent mark cutoff
+
+        var radius = d3.max(marks, function(mark) {
+            return mark.radius || _this.config.flex_point_size;
         });
+        this.svg
+            .select('.plotting-area')
+            .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
+            .attr('height', this.plot_height + radius * 2 + 2) // plot height + circle radius * 2 + circle stroke width * 2
+            .attr(
+                'transform',
+                'translate(-' +
+                (radius + 1) + // translate left circle radius + circle stroke width
+                ',-' +
+                (radius + 1) + // translate up circle radius + circle stroke width
+                    ')'
+            );
         return points;
     }
 
@@ -2659,17 +2675,17 @@
 
         var chart = this;
         var config = this.config;
-        var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
+        var text_supergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
             return ''.concat(i, '-').concat(d.per.join('-'));
         });
-        textSupergroups
+        text_supergroups
             .enter()
             .append('g')
             .attr('class', function(d) {
                 return 'supergroup text-supergroup ' + d.id;
             });
-        textSupergroups.exit().remove();
-        var texts = textSupergroups.selectAll('.text').data(
+        text_supergroups.exit().remove();
+        var texts = text_supergroups.selectAll('.text').data(
             function(d) {
                 return d.data;
             },
@@ -2746,9 +2762,9 @@
             .attr('y', function(d) {
                 var yPos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? yPos + _this.y.rangeBand() / 2 : yPos;
-            }); //add a reference to the selection from it's data
+            }); // add a reference to the selection from it's data
 
-        textSupergroups.each(function(d) {
+        text_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.text');
             d.texts = d.groups.select('text');

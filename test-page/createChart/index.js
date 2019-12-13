@@ -3,13 +3,15 @@ const settings = {
         type: 'linear',
         column: 'sepal length',
         label: 'Sepal length',
-        domain: ['minimum',null],
+        domain: null,
+        format: '.1f',
     },
     y: {
         type: 'linear',
         column: 'sepal width',
         label: 'Sepal Width',
-        domain: ['minimum',null],
+        domain: null,
+        format: '.1f',
     },
     marks: [
         {
@@ -36,17 +38,37 @@ const controls = new webCharts.createControls(
                 value_col: 'species',
                 label: 'Species',
             },
+            //{
+            //    type: 'radio',
+            //    option: 'x.domain.0',
+            //    label: 'X-domain Lower Limit',
+            //    values: ['minimum',0],
+            //},
+            //{
+            //    type: 'radio',
+            //    option: 'y.domain.0',
+            //    label: 'Y-domain Lower Limit',
+            //    values: ['minimum',0],
+            //},
             {
-                type: 'radio',
+                type: 'number',
                 option: 'x.domain.0',
                 label: 'X-domain Lower Limit',
-                values: ['minimum',0],
             },
             {
-                type: 'radio',
+                type: 'number',
+                option: 'x.domain.1',
+                label: 'X-domain Upper Limit',
+            },
+            {
+                type: 'number',
                 option: 'y.domain.0',
                 label: 'Y-domain Lower Limit',
-                values: ['minimum',0],
+            },
+            {
+                type: 'number',
+                option: 'y.domain.1',
+                label: 'Y-domain Upper Limit',
             },
         ],
     },
@@ -65,6 +87,14 @@ d3.csv(
         return d;
     },
     function(data) {
+        chart.config.x.domain = d3.extent(data, d => +d[chart.config.x.column]);
+        chart.config.y.domain = d3.extent(data, d => +d[chart.config.y.column]);
+        chart.on('layout', function() {
+            this.controls.wrap
+                .selectAll('.control-group input')
+                .filter(d => d.type === 'number')
+                .attr('step', .1);
+        });
         chart.init(data);
     }
 );
