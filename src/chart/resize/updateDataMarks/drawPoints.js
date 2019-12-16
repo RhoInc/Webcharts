@@ -49,6 +49,7 @@ export default function drawPoints(marks) {
         )
         .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]))
         .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]));
+
     // attach mark info
     points.each(function(d) {
         let mark = select(this.parentNode).datum();
@@ -57,6 +58,7 @@ export default function drawPoints(marks) {
             .select('circle')
             .attr(mark.attributes);
     });
+
     // animated attributes
     let pointsTrans = config.transitions
         ? points.select('circle').transition()
@@ -106,8 +108,8 @@ export default function drawPoints(marks) {
     });
 
     // expand the plotting area slightly to prevent mark cutoff
-    const radius = max(marks, mark => mark.radius || this.config.flex_point_size);
-    if (marks.length)
+    if (marks.length) {
+        const radius = max(marks, mark => mark.radius || this.config.flex_point_size);
         this.svg
             .select('.plotting-area')
             .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
@@ -120,6 +122,7 @@ export default function drawPoints(marks) {
                 (radius + 1) + // translate up circle radius + circle stroke width
                     ')'
             );
+    }
 
     return points;
 }
