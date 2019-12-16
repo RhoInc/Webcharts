@@ -1641,13 +1641,10 @@
         var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
         var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
         var config = this.config;
-        config.legend.mark = config.legend.mark
-            ? config.legend.mark
-            : config.marks.length && config.marks[0].type === 'bar'
-            ? 'square'
-            : config.marks.length
-            ? config.marks[0].type
-            : 'square';
+        config.legend.mark = (config.legend.mark || config.marks[0].type).replace(
+            /bar|text/,
+            'square'
+        );
         var legend_label = label
             ? label
             : typeof config.legend.label === 'string'
@@ -2654,18 +2651,19 @@
         var radius = d3.max(marks, function(mark) {
             return mark.radius || _this.config.flex_point_size;
         });
-        this.svg
-            .select('.plotting-area')
-            .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
-            .attr('height', this.plot_height + radius * 2 + 2) // plot height + circle radius * 2 + circle stroke width * 2
-            .attr(
-                'transform',
-                'translate(-' +
-                (radius + 1) + // translate left circle radius + circle stroke width
-                ',-' +
-                (radius + 1) + // translate up circle radius + circle stroke width
-                    ')'
-            );
+        if (marks.length)
+            this.svg
+                .select('.plotting-area')
+                .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
+                .attr('height', this.plot_height + radius * 2 + 2) // plot height + circle radius * 2 + circle stroke width * 2
+                .attr(
+                    'transform',
+                    'translate(-' +
+                    (radius + 1) + // translate left circle radius + circle stroke width
+                    ',-' +
+                    (radius + 1) + // translate up circle radius + circle stroke width
+                        ')'
+                );
         return points;
     }
 
@@ -2708,9 +2706,6 @@
 
         function attachMarks(d) {
             d.mark = d3.select(this.parentNode).datum();
-            d3.select(this)
-                .select('text')
-                .attr(d.mark.attributes);
         }
 
         texts.each(attachMarks); // parse text like tooltips
@@ -2718,6 +2713,9 @@
         texts
             .select('text')
             .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
             .text(function(d) {
                 var tt = d.mark.text || '';
                 var xformat =
@@ -2748,6 +2746,9 @@
                     .replace(/\[(.+?)\]/g, function(str, orig) {
                         return d.values.raw[0][orig];
                     });
+            })
+            .each(function(d) {
+                d3.select(this).attr(d.mark.attributes);
             }); // animated attributes
 
         var textsTrans = config.transitions
@@ -2761,7 +2762,7 @@
             .attr('y', function(d) {
                 var yPos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? yPos + _this.y.rangeBand() / 2 : yPos;
-            }); // add a reference to the selection from it's data
+            }); // add a reference to the selection from its data
 
         text_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
@@ -4042,10 +4043,10 @@
                 var aCell = a[item.col];
                 var bCell = b[item.col];
 
-                if (item.type === 'number') {
-                    order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
-                } else {
-                    if (order === 0) {
+                if (order === 0) {
+                    if (item.type === 'number') {
+                        order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
+                    } else {
                         if (
                             (item.direction === 'ascending' && aCell < bCell) ||
                             (item.direction === 'descending' && aCell > bCell)

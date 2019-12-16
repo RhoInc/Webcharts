@@ -37,9 +37,6 @@ export default function drawText(marks) {
     // attach mark info
     function attachMarks(d) {
         d.mark = select(this.parentNode).datum();
-        select(this)
-            .select('text')
-            .attr(d.mark.attributes);
     }
     texts.each(attachMarks);
 
@@ -47,6 +44,7 @@ export default function drawText(marks) {
     texts
         .select('text')
         .style('clip-path', `url(#${chart.id})`)
+        .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]))
         .text(d => {
             const tt = d.mark.text || '';
             const xformat =
@@ -71,7 +69,11 @@ export default function drawText(marks) {
                     config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
                 )
                 .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
+        })
+        .each(function(d) {
+            select(this).attr(d.mark.attributes);
         });
+
     // animated attributes
     const textsTrans = config.transitions
         ? texts.select('text').transition()
@@ -86,7 +88,7 @@ export default function drawText(marks) {
             return config.y.type === 'ordinal' ? yPos + this.y.rangeBand() / 2 : yPos;
         });
 
-    // add a reference to the selection from it's data
+    // add a reference to the selection from its data
     text_supergroups.each(function(d) {
         d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.text');

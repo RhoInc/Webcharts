@@ -8,10 +8,10 @@ export default function sortData(data) {
             const aCell = a[item.col];
             const bCell = b[item.col];
 
-            if (item.type === 'number') {
-                order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
-            } else {
-                if (order === 0) {
+            if (order === 0) {
+                if (item.type === 'number') {
+                    order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
+                } else {
                     if (
                         (item.direction === 'ascending' && aCell < bCell) ||
                         (item.direction === 'descending' && aCell > bCell)
