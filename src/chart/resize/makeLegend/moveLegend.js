@@ -1,4 +1,5 @@
-export default function moveLegend() {
+// TODO: consider moving legend around DOM on layout rather than on resize
+export default function moveLegend(scale) {
     const legend = this.wrap.select('.legend');
 
     if (!this.parent) {
@@ -18,6 +19,10 @@ export default function moveLegend() {
             this.parent.wrap.node().appendChild(legend.node());
         }
     }
+
+    legend
+        .classed(`legend--${this.config.legend.location}`, true)
+        .classed('legend--empty', scale.domain().length === 0); // display: none when color_by is not set?
 
     return this.legend || legend;
 }

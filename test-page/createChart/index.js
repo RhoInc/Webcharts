@@ -23,7 +23,6 @@ const settings = {
     color_by: 'species',
     legend: {
         label: 'Species',
-        mark: 'circle',
         location: 'bottom',
     },
     aspect: 3,

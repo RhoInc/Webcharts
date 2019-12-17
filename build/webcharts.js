@@ -178,10 +178,13 @@
 
     function addLegend() {
       //The legend is contained in the parent object of multiples so each multiple does not need its own legend.
-      if (!this.parent) this.wrap.append('ul').datum(function () {
-        return null;
-      }) // prevent data inheritance
-      .attr('class', 'legend').style('vertical-align', 'top').append('span').attr('class', 'legend-title');
+      if (!this.parent) {
+        var legend = this.wrap.append('ul').datum(function () {
+          return null;
+        }) // prevent data inheritance
+        .classed('legend', true);
+        var legend_title = legend.append('span').classed('legend-title', true);
+      }
     }
 
     function clearLoader() {
@@ -402,25 +405,32 @@
     }
 
     function setDefaults() {
+      // x
       this.config.x = this.config.x || {};
-      this.config.y = this.config.y || {};
       this.config.x.label = this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
-      this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
       this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
-      this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
       this.config.x.type = this.config.x.type || 'linear';
+      this.config.x.range_band = this.config.x.range_band || this.config.range_band; // y
+
+      this.config.y = this.config.y || {};
+      this.config.y.label = this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
+      this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
       this.config.y.type = this.config.y.type || 'linear';
-      this.config.x.range_band = this.config.x.range_band || this.config.range_band;
-      this.config.y.range_band = this.config.y.range_band || this.config.range_band;
-      this.config.margin = this.config.margin || {};
-      this.config.legend = this.config.legend || {};
-      this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
-      this.config.legend.location = this.config.legend.location !== undefined ? this.config.legend.location : 'bottom';
+      this.config.y.range_band = this.config.y.range_band || this.config.range_band; // marks
+
       this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
       this.config.marks.forEach(function (m, i) {
         m.id = m.id ? m.id : 'mark' + (i + 1);
         m.checkColumns = m.checkColumns !== false ? true : false;
-      });
+      }); //legend
+
+      this.config.legend = this.config.legend || {};
+      this.config.legend.label = this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
+      this.config.legend.location = this.config.legend.location !== undefined ? this.config.legend.location : 'bottom';
+      this.config.legend.mark = this.config.legend.mark !== undefined && typeof this.config.legend.mark === 'string' && ['bar', 'square', 'circle', 'line'].includes(this.config.legend.mark.toLowerCase()) ? this.config.legend.mark.toLowerCase().replace('bar', 'square') : this.config.marks[0].type !== undefined && typeof this.config.marks[0].type === 'string' && ['bar', 'circle', 'line'].includes(this.config.marks[0].type.toLowerCase()) ? this.config.marks[0].type.toLowerCase().replace('bar', 'square') : 'square'; // dimensions
+
+      this.config.margin = this.config.margin || {}; // miscellaneous
+
       this.config.date_format = this.config.date_format || '%x';
       this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
       this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
@@ -860,8 +870,9 @@
       var data = config.legend.behavior === 'flex' ? this.filtered_data : this.raw_data;
       var colordom = Array.isArray(config.color_dom) && config.color_dom.length ? config.color_dom.slice() : d3.set(data.map(function (m) {
         return m[config.color_by];
-      })).values(); //.filter(f => f && f !== 'undefined');
-
+      })).values().filter(function (f) {
+        return f !== 'undefined';
+      });
       if (config.legend.order) colordom.sort(function (a, b) {
         return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
       });else colordom.sort(naturalSorter);
@@ -1085,7 +1096,8 @@
       }
     }
 
-    function moveLegend() {
+    // TODO: consider moving legend around DOM on layout rather than on resize
+    function moveLegend(scale) {
       var legend = this.wrap.select('.legend');
 
       if (!this.parent) {
@@ -1103,6 +1115,8 @@
           this.parent.wrap.node().appendChild(legend.node());
         }
       }
+
+      legend.classed("legend--".concat(this.config.legend.location), true).classed('legend--empty', scale.domain().length === 0); // display: none when color_by is not set?
 
       return this.legend || legend;
     }
@@ -1122,85 +1136,21 @@
     }
 
     function addLegendTitle(legend_label) {
-      var legend_title = this.legend.select('.legend-title').text(legend_label).style('display', legend_label ? 'inline' : 'none').style('margin-right', '1em');
+      var legend_title = this.legend.select('.legend-title').text(legend_label);
       return legend_title;
     }
 
-    function addLegendItems(leg_parts, scale) {
-      var new_parts = leg_parts.enter().append('li').attr('class', 'legend-item').style({
-        'list-style-type': 'none',
-        'margin-right': '1em'
-      });
-      new_parts.append('span').attr('class', 'legend-mark-text').style('color', function (d) {
-        return scale(d.label);
-      });
-      new_parts.append('svg').attr('class', 'legend-color-block').attr('width', '1.1em').attr('height', '1.1em').style({
-        position: 'relative',
-        top: '0.2em'
-      });
-      return new_parts;
-    }
-
-    function addLegendMarks(leg_parts, scale) {
-      leg_parts.selectAll('.legend-color-block').select('.legend-mark').remove();
-      leg_parts.selectAll('.legend-color-block').each(function (e) {
-        var svg = d3.select(this);
-
-        if (e.mark === 'circle') {
-          svg.append('circle').attr({
-            cx: '.5em',
-            cy: '.5em',
-            r: '.45em',
-            "class": 'legend-mark'
-          });
-        } else if (e.mark === 'line') {
-          svg.append('line').attr({
-            x1: 0,
-            y1: '.5em',
-            x2: '1em',
-            y2: '.5em',
-            'stroke-width': 2,
-            'shape-rendering': 'crispEdges',
-            "class": 'legend-mark'
-          });
-        } else if (e.mark === 'square') {
-          svg.append('rect').attr({
-            height: '1em',
-            width: '1em',
-            "class": 'legend-mark',
-            'shape-rendering': 'crispEdges'
-          });
-        }
-      });
-      leg_parts.selectAll('.legend-color-block').select('.legend-mark').attr('fill', function (d) {
-        return d.color || scale(d.label);
-      }).attr('stroke', function (d) {
-        return d.color || scale(d.label);
-      }).each(function (e) {
-        d3.select(this).attr(e.attributes);
-      });
-    }
-
-    function makeLegend() {
+    function addLegendItems(legend_data, scale) {
       var _this = this;
 
-      var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.colorScale;
-      var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-      var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      // should the legend be moved on layout?
-      this.legend = moveLegend.call(this); // determine appropriate legend mark type
-
-      this.config.legend.mark = (this.config.legend.mark || this.config.marks[0].type).replace(/bar|text/, 'square');
-      var legend_label = label || this.config.legend.label || '';
-      var legend_data = defineLegendData.call(this, custom_data, scale);
-      var legend_title = addLegendTitle.call(this, legend_label);
-      var legend_items = this.legend.selectAll('.legend-item').data(legend_data, function (d) {
+      // join data to legend-item selection
+      var all_legend_items = this.legend.selectAll('.legend-item').data(legend_data, function (d) {
         return d.label + d.mark;
-      });
-      legend_items.exit().remove();
-      var legendPartDisplay = this.config.legend.location === 'bottom' || this.config.legend.location === 'top' ? 'inline-block' : 'block';
-      var new_parts = addLegendItems.call(this, legend_items, scale);
-      legend_items.style('display', legendPartDisplay);
+      }); // exit and remove
+
+      all_legend_items.exit().remove(); // enter and append
+
+      var legend_items = all_legend_items.enter().append('li').classed('legend-item', true).classed("legend-item--".concat(this.config.legend.location), true); // update order of legend items in DOM
 
       if (this.config.legend.order) {
         legend_items.sort(function (a, b) {
@@ -1208,17 +1158,87 @@
         });
       }
 
-      var legend_marks = addLegendMarks.call(this, legend_items, scale);
-      new_parts.append('span').attr('class', 'legend-label').style('margin-left', '0.25em').text(function (d) {
+      return legend_items;
+    }
+
+    function addLegendMarkTexts(legend_items, scale) {
+      var legend_mark_texts = legend_items.append('span').classed('legend-mark-text', true).style('color', function (d) {
+        return scale(d.label);
+      });
+      return legend_mark_texts;
+    }
+
+    function addLegendColorBlocks(legend_items) {
+      var legend_color_blocks = legend_items.append('svg').classed('legend-color-block', true).attr({
+        width: '1.1em',
+        height: '1.1em'
+      });
+      return legend_color_blocks;
+    }
+
+    function addLegendMarks(legend_color_blocks, scale) {
+      legend_color_blocks.each(function (e) {
+        var svg = d3.select(this);
+        svg.select('.legend-mark').remove();
+
+        if (e.mark === 'circle') {
+          svg.append('circle').classed('legend-mark', true).attr({
+            cx: '.5em',
+            cy: '.5em',
+            r: '.45em'
+          });
+        } else if (e.mark === 'line') {
+          svg.append('line').classed('legend-mark', true).attr({
+            x1: 0,
+            y1: '.5em',
+            x2: '1em',
+            y2: '.5em',
+            'stroke-width': 2,
+            'shape-rendering': 'crispEdges'
+          });
+        } else if (e.mark === 'square') {
+          svg.append('rect').classed('legend-mark', true).attr({
+            height: '1em',
+            width: '1em',
+            'shape-rendering': 'crispEdges'
+          });
+        }
+      });
+      var legend_marks = legend_color_blocks.select('.legend-mark').attr({
+        fill: function fill(d) {
+          return d.color || scale(d.label);
+        },
+        stroke: function stroke(d) {
+          return d.color || scale(d.label);
+        }
+      }).each(function (e) {
+        // apply custom mark attributes
+        d3.select(this).attr(e.attributes);
+      });
+    }
+
+    function addLegendLabels(legend_items) {
+      var legend_labels = legend_items.append('span').classed('legend-label', true).text(function (d) {
         return d.label;
       });
+      return legend_labels;
+    }
 
-      if (scale.domain().length > 0) {
-        var legendDisplay = (this.config.legend.location === 'bottom' || this.config.legend.location === 'top') && !this.parent ? 'block' : 'inline-block';
-        this.legend.style('display', legendDisplay);
-      } else {
-        this.legend.style('display', 'none');
-      }
+    function makeLegend() {
+      var scale = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.colorScale;
+      var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+      var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      this.legend = moveLegend.call(this, scale); // determine appropriate legend settings and data
+
+      var legend_label = label || this.config.legend.label || '';
+      var legend_data = defineLegendData.call(this, custom_data, scale); // add legend title and items
+
+      var legend_title = addLegendTitle.call(this, legend_label);
+      var legend_items = addLegendItems.call(this, legend_data, scale);
+      var legend_mark_texts = addLegendMarkTexts.call(this, legend_items, scale);
+      var legend_color_blocks = addLegendColorBlocks.call(this, legend_items);
+      var legend_marks = addLegendMarks.call(this, legend_color_blocks, scale);
+      var legend_labels = addLegendLabels.call(this, legend_items);
     }
 
     function updateDataMarks() {
