@@ -17,7 +17,8 @@ export default function onClick(th, header) {
                 .append('div')
                 .datum({ key: col })
                 .classed('wc-button sort-box', true)
-                .text(header)
+                .text(header),
+            type: this.config.types[col]
         };
         sortItem.wrap
             .append('span')
