@@ -28,7 +28,7 @@ export default function checkRequired(data) {
                 requiredVars.push('this.config.marks[' + i + '].split');
                 requiredCols.push(e.split);
             }
-            if (e.values) {
+            if (e.values && e.checkColumns) {
                 for (const value in e.values) {
                     requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                     requiredCols.push(value);

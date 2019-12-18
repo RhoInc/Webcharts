@@ -4,18 +4,18 @@ export default function drawText(marks) {
     const chart = this;
     const config = this.config;
 
-    const textSupergroups = this.svg
+    const text_supergroups = this.svg
         .selectAll('.text-supergroup')
         .data(marks, (d, i) => `${i}-${d.per.join('-')}`);
 
-    textSupergroups
+    text_supergroups
         .enter()
         .append('g')
         .attr('class', d => 'supergroup text-supergroup ' + d.id);
 
-    textSupergroups.exit().remove();
+    text_supergroups.exit().remove();
 
-    const texts = textSupergroups.selectAll('.text').data(
+    const texts = text_supergroups.selectAll('.text').data(
         d => d.data,
         d => d.key
     );
@@ -37,9 +37,6 @@ export default function drawText(marks) {
     // attach mark info
     function attachMarks(d) {
         d.mark = select(this.parentNode).datum();
-        select(this)
-            .select('text')
-            .attr(d.mark.attributes);
     }
     texts.each(attachMarks);
 
@@ -47,6 +44,7 @@ export default function drawText(marks) {
     texts
         .select('text')
         .style('clip-path', `url(#${chart.id})`)
+        .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]))
         .text(d => {
             const tt = d.mark.text || '';
             const xformat =
@@ -71,7 +69,11 @@ export default function drawText(marks) {
                     config.y.type === 'time' ? yformat(new Date(d.values.y)) : yformat(d.values.y)
                 )
                 .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
+        })
+        .each(function(d) {
+            select(this).attr(d.mark.attributes);
         });
+
     // animated attributes
     const textsTrans = config.transitions
         ? texts.select('text').transition()
@@ -85,11 +87,13 @@ export default function drawText(marks) {
             const yPos = this.y(d.values.y) || 0;
             return config.y.type === 'ordinal' ? yPos + this.y.rangeBand() / 2 : yPos;
         });
-    //add a reference to the selection from it's data
-    textSupergroups.each(function(d) {
+
+    // add a reference to the selection from its data
+    text_supergroups.each(function(d) {
         d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.text');
         d.texts = d.groups.select('text');
     });
+
     return texts;
 }

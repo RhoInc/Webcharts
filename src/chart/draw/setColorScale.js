@@ -9,7 +9,7 @@ export default function setColorScale() {
             ? config.color_dom.slice()
             : set(data.map(m => m[config.color_by]))
                   .values()
-                  .filter(f => f && f !== 'undefined');
+                  .filter(f => f !== 'undefined');
 
     if (config.legend.order)
         colordom.sort((a, b) =>
