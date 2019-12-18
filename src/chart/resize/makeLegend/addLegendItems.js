@@ -13,13 +13,15 @@ export default function addLegendItems(legend_data, scale) {
     const legend_items = all_legend_items
         .enter()
         .append('li')
-        .classed('legend-item', true)
-        .classed(`legend-item--${this.config.legend.location}`, true);
+        .classed('legend-item', true);
 
     // update order of legend items in DOM
     if (this.config.legend.order) {
         legend_items.sort((a, b) =>
-            ascending(this.config.legend.order.indexOf(a.label), this.config.legend.order.indexOf(b.label))
+            ascending(
+                this.config.legend.order.indexOf(a.label),
+                this.config.legend.order.indexOf(b.label)
+            )
         );
     }
 

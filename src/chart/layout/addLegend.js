@@ -5,8 +5,6 @@ export default function addLegend() {
             .append('ul')
             .datum(() => null) // prevent data inheritance
             .classed('legend', true);
-        const legend_title = legend
-            .append('span')
-            .classed('legend-title', true);
+        const legend_title = legend.append('span').classed('legend-title', true);
     }
 }

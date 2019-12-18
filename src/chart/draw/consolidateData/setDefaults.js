@@ -24,17 +24,20 @@ export default function setDefaults() {
 
     //legend
     this.config.legend = this.config.legend || {};
-    this.config.legend.label = this.config.legend.label !== undefined
-        ? this.config.legend.label
-        : this.config.color_by;
-    this.config.legend.location = this.config.legend.location !== undefined
-        ? this.config.legend.location
-        : 'bottom';
-    this.config.legend.mark = this.config.legend.mark !== undefined && typeof this.config.legend.mark === 'string' && ['bar', 'square', 'circle', 'line'].includes(this.config.legend.mark.toLowerCase())
-        ? this.config.legend.mark.toLowerCase().replace('bar', 'square')
-        : this.config.marks[0].type !== undefined && typeof this.config.marks[0].type === 'string' && ['bar', 'circle', 'line'].includes(this.config.marks[0].type.toLowerCase())
-        ? this.config.marks[0].type.toLowerCase().replace('bar', 'square')
-        : 'square';
+    this.config.legend.label =
+        this.config.legend.label !== undefined ? this.config.legend.label : this.config.color_by;
+    this.config.legend.location =
+        this.config.legend.location !== undefined ? this.config.legend.location : 'bottom';
+    this.config.legend.mark =
+        this.config.legend.mark !== undefined &&
+        typeof this.config.legend.mark === 'string' &&
+        ['bar', 'square', 'circle', 'line'].includes(this.config.legend.mark.toLowerCase())
+            ? this.config.legend.mark.toLowerCase().replace('bar', 'square')
+            : this.config.marks[0].type !== undefined &&
+              typeof this.config.marks[0].type === 'string' &&
+              ['bar', 'circle', 'line'].includes(this.config.marks[0].type.toLowerCase())
+            ? this.config.marks[0].type.toLowerCase().replace('bar', 'square')
+            : 'square';
 
     // dimensions
     this.config.margin = this.config.margin || {};
