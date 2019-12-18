@@ -1,0 +1,10 @@
+#container {
+    display: flex;
+    justify-content: space-between;
+}
+.bar-chart {
+    width: 49%;
+}
+.randomize-bar-order {
+    float: right;
+}

@@ -4,18 +4,18 @@ export default function drawText(marks) {
     const chart = this;
     const config = this.config;
 
-    const textSupergroups = this.svg
+    const text_supergroups = this.svg
         .selectAll('.text-supergroup')
         .data(marks, (d, i) => `${i}-${d.per.join('-')}`);
 
-    textSupergroups
+    text_supergroups
         .enter()
         .append('g')
         .attr('class', d => 'supergroup text-supergroup ' + d.id);
 
-    textSupergroups.exit().remove();
+    text_supergroups.exit().remove();
 
-    const texts = textSupergroups.selectAll('.text').data(
+    const texts = text_supergroups.selectAll('.text').data(
         d => d.data,
         d => d.key
     );
@@ -85,11 +85,13 @@ export default function drawText(marks) {
             const yPos = this.y(d.values.y) || 0;
             return config.y.type === 'ordinal' ? yPos + this.y.rangeBand() / 2 : yPos;
         });
-    //add a reference to the selection from it's data
-    textSupergroups.each(function(d) {
+
+    // add a reference to the selection from it's data
+    text_supergroups.each(function(d) {
         d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.text');
         d.texts = d.groups.select('text');
     });
+
     return texts;
 }
