@@ -3,13 +3,7 @@ import { ascending, select } from 'd3';
 export default function makeLegend(scale = this.colorScale, label = '', custom_data = null) {
     let config = this.config;
 
-    config.legend.mark = config.legend.mark
-        ? config.legend.mark
-        : config.marks.length && config.marks[0].type === 'bar'
-        ? 'square'
-        : config.marks.length
-        ? config.marks[0].type
-        : 'square';
+    config.legend.mark = (config.legend.mark || config.marks[0].type).replace(/bar|text/, 'square');
 
     let legend_label = label
         ? label

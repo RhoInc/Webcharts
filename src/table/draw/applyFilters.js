@@ -9,7 +9,7 @@ export default function applyFilters() {
                 (Array.isArray(filter.val) && filter.val.length < filter.choices.length)
         )
     ) {
-        this.data.filtered = this.data.raw;
+        this.data.filtered = this.data.raw.slice();
         this.filters
             .filter(
                 filter =>
@@ -24,5 +24,5 @@ export default function applyFilters() {
                         : filter.val === d[filter.col]
                 );
             });
-    } else this.data.filtered = this.data.raw;
+    } else this.data.filtered = this.data.raw.slice();
 }

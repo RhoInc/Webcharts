@@ -39,7 +39,7 @@
         this.initial_data = data;
 
         var startup = function startup(data) {
-            //connect this chart and its controls, if any
+            // connect this chart and its controls, if any
             if (_this.controls) {
                 _this.controls.targets.push(_this);
 
@@ -48,7 +48,7 @@
                 } else {
                     _this.controls.layout();
                 }
-            } //make sure container is visible (has height and width) before trying to initialize
+            } // make sure container is visible (has height and width) before trying to initialize
 
             var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
 
@@ -120,7 +120,7 @@
                     requiredCols.push(e.split);
                 }
 
-                if (e.values) {
+                if (e.values && e.checkColumns) {
                     for (var value in e.values) {
                         requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                         requiredCols.push(value);
@@ -550,7 +550,7 @@
                         ? d
                         : filter.val instanceof Array
                         ? filter.val.indexOf(d[filter.col]) > -1
-                        : d[filter.col] === filter.val;
+                        : d[filter.col] + '' === filter.val + '';
                 });
             });
         } //Summarize data for each mark.
@@ -600,6 +600,7 @@
             this.config.marks && this.config.marks.length ? this.config.marks : [{}];
         this.config.marks.forEach(function(m, i) {
             m.id = m.id ? m.id : 'mark' + (i + 1);
+            m.checkColumns = m.checkColumns !== false ? true : false;
         });
         this.config.date_format = this.config.date_format || '%x';
         this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
@@ -776,18 +777,27 @@
                 return d[sublevel];
             });
             this_nest.sortKeys(function(a, b) {
-                return _this.config.x.type === 'time'
-                    ? d3.ascending(new Date(a), new Date(b))
-                    : _this.config.x.order
-                    ? d3.ascending(_this.config.x.order.indexOf(a), _this.config.x.order.indexOf(b))
-                    : sublevel === _this.config.color_by && _this.config.legend.order
-                    ? d3.ascending(
-                          _this.config.legend.order.indexOf(a),
-                          _this.config.legend.order.indexOf(b)
-                      )
-                    : _this.config.x.type === 'ordinal' || _this.config.y.type === 'ordinal'
-                    ? naturalSorter(a, b)
-                    : d3.ascending(+a, +b);
+                var sort;
+
+                if (_this.config.x.type === 'time') {
+                    sort = d3.ascending(new Date(a), new Date(b));
+                } else if (_this.config.x.order) {
+                    sort = d3.ascending(
+                        _this.config.x.order.indexOf(a),
+                        _this.config.x.order.indexOf(b)
+                    );
+                } else if (sublevel === _this.config.color_by && _this.config.legend.order) {
+                    sort = d3.ascending(
+                        _this.config.legend.order.indexOf(a),
+                        _this.config.legend.order.indexOf(b)
+                    );
+                } else if (_this.config.x.type === 'ordinal' || _this.config.y.type === 'ordinal') {
+                    sort = naturalSorter(a, b);
+                } else {
+                    sort = d3.ascending(+a, +b);
+                }
+
+                return sort;
             });
         }
 
@@ -1106,7 +1116,7 @@
                         ? d
                         : e.val instanceof Array
                         ? e.val.indexOf(d[e.col]) > -1
-                        : d[e.col] === e.val;
+                        : d[e.col] + '' === e.val.toString() + '';
                 });
             }); //get domain for all non-All values of first filter
 
@@ -1292,10 +1302,8 @@
                               return m[config.color_by];
                           })
                       )
-                      .values()
-                      .filter(function(f) {
-                          return f && f !== 'undefined';
-                      });
+                      .values(); //.filter(f => f && f !== 'undefined');
+
         if (config.legend.order)
             colordom.sort(function(a, b) {
                 return d3.ascending(config.legend.order.indexOf(a), config.legend.order.indexOf(b));
@@ -1633,13 +1641,10 @@
         var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
         var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
         var config = this.config;
-        config.legend.mark = config.legend.mark
-            ? config.legend.mark
-            : config.marks.length && config.marks[0].type === 'bar'
-            ? 'square'
-            : config.marks.length
-            ? config.marks[0].type
-            : 'square';
+        config.legend.mark = (config.legend.mark || config.marks[0].type).replace(
+            /bar|text/,
+            'square'
+        );
         var legend_label = label
             ? label
             : typeof config.legend.label === 'string'
@@ -1863,12 +1868,525 @@
         return area_grps;
     }
 
-    function drawBars(marks) {
+    function xOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
         var _this = this;
 
         var chart = this;
         var rawData = this.raw_data;
         var config = this.config;
+        oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array
+                    ? d.values.sort(function(a, b) {
+                          return (
+                              _this.colorScale.domain().indexOf(a.key) -
+                              _this.colorScale.domain().indexOf(b.key)
+                          );
+                      }) // controls the order of the bars in the DOM
+                    : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .append('title'); // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+
+        bars.sort(function(a, b) {
+            return (
+                _this.colorScale.domain().indexOf(a.key) - _this.colorScale.domain().indexOf(b.key)
+            );
+        });
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.tooltip = mark.tooltip;
+            d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values()
+                      .sort(); // controls the order of the bars in the chart
+
+            d3.select(this).attr(mark.attributes);
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                var position;
+
+                if (!d.arrange || d.arrange === 'stacked') {
+                    return _this.x(d.values.x);
+                } else if (d.arrange === 'nested') {
+                    var _position = d.subcats.indexOf(d.key);
+
+                    var offset = _position
+                        ? _this.x.rangeBand() / (d.subcats.length * 0.75) / _position
+                        : _this.x.rangeBand();
+                    return _this.x(d.values.x) + (_this.x.rangeBand() - offset) / 2;
+                } else {
+                    position = d.subcats.indexOf(d.key);
+                    return (
+                        _this.x(d.values.x) + (_this.x.rangeBand() / d.subcats.length) * position
+                    );
+                }
+            })
+            .attr('y', function(d) {
+                if (d.arrange !== 'stacked') {
+                    return _this.y(d.values.y);
+                } else {
+                    return _this.y(d.values.start);
+                }
+            })
+            .attr('width', function(d) {
+                if (!d.arrange || d.arrange === 'stacked') {
+                    return _this.x.rangeBand();
+                } else if (d.arrange === 'nested') {
+                    var position = d.subcats.indexOf(d.key);
+                    return position
+                        ? _this.x.rangeBand() / (d.subcats.length * 0.75) / position
+                        : _this.x.rangeBand();
+                } else {
+                    return _this.x.rangeBand() / d.subcats.length;
+                }
+            })
+            .attr('height', function(d) {
+                return _this.y(0) - _this.y(d.values.y);
+            });
+    }
+
+    function yOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
+        var _this = this;
+
+        var chart = this;
+        var rawData = this.raw_data;
+        var config = this.config;
+        oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array
+                    ? d.values.sort(function(a, b) {
+                          return (
+                              _this.colorScale.domain().indexOf(a.key) -
+                              _this.colorScale.domain().indexOf(b.key)
+                          );
+                      }) // controls the order of the bars in the DOM
+                    : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .append('title'); // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+
+        bars.sort(function(a, b) {
+            return (
+                _this.colorScale.domain().indexOf(a.key) - _this.colorScale.domain().indexOf(b.key)
+            );
+        });
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.tooltip = mark.tooltip;
+            d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values()
+                      .sort(); // controls the order of the bars in the chart
+
+            d3.select(this).attr(mark.attributes);
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                if (d.arrange === 'stacked' || !d.arrange) {
+                    return d.values.start !== undefined ? _this.x(d.values.start) : _this.x(0);
+                } else {
+                    return _this.x(0);
+                }
+            })
+            .attr('y', function(d) {
+                if (d.arrange === 'nested') {
+                    var position = d.subcats.indexOf(d.key);
+                    var offset = position
+                        ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
+                        : _this.y.rangeBand();
+                    return _this.y(d.values.y) + (_this.y.rangeBand() - offset) / 2;
+                } else if (d.arrange === 'grouped') {
+                    var _position = d.subcats.indexOf(d.key);
+
+                    return (
+                        _this.y(d.values.y) + (_this.y.rangeBand() / d.subcats.length) * _position
+                    );
+                } else {
+                    return _this.y(d.values.y);
+                }
+            })
+            .attr('width', function(d) {
+                return _this.x(d.values.x) - _this.x(0);
+            })
+            .attr('height', function(d) {
+                if (config.y.type === 'quantile') {
+                    return 20;
+                } else if (d.arrange === 'nested') {
+                    var position = d.subcats.indexOf(d.key);
+                    return position
+                        ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
+                        : _this.y.rangeBand();
+                } else if (d.arrange === 'grouped') {
+                    return _this.y.rangeBand() / d.subcats.length;
+                } else {
+                    return _this.y.rangeBand();
+                }
+            });
+    }
+
+    function xBin(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
+        var _this = this;
+
+        var chart = this;
+        var rawData = this.raw_data;
+        var config = this.config;
+        oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array ? d.values : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .append('title');
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.arrange = mark.split ? mark.arrange : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice().reverse()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values();
+            d3.select(this).attr(mark.attributes);
+            var parent = d3.select(this.parentNode).datum();
+            var rangeSet = parent.key.split(',').map(function(m) {
+                return +m;
+            });
+            d.rangeLow = d3.min(rangeSet);
+            d.rangeHigh = d3.max(rangeSet);
+            d.tooltip = mark.tooltip;
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                return _this.x(d.rangeLow);
+            })
+            .attr('y', function(d) {
+                if (d.arrange !== 'stacked') {
+                    return _this.y(d.values.y);
+                } else {
+                    return _this.y(d.values.start);
+                }
+            })
+            .attr('width', function(d) {
+                return _this.x(d.rangeHigh) - _this.x(d.rangeLow);
+            })
+            .attr('height', function(d) {
+                return _this.y(0) - _this.y(d.values.y);
+            });
+    }
+
+    function yBin(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
+        var _this = this;
+
+        var chart = this;
+        var rawData = this.raw_data;
+        var config = this.config;
+        oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array ? d.values : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .append('title');
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.arrange = mark.split ? mark.arrange : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice().reverse()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values();
+            var parent = d3.select(this.parentNode).datum();
+            var rangeSet = parent.key.split(',').map(function(m) {
+                return +m;
+            });
+            d.rangeLow = d3.min(rangeSet);
+            d.rangeHigh = d3.max(rangeSet);
+            d.tooltip = mark.tooltip;
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                if (d.arrange === 'stacked') {
+                    return _this.x(d.values.start);
+                } else {
+                    return _this.x(0);
+                }
+            })
+            .attr('y', function(d) {
+                return _this.y(d.rangeHigh);
+            })
+            .attr('width', function(d) {
+                return _this.x(d.values.x);
+            })
+            .attr('height', function(d) {
+                return _this.y(d.rangeLow) - _this.y(d.rangeHigh);
+            });
+    }
+
+    function drawBars(marks) {
+        var rawData = this.raw_data;
+        var config = this.config; // bar super-groups
+
         var bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
@@ -1878,7 +2396,8 @@
             .attr('class', function(d) {
                 return 'supergroup bar-supergroup ' + d.id;
             });
-        bar_supergroups.exit().remove();
+        bar_supergroups.exit().remove(); // bar groups
+
         var bar_groups = bar_supergroups.selectAll('.bar-group').data(
             function(d) {
                 return d.data;
@@ -1889,515 +2408,25 @@
         );
         var old_bar_groups = bar_groups.exit();
         var nu_bar_groups;
-        var bars;
+        var bars; // bar transitions
+
         var oldBarsTrans = config.transitions
             ? old_bar_groups.selectAll('.bar').transition()
             : old_bar_groups.selectAll('.bar');
         var oldBarGroupsTrans = config.transitions ? old_bar_groups.transition() : old_bar_groups;
 
         if (config.x.type === 'ordinal') {
-            oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array
-                        ? d.values.sort(function(a, b) {
-                              return (
-                                  _this.colorScale.domain().indexOf(b.key) -
-                                  _this.colorScale.domain().indexOf(a.key)
-                              );
-                          })
-                        : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-            var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
-            exitBars
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .remove();
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.tooltip = mark.tooltip;
-                d.arrange =
-                    mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                d3.select(this).attr(mark.attributes);
-            });
-            var xformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-            var yformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, xformat(d.values.x))
-                    .replace(/\$y/g, yformat(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-            var barsTrans = config.transitions ? bars.transition() : bars;
-            barsTrans
-                .attr('x', function(d) {
-                    var position;
-
-                    if (!d.arrange || d.arrange === 'stacked') {
-                        return _this.x(d.values.x);
-                    } else if (d.arrange === 'nested') {
-                        var _position = d.subcats.indexOf(d.key);
-
-                        var offset = _position
-                            ? _this.x.rangeBand() / (d.subcats.length * 0.75) / _position
-                            : _this.x.rangeBand();
-                        return _this.x(d.values.x) + (_this.x.rangeBand() - offset) / 2;
-                    } else {
-                        position = d.subcats.indexOf(d.key);
-                        return (
-                            _this.x(d.values.x) +
-                            (_this.x.rangeBand() / d.subcats.length) * position
-                        );
-                    }
-                })
-                .attr('y', function(d) {
-                    if (d.arrange !== 'stacked') {
-                        return _this.y(d.values.y);
-                    } else {
-                        return _this.y(d.values.start);
-                    }
-                })
-                .attr('width', function(d) {
-                    if (!d.arrange || d.arrange === 'stacked') {
-                        return _this.x.rangeBand();
-                    } else if (d.arrange === 'nested') {
-                        var position = d.subcats.indexOf(d.key);
-                        return position
-                            ? _this.x.rangeBand() / (d.subcats.length * 0.75) / position
-                            : _this.x.rangeBand();
-                    } else {
-                        return _this.x.rangeBand() / d.subcats.length;
-                    }
-                })
-                .attr('height', function(d) {
-                    return _this.y(0) - _this.y(d.values.y);
-                });
+            xOrdinal.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else if (config.y.type === 'ordinal') {
-            oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array
-                        ? d.values.sort(function(a, b) {
-                              return (
-                                  _this.colorScale.domain().indexOf(b.key) -
-                                  _this.colorScale.domain().indexOf(a.key)
-                              );
-                          })
-                        : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-
-            var _exitBars = config.transitions ? bars.exit().transition() : bars.exit();
-
-            _exitBars
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .remove();
-
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.arrange =
-                    mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                d.tooltip = mark.tooltip;
-                d3.select(this).attr(mark.attributes);
-            });
-
-            var _xformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-
-            var _yformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, _xformat(d.values.x))
-                    .replace(/\$y/g, _yformat(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-
-            var _barsTrans = config.transitions ? bars.transition() : bars;
-
-            _barsTrans
-                .attr('x', function(d) {
-                    if (d.arrange === 'stacked' || !d.arrange) {
-                        return d.values.start !== undefined ? _this.x(d.values.start) : _this.x(0);
-                    } else {
-                        return _this.x(0);
-                    }
-                })
-                .attr('y', function(d) {
-                    if (d.arrange === 'nested') {
-                        var position = d.subcats.indexOf(d.key);
-                        var offset = position
-                            ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
-                            : _this.y.rangeBand();
-                        return _this.y(d.values.y) + (_this.y.rangeBand() - offset) / 2;
-                    } else if (d.arrange === 'grouped') {
-                        var _position2 = d.subcats.indexOf(d.key);
-
-                        return (
-                            _this.y(d.values.y) +
-                            (_this.y.rangeBand() / d.subcats.length) * _position2
-                        );
-                    } else {
-                        return _this.y(d.values.y);
-                    }
-                })
-                .attr('width', function(d) {
-                    return _this.x(d.values.x) - _this.x(0);
-                })
-                .attr('height', function(d) {
-                    if (config.y.type === 'quantile') {
-                        return 20;
-                    } else if (d.arrange === 'nested') {
-                        var position = d.subcats.indexOf(d.key);
-                        return position
-                            ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
-                            : _this.y.rangeBand();
-                    } else if (d.arrange === 'grouped') {
-                        return _this.y.rangeBand() / d.subcats.length;
-                    } else {
-                        return _this.y.rangeBand();
-                    }
-                });
+            yOrdinal.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else if (['linear', 'log'].indexOf(config.x.type) > -1 && config.x.bin) {
-            oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array ? d.values : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-
-            var _exitBars2 = config.transitions ? bars.exit().transition() : bars.exit();
-
-            _exitBars2
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .remove();
-
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.arrange = mark.split ? mark.arrange : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                d3.select(this).attr(mark.attributes);
-                var parent = d3.select(this.parentNode).datum();
-                var rangeSet = parent.key.split(',').map(function(m) {
-                    return +m;
-                });
-                d.rangeLow = d3.min(rangeSet);
-                d.rangeHigh = d3.max(rangeSet);
-                d.tooltip = mark.tooltip;
-            });
-
-            var _xformat2 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-
-            var _yformat2 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, _xformat2(d.values.x))
-                    .replace(/\$y/g, _yformat2(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-
-            var _barsTrans2 = config.transitions ? bars.transition() : bars;
-
-            _barsTrans2
-                .attr('x', function(d) {
-                    return _this.x(d.rangeLow);
-                })
-                .attr('y', function(d) {
-                    if (d.arrange !== 'stacked') {
-                        return _this.y(d.values.y);
-                    } else {
-                        return _this.y(d.values.start);
-                    }
-                })
-                .attr('width', function(d) {
-                    return _this.x(d.rangeHigh) - _this.x(d.rangeLow);
-                })
-                .attr('height', function(d) {
-                    return _this.y(0) - _this.y(d.values.y);
-                });
+            xBin.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else if (
             ['linear', 'log'].indexOf(config.y.type) > -1 &&
             config.y.type === 'linear' &&
             config.y.bin
         ) {
-            oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array ? d.values : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-
-            var _exitBars3 = config.transitions ? bars.exit().transition() : bars.exit();
-
-            _exitBars3
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .remove();
-
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.arrange = mark.split ? mark.arrange : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                var parent = d3.select(this.parentNode).datum();
-                var rangeSet = parent.key.split(',').map(function(m) {
-                    return +m;
-                });
-                d.rangeLow = d3.min(rangeSet);
-                d.rangeHigh = d3.max(rangeSet);
-                d.tooltip = mark.tooltip;
-            });
-
-            var _xformat3 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-
-            var _yformat3 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, _xformat3(d.values.x))
-                    .replace(/\$y/g, _yformat3(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-
-            var _barsTrans3 = config.transitions ? bars.transition() : bars;
-
-            _barsTrans3
-                .attr('x', function(d) {
-                    if (d.arrange === 'stacked') {
-                        return _this.x(d.values.start);
-                    } else {
-                        return _this.x(0);
-                    }
-                })
-                .attr('y', function(d) {
-                    return _this.y(d.rangeHigh);
-                })
-                .attr('width', function(d) {
-                    return _this.x(d.values.x);
-                })
-                .attr('height', function(d) {
-                    return _this.y(d.rangeLow) - _this.y(d.rangeHigh);
-                });
+            yBin.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else {
             oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
             oldBarGroupsTrans.remove();
@@ -2546,7 +2575,7 @@
             .append('circle')
             .attr('class', 'wc-data-mark')
             .attr('r', 0);
-        nupoints.append('title'); //static attributes
+        nupoints.append('title'); // static attributes
 
         points
             .select('circle')
@@ -2560,7 +2589,7 @@
             })
             .attr('stroke', function(d) {
                 return _this.colorScale(d.values.raw[0][config.color_by]);
-            }); //attach mark info
+            }); // attach mark info
 
         points.each(function(d) {
             var mark = d3.select(this.parentNode).datum();
@@ -2568,7 +2597,7 @@
             d3.select(this)
                 .select('circle')
                 .attr(mark.attributes);
-        }); //animated attributes
+        }); // animated attributes
 
         var pointsTrans = config.transitions
             ? points.select('circle').transition()
@@ -2611,13 +2640,30 @@
                 .replace(/\[(.+?)\]/g, function(str, orig) {
                     return d.values.raw[0][orig];
                 });
-        }); //Link to the d3.selection from the data
+        }); // Link to the d3.selection from the data
 
         point_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.point');
             d.circles = d.groups.select('circle');
+        }); // expand the plotting area slightly to prevent mark cutoff
+
+        var radius = d3.max(marks, function(mark) {
+            return mark.radius || _this.config.flex_point_size;
         });
+        if (marks.length)
+            this.svg
+                .select('.plotting-area')
+                .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
+                .attr('height', this.plot_height + radius * 2 + 2) // plot height + circle radius * 2 + circle stroke width * 2
+                .attr(
+                    'transform',
+                    'translate(-' +
+                    (radius + 1) + // translate left circle radius + circle stroke width
+                    ',-' +
+                    (radius + 1) + // translate up circle radius + circle stroke width
+                        ')'
+                );
         return points;
     }
 
@@ -2626,17 +2672,17 @@
 
         var chart = this;
         var config = this.config;
-        var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
+        var text_supergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
             return ''.concat(i, '-').concat(d.per.join('-'));
         });
-        textSupergroups
+        text_supergroups
             .enter()
             .append('g')
             .attr('class', function(d) {
                 return 'supergroup text-supergroup ' + d.id;
             });
-        textSupergroups.exit().remove();
-        var texts = textSupergroups.selectAll('.text').data(
+        text_supergroups.exit().remove();
+        var texts = text_supergroups.selectAll('.text').data(
             function(d) {
                 return d.data;
             },
@@ -2660,9 +2706,6 @@
 
         function attachMarks(d) {
             d.mark = d3.select(this.parentNode).datum();
-            d3.select(this)
-                .select('text')
-                .attr(d.mark.attributes);
         }
 
         texts.each(attachMarks); // parse text like tooltips
@@ -2670,6 +2713,9 @@
         texts
             .select('text')
             .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
             .text(function(d) {
                 var tt = d.mark.text || '';
                 var xformat =
@@ -2700,6 +2746,9 @@
                     .replace(/\[(.+?)\]/g, function(str, orig) {
                         return d.values.raw[0][orig];
                     });
+            })
+            .each(function(d) {
+                d3.select(this).attr(d.mark.attributes);
             }); // animated attributes
 
         var textsTrans = config.transitions
@@ -2713,9 +2762,9 @@
             .attr('y', function(d) {
                 var yPos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? yPos + _this.y.rangeBand() / 2 : yPos;
-            }); //add a reference to the selection from it's data
+            }); // add a reference to the selection from its data
 
-        textSupergroups.each(function(d) {
+        text_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.text');
             d.texts = d.groups.select('text');
@@ -3171,14 +3220,10 @@
             ? control.values
             : d3
                   .set(
-                      this.data
-                          .map(function(m) {
-                              return m[control.value_col];
-                          })
-                          .filter(function(f) {
-                              return f;
-                          })
-                  )
+                      this.data.map(function(m) {
+                          return m[control.value_col];
+                      })
+                  ) //.filter(f => f))
                   .values()
                   .sort(naturalSorter); // only sort when values are derived
         //initial dropdown option
@@ -3402,7 +3447,7 @@
                 );
             })
         ) {
-            this.data.filtered = this.data.raw;
+            this.data.filtered = this.data.raw.slice();
             this.filters
                 .filter(function(filter) {
                     return (
@@ -3418,7 +3463,7 @@
                             : filter.val === d[filter.col];
                     });
                 });
-        } else this.data.filtered = this.data.raw;
+        } else this.data.filtered = this.data.raw.slice();
     }
 
     function updateDataObject() {
@@ -3922,7 +3967,8 @@
                         key: col
                     })
                     .classed('wc-button sort-box', true)
-                    .text(header)
+                    .text(header),
+                type: this.config.types[col]
             };
             sortItem.wrap
                 .append('span')
@@ -3968,6 +4014,25 @@
         this.draw();
     }
 
+    function _typeof(obj) {
+        if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
+            _typeof = function(obj) {
+                return typeof obj;
+            };
+        } else {
+            _typeof = function(obj) {
+                return obj &&
+                    typeof Symbol === 'function' &&
+                    obj.constructor === Symbol &&
+                    obj !== Symbol.prototype
+                    ? 'symbol'
+                    : typeof obj;
+            };
+        }
+
+        return _typeof(obj);
+    }
+
     function sortData(data) {
         var _this = this;
 
@@ -3975,20 +4040,24 @@
             var order = 0;
 
             _this.sortable.order.forEach(function(item) {
-                var aCell = a[item.col],
-                    bCell = b[item.col];
+                var aCell = a[item.col];
+                var bCell = b[item.col];
 
                 if (order === 0) {
-                    if (
-                        (item.direction === 'ascending' && aCell < bCell) ||
-                        (item.direction === 'descending' && aCell > bCell)
-                    )
-                        order = -1;
-                    else if (
-                        (item.direction === 'ascending' && aCell > bCell) ||
-                        (item.direction === 'descending' && aCell < bCell)
-                    )
-                        order = 1;
+                    if (item.type === 'number') {
+                        order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
+                    } else {
+                        if (
+                            (item.direction === 'ascending' && aCell < bCell) ||
+                            (item.direction === 'descending' && aCell > bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && aCell > bCell) ||
+                            (item.direction === 'descending' && aCell < bCell)
+                        )
+                            order = 1;
+                    }
                 }
             });
 
@@ -4347,30 +4416,39 @@
     }
 
     function setDefaults$1(firstItem) {
-        //Set data-driven defaults.
-        if (this.config.cols instanceof Array && this.config.headers instanceof Array) {
-            if (this.config.cols.length === 0) delete this.config.cols;
-            if (
-                this.config.headers.length === 0 ||
-                this.config.headers.length !== this.config.cols.length
-            )
-                delete this.config.headers;
-        }
+        var _this = this;
 
-        this.config.cols = this.config.cols || d3.keys(firstItem);
-        this.config.headers = this.config.headers || this.config.cols;
-        this.config.layout = 'horizontal'; // placeholder setting to align table components vertically or horizontally
-        //Set all other defaults.
+        // cols
+        if (
+            !Array.isArray(this.config.cols) ||
+            (Array.isArray(this.config.cols) && this.config.cols.length === 0)
+        )
+            this.config.cols = d3.keys(firstItem); // headers
+
+        if (
+            !Array.isArray(this.config.headers) ||
+            (Array.isArray(this.config.headers) && this.config.headers.length === 0) ||
+            (Array.isArray(this.config.headers) &&
+                this.config.headers.length !== this.config.cols.length)
+        )
+            this.config.headers = this.config.cols.slice(); // types
+
+        if (_typeof(this.config.types) !== 'object') this.config.types = {};
+        this.config.cols.forEach(function(col) {
+            if (!['string', 'number'].includes(_this.config.types[col]))
+                _this.config.types[col] = 'string';
+        }); // Set all other defaults.
 
         setDefault.call(this, 'searchable');
-        setDefault.call(this, 'exportable');
-        setDefault.call(this, 'exports', ['csv']);
         setDefault.call(this, 'sortable');
         setDefault.call(this, 'pagination');
+        setDefault.call(this, 'exportable');
+        setDefault.call(this, 'exports', ['csv']);
         setDefault.call(this, 'nRowsPerPage', 10);
         setDefault.call(this, 'nPageLinksDisplayed', 5);
         setDefault.call(this, 'applyCSS');
         setDefault.call(this, 'dynamicPositioning');
+        setDefault.call(this, 'layout', 'horizontal');
     }
 
     function transformData$1(processed_data) {
@@ -4508,6 +4586,7 @@
         }
     });
 
+    var tableCount = 0;
     function createTable() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -4540,8 +4619,10 @@
             if (callback) {
                 thisTable.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
             }
-        };
+        }; //increment thisChart count to get unique thisChart id
 
+        tableCount++;
+        thisTable.id = tableCount;
         return thisTable;
     }
 

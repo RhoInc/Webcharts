@@ -1,4 +1,4 @@
-import { select, format, time } from 'd3';
+import { select, format, time, max } from 'd3';
 
 export default function drawPoints(marks) {
     let chart = this;
@@ -38,7 +38,8 @@ export default function drawPoints(marks) {
         .attr('class', 'wc-data-mark')
         .attr('r', 0);
     nupoints.append('title');
-    //static attributes
+
+    // static attributes
     points
         .select('circle')
         .style('clip-path', `url(#${chart.id})`)
@@ -48,7 +49,7 @@ export default function drawPoints(marks) {
         )
         .attr('fill', d => this.colorScale(d.values.raw[0][config.color_by]))
         .attr('stroke', d => this.colorScale(d.values.raw[0][config.color_by]));
-    //attach mark info
+    // attach mark info
     points.each(function(d) {
         let mark = select(this.parentNode).datum();
         d.mark = mark;
@@ -56,7 +57,7 @@ export default function drawPoints(marks) {
             .select('circle')
             .attr(mark.attributes);
     });
-    //animated attributes
+    // animated attributes
     let pointsTrans = config.transitions
         ? points.select('circle').transition()
         : points.select('circle');
@@ -97,12 +98,28 @@ export default function drawPoints(marks) {
             .replace(/\[(.+?)\]/g, (str, orig) => d.values.raw[0][orig]);
     });
 
-    //Link to the d3.selection from the data
+    // Link to the d3.selection from the data
     point_supergroups.each(function(d) {
         d.supergroup = select(this);
         d.groups = d.supergroup.selectAll('g.point');
         d.circles = d.groups.select('circle');
     });
+
+    // expand the plotting area slightly to prevent mark cutoff
+    const radius = max(marks, mark => mark.radius || this.config.flex_point_size);
+    if (marks.length)
+        this.svg
+            .select('.plotting-area')
+            .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
+            .attr('height', this.plot_height + radius * 2 + 2) // plot height + circle radius * 2 + circle stroke width * 2
+            .attr(
+                'transform',
+                'translate(-' +
+                (radius + 1) + // translate left circle radius + circle stroke width
+                ',-' +
+                (radius + 1) + // translate up circle radius + circle stroke width
+                    ')'
+            );
 
     return points;
 }
