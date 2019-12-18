@@ -1,10 +1,10 @@
 function createTable(element, settings) {
-    var controls = webCharts.createControls(
+    const controls = webCharts.createControls(
         element,
         {
             inputs: [
                 {type: 'subsetter', value_col: 'Period', label: 'Filter by Period'},
-                {type: 'subsetter', value_col: 'Group', label: 'Filter by Group'}
+                {type: 'subsetter', value_col: 'Group', label: 'Filter by Group'},
             ]
         }
     );
@@ -12,7 +12,7 @@ function createTable(element, settings) {
     return webCharts.createTable(element, settings, controls);
 }
 
-var table = createTable(
+const table = createTable(
     '.table',
     {
         'sortable': true,
@@ -27,7 +27,7 @@ var table = createTable(
 );
 
 d3.csv(
-    'https://cdn.jsdelivr.net/gh/RhoInc/data-library/data/miscellaneous/elements.csv',
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/miscellaneous/elements.csv',
     function(d) {
         return d;
     },
@@ -37,7 +37,7 @@ d3.csv(
         //Update settings.
         d3.selectAll('.controls input')
             .on('change',function(){
-                var settings = {
+                const settings = {
                     sortable: d3.select('input.sortable').property('checked'),
                     searchable: d3.select('input.searchable').property('checked'),
                     nRowsPerPage: +d3.select('input.items').node().value,
@@ -50,7 +50,7 @@ d3.csv(
                 console.log(settings);
 
                 d3.select('.table').selectAll('*').remove()
-                var table = createTable(
+                const table = createTable(
                     '.table',
                     settings
                 );
@@ -62,7 +62,7 @@ d3.csv(
 //Randomize columns.
 d3.select('button.randomize-columns')
     .on('click', function() {
-        var table = d3.select('.wc-table').datum();
+        const table = d3.select('.wc-table').datum();
         table.config.cols = Object.keys(table.data.raw[0])
             .reverse()
             .filter(function(d) {
@@ -76,7 +76,7 @@ d3.select('button.randomize-columns')
 //Randomize headers.
 d3.select('button.randomize-headers')
     .on('click', function() {
-        var table = d3.select('.wc-table').datum();
+        const table = d3.select('.wc-table').datum();
         table.config.headers = table.config.cols
             .map(function(key) {
                 const strArr = [];
