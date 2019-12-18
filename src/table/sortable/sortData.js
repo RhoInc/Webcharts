@@ -5,20 +5,24 @@ export default function sortData(data) {
         let order = 0;
 
         this.sortable.order.forEach(item => {
-            const aCell = a[item.col],
-                bCell = b[item.col];
+            const aCell = a[item.col];
+            const bCell = b[item.col];
 
-            if (order === 0) {
-                if (
-                    (item.direction === 'ascending' && aCell < bCell) ||
-                    (item.direction === 'descending' && aCell > bCell)
-                )
-                    order = -1;
-                else if (
-                    (item.direction === 'ascending' && aCell > bCell) ||
-                    (item.direction === 'descending' && aCell < bCell)
-                )
-                    order = 1;
+            if (item.type === 'number') {
+                order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
+            } else {
+                if (order === 0) {
+                    if (
+                        (item.direction === 'ascending' && aCell < bCell) ||
+                        (item.direction === 'descending' && aCell > bCell)
+                    )
+                        order = -1;
+                    else if (
+                        (item.direction === 'ascending' && aCell > bCell) ||
+                        (item.direction === 'descending' && aCell < bCell)
+                    )
+                        order = 1;
+                }
             }
         });
 

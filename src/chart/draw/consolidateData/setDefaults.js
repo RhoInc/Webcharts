@@ -25,6 +25,7 @@ export default function setDefaults() {
     this.config.marks = this.config.marks && this.config.marks.length ? this.config.marks : [{}];
     this.config.marks.forEach(function(m, i) {
         m.id = m.id ? m.id : 'mark' + (i + 1);
+        m.checkColumns = m.checkColumns !== false ? true : false;
     });
 
     this.config.date_format = this.config.date_format || '%x';
