@@ -19,7 +19,6 @@ export default function testSortTable(settings, data) {
                     return i < 5;
                 })
                 .data();
-            console.log(JSON.stringify(table.first5, null, 4));
         });
 
         it('a sort div should exist', () => {
@@ -46,7 +45,6 @@ export default function testSortTable(settings, data) {
                     return i < 5;
                 })
                 .data();
-            console.log(JSON.stringify(sorted5, null, 4));
             expect(sorted5).toNotEqual(table.first5);
         });
         it('ascending sort works as expected', () => {

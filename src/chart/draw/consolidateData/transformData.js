@@ -80,7 +80,7 @@ export default function transformData(raw, mark) {
                     ? d
                     : e.val instanceof Array
                     ? e.val.indexOf(d[e.col]) > -1
-                    : d[e.col] === e.val;
+                    : d[e.col] + '' === e.val.toString() + '';
             });
         });
         //get domain for all non-All values of first filter

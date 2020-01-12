@@ -26,7 +26,7 @@ export default function init(data, test = false) {
     this.initial_data = data;
 
     let startup = data => {
-        //connect this chart and its controls, if any
+        // connect this chart and its controls, if any
         if (this.controls) {
             this.controls.targets.push(this);
             if (!this.controls.ready) {
@@ -36,7 +36,7 @@ export default function init(data, test = false) {
             }
         }
 
-        //make sure container is visible (has height and width) before trying to initialize
+        // make sure container is visible (has height and width) before trying to initialize
         var visible = select(this.div).property('offsetWidth') > 0 || test;
         if (!visible) {
             console.warn(

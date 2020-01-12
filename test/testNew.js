@@ -12,5 +12,5 @@
 //   test(settings, data);
 
 import data from './samples/irisData';
-import testSortTable from './table/sortTable';
-testSortTable({ sortable: true, searchable: false, exportable: false, pagination: false }, data);
+import testCreateTable from './table/createTable';
+testCreateTable({ exportable: false });
