@@ -28,6 +28,7 @@ export default function testCreateTable(settings) {
                     'config',
                     'controls',
                     'filters',
+                    'id',
                     'required_cols',
                     'wrap',
                     'events',
