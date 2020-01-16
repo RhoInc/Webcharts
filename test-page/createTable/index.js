@@ -66,8 +66,6 @@ d3.csv(
                     applyCSS: d3.select('input.applyCSS').property('checked'),
                 };
 
-                console.log(settings);
-
                 d3.select('.table').selectAll('*').remove()
                 const table = createTable(
                     '.table',
@@ -88,7 +86,6 @@ d3.select('button.randomize-columns')
                 return Math.random() >= .5;
             });
         table.config.headers = table.config.cols;
-        console.log(table.config.cols);
         table.draw();
     });
 
@@ -110,6 +107,5 @@ d3.select('button.randomize-headers')
 
                 return strArr.join('');
             });
-        console.log(table.config.headers);
         table.draw();
     });

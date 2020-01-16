@@ -3904,15 +3904,16 @@
                 bookSST: true,
                 type: 'binary'
             };
-            var arrayOfArrays = data.map(function(d) {
-                return Object.keys(d)
-                    .filter(function(key) {
-                        return _this.config.cols.indexOf(key) > -1;
-                    })
-                    .map(function(key) {
-                        return d[key];
+            var arrayOfArrays = data.map(
+                function(d) {
+                    return _this.config.cols.map(function(col) {
+                        return d[col];
                     });
-            }); // convert data from array of objects to array of arrays.
+                } //Object.keys(d)
+                //    .filter(key => this.config.cols.indexOf(key) > -1)
+                //    .sort((a,b) => this.config.cols.indexOf(a) - this.config.cols.indexOf(b))
+                //    .map(key => d[key])
+            ); // convert data from array of objects to array of arrays.
 
             var workbook = {
                 SheetNames: [sheetName],
