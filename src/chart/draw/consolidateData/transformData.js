@@ -208,10 +208,12 @@ export default function transformData(raw, mark) {
     }
 
     if (config.x.type === 'ordinal' && !config.x.order) {
-        config.x.order = current_nested.totalOrder;
+        //config.x.order = current_nested.totalOrder;
+        x_dom.sort((a,b) => current_nested.totalOrder.indexOf(a) - current_nested.totalOrder.indexOf(b))
     }
     if (config.y.type === 'ordinal' && !config.y.order) {
-        config.y.order = current_nested.totalOrder;
+        //config.y.order = current_nested.totalOrder;
+        y_dom.sort((a,b) => current_nested.totalOrder.indexOf(a) - current_nested.totalOrder.indexOf(b))
     }
 
     this.current_data = current_nested.nested;
