@@ -16,7 +16,7 @@ d3.csv(
         };
         const linearAxis = {
             type: 'linear',
-            label: 'Total Gold Medals',
+            label: '',
             column: 'n_combined_gold',
         };
         const ordinalAxis = {
