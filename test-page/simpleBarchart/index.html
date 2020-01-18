@@ -1,22 +1,51 @@
-<html lang="en">
+<html lang = 'en'>
     <head>
         <title>Webcharts - Simple Bar Chart</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv = 'Content-Type' content = 'text/html; charset = utf-8'>
 
-        <script src="https://d3js.org/d3.v3.min.js"></script>
-        <script src="../../build/webcharts.js"></script>
+        <script type = 'text/javascript' src = 'https://d3js.org/d3.v3.min.js'></script>
+        <script type = 'text/javascript' src = '../../build/webcharts.js'></script>
 
-        <link rel="stylesheet" href="../../css/webcharts.css">
+        <link type = 'text/css' rel = 'stylesheet' href = '../../css/webcharts.css'>
         <link type = 'text/css' rel = 'stylesheet' href = '../index.css'>
+
+        <style>
+            #container {
+                position: relative;
+            }
+            .controls {
+                width: 100%;
+            }
+            .charts {
+                position: relative;
+            }
+            .chart {
+                position: absolute;
+                top: 0;
+            }
+            .chart--vertical {
+                width: 25%;
+                left: 0
+            }
+            .chart--horizontal {
+                width: 75%;
+                height: 500px;
+                left: 27.5%;
+            }
+        </style>
     </head>
 
     <body>
         <div id = 'title'>Webcharts</div>
         <div id = 'subtitle'>Simple Bar Chart</div>
         <div id = 'container'>
-            <div class="chart"></div>
+            <div class = 'controls'></div>
+            <div class = 'charts'>
+                <div class = 'chart chart--vertical'></div>
+                <div class = 'chart chart--horizontal'></div>
+            </div>
         </div>
     </body>
 
-    <script src="index.js" defer></script>
+    <script src = 'index.js' defer></script>
 </html>

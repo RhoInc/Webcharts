@@ -183,7 +183,7 @@ export default function makeNest(mark, entries, sublevel) {
         (this.config.y.sort === 'total-ascending' && this.config.y.type == 'ordinal')
     ) {
         totalOrder = test.sort((a, b) => descending(+a.total, +b.total)).map(m => m.key);
-    }
+    } else totalOrder = test.map(m => m.key);
 
     return { nested: test, dom_x: dom_x, dom_y: dom_y, totalOrder: totalOrder };
 }
