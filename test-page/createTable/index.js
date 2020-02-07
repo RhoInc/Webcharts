@@ -1,10 +1,10 @@
 function createTable(element, settings) {
-    var controls = webCharts.createControls(
+    const controls = webCharts.createControls(
         element,
         {
             inputs: [
                 {type: 'subsetter', value_col: 'Period', label: 'Filter by Period'},
-                {type: 'subsetter', value_col: 'Group', label: 'Filter by Group'}
+                {type: 'subsetter', value_col: 'Group', label: 'Filter by Group'},
             ]
         }
     );
@@ -12,7 +12,7 @@ function createTable(element, settings) {
     return webCharts.createTable(element, settings, controls);
 }
 
-var table = createTable(
+const table = createTable(
     '.table',
     {
         'sortable': true,
@@ -27,17 +27,36 @@ var table = createTable(
 );
 
 d3.csv(
-    'https://cdn.jsdelivr.net/gh/RhoInc/data-library/data/miscellaneous/elements.csv',
+    'https://raw.githubusercontent.com/RhoInc/data-library/master/data/miscellaneous/elements.csv',
     function(d) {
         return d;
     },
     function(data) {
+        table.config.types = Object.keys(data[0])
+            .map(col => {
+                let type = 'string';
+
+                const vector = data
+                    .map(d => d[col]).filter(d => d !== '');
+
+                if (vector.length > 0 && vector.every(d => !isNaN(parseFloat(d))))
+                    type = 'number';
+
+                return [col, type];
+            })
+            .reduce(
+                (acc,cur) => {
+                    acc[cur[0]] = cur[1];
+                    return acc;
+                },
+                {}
+            );
         table.init(data);
 
         //Update settings.
         d3.selectAll('.controls input')
             .on('change',function(){
-                var settings = {
+                const settings = {
                     sortable: d3.select('input.sortable').property('checked'),
                     searchable: d3.select('input.searchable').property('checked'),
                     nRowsPerPage: +d3.select('input.items').node().value,
@@ -47,10 +66,8 @@ d3.csv(
                     applyCSS: d3.select('input.applyCSS').property('checked'),
                 };
 
-                console.log(settings);
-
                 d3.select('.table').selectAll('*').remove()
-                var table = createTable(
+                const table = createTable(
                     '.table',
                     settings
                 );
@@ -62,21 +79,20 @@ d3.csv(
 //Randomize columns.
 d3.select('button.randomize-columns')
     .on('click', function() {
-        var table = d3.select('.wc-table').datum();
+        const table = d3.select('.wc-table').datum();
         table.config.cols = Object.keys(table.data.raw[0])
             .reverse()
             .filter(function(d) {
                 return Math.random() >= .5;
             });
         table.config.headers = table.config.cols;
-        console.log(table.config.cols);
         table.draw();
     });
 
 //Randomize headers.
 d3.select('button.randomize-headers')
     .on('click', function() {
-        var table = d3.select('.wc-table').datum();
+        const table = d3.select('.wc-table').datum();
         table.config.headers = table.config.cols
             .map(function(key) {
                 const strArr = [];
@@ -91,6 +107,5 @@ d3.select('button.randomize-headers')
 
                 return strArr.join('');
             });
-        console.log(table.config.headers);
         table.draw();
     });

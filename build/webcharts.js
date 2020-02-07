@@ -39,7 +39,7 @@
         this.initial_data = data;
 
         var startup = function startup(data) {
-            //connect this chart and its controls, if any
+            // connect this chart and its controls, if any
             if (_this.controls) {
                 _this.controls.targets.push(_this);
 
@@ -48,7 +48,7 @@
                 } else {
                     _this.controls.layout();
                 }
-            } //make sure container is visible (has height and width) before trying to initialize
+            } // make sure container is visible (has height and width) before trying to initialize
 
             var visible = d3.select(_this.div).property('offsetWidth') > 0 || test;
 
@@ -120,7 +120,7 @@
                     requiredCols.push(e.split);
                 }
 
-                if (e.values) {
+                if (e.values && e.checkColumns) {
                     for (var value in e.values) {
                         requiredVars.push('this.config.marks[' + i + "].values['" + value + "']");
                         requiredCols.push(value);
@@ -241,16 +241,15 @@
 
     function addLegend() {
         //The legend is contained in the parent object of multiples so each multiple does not need its own legend.
-        if (!this.parent)
-            this.wrap
+        if (!this.parent) {
+            var legend = this.wrap
                 .append('ul')
                 .datum(function() {
                     return null;
                 }) // prevent data inheritance
-                .attr('class', 'legend')
-                .style('vertical-align', 'top')
-                .append('span')
-                .attr('class', 'legend-title');
+                .classed('legend', true);
+            var legend_title = legend.append('span').classed('legend-title', true);
+        }
     }
 
     function clearLoader() {
@@ -400,18 +399,18 @@
     }
 
     function setDomain(axis) {
-        var _this = this;
+        var thisAxis = this.config[axis];
+        var thatAxis = this.config[axis === 'x' ? 'y' : 'x'];
+        var dom;
 
-        var otherAxis = axis === 'x' ? 'y' : 'x';
-
-        if (this.config[axis].type === 'ordinal') {
+        if (thisAxis.type === 'ordinal') {
             //ordinal domains
-            if (this.config[axis].domain) {
+            if (thisAxis.domain) {
                 //user-defined domain
-                this[axis + '_dom'] = this.config[axis].domain;
-            } else if (this.config[axis].order) {
+                dom = thisAxis.domain;
+            } else if (thisAxis.order) {
                 //data-driven domain with user-defined domain order
-                this[axis + '_dom'] = d3
+                dom = d3
                     .set(
                         d3.merge(
                             this.marks.map(function(mark) {
@@ -421,18 +420,12 @@
                     )
                     .values()
                     .sort(function(a, b) {
-                        return d3.ascending(
-                            _this.config[axis].order.indexOf(a),
-                            _this.config[axis].order.indexOf(b)
-                        );
+                        return d3.ascending(thisAxis.order.indexOf(a), thisAxis.order.indexOf(b));
                     });
-            } else if (
-                this.config[axis].sort &&
-                this.config[axis].sort === 'alphabetical-ascending'
-            ) {
+            } else if (thisAxis.sort && thisAxis.sort === 'alphabetical-ascending') {
                 //data-driven domain with user-defined domain sort algorithm that sorts the axis
                 //alphanumerically, first to last
-                this[axis + '_dom'] = d3
+                dom = d3
                     .set(
                         d3.merge(
                             this.marks.map(function(mark) {
@@ -443,20 +436,20 @@
                     .values()
                     .sort(naturalSorter);
             } else if (
-                ['time', 'linear'].indexOf(this.config[otherAxis].type) > -1 &&
-                this.config[axis].sort === 'earliest'
+                ['time', 'linear'].indexOf(thatAxis.type) > -1 &&
+                thisAxis.sort === 'earliest'
             ) {
                 //data-driven domain plotted against a time or linear axis that sorts the axis values
                 //by earliest event/datum; generally used with timeline charts
-                this[axis + '_dom'] = d3
+                dom = d3
                     .nest()
                     .key(function(d) {
-                        return d[_this.config[axis].column];
+                        return d[thisAxis.column];
                     })
                     .rollup(function(d) {
                         return d
                             .map(function(m) {
-                                return m[_this.config[otherAxis].column];
+                                return m[thatAxis.column];
                             })
                             .filter(function(f) {
                                 return f instanceof Date;
@@ -469,13 +462,10 @@
                     .map(function(m) {
                         return m.key;
                     });
-            } else if (
-                !this.config[axis].sort ||
-                this.config[axis].sort === 'alphabetical-descending'
-            ) {
+            } else if (!thisAxis.sort || thisAxis.sort === 'alphabetical-descending') {
                 //data-driven domain with default/user-defined domain sort algorithm that sorts the
                 //axis alphanumerically, last to first
-                this[axis + '_dom'] = d3
+                dom = d3
                     .set(
                         d3.merge(
                             this.marks.map(function(mark) {
@@ -489,7 +479,7 @@
             } else {
                 //data-driven domain with an invalid user-defined sort algorithm that captures a unique
                 //set of values as they appear in the data
-                this[axis + '_dom'] = d3
+                dom = d3
                     .set(
                         d3.merge(
                             this.marks.map(function(mark) {
@@ -507,13 +497,13 @@
                 .indexOf(true) > -1
         ) {
             //rate domains run from 0 to 1
-            this[axis + '_dom'] = [0, 1];
+            dom = [0, 1];
         } else {
             //continuous domains run from the minimum to the maximum raw (or is it summarized...?) value
             //TODO: they should really run from the minimum to the maximum summarized value, e.g. a
             //TODO: means over time chart should plot over the range of the means, not the range of the
             //TODO: raw data
-            this[axis + '_dom'] = d3.extent(
+            dom = d3.extent(
                 d3.merge(
                     this.marks.map(function(mark) {
                         return mark[axis + '_dom'];
@@ -522,18 +512,10 @@
             );
         } //Give the domain a range when the range of the variable is 0.
 
-        if (
-            this.config[axis].type === 'linear' &&
-            this[axis + '_dom'][0] === this[axis + '_dom'][1]
-        )
-            this[axis + '_dom'] =
-                this[axis + '_dom'][0] !== 0
-                    ? [
-                          this[axis + '_dom'][0] - this[axis + '_dom'][0] * 0.01,
-                          this[axis + '_dom'][1] + this[axis + '_dom'][1] * 0.01
-                      ]
-                    : [-1, 1];
-        return this[axis + '_dom'];
+        if (thisAxis.type === 'linear' && dom[0] === dom[1])
+            dom = dom[0] !== 0 ? [dom[0] - dom[0] * 0.01, dom[1] + dom[1] * 0.01] : [-1, 1];
+        this[axis + '_dom'] = dom;
+        return dom;
     }
 
     function consolidateData(raw) {
@@ -550,7 +532,7 @@
                         ? d
                         : filter.val instanceof Array
                         ? filter.val.indexOf(d[filter.col]) > -1
-                        : d[filter.col] === filter.val;
+                        : d[filter.col] + '' === filter.val + '';
                 });
             });
         } //Summarize data for each mark.
@@ -576,19 +558,28 @@
     }
 
     function setDefaults() {
+        // x
         this.config.x = this.config.x || {};
-        this.config.y = this.config.y || {};
         this.config.x.label =
             this.config.x.label !== undefined ? this.config.x.label : this.config.x.column;
+        this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
+        this.config.x.type = this.config.x.type || 'linear';
+        this.config.x.range_band = this.config.x.range_band || this.config.range_band; // y
+
+        this.config.y = this.config.y || {};
         this.config.y.label =
             this.config.y.label !== undefined ? this.config.y.label : this.config.y.column;
-        this.config.x.sort = this.config.x.sort || 'alphabetical-ascending';
         this.config.y.sort = this.config.y.sort || 'alphabetical-descending';
-        this.config.x.type = this.config.x.type || 'linear';
         this.config.y.type = this.config.y.type || 'linear';
-        this.config.x.range_band = this.config.x.range_band || this.config.range_band;
-        this.config.y.range_band = this.config.y.range_band || this.config.range_band;
-        this.config.margin = this.config.margin || {};
+        this.config.y.range_band = this.config.y.range_band || this.config.range_band; // marks
+
+        this.config.marks =
+            this.config.marks && this.config.marks.length ? this.config.marks : [{}];
+        this.config.marks.forEach(function(m, i) {
+            m.id = m.id ? m.id : 'mark' + (i + 1);
+            m.checkColumns = m.checkColumns !== false ? true : false;
+        }); //legend
+
         this.config.legend = this.config.legend || {};
         this.config.legend.label =
             this.config.legend.label !== undefined
@@ -596,11 +587,19 @@
                 : this.config.color_by;
         this.config.legend.location =
             this.config.legend.location !== undefined ? this.config.legend.location : 'bottom';
-        this.config.marks =
-            this.config.marks && this.config.marks.length ? this.config.marks : [{}];
-        this.config.marks.forEach(function(m, i) {
-            m.id = m.id ? m.id : 'mark' + (i + 1);
-        });
+        this.config.legend.mark =
+            this.config.legend.mark !== undefined &&
+            typeof this.config.legend.mark === 'string' &&
+            ['bar', 'square', 'circle', 'line'].includes(this.config.legend.mark.toLowerCase())
+                ? this.config.legend.mark.toLowerCase().replace('bar', 'square')
+                : this.config.marks[0].type !== undefined &&
+                  typeof this.config.marks[0].type === 'string' &&
+                  ['bar', 'circle', 'line'].includes(this.config.marks[0].type.toLowerCase())
+                ? this.config.marks[0].type.toLowerCase().replace('bar', 'square')
+                : 'square'; // dimensions
+
+        this.config.margin = this.config.margin || {}; // miscellaneous
+
         this.config.date_format = this.config.date_format || '%x';
         this.config.padding = this.config.padding !== undefined ? this.config.padding : 0.3;
         this.config.outer_pad = this.config.outer_pad !== undefined ? this.config.outer_pad : 0.1;
@@ -776,18 +775,27 @@
                 return d[sublevel];
             });
             this_nest.sortKeys(function(a, b) {
-                return _this.config.x.type === 'time'
-                    ? d3.ascending(new Date(a), new Date(b))
-                    : _this.config.x.order
-                    ? d3.ascending(_this.config.x.order.indexOf(a), _this.config.x.order.indexOf(b))
-                    : sublevel === _this.config.color_by && _this.config.legend.order
-                    ? d3.ascending(
-                          _this.config.legend.order.indexOf(a),
-                          _this.config.legend.order.indexOf(b)
-                      )
-                    : _this.config.x.type === 'ordinal' || _this.config.y.type === 'ordinal'
-                    ? naturalSorter(a, b)
-                    : d3.ascending(+a, +b);
+                var sort;
+
+                if (_this.config.x.type === 'time') {
+                    sort = d3.ascending(new Date(a), new Date(b));
+                } else if (_this.config.x.order) {
+                    sort = d3.ascending(
+                        _this.config.x.order.indexOf(a),
+                        _this.config.x.order.indexOf(b)
+                    );
+                } else if (sublevel === _this.config.color_by && _this.config.legend.order) {
+                    sort = d3.ascending(
+                        _this.config.legend.order.indexOf(a),
+                        _this.config.legend.order.indexOf(b)
+                    );
+                } else if (_this.config.x.type === 'ordinal' || _this.config.y.type === 'ordinal') {
+                    sort = naturalSorter(a, b);
+                } else {
+                    sort = d3.ascending(+a, +b);
+                }
+
+                return sort;
             });
         }
 
@@ -967,7 +975,10 @@
                 .map(function(m) {
                     return m.key;
                 });
-        }
+        } else
+            totalOrder = test.map(function(m) {
+                return m.key;
+            });
 
         return {
             nested: test,
@@ -1106,7 +1117,7 @@
                         ? d
                         : e.val instanceof Array
                         ? e.val.indexOf(d[e.col]) > -1
-                        : d[e.col] === e.val;
+                        : d[e.col] + '' === e.val.toString() + '';
                 });
             }); //get domain for all non-All values of first filter
 
@@ -1139,7 +1150,8 @@
         }
 
         var filt1_dom_x = d3.extent(d3.merge(filt1_xs));
-        var filt1_dom_y = d3.extent(d3.merge(filt1_ys));
+        var filt1_dom_y = d3.extent(d3.merge(filt1_ys)); // why are we calling makeNest twice?
+
         var current_nested = makeNest.call(this, mark, filtered, sublevel);
         var flex_dom_x = current_nested.dom_x;
         var flex_dom_y = current_nested.dom_y;
@@ -1263,11 +1275,15 @@
         }
 
         if (config.x.type === 'ordinal' && !config.x.order) {
-            config.x.order = current_nested.totalOrder;
+            x_dom.sort(function(a, b) {
+                return current_nested.totalOrder.indexOf(a) - current_nested.totalOrder.indexOf(b);
+            });
         }
 
         if (config.y.type === 'ordinal' && !config.y.order) {
-            config.y.order = current_nested.totalOrder;
+            y_dom.sort(function(a, b) {
+                return current_nested.totalOrder.indexOf(a) - current_nested.totalOrder.indexOf(b);
+            });
         }
 
         this.current_data = current_nested.nested;
@@ -1294,7 +1310,7 @@
                       )
                       .values()
                       .filter(function(f) {
-                          return f && f !== 'undefined';
+                          return f !== 'undefined';
                       });
         if (config.legend.order)
             colordom.sort(function(a, b) {
@@ -1627,176 +1643,185 @@
         }
     }
 
-    function makeLegend() {
-        var scale =
-            arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.colorScale;
-        var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-        var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-        var config = this.config;
-        config.legend.mark = config.legend.mark
-            ? config.legend.mark
-            : config.marks.length && config.marks[0].type === 'bar'
-            ? 'square'
-            : config.marks.length
-            ? config.marks[0].type
-            : 'square';
-        var legend_label = label
-            ? label
-            : typeof config.legend.label === 'string'
-            ? config.legend.label
-            : '';
-        var legendOriginal = this.legend || this.wrap.select('.legend');
-        var legend = legendOriginal;
+    // TODO: consider moving legend around DOM on layout rather than on resize
+    function moveLegend(scale) {
+        var legend = this.legend || this.wrap.select('.legend');
 
         if (!this.parent) {
             //singular chart
             if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
-                this.wrap.node().insertBefore(legendOriginal.node(), this.svg.node().parentNode);
+                this.wrap.node().insertBefore(legend.node(), this.svg.node().parentNode);
             } else {
-                this.wrap.node().appendChild(legendOriginal.node());
+                this.wrap.node().appendChild(legend.node());
             }
         } else {
             //multiples - keep legend outside of individual charts' wraps
             if (this.config.legend.location === 'top' || this.config.legend.location === 'left') {
                 this.parent.wrap
                     .node()
-                    .insertBefore(
-                        legendOriginal.node(),
-                        this.parent.wrap.select('.wc-chart').node()
-                    );
+                    .insertBefore(legend.node(), this.parent.wrap.select('.wc-chart').node());
             } else {
-                this.parent.wrap.node().appendChild(legendOriginal.node());
+                this.parent.wrap.node().appendChild(legend.node());
             }
         }
 
-        legend.style('padding', 0);
-        var legend_data =
-            custom_data ||
-            scale
-                .domain()
-                .slice(0)
-                .filter(function(f) {
-                    return f !== undefined && f !== null;
-                })
-                .map(function(m) {
-                    return {
-                        label: m,
-                        mark: config.legend.mark
-                    };
-                });
         legend
-            .select('.legend-title')
-            .text(legend_label)
-            .style('display', legend_label ? 'inline' : 'none')
-            .style('margin-right', '1em');
-        var leg_parts = legend.selectAll('.legend-item').data(legend_data, function(d) {
+            .classed('legend--'.concat(this.config.legend.location), true)
+            .classed('legend--empty', scale.domain().length === 0); // display: none when color_by is not set?
+
+        return legend;
+    }
+
+    function defineLegendData(custom_data, scale) {
+        var _this = this;
+
+        var legend_data =
+            Array.isArray(custom_data) && custom_data.length
+                ? custom_data
+                : scale
+                      .domain()
+                      .slice(0)
+                      .filter(function(f) {
+                          return f !== undefined && f !== null;
+                      })
+                      .map(function(m) {
+                          return {
+                              label: m,
+                              mark: _this.config.legend.mark
+                          };
+                      });
+        return legend_data;
+    }
+
+    function addLegendTitle(legend_label) {
+        var legend_title = this.legend.select('.legend-title').text(legend_label);
+        return legend_title;
+    }
+
+    function addLegendItems(legend_data, scale) {
+        var _this = this;
+
+        // join data to legend-item selection
+        var all_legend_items = this.legend.selectAll('.legend-item').data(legend_data, function(d) {
             return d.label + d.mark;
-        });
-        leg_parts.exit().remove();
-        var legendPartDisplay =
-            this.config.legend.location === 'bottom' || this.config.legend.location === 'top'
-                ? 'inline-block'
-                : 'block';
-        var new_parts = leg_parts
+        }); // exit and remove
+
+        all_legend_items.exit().remove(); // enter and append
+
+        var legend_items = all_legend_items
             .enter()
             .append('li')
-            .attr('class', 'legend-item')
-            .style({
-                'list-style-type': 'none',
-                'margin-right': '1em'
-            });
-        new_parts
-            .append('span')
-            .attr('class', 'legend-mark-text')
-            .style('color', function(d) {
-                return scale(d.label);
-            });
-        new_parts
-            .append('svg')
-            .attr('class', 'legend-color-block')
-            .attr('width', '1.1em')
-            .attr('height', '1.1em')
-            .style({
-                position: 'relative',
-                top: '0.2em'
-            });
-        leg_parts.style('display', legendPartDisplay);
+            .classed('legend-item', true); // update order of legend items in DOM
 
-        if (config.legend.order) {
-            leg_parts.sort(function(a, b) {
+        if (this.config.legend.order) {
+            legend_items.sort(function(a, b) {
                 return d3.ascending(
-                    config.legend.order.indexOf(a.label),
-                    config.legend.order.indexOf(b.label)
+                    _this.config.legend.order.indexOf(a.label),
+                    _this.config.legend.order.indexOf(b.label)
                 );
             });
         }
 
-        leg_parts
-            .selectAll('.legend-color-block')
-            .select('.legend-mark')
-            .remove();
-        leg_parts.selectAll('.legend-color-block').each(function(e) {
+        return legend_items;
+    }
+
+    function addLegendMarkTexts(legend_items, scale) {
+        var legend_mark_texts = legend_items
+            .append('span')
+            .classed('legend-mark-text', true)
+            .style('color', function(d) {
+                return scale(d.label);
+            });
+        return legend_mark_texts;
+    }
+
+    function addLegendColorBlocks(legend_items) {
+        var legend_color_blocks = legend_items
+            .append('svg')
+            .classed('legend-color-block', true)
+            .attr({
+                width: '1.1em',
+                height: '1.1em'
+            });
+        return legend_color_blocks;
+    }
+
+    function addLegendMarks(legend_color_blocks, scale) {
+        legend_color_blocks.each(function(e) {
             var svg = d3.select(this);
+            svg.select('.legend-mark').remove();
 
             if (e.mark === 'circle') {
-                svg.append('circle').attr({
-                    cx: '.5em',
-                    cy: '.5em',
-                    r: '.45em',
-                    class: 'legend-mark'
-                });
+                svg.append('circle')
+                    .classed('legend-mark', true)
+                    .attr({
+                        cx: '.5em',
+                        cy: '.5em',
+                        r: '.45em'
+                    });
             } else if (e.mark === 'line') {
-                svg.append('line').attr({
-                    x1: 0,
-                    y1: '.5em',
-                    x2: '1em',
-                    y2: '.5em',
-                    'stroke-width': 2,
-                    'shape-rendering': 'crispEdges',
-                    class: 'legend-mark'
-                });
+                svg.append('line')
+                    .classed('legend-mark', true)
+                    .attr({
+                        x1: 0,
+                        y1: '.5em',
+                        x2: '1em',
+                        y2: '.5em',
+                        'stroke-width': 2,
+                        'shape-rendering': 'crispEdges'
+                    });
             } else if (e.mark === 'square') {
-                svg.append('rect').attr({
-                    height: '1em',
-                    width: '1em',
-                    class: 'legend-mark',
-                    'shape-rendering': 'crispEdges'
-                });
+                svg.append('rect')
+                    .classed('legend-mark', true)
+                    .attr({
+                        height: '1em',
+                        width: '1em',
+                        'shape-rendering': 'crispEdges'
+                    });
             }
         });
-        leg_parts
-            .selectAll('.legend-color-block')
+        var legend_marks = legend_color_blocks
             .select('.legend-mark')
-            .attr('fill', function(d) {
-                return d.color || scale(d.label);
-            })
-            .attr('stroke', function(d) {
-                return d.color || scale(d.label);
+            .attr({
+                fill: function fill(d) {
+                    return d.color || scale(d.label);
+                },
+                stroke: function stroke(d) {
+                    return d.color || scale(d.label);
+                }
             })
             .each(function(e) {
+                // apply custom mark attributes
                 d3.select(this).attr(e.attributes);
             });
-        new_parts
+    }
+
+    function addLegendLabels(legend_items) {
+        var legend_labels = legend_items
             .append('span')
-            .attr('class', 'legend-label')
-            .style('margin-left', '0.25em')
+            .classed('legend-label', true)
             .text(function(d) {
                 return d.label;
             });
+        return legend_labels;
+    }
 
-        if (scale.domain().length > 0) {
-            var legendDisplay =
-                (this.config.legend.location === 'bottom' ||
-                    this.config.legend.location === 'top') &&
-                !this.parent
-                    ? 'block'
-                    : 'inline-block';
-            legend.style('display', legendDisplay);
-        } else {
-            legend.style('display', 'none');
-        }
+    function makeLegend() {
+        var scale =
+            arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.colorScale;
+        var label = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+        var custom_data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+        this.legend = moveLegend.call(this, scale); // determine appropriate legend settings and data
 
-        this.legend = legend;
+        var legend_label = label || this.config.legend.label || '';
+        var legend_data = defineLegendData.call(this, custom_data, scale); // add legend title and items
+
+        var legend_title = addLegendTitle.call(this, legend_label);
+        var legend_items = addLegendItems.call(this, legend_data, scale);
+        var legend_mark_texts = addLegendMarkTexts.call(this, legend_items, scale);
+        var legend_color_blocks = addLegendColorBlocks.call(this, legend_items);
+        var legend_marks = addLegendMarks.call(this, legend_color_blocks, scale);
+        var legend_labels = addLegendLabels.call(this, legend_items);
     }
 
     function updateDataMarks() {
@@ -1863,12 +1888,525 @@
         return area_grps;
     }
 
-    function drawBars(marks) {
+    function xOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
         var _this = this;
 
         var chart = this;
         var rawData = this.raw_data;
         var config = this.config;
+        oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array
+                    ? d.values.sort(function(a, b) {
+                          return (
+                              _this.colorScale.domain().indexOf(a.key) -
+                              _this.colorScale.domain().indexOf(b.key)
+                          );
+                      }) // controls the order of the bars in the DOM
+                    : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .append('title'); // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+
+        bars.sort(function(a, b) {
+            return (
+                _this.colorScale.domain().indexOf(a.key) - _this.colorScale.domain().indexOf(b.key)
+            );
+        });
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.tooltip = mark.tooltip;
+            d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values()
+                      .sort(); // controls the order of the bars in the chart
+
+            d3.select(this).attr(mark.attributes);
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                var position;
+
+                if (!d.arrange || d.arrange === 'stacked') {
+                    return _this.x(d.values.x);
+                } else if (d.arrange === 'nested') {
+                    var _position = d.subcats.indexOf(d.key);
+
+                    var offset = _position
+                        ? _this.x.rangeBand() / (d.subcats.length * 0.75) / _position
+                        : _this.x.rangeBand();
+                    return _this.x(d.values.x) + (_this.x.rangeBand() - offset) / 2;
+                } else {
+                    position = d.subcats.indexOf(d.key);
+                    return (
+                        _this.x(d.values.x) + (_this.x.rangeBand() / d.subcats.length) * position
+                    );
+                }
+            })
+            .attr('y', function(d) {
+                if (d.arrange !== 'stacked') {
+                    return _this.y(d.values.y);
+                } else {
+                    return _this.y(d.values.start);
+                }
+            })
+            .attr('width', function(d) {
+                if (!d.arrange || d.arrange === 'stacked') {
+                    return _this.x.rangeBand();
+                } else if (d.arrange === 'nested') {
+                    var position = d.subcats.indexOf(d.key);
+                    return position
+                        ? _this.x.rangeBand() / (d.subcats.length * 0.75) / position
+                        : _this.x.rangeBand();
+                } else {
+                    return _this.x.rangeBand() / d.subcats.length;
+                }
+            })
+            .attr('height', function(d) {
+                return _this.y(0) - _this.y(d.values.y);
+            });
+    }
+
+    function yOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
+        var _this = this;
+
+        var chart = this;
+        var rawData = this.raw_data;
+        var config = this.config;
+        oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array
+                    ? d.values.sort(function(a, b) {
+                          return (
+                              _this.colorScale.domain().indexOf(a.key) -
+                              _this.colorScale.domain().indexOf(b.key)
+                          );
+                      }) // controls the order of the bars in the DOM
+                    : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .append('title'); // sort bars in DOM to display widest bar behind every other bar and narrowest bar in front of every other bar - that's poorly worded but you get the gist
+
+        bars.sort(function(a, b) {
+            return (
+                _this.colorScale.domain().indexOf(a.key) - _this.colorScale.domain().indexOf(b.key)
+            );
+        });
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.tooltip = mark.tooltip;
+            d.arrange = mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values()
+                      .sort(); // controls the order of the bars in the chart
+
+            d3.select(this).attr(mark.attributes);
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                if (d.arrange === 'stacked' || !d.arrange) {
+                    return d.values.start !== undefined ? _this.x(d.values.start) : _this.x(0);
+                } else {
+                    return _this.x(0);
+                }
+            })
+            .attr('y', function(d) {
+                if (d.arrange === 'nested') {
+                    var position = d.subcats.indexOf(d.key);
+                    var offset = position
+                        ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
+                        : _this.y.rangeBand();
+                    return _this.y(d.values.y) + (_this.y.rangeBand() - offset) / 2;
+                } else if (d.arrange === 'grouped') {
+                    var _position = d.subcats.indexOf(d.key);
+
+                    return (
+                        _this.y(d.values.y) + (_this.y.rangeBand() / d.subcats.length) * _position
+                    );
+                } else {
+                    return _this.y(d.values.y);
+                }
+            })
+            .attr('width', function(d) {
+                return _this.x(d.values.x) - _this.x(0);
+            })
+            .attr('height', function(d) {
+                if (config.y.type === 'quantile') {
+                    return 20;
+                } else if (d.arrange === 'nested') {
+                    var position = d.subcats.indexOf(d.key);
+                    return position
+                        ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
+                        : _this.y.rangeBand();
+                } else if (d.arrange === 'grouped') {
+                    return _this.y.rangeBand() / d.subcats.length;
+                } else {
+                    return _this.y.rangeBand();
+                }
+            });
+    }
+
+    function xBin(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
+        var _this = this;
+
+        var chart = this;
+        var rawData = this.raw_data;
+        var config = this.config;
+        oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array ? d.values : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('y', this.y(0))
+            .attr('height', 0)
+            .append('title');
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.arrange = mark.split ? mark.arrange : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice().reverse()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values();
+            d3.select(this).attr(mark.attributes);
+            var parent = d3.select(this.parentNode).datum();
+            var rangeSet = parent.key.split(',').map(function(m) {
+                return +m;
+            });
+            d.rangeLow = d3.min(rangeSet);
+            d.rangeHigh = d3.max(rangeSet);
+            d.tooltip = mark.tooltip;
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                return _this.x(d.rangeLow);
+            })
+            .attr('y', function(d) {
+                if (d.arrange !== 'stacked') {
+                    return _this.y(d.values.y);
+                } else {
+                    return _this.y(d.values.start);
+                }
+            })
+            .attr('width', function(d) {
+                return _this.x(d.rangeHigh) - _this.x(d.rangeLow);
+            })
+            .attr('height', function(d) {
+                return _this.y(0) - _this.y(d.values.y);
+            });
+    }
+
+    function yBin(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars) {
+        var _this = this;
+
+        var chart = this;
+        var rawData = this.raw_data;
+        var config = this.config;
+        oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
+        oldBarGroupsTrans.remove();
+        nu_bar_groups = bar_groups
+            .enter()
+            .append('g')
+            .attr('class', function(d) {
+                return 'bar-group ' + d.key;
+            });
+        nu_bar_groups.append('title');
+        bars = bar_groups.selectAll('rect').data(
+            function(d) {
+                return d.values instanceof Array ? d.values : [d];
+            },
+            function(d) {
+                return d.key;
+            }
+        );
+        var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
+        exitBars
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .remove();
+        bars.enter()
+            .append('rect')
+            .attr('class', function(d) {
+                return 'wc-data-mark bar ' + d.key;
+            })
+            .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('x', this.x(0))
+            .attr('width', 0)
+            .append('title');
+        bars.attr('shape-rendering', 'crispEdges')
+            .attr('stroke', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            });
+        bars.each(function(d) {
+            var mark = d3.select(this.parentNode.parentNode).datum();
+            d.arrange = mark.split ? mark.arrange : null;
+            d.subcats = config.legend.order
+                ? config.legend.order.slice().reverse()
+                : mark.values && mark.values[mark.split]
+                ? mark.values[mark.split]
+                : d3
+                      .set(
+                          rawData.map(function(m) {
+                              return m[mark.split];
+                          })
+                      )
+                      .values();
+            var parent = d3.select(this.parentNode).datum();
+            var rangeSet = parent.key.split(',').map(function(m) {
+                return +m;
+            });
+            d.rangeLow = d3.min(rangeSet);
+            d.rangeHigh = d3.max(rangeSet);
+            d.tooltip = mark.tooltip;
+        });
+        var xformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeX === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.x.format);
+        var yformat =
+            config.marks
+                .map(function(m) {
+                    return m.summarizeY === 'percent';
+                })
+                .indexOf(true) > -1
+                ? d3.format('0%')
+                : d3.format(config.y.format);
+        bars.select('title').text(function(d) {
+            var tt = d.tooltip || '';
+            return tt
+                .replace(/\$x/g, xformat(d.values.x))
+                .replace(/\$y/g, yformat(d.values.y))
+                .replace(/\[(.+?)\]/g, function(str, orig) {
+                    return d.values.raw[0][orig];
+                });
+        });
+        var barsTrans = config.transitions ? bars.transition() : bars;
+        barsTrans
+            .attr('x', function(d) {
+                if (d.arrange === 'stacked') {
+                    return _this.x(d.values.start);
+                } else {
+                    return _this.x(0);
+                }
+            })
+            .attr('y', function(d) {
+                return _this.y(d.rangeHigh);
+            })
+            .attr('width', function(d) {
+                return _this.x(d.values.x);
+            })
+            .attr('height', function(d) {
+                return _this.y(d.rangeLow) - _this.y(d.rangeHigh);
+            });
+    }
+
+    function drawBars(marks) {
+        var rawData = this.raw_data;
+        var config = this.config; // bar super-groups
+
         var bar_supergroups = this.svg.selectAll('.bar-supergroup').data(marks, function(d, i) {
             return i + '-' + d.per.join('-');
         });
@@ -1878,7 +2416,8 @@
             .attr('class', function(d) {
                 return 'supergroup bar-supergroup ' + d.id;
             });
-        bar_supergroups.exit().remove();
+        bar_supergroups.exit().remove(); // bar groups
+
         var bar_groups = bar_supergroups.selectAll('.bar-group').data(
             function(d) {
                 return d.data;
@@ -1889,515 +2428,25 @@
         );
         var old_bar_groups = bar_groups.exit();
         var nu_bar_groups;
-        var bars;
+        var bars; // bar transitions
+
         var oldBarsTrans = config.transitions
             ? old_bar_groups.selectAll('.bar').transition()
             : old_bar_groups.selectAll('.bar');
         var oldBarGroupsTrans = config.transitions ? old_bar_groups.transition() : old_bar_groups;
 
         if (config.x.type === 'ordinal') {
-            oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array
-                        ? d.values.sort(function(a, b) {
-                              return (
-                                  _this.colorScale.domain().indexOf(b.key) -
-                                  _this.colorScale.domain().indexOf(a.key)
-                              );
-                          })
-                        : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-            var exitBars = config.transitions ? bars.exit().transition() : bars.exit();
-            exitBars
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .remove();
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.tooltip = mark.tooltip;
-                d.arrange =
-                    mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                d3.select(this).attr(mark.attributes);
-            });
-            var xformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-            var yformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, xformat(d.values.x))
-                    .replace(/\$y/g, yformat(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-            var barsTrans = config.transitions ? bars.transition() : bars;
-            barsTrans
-                .attr('x', function(d) {
-                    var position;
-
-                    if (!d.arrange || d.arrange === 'stacked') {
-                        return _this.x(d.values.x);
-                    } else if (d.arrange === 'nested') {
-                        var _position = d.subcats.indexOf(d.key);
-
-                        var offset = _position
-                            ? _this.x.rangeBand() / (d.subcats.length * 0.75) / _position
-                            : _this.x.rangeBand();
-                        return _this.x(d.values.x) + (_this.x.rangeBand() - offset) / 2;
-                    } else {
-                        position = d.subcats.indexOf(d.key);
-                        return (
-                            _this.x(d.values.x) +
-                            (_this.x.rangeBand() / d.subcats.length) * position
-                        );
-                    }
-                })
-                .attr('y', function(d) {
-                    if (d.arrange !== 'stacked') {
-                        return _this.y(d.values.y);
-                    } else {
-                        return _this.y(d.values.start);
-                    }
-                })
-                .attr('width', function(d) {
-                    if (!d.arrange || d.arrange === 'stacked') {
-                        return _this.x.rangeBand();
-                    } else if (d.arrange === 'nested') {
-                        var position = d.subcats.indexOf(d.key);
-                        return position
-                            ? _this.x.rangeBand() / (d.subcats.length * 0.75) / position
-                            : _this.x.rangeBand();
-                    } else {
-                        return _this.x.rangeBand() / d.subcats.length;
-                    }
-                })
-                .attr('height', function(d) {
-                    return _this.y(0) - _this.y(d.values.y);
-                });
+            xOrdinal.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else if (config.y.type === 'ordinal') {
-            oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array
-                        ? d.values.sort(function(a, b) {
-                              return (
-                                  _this.colorScale.domain().indexOf(b.key) -
-                                  _this.colorScale.domain().indexOf(a.key)
-                              );
-                          })
-                        : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-
-            var _exitBars = config.transitions ? bars.exit().transition() : bars.exit();
-
-            _exitBars
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .remove();
-
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.arrange =
-                    mark.split && mark.arrange ? mark.arrange : mark.split ? 'grouped' : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                d.tooltip = mark.tooltip;
-                d3.select(this).attr(mark.attributes);
-            });
-
-            var _xformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-
-            var _yformat =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, _xformat(d.values.x))
-                    .replace(/\$y/g, _yformat(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-
-            var _barsTrans = config.transitions ? bars.transition() : bars;
-
-            _barsTrans
-                .attr('x', function(d) {
-                    if (d.arrange === 'stacked' || !d.arrange) {
-                        return d.values.start !== undefined ? _this.x(d.values.start) : _this.x(0);
-                    } else {
-                        return _this.x(0);
-                    }
-                })
-                .attr('y', function(d) {
-                    if (d.arrange === 'nested') {
-                        var position = d.subcats.indexOf(d.key);
-                        var offset = position
-                            ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
-                            : _this.y.rangeBand();
-                        return _this.y(d.values.y) + (_this.y.rangeBand() - offset) / 2;
-                    } else if (d.arrange === 'grouped') {
-                        var _position2 = d.subcats.indexOf(d.key);
-
-                        return (
-                            _this.y(d.values.y) +
-                            (_this.y.rangeBand() / d.subcats.length) * _position2
-                        );
-                    } else {
-                        return _this.y(d.values.y);
-                    }
-                })
-                .attr('width', function(d) {
-                    return _this.x(d.values.x) - _this.x(0);
-                })
-                .attr('height', function(d) {
-                    if (config.y.type === 'quantile') {
-                        return 20;
-                    } else if (d.arrange === 'nested') {
-                        var position = d.subcats.indexOf(d.key);
-                        return position
-                            ? _this.y.rangeBand() / (d.subcats.length * 0.75) / position
-                            : _this.y.rangeBand();
-                    } else if (d.arrange === 'grouped') {
-                        return _this.y.rangeBand() / d.subcats.length;
-                    } else {
-                        return _this.y.rangeBand();
-                    }
-                });
+            yOrdinal.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else if (['linear', 'log'].indexOf(config.x.type) > -1 && config.x.bin) {
-            oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array ? d.values : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-
-            var _exitBars2 = config.transitions ? bars.exit().transition() : bars.exit();
-
-            _exitBars2
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .remove();
-
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('y', this.y(0))
-                .attr('height', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.arrange = mark.split ? mark.arrange : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                d3.select(this).attr(mark.attributes);
-                var parent = d3.select(this.parentNode).datum();
-                var rangeSet = parent.key.split(',').map(function(m) {
-                    return +m;
-                });
-                d.rangeLow = d3.min(rangeSet);
-                d.rangeHigh = d3.max(rangeSet);
-                d.tooltip = mark.tooltip;
-            });
-
-            var _xformat2 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-
-            var _yformat2 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, _xformat2(d.values.x))
-                    .replace(/\$y/g, _yformat2(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-
-            var _barsTrans2 = config.transitions ? bars.transition() : bars;
-
-            _barsTrans2
-                .attr('x', function(d) {
-                    return _this.x(d.rangeLow);
-                })
-                .attr('y', function(d) {
-                    if (d.arrange !== 'stacked') {
-                        return _this.y(d.values.y);
-                    } else {
-                        return _this.y(d.values.start);
-                    }
-                })
-                .attr('width', function(d) {
-                    return _this.x(d.rangeHigh) - _this.x(d.rangeLow);
-                })
-                .attr('height', function(d) {
-                    return _this.y(0) - _this.y(d.values.y);
-                });
+            xBin.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else if (
             ['linear', 'log'].indexOf(config.y.type) > -1 &&
             config.y.type === 'linear' &&
             config.y.bin
         ) {
-            oldBarsTrans.attr('x', this.x(0)).attr('width', 0);
-            oldBarGroupsTrans.remove();
-            nu_bar_groups = bar_groups
-                .enter()
-                .append('g')
-                .attr('class', function(d) {
-                    return 'bar-group ' + d.key;
-                });
-            nu_bar_groups.append('title');
-            bars = bar_groups.selectAll('rect').data(
-                function(d) {
-                    return d.values instanceof Array ? d.values : [d];
-                },
-                function(d) {
-                    return d.key;
-                }
-            );
-
-            var _exitBars3 = config.transitions ? bars.exit().transition() : bars.exit();
-
-            _exitBars3
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .remove();
-
-            bars.enter()
-                .append('rect')
-                .attr('class', function(d) {
-                    return 'wc-data-mark bar ' + d.key;
-                })
-                .style('clip-path', 'url(#'.concat(chart.id, ')'))
-                .attr('x', this.x(0))
-                .attr('width', 0)
-                .append('title');
-            bars.attr('shape-rendering', 'crispEdges')
-                .attr('stroke', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                })
-                .attr('fill', function(d) {
-                    return _this.colorScale(d.values.raw[0][config.color_by]);
-                });
-            bars.each(function(d) {
-                var mark = d3.select(this.parentNode.parentNode).datum();
-                d.arrange = mark.split ? mark.arrange : null;
-                d.subcats = config.legend.order
-                    ? config.legend.order.slice().reverse()
-                    : mark.values && mark.values[mark.split]
-                    ? mark.values[mark.split]
-                    : d3
-                          .set(
-                              rawData.map(function(m) {
-                                  return m[mark.split];
-                              })
-                          )
-                          .values();
-                var parent = d3.select(this.parentNode).datum();
-                var rangeSet = parent.key.split(',').map(function(m) {
-                    return +m;
-                });
-                d.rangeLow = d3.min(rangeSet);
-                d.rangeHigh = d3.max(rangeSet);
-                d.tooltip = mark.tooltip;
-            });
-
-            var _xformat3 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeX === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.x.format);
-
-            var _yformat3 =
-                config.marks
-                    .map(function(m) {
-                        return m.summarizeY === 'percent';
-                    })
-                    .indexOf(true) > -1
-                    ? d3.format('0%')
-                    : d3.format(config.y.format);
-
-            bars.select('title').text(function(d) {
-                var tt = d.tooltip || '';
-                return tt
-                    .replace(/\$x/g, _xformat3(d.values.x))
-                    .replace(/\$y/g, _yformat3(d.values.y))
-                    .replace(/\[(.+?)\]/g, function(str, orig) {
-                        return d.values.raw[0][orig];
-                    });
-            });
-
-            var _barsTrans3 = config.transitions ? bars.transition() : bars;
-
-            _barsTrans3
-                .attr('x', function(d) {
-                    if (d.arrange === 'stacked') {
-                        return _this.x(d.values.start);
-                    } else {
-                        return _this.x(0);
-                    }
-                })
-                .attr('y', function(d) {
-                    return _this.y(d.rangeHigh);
-                })
-                .attr('width', function(d) {
-                    return _this.x(d.values.x);
-                })
-                .attr('height', function(d) {
-                    return _this.y(d.rangeLow) - _this.y(d.rangeHigh);
-                });
+            yBin.call(this, oldBarsTrans, oldBarGroupsTrans, nu_bar_groups, bar_groups, bars);
         } else {
             oldBarsTrans.attr('y', this.y(0)).attr('height', 0);
             oldBarGroupsTrans.remove();
@@ -2546,7 +2595,7 @@
             .append('circle')
             .attr('class', 'wc-data-mark')
             .attr('r', 0);
-        nupoints.append('title'); //static attributes
+        nupoints.append('title'); // static attributes
 
         points
             .select('circle')
@@ -2560,7 +2609,7 @@
             })
             .attr('stroke', function(d) {
                 return _this.colorScale(d.values.raw[0][config.color_by]);
-            }); //attach mark info
+            }); // attach mark info
 
         points.each(function(d) {
             var mark = d3.select(this.parentNode).datum();
@@ -2568,7 +2617,7 @@
             d3.select(this)
                 .select('circle')
                 .attr(mark.attributes);
-        }); //animated attributes
+        }); // animated attributes
 
         var pointsTrans = config.transitions
             ? points.select('circle').transition()
@@ -2611,13 +2660,32 @@
                 .replace(/\[(.+?)\]/g, function(str, orig) {
                     return d.values.raw[0][orig];
                 });
-        }); //Link to the d3.selection from the data
+        }); // Link to the d3.selection from the data
 
         point_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.point');
             d.circles = d.groups.select('circle');
-        });
+        }); // expand the plotting area slightly to prevent mark cutoff
+
+        if (marks.length) {
+            var radius = d3.max(marks, function(mark) {
+                return mark.radius || _this.config.flex_point_size;
+            });
+            this.svg
+                .select('.plotting-area')
+                .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
+                .attr('height', this.plot_height + radius * 2 + 2) // plot height + circle radius * 2 + circle stroke width * 2
+                .attr(
+                    'transform',
+                    'translate(-' +
+                    (radius + 1) + // translate left circle radius + circle stroke width
+                    ',-' +
+                    (radius + 1) + // translate up circle radius + circle stroke width
+                        ')'
+                );
+        }
+
         return points;
     }
 
@@ -2626,17 +2694,17 @@
 
         var chart = this;
         var config = this.config;
-        var textSupergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
+        var text_supergroups = this.svg.selectAll('.text-supergroup').data(marks, function(d, i) {
             return ''.concat(i, '-').concat(d.per.join('-'));
         });
-        textSupergroups
+        text_supergroups
             .enter()
             .append('g')
             .attr('class', function(d) {
                 return 'supergroup text-supergroup ' + d.id;
             });
-        textSupergroups.exit().remove();
-        var texts = textSupergroups.selectAll('.text').data(
+        text_supergroups.exit().remove();
+        var texts = text_supergroups.selectAll('.text').data(
             function(d) {
                 return d.data;
             },
@@ -2660,9 +2728,6 @@
 
         function attachMarks(d) {
             d.mark = d3.select(this.parentNode).datum();
-            d3.select(this)
-                .select('text')
-                .attr(d.mark.attributes);
         }
 
         texts.each(attachMarks); // parse text like tooltips
@@ -2670,6 +2735,9 @@
         texts
             .select('text')
             .style('clip-path', 'url(#'.concat(chart.id, ')'))
+            .attr('fill', function(d) {
+                return _this.colorScale(d.values.raw[0][config.color_by]);
+            })
             .text(function(d) {
                 var tt = d.mark.text || '';
                 var xformat =
@@ -2700,6 +2768,9 @@
                     .replace(/\[(.+?)\]/g, function(str, orig) {
                         return d.values.raw[0][orig];
                     });
+            })
+            .each(function(d) {
+                d3.select(this).attr(d.mark.attributes);
             }); // animated attributes
 
         var textsTrans = config.transitions
@@ -2713,9 +2784,9 @@
             .attr('y', function(d) {
                 var yPos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? yPos + _this.y.rangeBand() / 2 : yPos;
-            }); //add a reference to the selection from it's data
+            }); // add a reference to the selection from its data
 
-        textSupergroups.each(function(d) {
+        text_supergroups.each(function(d) {
             d.supergroup = d3.select(this);
             d.groups = d.supergroup.selectAll('g.text');
             d.texts = d.groups.select('text');
@@ -3171,14 +3242,10 @@
             ? control.values
             : d3
                   .set(
-                      this.data
-                          .map(function(m) {
-                              return m[control.value_col];
-                          })
-                          .filter(function(f) {
-                              return f;
-                          })
-                  )
+                      this.data.map(function(m) {
+                          return m[control.value_col];
+                      })
+                  ) //.filter(f => f))
                   .values()
                   .sort(naturalSorter); // only sort when values are derived
         //initial dropdown option
@@ -3402,7 +3469,7 @@
                 );
             })
         ) {
-            this.data.filtered = this.data.raw;
+            this.data.filtered = this.data.raw.slice();
             this.filters
                 .filter(function(filter) {
                     return (
@@ -3418,7 +3485,7 @@
                             : filter.val === d[filter.col];
                     });
                 });
-        } else this.data.filtered = this.data.raw;
+        } else this.data.filtered = this.data.raw.slice();
     }
 
     function updateDataObject() {
@@ -3828,15 +3895,16 @@
                 bookSST: true,
                 type: 'binary'
             };
-            var arrayOfArrays = data.map(function(d) {
-                return Object.keys(d)
-                    .filter(function(key) {
-                        return _this.config.cols.indexOf(key) > -1;
-                    })
-                    .map(function(key) {
-                        return d[key];
+            var arrayOfArrays = data.map(
+                function(d) {
+                    return _this.config.cols.map(function(col) {
+                        return d[col];
                     });
-            }); // convert data from array of objects to array of arrays.
+                } //Object.keys(d)
+                //    .filter(key => this.config.cols.indexOf(key) > -1)
+                //    .sort((a,b) => this.config.cols.indexOf(a) - this.config.cols.indexOf(b))
+                //    .map(key => d[key])
+            ); // convert data from array of objects to array of arrays.
 
             var workbook = {
                 SheetNames: [sheetName],
@@ -3922,7 +3990,8 @@
                         key: col
                     })
                     .classed('wc-button sort-box', true)
-                    .text(header)
+                    .text(header),
+                type: this.config.types[col]
             };
             sortItem.wrap
                 .append('span')
@@ -3968,6 +4037,25 @@
         this.draw();
     }
 
+    function _typeof(obj) {
+        if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
+            _typeof = function(obj) {
+                return typeof obj;
+            };
+        } else {
+            _typeof = function(obj) {
+                return obj &&
+                    typeof Symbol === 'function' &&
+                    obj.constructor === Symbol &&
+                    obj !== Symbol.prototype
+                    ? 'symbol'
+                    : typeof obj;
+            };
+        }
+
+        return _typeof(obj);
+    }
+
     function sortData(data) {
         var _this = this;
 
@@ -3975,20 +4063,24 @@
             var order = 0;
 
             _this.sortable.order.forEach(function(item) {
-                var aCell = a[item.col],
-                    bCell = b[item.col];
+                var aCell = a[item.col];
+                var bCell = b[item.col];
 
                 if (order === 0) {
-                    if (
-                        (item.direction === 'ascending' && aCell < bCell) ||
-                        (item.direction === 'descending' && aCell > bCell)
-                    )
-                        order = -1;
-                    else if (
-                        (item.direction === 'ascending' && aCell > bCell) ||
-                        (item.direction === 'descending' && aCell < bCell)
-                    )
-                        order = 1;
+                    if (item.type === 'number') {
+                        order = item.direction === 'ascending' ? +aCell - +bCell : +bCell - +aCell;
+                    } else {
+                        if (
+                            (item.direction === 'ascending' && aCell < bCell) ||
+                            (item.direction === 'descending' && aCell > bCell)
+                        )
+                            order = -1;
+                        else if (
+                            (item.direction === 'ascending' && aCell > bCell) ||
+                            (item.direction === 'descending' && aCell < bCell)
+                        )
+                            order = 1;
+                    }
                 }
             });
 
@@ -4347,30 +4439,39 @@
     }
 
     function setDefaults$1(firstItem) {
-        //Set data-driven defaults.
-        if (this.config.cols instanceof Array && this.config.headers instanceof Array) {
-            if (this.config.cols.length === 0) delete this.config.cols;
-            if (
-                this.config.headers.length === 0 ||
-                this.config.headers.length !== this.config.cols.length
-            )
-                delete this.config.headers;
-        }
+        var _this = this;
 
-        this.config.cols = this.config.cols || d3.keys(firstItem);
-        this.config.headers = this.config.headers || this.config.cols;
-        this.config.layout = 'horizontal'; // placeholder setting to align table components vertically or horizontally
-        //Set all other defaults.
+        // cols
+        if (
+            !Array.isArray(this.config.cols) ||
+            (Array.isArray(this.config.cols) && this.config.cols.length === 0)
+        )
+            this.config.cols = d3.keys(firstItem); // headers
+
+        if (
+            !Array.isArray(this.config.headers) ||
+            (Array.isArray(this.config.headers) && this.config.headers.length === 0) ||
+            (Array.isArray(this.config.headers) &&
+                this.config.headers.length !== this.config.cols.length)
+        )
+            this.config.headers = this.config.cols.slice(); // types
+
+        if (_typeof(this.config.types) !== 'object') this.config.types = {};
+        this.config.cols.forEach(function(col) {
+            if (!['string', 'number'].includes(_this.config.types[col]))
+                _this.config.types[col] = 'string';
+        }); // Set all other defaults.
 
         setDefault.call(this, 'searchable');
-        setDefault.call(this, 'exportable');
-        setDefault.call(this, 'exports', ['csv']);
         setDefault.call(this, 'sortable');
         setDefault.call(this, 'pagination');
+        setDefault.call(this, 'exportable');
+        setDefault.call(this, 'exports', ['csv']);
         setDefault.call(this, 'nRowsPerPage', 10);
         setDefault.call(this, 'nPageLinksDisplayed', 5);
         setDefault.call(this, 'applyCSS');
         setDefault.call(this, 'dynamicPositioning');
+        setDefault.call(this, 'layout', 'horizontal');
     }
 
     function transformData$1(processed_data) {
@@ -4508,6 +4609,7 @@
         }
     });
 
+    var tableCount = 0;
     function createTable() {
         var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
         var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -4540,8 +4642,10 @@
             if (callback) {
                 thisTable.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
             }
-        };
+        }; //increment thisChart count to get unique thisChart id
 
+        tableCount++;
+        thisTable.id = tableCount;
         return thisTable;
     }
 

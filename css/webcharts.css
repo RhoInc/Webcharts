@@ -1,28 +1,4 @@
 /*------------------------------------------------------------------------------------------------\
-  Small Multiple Layout
-\------------------------------------------------------------------------------------------------*/
-
-		div.wc-layout.wc-small-multiples::after {
-			content: "";
-			clear: both;
-			display: block;
-		}
-
-		.wc-layout.wc-small-multiples > .wc-chart {
-			float: left;
-			padding: 0 2em 2em 0;
-		}
-
-		.wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
-			display: block;
-			font-weight: bold;
-			text-align: center;
-		}
-		.wc-small-multiples .wc-chart > .legend {
-		  display: none;
-		}
-
-/*------------------------------------------------------------------------------------------------\
   Charts
 \------------------------------------------------------------------------------------------------*/
 
@@ -70,35 +46,6 @@
         fill: #555;
     }
 
-    *[class*="wc-"] .legend {
-				width: 100%;
-        font-size: .9em;
-        padding: 0;
-        margin: 0;
-        display: inline-block;
-    }
-
-    *[class*="wc-"] .legend .legend-title {
-        font-weight: bold;
-        margin-right: 1em;
-    }
-
-    *[class*="wc-"] .legend .legend-item {
-        display: inline-block;
-        margin-right: 1em;
-    }
-
-    *[class*="wc-"] .legend .legend-item .legend-color-block {
-        position: relative;
-        top: .2em;
-        right: .25em;
-        display: inline-block;
-    }
-    *[class*="wc-"] .legend .legend-item .legend-mark-text {
-        font-weight: bold;
-        margin-right: .5em;
-    }
-
     .wc-chart .ordinal.axis .tick line,
     .wc-chart .ordinal.axis path {
         display: none;
@@ -106,6 +53,111 @@
 
     .wc-chart.gridlines .ordinal.axis .tick line {
         display: block;
+    }
+
+    /**-------------------------------------------------------------------------------------------\
+      Legend
+    \-------------------------------------------------------------------------------------------**/
+
+        *[class*="wc-"] .legend {
+            width: 100%;
+            font-size: .9em;
+            padding: 0;
+            margin: 0;
+            display: inline-block;
+        }
+
+        *[class*="wc-"] .legend--left,
+        *[class*="wc-"] .legend--right {
+            display: block;
+        }
+
+        *[class*="wc-"] .legend--left {
+            float: left;
+        }
+
+        *[class*="wc-"] .legend--left > * {
+            float: left;
+            clear: left;
+        }
+
+        *[class*="wc-"] .legend--right {
+            float: right;
+        }
+
+        *[class*="wc-"] .legend--right > * {
+            float: right;
+            clear: right;
+        }
+
+        *[class*="wc-"] .legend--empty {
+            display: none;
+        }
+
+        *[class*="wc-"] .legend .legend-title {
+            display: inline;
+            font-weight: bold;
+            margin-right: 1em;
+            vertical-align: top;
+        }
+
+        *[class*="wc-"] .legend .legend-title:empty {
+            display: none;
+        }
+
+        *[class*="wc-"] .legend .legend-item {
+            display: inline-block;
+            list-style-type: none;
+            margin-right: 1em;
+        }
+
+        *[class*="wc-"] .legend .legend-item .legend-color-block {
+            position: relative;
+            top: .2em;
+            right: .25em;
+            display: inline-block;
+        }
+
+        *[class*="wc-"] .legend--right .legend-item .legend-color-block {
+            float: right;
+            left: .25em;
+        }
+
+        *[class*="wc-"] .legend .legend-item .legend-mark-text {
+            font-weight: bold;
+            margin-right: .5em;
+        }
+
+        *[class*="wc-"] .legend .legend-item .legend-label {
+            margin-left: 0.25em;
+        }
+
+        *[class*="wc-"] .legend--right .legend-item .legend-label {
+            margin-right: 0.25em;
+        }
+
+/*------------------------------------------------------------------------------------------------\
+  Small multiples
+\------------------------------------------------------------------------------------------------*/
+
+    div.wc-layout.wc-small-multiples::after {
+        content: "";
+        clear: both;
+        display: block;
+    }
+
+    .wc-layout.wc-small-multiples > .wc-chart {
+        float: left;
+        padding: 0 2em 2em 0;
+    }
+
+    .wc-layout.wc-small-multiples > .wc-chart > .wc-chart-title {
+        display: block;
+        font-weight: bold;
+        text-align: center;
+    }
+    .wc-small-multiples .wc-chart > .legend {
+        display: none;
     }
 
 /*------------------------------------------------------------------------------------------------\

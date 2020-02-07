@@ -80,7 +80,7 @@ export default function transformData(raw, mark) {
                     ? d
                     : e.val instanceof Array
                     ? e.val.indexOf(d[e.col]) > -1
-                    : d[e.col] === e.val;
+                    : d[e.col] + '' === e.val.toString() + '';
             });
         });
         //get domain for all non-All values of first filter
@@ -107,6 +107,7 @@ export default function transformData(raw, mark) {
     let filt1_dom_x = extent(merge(filt1_xs));
     let filt1_dom_y = extent(merge(filt1_ys));
 
+    // why are we calling makeNest twice?
     let current_nested = makeNest.call(this, mark, filtered, sublevel);
 
     let flex_dom_x = current_nested.dom_x;
@@ -208,10 +209,14 @@ export default function transformData(raw, mark) {
     }
 
     if (config.x.type === 'ordinal' && !config.x.order) {
-        config.x.order = current_nested.totalOrder;
+        x_dom.sort(
+            (a, b) => current_nested.totalOrder.indexOf(a) - current_nested.totalOrder.indexOf(b)
+        );
     }
     if (config.y.type === 'ordinal' && !config.y.order) {
-        config.y.order = current_nested.totalOrder;
+        y_dom.sort(
+            (a, b) => current_nested.totalOrder.indexOf(a) - current_nested.totalOrder.indexOf(b)
+        );
     }
 
     this.current_data = current_nested.nested;

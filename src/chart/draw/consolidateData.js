@@ -14,7 +14,7 @@ export default function consolidateData(raw) {
                     ? d
                     : filter.val instanceof Array
                     ? filter.val.indexOf(d[filter.col]) > -1
-                    : d[filter.col] === filter.val;
+                    : d[filter.col] + '' === filter.val + '';
             });
         });
     }

@@ -1,6 +1,8 @@
 import table from './table/index';
 import { select } from 'd3';
 
+export var tableCount = 0;
+
 export default function createTable(element = 'body', config = {}, controls = null) {
     let thisTable = Object.create(table);
 
@@ -35,6 +37,11 @@ export default function createTable(element = 'body', config = {}, controls = nu
             thisTable.events['on' + event.charAt(0).toUpperCase() + event.slice(1)] = callback;
         }
     };
+
+    //increment thisChart count to get unique thisChart id
+    tableCount++;
+
+    thisTable.id = tableCount;
 
     return thisTable;
 }

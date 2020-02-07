@@ -8,10 +8,12 @@ export default function xlsx(data) {
             bookSST: true,
             type: 'binary'
         };
-        const arrayOfArrays = data.map(d =>
-            Object.keys(d)
-                .filter(key => this.config.cols.indexOf(key) > -1)
-                .map(key => d[key])
+        const arrayOfArrays = data.map(
+            d => this.config.cols.map(col => d[col])
+            //Object.keys(d)
+            //    .filter(key => this.config.cols.indexOf(key) > -1)
+            //    .sort((a,b) => this.config.cols.indexOf(a) - this.config.cols.indexOf(b))
+            //    .map(key => d[key])
         ); // convert data from array of objects to array of arrays.
         const workbook = {
             SheetNames: [sheetName],

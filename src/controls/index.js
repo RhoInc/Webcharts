@@ -5,14 +5,14 @@ import destroy from './destroy';
 import init from './init';
 import layout from './layout';
 import makeControlItem from './makeControlItem';
-import makeBtnGroupControl from './makeBtnGroupControl';
-import makeCheckboxControl from './makeCheckboxControl';
-import makeDropdownControl from './makeDropdownControl';
-import makeListControl from './makeListControl';
-import makeNumberControl from './makeNumberControl';
-import makeRadioControl from './makeRadioControl';
-import makeSubsetterControl from './makeSubsetterControl';
-import makeTextControl from './makeTextControl';
+import makeBtnGroupControl from './makeControlItem/makeBtnGroupControl';
+import makeCheckboxControl from './makeControlItem/makeCheckboxControl';
+import makeDropdownControl from './makeControlItem/makeDropdownControl';
+import makeListControl from './makeControlItem/makeListControl';
+import makeNumberControl from './makeControlItem/makeNumberControl';
+import makeRadioControl from './makeControlItem/makeRadioControl';
+import makeSubsetterControl from './makeControlItem/makeSubsetterControl';
+import makeTextControl from './makeControlItem/makeTextControl';
 import stringAccessor from './stringAccessor';
 
 export default {
