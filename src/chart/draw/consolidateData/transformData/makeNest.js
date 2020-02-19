@@ -34,15 +34,17 @@ export default function makeNest(mark, entries, sublevel) {
         this_nest.sortKeys((a, b) => {
             let sort;
 
-            if (this.config.x.type === 'time') {
+            if (this.config.x.type === 'time' || this.config.y.type === 'time') {
                 sort = ascending(new Date(a), new Date(b));
-            } else if (this.config.x.order) {
-                sort = ascending(this.config.x.order.indexOf(a), this.config.x.order.indexOf(b));
+            } else if (sublevel === this.config.x.column && this.config.x.order) {
+                sort = ascending(this.config.x.order.indexOf(a), this.config.x.order.indexOf(b)); // lines
+            } else if (sublevel === this.config.y.column && this.config.y.order) {
+                sort = ascending(this.config.y.order.indexOf(a), this.config.y.order.indexOf(b)); // lines
             } else if (sublevel === this.config.color_by && this.config.legend.order) {
                 sort = ascending(
                     this.config.legend.order.indexOf(a),
                     this.config.legend.order.indexOf(b)
-                );
+                ); // arranged bars
             } else if (this.config.x.type === 'ordinal' || this.config.y.type === 'ordinal') {
                 sort = naturalSorter(a, b);
             } else {
@@ -52,6 +54,7 @@ export default function makeNest(mark, entries, sublevel) {
             return sort;
         });
     }
+
     this_nest.rollup(r => {
         let obj = { raw: r };
         let y_vals = r.map(m => m[this.config.y.column]).sort(ascending);
