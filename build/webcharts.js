@@ -2641,7 +2641,6 @@
                 var y_pos = _this.y(d.values.y) || 0;
                 return config.y.type === 'ordinal' ? y_pos + _this.y.rangeBand() / 2 : y_pos;
             });
-        console.log(config.x.format);
         points.select('title').text(function(d) {
             var tt = d.mark.tooltip || '';
             var xformat =

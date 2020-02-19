@@ -74,7 +74,6 @@ export default function drawPoints(marks) {
             return config.y.type === 'ordinal' ? y_pos + this.y.rangeBand() / 2 : y_pos;
         });
 
-    console.log(config.x.format);
     points.select('title').text(d => {
         let tt = d.mark.tooltip || '';
         let xformat =
