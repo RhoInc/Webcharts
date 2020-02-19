@@ -74,19 +74,20 @@ export default function drawPoints(marks) {
             return config.y.type === 'ordinal' ? y_pos + this.y.rangeBand() / 2 : y_pos;
         });
 
+    console.log(config.x.format);
     points.select('title').text(d => {
         let tt = d.mark.tooltip || '';
         let xformat =
             config.x.summary === 'percent'
                 ? format('0%')
                 : config.x.type === 'time'
-                ? time.format(config.x.format)
+                ? time.format(config.x.format || '%x')
                 : format(config.x.format);
         let yformat =
             config.y.summary === 'percent'
                 ? format('0%')
                 : config.y.type === 'time'
-                ? time.format(config.y.format)
+                ? time.format(config.y.format || '%x')
                 : format(config.y.format);
         return tt
             .replace(
@@ -110,6 +111,7 @@ export default function drawPoints(marks) {
     // expand the plotting area slightly to prevent mark cutoff
     if (marks.length) {
         const radius = max(marks, mark => mark.radius || this.config.flex_point_size);
+        console.log(radius);
         this.svg
             .select('.plotting-area')
             .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2

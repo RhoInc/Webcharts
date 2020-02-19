@@ -2,7 +2,7 @@ fetch('https://raw.githubusercontent.com/RhoInc/data-library/master/data/miscell
     .then(response => response.text())
     .then(text => d3.csv.parse(text))
     .then(data => {
-        const settings = {
+        const h_settings = {
             x: {
                 type: 'time',
                 column: 'DATE',
@@ -29,15 +29,55 @@ fetch('https://raw.githubusercontent.com/RhoInc/data-library/master/data/miscell
             color_dom: null,
             legend: {
                 label: 'Measurement Location',
-                location: 'top'
+                location: 'bottom'
             },
             date_format: '%Y%m',
-            aspect: 3,
+            aspect: 4,
+            resizable: false,
         };
-        const chart = new webCharts.createChart(
-            '#container',
-            settings,
+        const h_chart = new webCharts.createChart(
+            '.time-series--horizontal',
+            h_settings,
         );
-        chart.init(data);
+        h_chart.init(data);
+
+        const v_settings = {
+            y: {
+                type: 'time',
+                column: 'DATE',
+                label: 'Date'
+            },
+            x: {
+                type: 'linear',
+                column: 'Monthly Mean',
+                label: 'Mean Temperature'
+            },
+            marks: [
+                {
+                    type: 'line',
+                    per: ['STATION_NAME'],
+                    summarizeX: 'mean'
+                },
+                {
+                    type: 'circle',
+                    per: ['STATION_NAME', 'DATE'],
+                    summarizeX: 'mean'
+                }
+            ],
+            color_by: 'STATION_NAME',
+            color_dom: null,
+            legend: {
+                label: 'Measurement Location',
+                location: 'bottom'
+            },
+            date_format: '%Y%m',
+            aspect: 1,
+            resizable: false,
+        };
+        const v_chart = new webCharts.createChart(
+            '.time-series--vertical',
+            v_settings,
+        );
+        v_chart.init(data);
     });
 

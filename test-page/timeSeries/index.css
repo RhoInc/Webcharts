@@ -1,0 +1,10 @@
+#container {
+    display: flex;
+    justify-content: space-between
+}
+.time-series--horizontal {
+    width: 66%;
+}
+.time-series--vertical {
+    width: 33%;
+}
