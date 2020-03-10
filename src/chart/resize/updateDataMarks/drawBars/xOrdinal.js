@@ -18,8 +18,6 @@ export default function xOrdinal(oldBarsTrans, oldBarGroupsTrans, nu_bar_groups,
 
     bars = bar_groups.selectAll('rect').data(
         d => {
-            //console.log(d.key);
-            //console.log(d.values);
             return d.values instanceof Array
                 ? d.values.sort(
                       (a, b) =>

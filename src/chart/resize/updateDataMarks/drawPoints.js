@@ -110,7 +110,6 @@ export default function drawPoints(marks) {
     // expand the plotting area slightly to prevent mark cutoff
     if (marks.length) {
         const radius = max(marks, mark => mark.radius || this.config.flex_point_size);
-        console.log(radius);
         this.svg
             .select('.plotting-area')
             .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2

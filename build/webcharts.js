@@ -1910,8 +1910,6 @@
         nu_bar_groups.append('title');
         bars = bar_groups.selectAll('rect').data(
             function(d) {
-                //console.log(d.key);
-                //console.log(d.values);
                 return d.values instanceof Array
                     ? d.values.sort(function(a, b) {
                           return (
@@ -2679,7 +2677,6 @@
             var radius = d3.max(marks, function(mark) {
                 return mark.radius || _this.config.flex_point_size;
             });
-            console.log(radius);
             this.svg
                 .select('.plotting-area')
                 .attr('width', this.plot_width + radius * 2 + 2) // plot width + circle radius * 2 + circle stroke width * 2
